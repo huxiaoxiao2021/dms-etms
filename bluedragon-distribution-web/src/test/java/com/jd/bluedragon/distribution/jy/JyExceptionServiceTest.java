@@ -5,6 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationInfo;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
+import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.external.service.DmsTimingHandlerService;
 import com.jd.bluedragon.distribution.jy.exception.JyAssignExpTaskDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
@@ -26,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -422,6 +428,7 @@ public class JyExceptionServiceTest {
 
 
     }
+
 
 
 

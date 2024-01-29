@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
 
 /**
  * @author tangchunqing
@@ -103,6 +105,14 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         return isMatchBoxCode(s);
+    }
+
+
+    public static Boolean isWMSBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("BW")){
+            return true;
+        }
+        return false;
     }
     public static Boolean isStoreCode(String s) {
         if (StringUtils.isEmpty(s)) {
@@ -974,6 +984,15 @@ public class BusinessUtil {
                      && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
                      && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)
                     );
+    }
+
+    /**
+     *判断是否是冷链城配/卡班/小票
+     */
+    public static Boolean isColdChainCPKBReceipt(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
     }
 
     /**
@@ -2684,12 +2703,7 @@ public class BusinessUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(BusinessUtil.isCollectionBag("AD12345678901234"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD123456789012"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAC123456789012"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD1234567890123"));
-        System.out.println(BusinessUtil.isCollectionBag("ADAD12345678901C"));
-        System.out.println(BusinessUtil.isCollectionBag("AD1234567890123C"));
+        System.out.println(BusinessUtil.isWMSBoxcode("BW1004240117250000100109"));
     }
 
     public static boolean isTaskSimpleCode(String simpleCode) {
@@ -3060,7 +3074,26 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfFresh(String sendPay) {
-        return isSignInChars(sendPay, SendPayConstants.POSITION_2, 
-                SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
+        return isSignInChars(sendPay, SendPayConstants.POSITION_2,
+                SendPayConstants.CHAR_2_4, SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
+    }
+
+    /**
+     * 航班号校验
+     * @param flightNumber
+     * @return
+     */
+    public static boolean isFlightNumber(String flightNumber) {
+        if(StringUtils.isBlank(flightNumber)) {
+            return false;
+        }
+        return flightNumber.matches(FLIGHT_NUMBER_REGEX);
+    }
+
+    public static boolean isScrapWaybill(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
     }
 }

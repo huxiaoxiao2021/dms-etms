@@ -3,9 +3,6 @@ package com.jd.bluedragon.distribution.rest.material;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.material.collectionbag.CollectionBagRequest;
-import com.jd.bluedragon.distribution.api.request.material.warmbox.WarmBoxInboundRequest;
-import com.jd.bluedragon.distribution.api.request.material.warmbox.WarmBoxOutboundRequest;
-import com.jd.bluedragon.distribution.api.response.material.warmbox.WarmBoxInOutResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.intensive.enums.MaterialSendModeEnum;
@@ -155,6 +152,7 @@ public class CollectionBagOperationResource {
         receive.setReceiveCode(StringUtils.EMPTY);
         receive.setReceiveType(MaterialReceiveTypeEnum.RECEIVE_BY_SINGLE_MATERIAL.getCode());
         receive.setReceiveNum(1);
+        receive.setCreateUserId(request.getUserCode());
         receive.setCreateUserErp(request.getUserErp());
         receive.setCreateUserName(request.getUserName());
         receive.setUpdateUserErp(request.getUserErp());

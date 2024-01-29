@@ -9,9 +9,8 @@ public enum BoxSystemTypeEnum {
 
     PRINT_CLIENT("01", "打印客户端"),
     AUTO_SORTING_MACHINE("02", "自动分拣机"),
-    JING_XI_EXPRESS("03", "京喜快递")
-
-    ;
+    JING_XI_EXPRESS("03", "京喜快递"),
+    WARE_HOUSING("04","仓储");
 
     private String code;
     private String name;

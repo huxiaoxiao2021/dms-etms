@@ -806,7 +806,7 @@ public class SendVehicleTransactionManager {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = taskSendVehicleDetailService.findByBizId(detailBizId);
         if(Objects.isNull(taskSendDetail)) {
             if(log.isInfoEnabled()) {
-                log.info("封车同步自建任务删除未查到该任务信息，bizId={}", taskSendDetail.getSendVehicleBizId());
+                log.info("封车同步自建任务删除未查到该任务信息，bizId={}", detailBizId);
             }
             return true;
         }

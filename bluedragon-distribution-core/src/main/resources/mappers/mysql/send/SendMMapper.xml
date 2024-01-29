@@ -707,6 +707,5 @@
 		FROM send_m
 		WHERE yn = 1
 		AND send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		group by box_code
 	</select>
 </mapper>

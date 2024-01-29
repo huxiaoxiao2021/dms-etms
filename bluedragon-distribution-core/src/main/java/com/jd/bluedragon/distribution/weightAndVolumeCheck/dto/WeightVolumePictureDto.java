@@ -17,6 +17,8 @@ public class WeightVolumePictureDto implements Serializable {
 
     private String url;
 
+    private String videoUrl;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -42,5 +44,13 @@ public class WeightVolumePictureDto implements Serializable {
     public WeightVolumePictureDto setUrl(String url) {
         this.url = url;
         return this;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

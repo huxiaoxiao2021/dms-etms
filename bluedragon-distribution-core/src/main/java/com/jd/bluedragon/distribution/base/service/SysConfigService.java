@@ -19,6 +19,11 @@ public interface SysConfigService {
      * 是否开启PDA重复登录校验
      */
     public static final String SYS_CONFIG_PDA_CHECK_MULTIPLE_LOGIN = "sys.config.pda.check.multiple.login";
+
+	/**
+	 * 是否开启回传售后场景的备件库回传收货完成全程跟踪逻辑
+	 */
+	public static final String SYS_CONFIG_WRITER_SH_RECEIVE_WAYBILL_TRACE = "sys.config.sh.receive.waybill.trace";
     /*
 	 * 是否开启补打2023年2月1日运单异常数据 不运行补打
      */

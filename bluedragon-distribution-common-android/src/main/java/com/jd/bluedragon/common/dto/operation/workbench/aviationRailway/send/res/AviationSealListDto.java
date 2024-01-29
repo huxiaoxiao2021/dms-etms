@@ -55,6 +55,12 @@ public class AviationSealListDto implements Serializable {
      * 绑定标识
      */
     private Boolean bindFlag;
+    /**
+     * 是否无任务；0-否 1-是
+     */
+    private Integer manualCreatedFlag;
+
+    private Long takeOffTime;
 
 
     public String getBizId() {
@@ -167,5 +173,21 @@ public class AviationSealListDto implements Serializable {
 
     public void setDetailBizId(String detailBizId) {
         this.detailBizId = detailBizId;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+    public Long getTakeOffTime() {
+        return takeOffTime;
+    }
+
+    public void setTakeOffTime(Long takeOffTime) {
+        this.takeOffTime = takeOffTime;
     }
 }

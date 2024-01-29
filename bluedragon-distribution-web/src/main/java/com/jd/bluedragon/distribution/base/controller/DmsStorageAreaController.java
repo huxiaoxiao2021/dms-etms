@@ -17,6 +17,7 @@ import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.SiteDesensitization;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -237,6 +238,9 @@ public class DmsStorageAreaController extends DmsBaseController{
             }
         } catch (Exception e) {
             log.error("加载站点失败areaId：{}，provinceId:{}，cityId:{}",areaId,provinceId, cityId, e);
+        }
+        for (BaseStaffSiteOrgDto result : allDms) {
+            SiteDesensitization.desensitizeBaseStaffSiteOrgDto(result);
         }
         return allDms;
     }

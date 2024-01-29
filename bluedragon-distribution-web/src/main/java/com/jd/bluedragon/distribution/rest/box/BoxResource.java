@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -14,6 +15,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -26,6 +29,12 @@ import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.dms.utils.BoxCodeUtil;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -35,7 +44,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,11 +101,22 @@ public class BoxResource {
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
 
+    @Resource(name="sortingBoxSubTypeMap")
+    private Map<String,String> sortingBoxSubTypeMap;
+    @Resource(name="siteBoxSubTypeMap")
+    private Map<String,String> siteBoxSubTypeMap;
+
     @Autowired
     private CycleBoxService cycleBoxService;
 
     @Autowired
     private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    private SortingService sortingService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -239,6 +258,13 @@ public class BoxResource {
     @Path("/printClient/boxes")
     @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(request.getSubType())){
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(request.getSubType());
+            if (boxSubTypeEnum == null) {
+                return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, "箱号子类型错误");
+            }
+            request.setType(boxSubTypeEnum.getParentTypeCode());
+        }
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
 
@@ -339,7 +365,7 @@ public class BoxResource {
     }
 
     /**
-     * 为自动分拣机生成箱号 新版
+     * 为自动分拣机生成箱号 新版 // todo
      *
      * @param request
      * @return
@@ -384,6 +410,12 @@ public class BoxResource {
                     = new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
             result.customMessage(600,"箱号类型不合法!");
             return result;
+        }
+
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            if(StringUtils.isEmpty(request.getSubType())){
+                request.setSubType(BoxSubTypeEnum.PARENT_ASSOCIATE_NORMAL_SBU_TYPE_MAP.get(request.getType()));
+            }
         }
 
         List<Box> availableBoxes;
@@ -512,6 +544,10 @@ public class BoxResource {
         response.setPackageNum(box.getPackageNum());
         if(!StringUtils.isEmpty(box.getMaterialCode())){
             response.setMaterialCode(box.getMaterialCode());
+        }
+        response.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
+        if (!StringUtils.isEmpty(box.getBoxSubType())) {
+            response.setSubType(box.getBoxSubType());
         }
         return response;
     }
@@ -667,11 +703,31 @@ public class BoxResource {
         //营业部,自营京东派 人员使用部分箱型
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
             response.setBoxTypes(siteBoxTypeMap);
+            if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+                Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(siteBoxSubTypeMap);
+                response.setBoxSubTypes(boxSubTypeShowMap);
+            }
             return response;
         }
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
+        if(dmsConfigManager.getPropertyConfig().getBoxTypeNewVersionSwitch()){
+            Map<String, String> boxSubTypeShowMap = this.getBoxSubTypeShowMap(sortingBoxSubTypeMap);
+            response.setBoxSubTypes(boxSubTypeShowMap);
+        }
         return response;
+    }
+
+    private Map<String, String> getBoxSubTypeShowMap(Map<String, String> siteBoxTypeMap) {
+        Map<String, String> boxSubTypeShowMap = new LinkedHashMap<>();
+        for (String code : siteBoxTypeMap.keySet()) {
+            final BoxSubTypeEnum boxSubTypeEnum = BoxSubTypeEnum.getFromCode(code);
+            if (boxSubTypeEnum == null) {
+                continue;
+            }
+            boxSubTypeShowMap.put(code, String.format("%s-%s", boxSubTypeEnum.getName(), boxSubTypeEnum.getParentTypeCode()));
+        }
+        return boxSubTypeShowMap;
     }
 
     /**
@@ -761,5 +817,35 @@ public class BoxResource {
     }
 
 
+    /**
+     * 获取箱号信息
+     * 支持按箱号 包裹号查询
+     * @param barCode
+     * @return
+     */
+    @GET
+    @Path("/boxes/getByBarcode/{barCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getByBarCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BoxResponse getByBarCode(@PathParam("barCode") String barCode) {
+        if (StringUtils.isEmpty(barCode) && !WaybillUtil.isPackageCode(barCode) && !BusinessUtil.isBoxcode(barCode)) {
+            log.info("只支持按包裹号和箱号操作补打{}",barCode);
+            return new BoxResponse(JdResponse.CODE_PARAM_ERROR, "只支持按包裹号和箱号操作补打!");
+        }
+        if (WaybillUtil.isPackageCode(barCode)) {
+            // 根据包裹号获取箱号
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(barCode);
+            if (sortingDto == null || StringUtils.isEmpty(sortingDto.getBoxCode())) {
+                log.info("未获取到包裹号绑定的箱号信息{}",barCode);
+                return new BoxResponse(JdResponse.CODE_PARAM_ERROR, "未获取到包裹号绑定的箱号信息！");
+            }
+            barCode = sortingDto.getBoxCode();
+        }
+        BoxResponse boxResponse = this.get(barCode);
+        if (null != boxResponse) {
+            boxResponse.setBoxTypes(BoxTypeEnum.getMap());
+            boxResponse.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
+        }
+        return boxResponse;
+    }
 
 }

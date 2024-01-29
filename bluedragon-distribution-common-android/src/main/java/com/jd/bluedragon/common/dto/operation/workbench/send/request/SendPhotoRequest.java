@@ -40,6 +40,11 @@ public class SendPhotoRequest implements Serializable {
      */
     private Integer type;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public User getUser() {
         return user;
     }
@@ -86,5 +91,13 @@ public class SendPhotoRequest implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

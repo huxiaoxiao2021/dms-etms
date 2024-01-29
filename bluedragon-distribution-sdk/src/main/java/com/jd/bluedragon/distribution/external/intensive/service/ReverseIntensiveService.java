@@ -39,6 +39,14 @@ public interface ReverseIntensiveService {
     InvokeResult<List<String>> queryWaybillTrackHistory(String erp);
 
     /**
+     * 根据运单号获取是否存在仓储病单拦截消息
+     *
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> hasWmsSickWaybillIntercept(String waybillCode);
+
+    /**
      * 查询运单全程跟踪
      * 
      * @param waybillTrackReqVO

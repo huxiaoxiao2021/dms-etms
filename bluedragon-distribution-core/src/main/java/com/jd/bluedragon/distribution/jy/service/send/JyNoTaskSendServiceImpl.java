@@ -5,11 +5,31 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.AirTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.BookingTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.CargoTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.AviationSendTaskQueryReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.FilterConditionDto;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendTaskDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.TmsDistributeVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.send.request.*;
+import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
+import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
+import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq;
+import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
+import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
+import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.VehicleTypeDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PdaSorterApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -20,10 +40,7 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
-import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
-import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
-import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
-import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
+import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.dto.tms.SameDestinationSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.tms.TmsUrgeVehicleMq;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -37,6 +54,8 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailQueryEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -164,6 +183,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Autowired
     private DefaultJMQProducer jySendTmsUrgeVehicleProducer;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+    @Autowired
+    private JyAviationRailwaySendSealService jyAviationRailwaySendSealService;
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -203,6 +227,80 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
         return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTypeNew", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<VehicleSpecResp>> listVehicleTypeNew(VehicleTaskReq vehicleTaskReq) {
+        CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
+        if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
+            //按照车长做groupBy
+            Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
+            for (BasicVehicleTypeDto basicVehicleTypeDto : rs.getData()) {
+                String vehicleLength = basicVehicleTypeDto.getVehicleLength();
+                if (ObjectHelper.isNotNull(vehicleLength)) {
+                    VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
+                    final BigDecimal vehicleLengthVal = new BigDecimal(vehicleLength);
+                    final BigDecimal vehicleLengthGroupVal = vehicleLengthVal.divide(new BigDecimal(100), 1, RoundingMode.DOWN);
+                    if (groupByVehicleLength.containsKey(vehicleLengthGroupVal.toString())) {
+                        groupByVehicleLength.get(vehicleLengthGroupVal.toString()).add(vehicleTypeDto);
+                    } else {
+                        List<VehicleTypeDto> vehicleTypeDtoList = new ArrayList<>();
+                        vehicleTypeDtoList.add(vehicleTypeDto);
+                        groupByVehicleLength.put(vehicleLengthGroupVal.toString(), vehicleTypeDtoList);
+                    }
+                }
+            }
+            //封装树形结构响应体
+            List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
+            // 如果是从接货仓发货岗中进入的自建任务，则车型顺序特殊调整
+            if (JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode().equals(vehicleTaskReq.getPost())) {
+                // 接货仓常用车型
+                String keyVehicleTypes = uccPropertyConfiguration.getJyWarehouseManualTaskKeyVehicleTypes();
+                if (StringUtils.isNotBlank(keyVehicleTypes)) {
+                    // 转换数据
+                    transformDataForWareHouse(vehicleSpecRespList, groupByVehicleLength, keyVehicleTypes);
+                    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
+                }
+            }
+            for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
+                String key = entry.getKey();
+                List<VehicleTypeDto> value = entry.getValue();
+                VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
+                vehicleSpecResp.setVehicleLength(new BigDecimal(key).multiply(new BigDecimal(10)).intValue());
+                vehicleSpecResp.setName(new BigDecimal(key) + "米");
+                vehicleSpecResp.setVehicleTypeDtoList(value);
+                vehicleSpecRespList.add(vehicleSpecResp);
+            }
+            vehicleSpecRespList.sort(new VehicleTypeComparator());
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
+        }
+        return new InvokeResult<>(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
+    }
+
+    private void transformDataForWareHouse(List<VehicleSpecResp> vehicleSpecRespList,
+                                           Map<String, List<VehicleTypeDto>> groupByVehicleLength, String keyVehicleTypes) {
+        // 常用车型列表
+        List<VehicleSpecResp> keyVehicleSpecRespList = new ArrayList<>();
+        // 普通车型列表
+        List<VehicleSpecResp> normalVehicleSpecRespList = new ArrayList<>();
+        String[] vehicleTypeArray = keyVehicleTypes.split(Constants.SEPARATOR_COMMA);
+        List<String> keyVehicleTypeList = Arrays.asList(vehicleTypeArray);
+        for (String vehicleLength : groupByVehicleLength.keySet()) {
+            VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
+            vehicleSpecResp.setVehicleLength(new BigDecimal(vehicleLength).multiply(new BigDecimal(10)).intValue());
+            vehicleSpecResp.setName(new BigDecimal(vehicleLength) + "米");
+            vehicleSpecResp.setVehicleTypeDtoList(groupByVehicleLength.get(vehicleLength));
+            if (keyVehicleTypeList.contains(vehicleLength)) {
+                keyVehicleSpecRespList.add(vehicleSpecResp);
+            } else {
+                normalVehicleSpecRespList.add(vehicleSpecResp);
+            }
+        }
+        keyVehicleSpecRespList.sort(new VehicleTypeComparator());
+        normalVehicleSpecRespList.sort(new VehicleTypeComparator());
+        vehicleSpecRespList.addAll(keyVehicleSpecRespList);
+        vehicleSpecRespList.addAll(normalVehicleSpecRespList);
     }
 
     class VehicleTypeComparator implements Comparator<VehicleSpecResp> {
@@ -275,6 +373,189 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
 
         return result;
+    }
+
+    @Override
+    public InvokeResult<CreateAviationTaskResp> createAviationTask(CreateAviationTaskReq request) {
+        InvokeResult<CreateAviationTaskResp> res = new InvokeResult<>();
+        CreateAviationTaskResp resData = new CreateAviationTaskResp();
+        res.setData(resData);
+        //
+        this.createAviationTaskParamValidate(request, res);
+        if(!res.codeSuccess()) {
+            return res;
+        }
+        //同流向任务校验
+        if(!Objects.equals(request.getConfirmCreate(), true)) {
+            FilterConditionDto condition = new FilterConditionDto();
+            condition.setBookingType(BookingTypeEnum.BULK_AIRCRAFT.getCode());
+
+            AviationSendTaskQueryReq aviationSendTaskQueryReq = new AviationSendTaskQueryReq();
+            aviationSendTaskQueryReq.setCurrentOperate(request.getCurrentOperate());
+            aviationSendTaskQueryReq.setUser(request.getUser());
+            aviationSendTaskQueryReq.setNextSiteId(request.getNextSiteId());
+            aviationSendTaskQueryReq.setStatusCode(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
+            aviationSendTaskQueryReq.setFilterConditionDto(condition);
+
+            InvokeResult<AviationSendTaskDto> invokeResult = jyAviationRailwaySendSealService.fetchLatestAviationTaskByNextSite(aviationSendTaskQueryReq);
+            if(!invokeResult.codeSuccess()) {
+                res.error(invokeResult.getMessage());
+                return res;
+            }
+            if(!Objects.isNull(invokeResult.getData())) {
+                resData.setAviationSendTaskDto(invokeResult.getData());
+                res.setCode(CreateAviationTaskResp.EXIST_SAME_DESTINATION_TASK_CODE);
+                res.setMessage(CreateAviationTaskResp.EXIST_SAME_DESTINATION_TASK_MSG);
+                return res;
+            }
+        }
+
+        JyBizTaskSendAviationPlanEntity aviationPlanEntity = this.generateAviationPlanEntity(request);
+        JyBizTaskSendVehicleEntity sendVehicleEntity = this.aviationPlanConvertSendTask(aviationPlanEntity);
+        JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = this.aviationPlanConvertSendTaskDetail(aviationPlanEntity);
+
+        sendVehicleTransactionManager.saveAviationPlanAndTaskSendAndDetail(aviationPlanEntity, sendVehicleEntity, sendVehicleDetailEntity);
+        resData.setBizId(aviationPlanEntity.getBizId());
+        resData.setDetailBizId(aviationPlanEntity.getBookingCode());
+        return res;
+    }
+
+
+    /**
+     * 业务参数校验
+     * @param createAviationTaskReq
+     * @param res
+     */
+    private void createAviationTaskParamValidate(CreateAviationTaskReq createAviationTaskReq, InvokeResult<CreateAviationTaskResp> res) {
+        if(Objects.isNull(createAviationTaskReq)) {
+            res.parameterError("请求为空");
+            return;
+        }
+        if(StringUtils.isBlank(createAviationTaskReq.getFlightNumber())) {
+            res.parameterError("航班号不能为空");
+            return;
+        }else if(StringUtils.isNotBlank(createAviationTaskReq.getFlightNumber())) {
+            createAviationTaskReq.setFlightNumber(createAviationTaskReq.getFlightNumber().trim().toUpperCase());
+            if(!BusinessUtil.isFlightNumber(createAviationTaskReq.getFlightNumber())) {
+                res.parameterError("航班号不合法");
+                return;
+            }
+        }
+        if(Objects.isNull(createAviationTaskReq.getNextSiteId()) || !NumberHelper.gt0(createAviationTaskReq.getNextSiteId()) || StringUtils.isBlank(createAviationTaskReq.getNextSiteName())) {
+            res.parameterError("流向场地编码和流向场地名称不能为空");
+            return;
+        }
+        if(Objects.isNull(createAviationTaskReq.getCargoType())) {
+            res.parameterError("货物类型不能为空");
+            return;
+        }else if(!CargoTypeEnum.isCommonOrFresh(createAviationTaskReq.getCargoType())){
+            res.parameterError("货物类型非法，仅支持普货或生鲜");
+            return;
+        }
+        if(Objects.isNull(createAviationTaskReq.getAirType())) {
+            createAviationTaskReq.setAirType(AirTypeEnum.AIR_TYPE_BULK.getCode());
+        }else if(!AirTypeEnum.legalCheck(createAviationTaskReq.getAirType())) {
+            res.parameterError("航空类型参数不合法（1-扫航，2-全货机）");
+            return;
+        }
+        if(Objects.isNull(createAviationTaskReq.getBookingWeight())) {
+            res.parameterError("订舱量不能为空");
+            return;
+        }else if(NumberHelper.gt(createAviationTaskReq.getBookingWeight(), uccPropertyConfiguration.getJyAviationManualCreateSendTaskMaxBookingWeight())){
+            res.parameterError(String.format("订舱量最大支持%skg", uccPropertyConfiguration.getJyAviationManualCreateSendTaskMaxBookingWeight()));
+            return;
+        }
+    }
+
+    private JyBizTaskSendAviationPlanEntity generateAviationPlanEntity(CreateAviationTaskReq request) {
+        JyBizTaskSendAviationPlanEntity entity = new JyBizTaskSendAviationPlanEntity();
+//        entity.setBizId(tmsTransWorkItemOperateConsumer.genMainTaskBizId());
+        entity.setBizId(this.genMainTaskBizId());
+        entity.setBookingCode(this.genNoTaskBizId());
+        if(StringUtils.isBlank(request.getCurrentOperate().getDmsCode())) {
+            BaseStaffSiteOrgDto curSite = baseMajorManager.getBaseSiteBySiteId(request.getCurrentOperate().getSiteCode());
+            if(Objects.isNull(curSite)) {
+                log.error("根据场地编码{}查询场地不存在", request.getCurrentOperate().getSiteCode());
+                throw new JyBizException("基础资料查当前场地不存在");
+            }
+            entity.setStartSiteCode(curSite.getDmsSiteCode());
+        }else {
+            entity.setStartSiteCode(request.getCurrentOperate().getDmsCode());
+        }
+        entity.setStartSiteId(request.getCurrentOperate().getSiteCode());
+        entity.setStartSiteName(request.getCurrentOperate().getSiteName());
+        BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteBySiteId(request.getNextSiteId());
+        if(Objects.isNull(nextSite)) {
+            log.error("根据场地编码{}查询场地不存在", request.getNextSiteId());
+            throw new JyBizException("基础资料查流向场地不存在");
+        }
+        entity.setNextSiteCode(nextSite.getDmsSiteCode());
+        entity.setNextSiteId(request.getNextSiteId());
+        entity.setNextSiteName(request.getNextSiteName());
+        entity.setFlightNumber(request.getFlightNumber());
+//        entity.setTakeOffTime(new Date(request.getTakeOffTimeStamp()));
+//        entity.setTouchDownTime(new Date(request.getTouchDownTimeStamp()));
+//        entity.setAirCompanyCode();
+//        entity.setAirCompanyName();
+//        entity.setBeginNodeCode();
+//        entity.setBeginNodeName();
+//        entity.setEndNodeCode();
+//        entity.setEndNodeName();
+//        entity.setCarrierCode();
+//        entity.setCarrierName();
+        entity.setBookingWeight(request.getBookingWeight());
+//        entity.setCargoType();
+        entity.setAirType(request.getAirType());
+        entity.setCreateUserErp(request.getUser().getUserErp());
+        entity.setCreateUserName(request.getUser().getUserName());
+        entity.setCreateTime(new Date());
+        entity.setUpdateTime(entity.getCreateTime());
+        entity.setYn(Constants.YN_YES);
+        entity.setIntercept(Constants.CONSTANT_NUMBER_ZERO);
+        entity.setTaskStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+        entity.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+        entity.setCargoType(request.getCargoType());
+        return entity;
+    }
+
+    private JyBizTaskSendVehicleEntity aviationPlanConvertSendTask(JyBizTaskSendAviationPlanEntity aviationPlanEntity) {
+        JyBizTaskSendVehicleEntity sendVehicleEntity = new JyBizTaskSendVehicleEntity();
+        sendVehicleEntity.setBizId(aviationPlanEntity.getBizId());
+        sendVehicleEntity.setStartSiteId(aviationPlanEntity.getStartSiteId().longValue());
+        sendVehicleEntity.setVehicleStatus(aviationPlanEntity.getTaskStatus());
+        sendVehicleEntity.setCreateUserErp(aviationPlanEntity.getCreateUserErp());
+        sendVehicleEntity.setCreateUserName(aviationPlanEntity.getCreateUserName());
+        sendVehicleEntity.setCreateTime(aviationPlanEntity.getCreateTime());
+        sendVehicleEntity.setUpdateTime(aviationPlanEntity.getUpdateTime());
+        sendVehicleEntity.setBookingCode(aviationPlanEntity.getBookingCode());
+        sendVehicleEntity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+        sendVehicleEntity.setTransWorkCode(StringUtils.EMPTY);
+        sendVehicleEntity.setManualCreatedFlag(aviationPlanEntity.getManualCreatedFlag());
+        sendVehicleEntity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+
+        String bizNo = genSendVehicleTaskBizNo(aviationPlanEntity.getStartSiteId());
+        sendVehicleEntity.setBizNo(bizNo);
+        String userName = StringUtils.isNotBlank(aviationPlanEntity.getCreateUserName()) ?
+                (aviationPlanEntity.getCreateUserName().length() > 4 ? aviationPlanEntity.getCreateUserName().substring(0, 4) : aviationPlanEntity.getCreateUserName()) : "";
+        sendVehicleEntity.setTaskName(userName + "自建" + bizNo);
+        return sendVehicleEntity;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity aviationPlanConvertSendTaskDetail(JyBizTaskSendAviationPlanEntity aviationPlanEntity) {
+        JyBizTaskSendVehicleDetailEntity taskSendVehicleDetailEntity = new JyBizTaskSendVehicleDetailEntity();
+        taskSendVehicleDetailEntity.setSendVehicleBizId(aviationPlanEntity.getBizId());
+        taskSendVehicleDetailEntity.setBizId(aviationPlanEntity.getBookingCode());
+        taskSendVehicleDetailEntity.setVehicleStatus(JyBizTaskSendDetailStatusEnum.TO_SEND.getCode());
+        taskSendVehicleDetailEntity.setStartSiteId(aviationPlanEntity.getStartSiteId().longValue());
+        taskSendVehicleDetailEntity.setStartSiteName(aviationPlanEntity.getStartSiteName());
+        taskSendVehicleDetailEntity.setEndSiteId(aviationPlanEntity.getNextSiteId().longValue());
+        taskSendVehicleDetailEntity.setEndSiteName(aviationPlanEntity.getNextSiteName());
+        taskSendVehicleDetailEntity.setCreateUserErp(aviationPlanEntity.getCreateUserErp());
+        taskSendVehicleDetailEntity.setCreateUserName(aviationPlanEntity.getCreateUserName());
+        taskSendVehicleDetailEntity.setCreateTime(aviationPlanEntity.getCreateTime());
+        taskSendVehicleDetailEntity.setUpdateTime(aviationPlanEntity.getUpdateTime());
+        taskSendVehicleDetailEntity.setTaskType(JySendTaskTypeEnum.AVIATION.getCode());
+        return taskSendVehicleDetailEntity;
     }
 
     private Result<SameDestinationSendTaskDto> checkHasSameDestinationTmsTask(CreateVehicleTaskReq createVehicleTaskReq) {
@@ -462,7 +743,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
-        String bizNo = genSendVehicleTaskBizNo(createVehicleTaskReq);
+        String bizNo = genSendVehicleTaskBizNo(createVehicleTaskReq.getCurrentOperate().getSiteCode());
         entity.setBizNo(bizNo);
         if (StringUtils.isNotBlank(createVehicleTaskReq.getTaskName())) {
             entity.setTaskName(createVehicleTaskReq.getTaskName());
@@ -579,8 +860,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
-    private String genSendVehicleTaskBizNo(CreateVehicleTaskReq createVehicleTaskReq) {
-        String bizNoKey = "bizNo:" + createVehicleTaskReq.getCurrentOperate().getSiteCode() + ":" + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
+    private String genSendVehicleTaskBizNo(Integer siteCode) {
+        String bizNoKey = "bizNo:" + siteCode + ":" + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
         long bizNo = 0;
         if (!ObjectHelper.isNotNull(redisClientCache.get(bizNoKey))) {
             redisClientCache.set(bizNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
@@ -634,7 +915,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         //删除任务-发货绑定关系+取消发货
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
-        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+        // 是否需要取消发货
+        boolean cancelSendFlag = deleteVehicleTaskReq.getCancelSendFlag() == null || Boolean.TRUE.equals(deleteVehicleTaskReq.getCancelSendFlag());
+        if (cancelSendFlag && ObjectHelper.isNotNull(sendCodeList) && !sendCodeList.isEmpty()) {
             JySendCodeDto dto = new JySendCodeDto();
             dto.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
             dto.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
@@ -768,6 +1051,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
             jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
 
+            // 再次更新主任务和明细任务的updateTime字段
+            updateTimeInfo(toSvTask.getBizId(), toSvDetailTask.getBizId());
+
             //删除自建主任务
             JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
             fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
@@ -826,6 +1112,18 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, bindVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
+    }
+
+    private void updateTimeInfo(String sendVehicleBizId, String sendVehicleDetailBizId) {
+        Date date = new Date();
+        JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+        toSvTask.setBizId(sendVehicleBizId);
+        toSvTask.setUpdateTime(date);
+        jyBizTaskSendVehicleService.updateSendVehicleTask(toSvTask);
+        JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+        toSvDetailTask.setBizId(sendVehicleDetailBizId);
+        toSvDetailTask.setUpdateTime(date);
+        jyBizTaskSendVehicleDetailService.updateByBiz(toSvDetailTask);
     }
 
     @Override

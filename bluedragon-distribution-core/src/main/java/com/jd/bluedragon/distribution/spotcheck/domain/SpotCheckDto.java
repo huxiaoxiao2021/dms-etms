@@ -107,9 +107,17 @@ public class SpotCheckDto implements Serializable {
      */
     private Map<String, String> pictureUrls;
     /**
+     * 视频链接
+     */
+    private String videoUrl;
+    /**
      * 是否改造后的抽检
      */
     private Boolean isReformedSpotCheck = false;
+    /**
+     * 版本号
+     */
+    private Integer version;
 
     public String getBarCode() {
         return barCode;
@@ -285,5 +293,21 @@ public class SpotCheckDto implements Serializable {
 
     public void setIsReformedSpotCheck(Boolean reformedSpotCheck) {
         isReformedSpotCheck = reformedSpotCheck;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

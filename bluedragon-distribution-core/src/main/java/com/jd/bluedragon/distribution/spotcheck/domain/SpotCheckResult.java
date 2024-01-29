@@ -19,7 +19,7 @@ public class SpotCheckResult implements Serializable {
     private Integer excessStatus;
 
     /**
-     * 超标类型
+     * 超标类型：1-重量超标 2-体积超标 3-未超标
      */
     private Integer excessType;
 

@@ -55,6 +55,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
@@ -439,7 +440,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
-    
+
+    @Autowired
+    CycleBoxService cycleBoxService;
+
+    @Autowired
+    @Qualifier("cycleMaterialSendMQ")
+    private DefaultJMQProducer cycleMaterialSendMQ;
 
     /**
      * 自动过期时间 30分钟
@@ -3597,7 +3604,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         groupBoardManager.resuseBoards(boardList,operatorInfo);
     }
 
-   private void delDeliveryFromRedis(SendM sendM) {
+    private void delDeliveryFromRedis(SendM sendM) {
         Long result = redisManager.del(
                 CacheKeyConstants.REDIS_KEY_IS_DELIVERY
                         + sendM.getCreateSiteCode()
@@ -3639,6 +3646,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 }
             }
             this.sendColdChainSendMQ(coldChainSendDetails);
+            this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
@@ -3782,6 +3790,36 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         log.info("取消发货 发全程跟踪work6666-3800：{} " ,sendDetail.getWaybillCode());
 
         taskService.add(tTask);
+    }
+
+    private void sendDmsCycleMaterialMq4CancelSendBox(SendM tSendM, List<SendDetail> sendDetails) {
+        final String materialCode = cycleBoxService.getBoxMaterialRelation(tSendM.getBoxCode());
+        if (StringUtils.isBlank(materialCode)){
+            log.info("sendDmsCycleMaterialMq4CancelSendBox not found materialCode {}", JsonHelper.toJson(tSendM));
+            return;
+        }
+        BoxMaterialRelationMQ boxMaterialRelationMQ = new BoxMaterialRelationMQ();
+        boxMaterialRelationMQ.setBoxCode(tSendM.getBoxCode());
+
+        Set<String> waybillCodeSet = new HashSet<>();
+        List<String> packageCodeList = new ArrayList<>();
+        for (SendDetail sendDetail : sendDetails) {
+            waybillCodeSet.add(sendDetail.getWaybillCode());
+            packageCodeList.add(sendDetail.getPackageBarcode());
+        }
+        boxMaterialRelationMQ.setWaybillCode(new ArrayList<>(waybillCodeSet));
+        boxMaterialRelationMQ.setPackageCode(packageCodeList);
+
+        boxMaterialRelationMQ.setBusinessType(BoxMaterialRelationEnum.SEND_CANCEL.getType());
+        boxMaterialRelationMQ.setMaterialCode(materialCode);
+        boxMaterialRelationMQ.setOperatorCode(tSendM.getUpdateUserCode() == null ? 0 : tSendM.getUpdateUserCode());
+        boxMaterialRelationMQ.setOperatorName(tSendM.getUpdaterUser());
+        boxMaterialRelationMQ.setSiteCode(tSendM.getCreateSiteCode() + "");
+        boxMaterialRelationMQ.setOperatorTime(tSendM.getUpdateTime());
+        if(log.isInfoEnabled()){
+            log.info("sendDmsCycleMaterialMq4CancelSendBox {}", JsonHelper.toJson(boxMaterialRelationMQ));
+        }
+        cycleMaterialSendMQ.sendOnFailPersistent(materialCode, JsonHelper.toJson(boxMaterialRelationMQ));
     }
 
 

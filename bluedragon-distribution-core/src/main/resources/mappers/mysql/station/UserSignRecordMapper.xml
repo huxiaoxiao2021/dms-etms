@@ -913,6 +913,14 @@
 			<include refid="Base_Column_List"/>
 		from
 			(select t.* from user_sign_record t
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					force index(`idx_user_code`)
+				</when>
+				<otherwise>
+					force index(`idx_user_code_index`)
+				</otherwise>
+			</choose>
 			where t.yn = 1
 			<choose>
 				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
@@ -941,6 +949,14 @@
 		<include refid="Base_Column_List"/>
 		from
 		(select t.* from user_sign_record t
+		<choose>
+			<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+				force index(`idx_user_code`)
+			</when>
+			<otherwise>
+				force index(`idx_user_code_index`)
+			</otherwise>
+		</choose>
 		where t.yn = 1
 		<choose>
 			<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
@@ -1223,5 +1239,15 @@
 		</foreach>
 		AND sign_out_time is null
 		limit #{offset}, #{limit}
+	</select>
+	
+	<select id="queryFirstExistGridRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+		<include refid="Main_Column_List"/>
+		from user_sign_record r
+		where r.sign_date = #{signDateStr}
+		and r.site_code = #{siteCode}
+		order by r.sign_in_time asc
+		limit 1
 	</select>
 </mapper>

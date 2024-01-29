@@ -1415,7 +1415,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             // 提交申请单
             String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
-                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)), null);
 
             if(log.isInfoEnabled() && StringUtils.isNotEmpty(flowWorkNo)){
                 log.info("打印交接清单导出已提交申请单【{}】业务唯一标识码【{}】", flowWorkNo, businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY));
@@ -1660,6 +1660,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             String receiveMobileMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_MOBILE.getCode());
             String receiveNameMapStr = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_SEC_RECEIVE_NAME.getCode());
+            String encPlatform = waybillVasDtoBaseEntity.getData().getExtendMap().get(WaybillVasEnum.WaybillVasOtherParamEnum.PERSONAL_INFO_ESC_ENC_PLATFORM.getCode());
 
             if(receiveMobileMapStr == null && receiveNameMapStr == null){
                 log.info("运单{},未获取到增值服中关键信息项！receiveMobile和receiveName 均为空",waybillCode);
@@ -1704,6 +1705,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             req.setWaybillCode(waybillCode);
             //原因
             req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
+            //平台条线
+            req.setPlatform(encPlatform);
             AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
             if(resp == null || resp.getData() == null
                     || resp.getData().getReceiver() == null

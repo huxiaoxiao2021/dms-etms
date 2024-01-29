@@ -35,6 +35,18 @@ public enum CargoTypeEnum {
         return "未知";
     }
 
+    /**
+     * 是否普货或生鲜
+     * @param code
+     * @return
+     */
+    public static boolean isCommonOrFresh(Integer code) {
+        if(CargoTypeEnum.COMMON.getCode().equals(code) || CargoTypeEnum.FRESH.getCode().equals(code)) {
+            return true;
+        }
+        return false;
+    }
+
     public Integer getCode() {
         return code;
     }

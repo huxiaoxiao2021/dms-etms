@@ -1,19 +1,19 @@
 package com.jd.bluedragon.distribution.jy.gateway.work.impl;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dto.work.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
-import com.jdl.basic.common.utils.JsonHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,6 @@ import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.position.PositionData;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 
@@ -43,6 +42,7 @@ import com.jdl.basic.common.utils.Result;
  *
  */
 @Service("jyWorkGridManagerGatewayService")
+@Slf4j
 public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGatewayService {
 	private static final String refresh_second_config_key = "refresh.second.config.key";
 	private static final String query_data_list_mock_key ="query_data_list_mock_key";
@@ -58,6 +58,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	@Autowired
 	@Qualifier("jyWorkGridManagerBusinessService")
 	private JyWorkGridManagerBusinessService jyWorkGridManagerBusinessService;
+	
 
 	@Autowired
 	private PositionManager positionManager;
@@ -67,6 +68,8 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 
 	@Autowired
 	WorkGridCandidateJsfService workGridCandidateJsfService;
+	@Autowired
+	BaseMajorManager baseMajorManager;
 
 
 	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.queryDataList",
@@ -194,6 +197,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	}
 
 	@Override
+	@Deprecated
 	public JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query) {
 		JdCResponse<List<String>> result = new JdCResponse<List<String>>();
 		if (StringUtils.isEmpty(query.getPositionCode())){
@@ -216,6 +220,83 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		}
 		result.toSucceed();
 		result.setData(erpList);
+		return result;
+	}
+
+	/**
+	 * 根据
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public JdCResponse<List<WorkGridCandidateData>> queryCandidates(JyWorkGridManagerQueryRequest query) {
+		JdCResponse<List<WorkGridCandidateData>> result = new JdCResponse<List<WorkGridCandidateData>>();
+		if (StringUtils.isEmpty(query.getPositionCode())){
+			result.toFail("扫描的网格码为空！");
+			return result;
+		}
+		Result<PositionDetailRecord> positionRecord = positionManager.queryOneByPositionCode(query.getPositionCode());
+		if(positionRecord == null
+				|| positionRecord.getData() == null) {
+			result.toFail("扫描的网格码无效！");
+			return result;
+		}
+		if(StringUtils.isBlank(query.getBizId())){
+			result.toFail("设备编码bizId不能为空！");
+			return result;
+		}
+		JyWorkGridManagerData jyWorkGridManagerData = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(query.getBizId());
+		if(jyWorkGridManagerData == null){
+			result.toFail("设备编码bizId不能为空！");
+			return result;
+		}
+		
+		List<WorkGridCandidate> workGridCandidates = workGridCandidateJsfService.queryCandidateList(positionRecord.getData().getSiteCode());
+		List<WorkGridCandidateData> datas = Lists.newArrayList();
+		if (CollectionUtils.isEmpty(workGridCandidates)){
+			result.toSucceed();
+			result.setData(datas);
+			return result;
+		}
+		List<JyUserDto> jyUserDtos = workGridCandidates.stream().map(c ->{
+			JyUserDto jyUserDto = new JyUserDto();
+			jyUserDto.setUserErp(c.getErp());
+			return jyUserDto;
+		}).collect(Collectors.toList());
+		//根据三定排班过滤
+		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule(jyWorkGridManagerData.getTaskCode(), jyWorkGridManagerData.getProcessBeginTime(), 
+				jyWorkGridManagerData.getPreFinishTime(), jyUserDtos);
+		Map<String , String> erpMap = new HashMap<>();
+		if(!CollectionUtils.isEmpty(jyUserDtos)){
+			erpMap = jyUserDtos.stream().collect(Collectors.toMap(JyUserDto::getUserErp , JyUserDto::getUserErp));
+		}
+		for (WorkGridCandidate candidate : workGridCandidates){
+			WorkGridCandidateData data = new WorkGridCandidateData();
+			data.setErp(candidate.getErp());
+			if(erpMap.get(data.getErp()) != null){
+				data.setStatus(WorkGridCandidateStatusEnum.NORMAL.getCode());
+			}else {
+				data.setStatus(WorkGridCandidateStatusEnum.ABNORMAL.getCode());
+				log.info("任务转派人员根据三排排班过滤，该erp在任务期间未排班，erp:{},bizId:{}", data.getErp(), query.getBizId());
+			}
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(data.getErp());
+			//erp信息为空 或
+			if(baseStaffSiteOrgDto != null){
+				data.setName(baseStaffSiteOrgDto.getStaffName());
+				//未在职
+				if(baseStaffSiteOrgDto.getIsResign() == null || baseStaffSiteOrgDto.getIsResign() != 1){
+					data.setStatus(WorkGridCandidateStatusEnum.ABNORMAL.getCode());
+					log.info("任务转派人员根据三排排班过滤，该erp未在职，erp:{},bizId:{}", data.getErp(), query.getBizId());
+				}
+			}else {
+				data.setName("");
+			} 
+			datas.add(data);
+		}
+		//根据状态排序，正常状态的排在前面
+		datas = datas.stream().sorted(Comparator.comparing(WorkGridCandidateData::getStatus)).collect(Collectors.toList());
+		result.toSucceed();
+		result.setData(datas);
 		return result;
 	}
 

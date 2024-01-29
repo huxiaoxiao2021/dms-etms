@@ -55,6 +55,11 @@ public class QueryTaskSendDto implements Serializable {
     private Date lastPlanDepartTimeEnd;
     private Date createTimeBegin;
 
+    /**
+     * 当前日期
+     */
+    private Date currentDate;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -141,5 +146,13 @@ public class QueryTaskSendDto implements Serializable {
 
     public void setCreateTimeBegin(Date createTimeBegin) {
         this.createTimeBegin = createTimeBegin;
+    }
+
+    public Date getCurrentDate() {
+        return currentDate;
+    }
+
+    public void setCurrentDate(Date currentDate) {
+        this.currentDate = currentDate;
     }
 }

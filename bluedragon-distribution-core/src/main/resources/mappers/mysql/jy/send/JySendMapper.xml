@@ -87,6 +87,9 @@
             <if test="updateUserName != null">
                 update_user_name = #{updateUserName},
             </if>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId},
+            </if>
             <if test="updateTime != null">
                 update_time = #{updateTime}
             </if>

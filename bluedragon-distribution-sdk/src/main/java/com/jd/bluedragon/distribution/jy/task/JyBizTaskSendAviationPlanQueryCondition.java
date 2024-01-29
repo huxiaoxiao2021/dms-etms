@@ -29,6 +29,11 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
     //起止起飞时间
     private Date takeOffTimeStart;
     private Date takeOffTimeEnd;
+    /**
+     * 按起飞时间倒排序
+     * 1 逆序，否则不做逆序
+     */
+    private Integer takeOffTimeOrderDesc;
 
     public List<Integer> getNextSiteIdList() {
         return nextSiteIdList;
@@ -100,5 +105,13 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     public void setTakeOffTimeEnd(Date takeOffTimeEnd) {
         this.takeOffTimeEnd = takeOffTimeEnd;
+    }
+
+    public Integer getTakeOffTimeOrderDesc() {
+        return takeOffTimeOrderDesc;
+    }
+
+    public void setTakeOffTimeOrderDesc(Integer takeOffTimeOrderDesc) {
+        this.takeOffTimeOrderDesc = takeOffTimeOrderDesc;
     }
 }

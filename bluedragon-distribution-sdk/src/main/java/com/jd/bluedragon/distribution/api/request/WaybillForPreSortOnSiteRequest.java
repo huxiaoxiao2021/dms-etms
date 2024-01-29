@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
 
+import java.util.List;
+
 public class WaybillForPreSortOnSiteRequest extends JdRequest {
     //erp
     private String erp;
@@ -41,6 +43,12 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
      *  1：预分拣站点无法派送 2：特殊时期管制违禁品 3：邮政拒收 4：无预分拣站点
      */
     private Integer reasonType;
+
+
+    /**
+     * 操作员工是否为退货组标识
+     */
+    private Boolean returnGroupFlag;
 
 
     public String getErp() {
@@ -113,5 +121,13 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
 
     public void setReasonType(Integer reasonType) {
         this.reasonType = reasonType;
+    }
+
+    public Boolean getReturnGroupFlag() {
+        return returnGroupFlag;
+    }
+
+    public void setReturnGroupFlag(Boolean returnGroupFlag) {
+        this.returnGroupFlag = returnGroupFlag;
     }
 }

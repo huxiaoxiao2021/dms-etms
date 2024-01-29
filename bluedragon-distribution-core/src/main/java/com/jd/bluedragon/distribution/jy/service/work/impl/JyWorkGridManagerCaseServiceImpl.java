@@ -33,6 +33,8 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jdl.basic.api.domain.work.WorkGridManagerCaseItem;
 import com.jdl.basic.api.domain.work.WorkGridManagerCaseWithItem;
 
+import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
+
 /**
  * @ClassName: JyWorkGridManagerCaseServiceImpl
  * @Description: 巡检任务表-检查项--Service接口实现
@@ -115,6 +117,7 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 	   Map<String,JyWorkGridManagerCase> caseMap = new HashMap<>();
 	   //caseCode-附件列表
 	   Map<String,List<AttachmentDetailData>> attachmentMap = new HashMap<>();
+
 	   //caseCode-item数据map
 	   Map<String,Map<String,JyWorkGridManagerCaseItem>> jyCaseItemMap = new HashMap<>();
 	   if(isSaved) {
@@ -163,6 +166,10 @@ public class JyWorkGridManagerCaseServiceImpl implements JyWorkGridManagerCaseSe
 		   fillItemData(caseData,caseModle,jyCaseItemMap.get(caseCode));
 		   if(attachmentMap.containsKey(caseCode)) {
 			   caseData.setAttachmentList(attachmentMap.get(caseCode));
+		   }
+		   String improveSubbizType =(TASK_WORK_GRID_MANAGER_IMPROVE.getCode() + "|" + caseData.getCaseCode());
+		   if(attachmentMap.containsKey(improveSubbizType)){
+			   caseData.setImproveAttachmentList(attachmentMap.get(improveSubbizType));
 		   }
 		   caseList.add(caseData);
 	   }

@@ -111,6 +111,15 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     }
 
     /**
+     * 完成混扫流向任务
+     * @param condition
+     * @return
+     */
+    public int mixScanTaskFlowComplete(JyGroupSortCrossDetailEntity condition) {
+        return this.getSqlSession().update(NAMESPACE + ".mixScanTaskFlowComplete", condition);
+    }
+
+    /**
      * 按条件统计条数
      * @param queryDto
      * @return

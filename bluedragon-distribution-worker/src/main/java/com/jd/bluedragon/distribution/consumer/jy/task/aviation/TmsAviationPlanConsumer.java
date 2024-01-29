@@ -20,7 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.task.enums.JySendTaskTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -296,7 +296,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
                     log.error("根据场地分拣编码【{}】获取场地异常, errMsg={}", siteCode, e.getMessage(), e);
                     continue;
                 }
-                if(Objects.isNull(nextSite)) {
+                if(Objects.isNull(nextSite) || !BusinessUtil.isSorting(nextSite.getSiteType())) {
                     continue;
                 }
                 nextSiteCode = siteCode;

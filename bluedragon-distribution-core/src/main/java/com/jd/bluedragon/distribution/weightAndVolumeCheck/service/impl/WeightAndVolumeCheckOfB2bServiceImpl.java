@@ -132,6 +132,36 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     }
 
     @Override
+    public InvokeResult<String> uploadExcessVideo(MultipartFile video, HttpServletRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        String videoName = video.getOriginalFilename();
+        String[] strArray = videoName.split("\\.");
+        String suffixName = strArray[strArray.length - 1];
+
+        String videoUrl = null;
+        try {
+            String[] defaultSuffixName = new String[] {"mp4", "avi", "wmv", "flv", "mpg", ".mpeg", "mkv", "mov", "3gp", "rmvb"};
+            if (!Arrays.asList(defaultSuffixName).contains(suffixName.toLowerCase())) {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"文件格式不正确!" + suffixName);
+                log.warn("uploadExcessVideo|参数:{},异常信息:文件格式不正确!", suffixName);
+                return result;
+            }
+            // 上传到jss
+            videoUrl = spotCheckDealService.uploadExcessPicture(videoName, video.getInputStream());
+        } catch (Exception e) {
+            String formatMsg = MessageFormat.format("uploadExcessVideo|视频上传失败!该文件名称{0}", videoName);
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, formatMsg);
+            log.error("uploadExcessVideo|参数:{},异常信息:{}", videoName , e.getMessage(), e);
+        }
+        if (StringUtils.isEmpty(videoUrl)) {
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "视频上传失败，请重新上传!");
+            return result;
+        }
+        result.setData(videoUrl);
+        return result;
+    }
+
+    @Override
     public InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> checkIsExcessOfWaybill(WeightVolumeCheckConditionB2b condition) {
         InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> result = new InvokeResult<>();
         if(condition == null){
@@ -206,6 +236,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             picUtlMap.put("total", StringUtils.join(condition.getUrls(), Constants.SEPARATOR_SEMICOLON));
             spotCheckDto.setPictureUrls(picUtlMap);
         }
+        spotCheckDto.setVideoUrl(condition.getVideoUrl());
         return spotCheckDto;
     }
 

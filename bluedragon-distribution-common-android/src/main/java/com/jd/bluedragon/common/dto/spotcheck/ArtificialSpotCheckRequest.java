@@ -104,6 +104,21 @@ public class ArtificialSpotCheckRequest implements Serializable {
      */
     private Boolean isReformedSpotCheck = false;
 
+    /**
+     * 版本：值为1时代表从新版人工抽检(支持视频)进来
+     */
+    private Integer version;
+
+    /**
+     * 视频url
+     */
+    private String videoUrl;
+
+    /**
+     * 视频ID
+     */
+    private Long videoId;
+
     public String getBarCode() {
         return barCode;
     }
@@ -246,5 +261,29 @@ public class ArtificialSpotCheckRequest implements Serializable {
 
     public void setIsReformedSpotCheck(Boolean reformedSpotCheck) {
         isReformedSpotCheck = reformedSpotCheck;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
     }
 }

@@ -64,10 +64,6 @@ public class SortingRuleJsfServiceImpl implements SortingRuleJsfService {
         response.toSucceed();
         List<SortingRuleDto> ruleDtos = new ArrayList<>();
         List<Rule> rules =ruleService.getByTypes(siteCode, ruleTypes);
-        if(rules.isEmpty()){
-            response.toError("未获取到对应分拣规则");
-            return response;
-        }
         Map<String,Rule> ruleMap = new HashMap<>();
         for(Rule rule : rules){
             ruleMap.put(String.valueOf(rule.getType()),rule);

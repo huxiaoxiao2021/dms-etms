@@ -34,6 +34,11 @@ public class JySendTransferLogServiceImpl implements JySendTransferLogService {
         return 0;
     }
 
+    @Override
+    public List<JySendTransferLogEntity> findByToBizIdAndType(String toSendVehicleBizId) {
+        return jySendTransferLogDao.findByToBizIdAndType(toSendVehicleBizId);
+    }
+
     private void generateNoSameWayTransferLogEntity(VehicleSendRelationDto dto, List list) {
         Date now = new Date();
         for (String sendCode : dto.getSendCodes()) {

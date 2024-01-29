@@ -697,6 +697,15 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <bean id="tpCollectPackageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.store.TpCollectPackageGatewayServiceImpl" />
+    <!--  生成箱号-提供给外部调用（仓等）  -->
+    <jsf:provider id="tpCollectPackageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="tpCollectPackageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <bean id="jyAviationRailwayPickingGoodsGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyAviationRailwayPickingGoodsGatewayServiceImpl" />
     <jsf:provider id="jsfJyAviationRailwayPickingGoodsGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService"

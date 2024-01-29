@@ -39,6 +39,14 @@ public interface WeightAndVolumeCheckOfB2bService {
     InvokeResult<String> uploadExcessPicture(MultipartFile image, HttpServletRequest request);
 
     /**
+     * 上传超标视频
+     * @param video
+     * @param request
+     * @return
+     */
+    InvokeResult<String> uploadExcessVideo(MultipartFile video, HttpServletRequest request);
+
+    /**
      * PDA判断记录是否存在
      *
      * @param waybillCode

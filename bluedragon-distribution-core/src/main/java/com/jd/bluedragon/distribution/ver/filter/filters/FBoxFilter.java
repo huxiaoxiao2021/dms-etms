@@ -46,16 +46,21 @@ public class FBoxFilter implements Filter {
             if (BoxHelper.isOrdinaryForWarehouse(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29004,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_REVERSE, request.getFuncModule()));
-            } else if (BoxHelper.isLuxuryForWarehouse(request.getBox())) {
+            }
+            // 去掉奢侈品箱号类型校验
+            /*else if (BoxHelper.isLuxuryForWarehouse(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29008,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_REVERSE, request.getFuncModule()));
-            } else if (BoxHelper.isOrdinaryForAfterSale(request.getBox())) {
+            }*/
+            else if (BoxHelper.isOrdinaryForAfterSale(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29005,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_AFTER_SALE, request.getFuncModule()));
-            } else if (BoxHelper.isLuxuryForAfterSale(request.getBox())) {
+            }
+            // 去掉奢侈品箱号类型校验
+            /*else if (BoxHelper.isLuxuryForAfterSale(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29009,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_AFTER_SALE, request.getFuncModule()));
-            }
+            }*/
         }
 
         chain.doFilter(request, chain);

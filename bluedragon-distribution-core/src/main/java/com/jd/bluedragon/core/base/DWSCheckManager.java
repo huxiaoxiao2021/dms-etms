@@ -1,9 +1,6 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckRequest;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckAroundRecord;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckPackageRequest;
-import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DwsCheckResponse;
+import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.*;
 
 import java.util.Date;
 import java.util.List;
@@ -37,4 +34,10 @@ public interface DWSCheckManager {
      * @return
      */
     List<DwsCheckAroundRecord> batchSelectMachineStatus(List<DwsCheckPackageRequest> list);
+
+    /**
+     * 批量查询 设备抽检申诉核对 校准状态结果
+     */
+    DWSCheckAppealDto getDwsCheckStatusAppeal(DWSCheckAppealRequest request);
+
 }

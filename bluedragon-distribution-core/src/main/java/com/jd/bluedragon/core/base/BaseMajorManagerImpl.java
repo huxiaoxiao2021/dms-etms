@@ -539,6 +539,15 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffByErpCache", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffByErpCache@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public BaseStaffSiteOrgDto getBaseStaffByErpCache(String erp) {
+        return basicPrimaryWS.getBaseStaffByErp(erp);
+    }
+
+
+    @Override
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffIgnoreIsResignByErp", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Cache(key = "baseMajorManagerImpl.getBaseStaffIgnoreIsResignByErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
@@ -1025,5 +1034,50 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return list;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.checkIDCardNoExists@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaff checkIDCardNoExists(String idCardNo) {
+        if(StringUtils.isNotBlank(idCardNo)){
+            BaseResult<BaseStaff> result = basicStaffQueryWS.checkIDCardNoExists(idCardNo);
+            if(result != null && BaseResult.RESULT_SUCCESS== result.getResultCode()){
+                return result.getData();
+            }
+        }
+        return null;
+    }
+
+
+
+    @Override
+    @Cache(key = "BaseMajorManager.getThirdStaffByUserCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteOrgDto getThirdStaffByUserCode(String userCode) {
+        if(StringUtils.isNotBlank(userCode)){
+            return basicStaffQueryWS.getThirdStaffByUserCode(userCode);
+        }
+        return null;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.queryBaseStaffByStaffId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public BaseStaffSiteDTO queryBaseStaffByStaffId(Integer staffId) {
+        if(staffId != null){
+            ResultData<BaseStaffSiteDTO> resultData = basicStaffQueryWS.queryBaseStaffByStaffId(staffId);
+            if(resultData != null && resultData.getData() != null){
+                return resultData.getData();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Cache(key = "BaseMajorManager.selectBaseStoreByDmsSiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public PsStoreInfo selectBaseStoreByDmsSiteId(Integer siteId) {
+        return basicPrimaryWS.selectBaseStoreByDmsSiteId(siteId);
     }
 }

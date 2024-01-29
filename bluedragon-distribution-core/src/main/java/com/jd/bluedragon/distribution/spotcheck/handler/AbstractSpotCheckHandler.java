@@ -263,7 +263,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto);
         // 抽检全程跟踪
-        spotCheckDealService.sendWaybillTrace(spotCheckContext);
+        // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
     protected WeightVolumeSpotCheckDto assembleSummaryReform(SpotCheckContext spotCheckContext) {
@@ -331,6 +331,13 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             dto.setIsHasPicture(StringUtils.isNotEmpty(pictureAddress) ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
             dto.setPictureAddress(pictureAddress);
         }
+
+        // 视频链接
+        if (Constants.NUMBER_ONE.equals(spotCheckContext.getIsHasVideo())) {
+            dto.setIsHasVideo(spotCheckContext.getIsHasVideo());
+            dto.setVideoPicture(spotCheckContext.getVideoAddress());
+        }
+
         dto.setBusinessType(spotCheckContext.getSpotCheckBusinessType());
         dto.setDimensionType(spotCheckContext.getSpotCheckDimensionType());
         dto.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
@@ -340,6 +347,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setSpotCheckStatus(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())
                 ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_UN_EXCESS.getCode());
         dto.setYn(Constants.CONSTANT_NUMBER_ONE);
+        // 扩展字段
+        dto.setExtendMap(spotCheckContext.getExtendMap());
         return dto;
     }
 
@@ -497,6 +506,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setIsHasPicture(StringUtils.isEmpty(picAddress) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
         spotCheckContext.setPictureAddress(picAddress);
 
+        // 视频链接
+        spotCheckContext.setIsHasVideo(StringUtils.isEmpty(spotCheckDto.getVideoUrl()) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+        spotCheckContext.setVideoAddress(spotCheckDto.getVideoUrl());
 
         // 复核明细
         SpotCheckReviewDetail spotCheckReviewDetail = new SpotCheckReviewDetail();
@@ -554,7 +566,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                     }
                 });
         for (String key : picMap.keySet()) {
-            sortMap.put(key, picMap.get(key));
+            String picUrl = picMap.get(key);
+            if (StringUtils.isNotBlank(picUrl)) {
+                sortMap.put(key, picUrl);
+            }
         }
         return StringUtils.join(sortMap.values(), Constants.SEPARATOR_SEMICOLON);
     }

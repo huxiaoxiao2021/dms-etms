@@ -129,7 +129,7 @@ $(function () {
                     layer.open({
                         id: 'upExcessPicture',
                         type: 2,
-                        title: '超标图片上传',
+                        title: '超标图片/视频上传',
                         shade: 0.7,
                         maxmin: true,
                         shadeClose: false,
@@ -139,6 +139,14 @@ $(function () {
                             + "&weight=" + row.waybillWeight
                             + "&excessType=" + row.excessType
                             + "&isMultiPack=" + row.isMultiPack,
+                        cancel: function() {
+                            // 右上角关闭事件的逻辑
+                            let uploadNum = getUploadNum();
+                            console.log('上传对话框右上角关闭,uploadNum=' + uploadNum);
+                            if (uploadNum > 0) {
+                                $('#waybillDataTable')[0].rows[1].cells[5].innerHTML = uploadNum;
+                            }
+                        },
                         success: function (layero, index) {
                         }
                     });
@@ -147,14 +155,33 @@ $(function () {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
                     var count = $('#waybillDataTable')[0].rows[rowIndex].cells[5].innerHTML;
                     if(count === '0'){
-                        Jd.alert("请先上传超标图片!");
+                        Jd.alert("请先上传超标图片或视频!");
                         return;
-                    };
-                    window.open($('#excessPicWeightOrPanorama').val());
-                    window.open($('#excessPicFace').val());
-                    window.open($('#excessPicLength').val());
-                    window.open($('#excessPicWidth').val());
-                    window.open($('#excessPicHeight').val());
+                    }
+                    let excessPicWeightOrPanoramaUrl = $('#excessPicWeightOrPanorama').val();
+                    let excessPicFaceUrl = $('#excessPicFace').val();
+                    let excessPicLengthUrl = $('#excessPicLength').val();
+                    let excessPicWidthUrl = $('#excessPicWidth').val();
+                    let excessPicHeightUrl = $('#excessPicHeight').val();
+                    let excessVideoUrl = $('#excessVideo').val();
+                    if (excessPicWeightOrPanoramaUrl) {
+                        window.open(excessPicWeightOrPanoramaUrl);
+                    }
+                    if (excessPicFaceUrl) {
+                        window.open(excessPicFaceUrl);
+                    }
+                    if (excessPicLengthUrl) {
+                        window.open(excessPicLengthUrl);
+                    }
+                    if (excessPicWidthUrl) {
+                        window.open(excessPicWidthUrl);
+                    }
+                    if (excessPicHeightUrl) {
+                        window.open(excessPicHeightUrl);
+                    }
+                    if (excessVideoUrl) {
+                        window.open(excessVideoUrl);
+                    }
                 }
             }
         }];
@@ -163,6 +190,35 @@ $(function () {
         };
         return oTableInit;
     };
+
+    function getUploadNum() {
+        let excessPicWeightOrPanoramaUrl = $('#excessPicWeightOrPanorama').val();
+        let excessPicFaceUrl = $('#excessPicFace').val();
+        let excessPicLengthUrl = $('#excessPicLength').val();
+        let excessPicWidthUrl = $('#excessPicWidth').val();
+        let excessPicHeightUrl = $('#excessPicHeight').val();
+        let excessVideoUrl = $('#excessVideo').val();
+        let picNum = 0;
+        if (excessPicWeightOrPanoramaUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicFaceUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicLengthUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicWidthUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessPicHeightUrl) {
+            picNum = picNum + 1;
+        }
+        if (excessVideoUrl) {
+            picNum = picNum + 1;
+        }
+        return picNum;
+    }
 
     // 页面初始化查询
     $("#btn_submit").attr("disabled", true);
@@ -251,9 +307,30 @@ $(function () {
     $('#btn_submit').click(function () {
         let waybillData = $('#waybillDataTable').bootstrapTable('getData');
         let uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
-        if(waybillData[0].isExcess === 1 && uploadNum !== '5'){
-            Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片!');
-            return;
+        let videoUrl = $('#excessVideo').val();
+        let videoId = $('#excessVideoId').val();
+        let excessPicWeightOrPanorama = $('#excessPicWeightOrPanorama').val();
+        let excessPicFace = $('#excessPicFace').val();
+        let excessPicLength = $('#excessPicLength').val();
+        let excessPicWidth = $('#excessPicWidth').val();
+        let excessPicHeight = $('#excessPicHeight').val();
+
+        if (waybillData[0].isExcess === 1) {
+            // 如果什么都没有上传
+            if (!uploadNum || uploadNum === '0') {
+                Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片或视频!');
+                return;
+            }
+            if (!videoUrl) {
+                if (waybillData[0].excessType === 1 && parseInt(uploadNum) < 2) {
+                    Jd.alert('重量超标至少上传2张图片!');
+                    return;
+                }
+                if (waybillData[0].excessType === 2 && parseInt(uploadNum) < 5) {
+                    Jd.alert('体积超标至少上传5张图片!');
+                    return;
+                }
+            }
         }
         let param = {};
         param.waybillOrPackageCode = waybillData[0].waybillCode;
@@ -269,13 +346,27 @@ $(function () {
         param.createSiteCode = $('#createSiteCode').val();
         param.loginErp = $('#loginErp').val();
         if(waybillData[0].isExcess === 1){
-            let excessPicUrls = [];
-            excessPicUrls.push($('#excessPicWeightOrPanorama').val());
-            excessPicUrls.push($('#excessPicFace').val());
-            excessPicUrls.push($('#excessPicLength').val());
-            excessPicUrls.push($('#excessPicWidth').val());
-            excessPicUrls.push($('#excessPicHeight').val());
-            param.urls = excessPicUrls;
+            if (uploadNum) {
+                let excessPicUrls = [];
+                if (excessPicWeightOrPanorama) {
+                    excessPicUrls.push(excessPicWeightOrPanorama);
+                }
+                if (excessPicFace) {
+                    excessPicUrls.push(excessPicFace);
+                }
+                if (excessPicLength) {
+                    excessPicUrls.push(excessPicLength);
+                }
+                if (excessPicWidth) {
+                    excessPicUrls.push(excessPicWidth);
+                }
+                if (excessPicHeight) {
+                    excessPicUrls.push(excessPicHeight);
+                }
+                param.urls = excessPicUrls;
+            }
+            param.videoUrl = videoUrl;
+            param.videoId = videoId;
         }
 
         jQuery.ajax({
@@ -295,6 +386,8 @@ $(function () {
                     $('#excessPicLength').val('');
                     $('#excessPicWidth').val('');
                     $('#excessPicHeight').val('');
+                    $('#excessVideo').val('');
+                    $('#excessVideoId').val('');
                 }else {
                     Jd.alert(result.message);
                 }

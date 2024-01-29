@@ -27,6 +27,14 @@ public enum AirTypeEnum {
         return "未知";
     }
 
+    public static boolean legalCheck(Integer code) {
+        AirTypeEnum _enum = codeMap.get(code);
+        if (_enum == null) {
+            return false;
+        }
+        return true;
+    }
+
     AirTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;

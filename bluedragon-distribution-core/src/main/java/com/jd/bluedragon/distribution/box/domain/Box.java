@@ -29,6 +29,8 @@ public class Box {
 	public static final Integer BOX_STATUS_DEPARTURE_PROCESSING = 6; // 发车处理中
 	public static final Integer BOX_STATUS_DEPARTURE = 7; // 发车完成
 
+	public static final Integer BOX_STATUS_SEALED = 8; // 封箱
+
 	public static final String TYPE_BC = "BC"; // 正向普通箱号
 	public static final String TYPE_BS = "BS"; // 正向奢侈品箱号
 	public static final String TYPE_TC = "TC"; // 退货普通箱号
@@ -51,6 +53,11 @@ public class Box {
 
 	/** 箱号类型 */
 	private String type;
+
+    /**
+     * 箱号子类型
+     */
+    private String boxSubType;
 
 	/** 创建站点编号 */
 	private Integer createSiteCode;
@@ -248,7 +255,15 @@ public class Box {
 		this.type = type;
 	}
 
-	public Integer getCreateSiteCode() {
+    public String getBoxSubType() {
+        return boxSubType;
+    }
+
+    public void setBoxSubType(String boxSubType) {
+        this.boxSubType = boxSubType;
+    }
+
+    public Integer getCreateSiteCode() {
 		return this.createSiteCode;
 	}
 

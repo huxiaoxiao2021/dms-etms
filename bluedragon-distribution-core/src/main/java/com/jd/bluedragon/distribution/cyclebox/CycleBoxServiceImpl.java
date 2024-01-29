@@ -388,8 +388,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                 result.setMessage(HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
             }
         }else {
-            if (!BusinessUtil.isCollectionBag(request.getMaterialCode()) 
-                    || BusinessUtil.isTrolleyCollectionBag(request.getMaterialCode())) {
+            if (!BusinessUtil.isCollectionBag(request.getMaterialCode())) {
                 result.setCode(Integer.valueOf(HintCodeConstants.CYCLE_BOX_RULE_ERROR));
                 result.setMessage(HintService.getHint(HintCodeConstants.CYCLE_BOX_RULE_ERROR, Boolean.TRUE));
                 return result;

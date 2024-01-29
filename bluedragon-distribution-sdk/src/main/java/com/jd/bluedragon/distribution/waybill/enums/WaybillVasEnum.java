@@ -113,6 +113,12 @@ public enum WaybillVasEnum {
         PERSONAL_INFO_ESC_VIRTUAL_NUMBER_EXPIRE("virtualNumberExpire", "DateTime", "虚拟号失效时间"),
 
 
+        /**
+         *个人信息安全脱敏- 脱敏加密平台
+         */
+        PERSONAL_INFO_ESC_ENC_PLATFORM("encPlatform", "String", "脱敏加密平台"),
+
+
 
         ;
 

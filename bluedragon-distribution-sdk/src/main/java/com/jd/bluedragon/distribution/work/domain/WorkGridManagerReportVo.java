@@ -229,6 +229,18 @@ public class WorkGridManagerReportVo  implements Serializable {
 	private String taskBizTypeName;
 
 	private List<JyWorkGridManagerCaseDataVO> caseList;
+	/**
+	 *  指标改善任务的指标信息
+	 *  只有指标改善任务才会有
+	 */
+	private BusinessQuotaInfoData businessQuotaInfoData;
+
+	/**
+	 *  暴力分拣任务-视频监控相关信息
+	 *  只有暴力分拣任务才会有
+	 */
+	private ViolenceSortInfoData violenceSortInfoData;
+	
 	public Long getId() {
 		return id;
 	}
@@ -530,5 +542,21 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setOrignHandlerUserName(String orignHandlerUserName) {
 		this.orignHandlerUserName = orignHandlerUserName;
+	}
+
+	public BusinessQuotaInfoData getBusinessQuotaInfoData() {
+		return businessQuotaInfoData;
+	}
+
+	public void setBusinessQuotaInfoData(BusinessQuotaInfoData businessQuotaInfoData) {
+		this.businessQuotaInfoData = businessQuotaInfoData;
+	}
+
+	public ViolenceSortInfoData getViolenceSortInfoData() {
+		return violenceSortInfoData;
+	}
+
+	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
+		this.violenceSortInfoData = violenceSortInfoData;
 	}
 }

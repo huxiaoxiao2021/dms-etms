@@ -46,6 +46,10 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 	private Integer pageNumber = 1;
 
 	private Integer pageSize = 10;
+	/**
+	 * 转派任务id
+	 */
+	private String bizId;
 
 
 	public int getOffset() {
@@ -120,4 +124,11 @@ public class JyWorkGridManagerQueryRequest implements Serializable {
 		this.processBeginTime = processBeginTime;
 	}
 
+	public String getBizId() {
+		return bizId;
+	}
+
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
 }

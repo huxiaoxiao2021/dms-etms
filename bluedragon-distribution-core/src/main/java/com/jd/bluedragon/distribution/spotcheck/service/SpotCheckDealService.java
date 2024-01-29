@@ -119,14 +119,12 @@ public interface SpotCheckDealService {
 
     /**
      * 下发超标数据
-     *
      * @param weightVolumeSpotCheckDto
      */
     void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
 
     /**
      * 执行下发
-     *
      * @param weightVolumeSpotCheckDto
      */
     void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);

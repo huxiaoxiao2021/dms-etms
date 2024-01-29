@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.intensive.service.ReverseIntensiveService;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.recycle.material.service.RecycleMaterialService;
 import com.jd.bluedragon.distribution.rest.material.CollectionBagOperationResource;
@@ -69,7 +70,10 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
 
     @Autowired
     private BaseService baseService;
-    
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
+
     @Autowired
     private RecycleMaterialService recycleMaterialService;
     
@@ -85,6 +89,31 @@ public class ReverseIntensiveServiceImpl implements ReverseIntensiveService {
     @Override
     public InvokeResult<List<String>> queryWaybillTrackHistory(String erp) {
         return waybillTrackQueryService.queryWaybillTrackHistory(erp);
+    }
+
+    /**
+     * 根据运单号获取是否存在仓储病单拦截消息
+     *
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "ReverseIntensiveService.hasWmsSickWaybillIntercept",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Override
+    public InvokeResult<Boolean> hasWmsSickWaybillIntercept(String waybillCode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.FALSE);
+        if(StringUtils.isBlank(waybillCode)){
+            result.error("waybillCode is null");
+            return result;
+        }
+        Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(waybillCode);
+        if (featureType != null) {
+            if(Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType)){
+                result.setData(Boolean.TRUE);
+            }
+        }
+        return result;
     }
 
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "ReverseIntensiveService.queryWaybillTrack",

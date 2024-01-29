@@ -458,6 +458,11 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     @Override
+    public boolean mixScanTaskFlowComplete(JyGroupSortCrossDetailEntity condition) {
+        return jyGroupSortCrossDetailDao.mixScanTaskFlowComplete(condition) > 0;
+    }
+
+    @Override
     public int countByCondition(JyGroupSortCrossDetailEntityQueryDto queryDto) {
         return jyGroupSortCrossDetailDao.countByCondition(queryDto);
     }

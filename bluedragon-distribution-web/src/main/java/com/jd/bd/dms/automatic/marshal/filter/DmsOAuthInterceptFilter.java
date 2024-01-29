@@ -67,6 +67,7 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
                 LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             } else if (pathMatch(uri)) {
+                LOGGER.info("该客户端本次调用进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
                 super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
             } else {
                 LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);

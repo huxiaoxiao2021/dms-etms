@@ -70,6 +70,12 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
 
     /**
+     * 按状态统计发货任务数量
+     * 待发货、发货中、待封车、已封车四个状态采用不同计划发车时间范围的任务数量统计查询语句：目前接货仓有这种特殊需求在使用
+     */
+    List<JyBizTaskSendCountDto> sumSpecifyTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList);
+
+    /**
      * 按线路类型统计发货任务数量
      * @param entity
      * @param sendVehicleBizList
@@ -96,6 +102,23 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
+                                                         List<String> sendVehicleBizList,
+                                                         JyBizTaskSendSortTypeEnum typeEnum,
+                                                         Integer pageNum, Integer pageSize,
+                                                         List<Integer> statuses);
+
+    /**
+     * 分页查询发货任务
+     * 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+     * @param entity
+     * @param sendVehicleBizList
+     * @param typeEnum
+     * @param pageNum
+     * @param pageSize
+     * @param statuses
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> querySpecifySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
                                                          List<String> sendVehicleBizList,
                                                          JyBizTaskSendSortTypeEnum typeEnum,
                                                          Integer pageNum, Integer pageSize,
@@ -152,8 +175,17 @@ public interface JyBizTaskSendVehicleService {
     List<JyBizTaskSendVehicleEntity> findSendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
                                                               Integer pageNum, Integer pageSize);
 
+    /**
+     * 分页查询未封车的发货任务
+     * 待发货、发货中、待封车三个状态采用不同计划发车时间范围的任务列表查询语句：目前接货仓有这种特殊需求在使用
+     */
+    List<JyBizTaskSendVehicleEntity> findSpecifySendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
+                                    Integer pageNum, Integer pageSize);
+
 
     Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
+
+    Integer countSpecifySendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
 
 
     List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);
@@ -209,4 +241,15 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     List<JyBizSendTaskAssociationDto> pageFindDetailSendTaskByCondition(JyBizTaskSendVehicleDetailQueryEntity entity, Integer pageNo, Integer pageSize);
+
+    /**
+     * 定时清理超3小时处于待发货状态的自建任务
+     */
+    void timingHandlerCleanToSendStatusManualTask();
+
+    /**
+     * 定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务
+     */
+    void timingHandlerCleanSendingStatusManualTask();
+
 }
