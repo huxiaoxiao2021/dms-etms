@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
 import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.common.dto.CommonDto;
@@ -66,8 +65,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Autowired
     private RouteComputeUtil routeComputeUtil;
 
-    @Autowired
-    private VrsBNetQueryAPI vrsBNetQueryApi;
 
     @Autowired
     private TransferWaveMonitorAPI transferWaveMonitorAPI;
