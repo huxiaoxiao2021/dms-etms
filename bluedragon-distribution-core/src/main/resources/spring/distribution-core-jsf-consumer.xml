@@ -1576,9 +1576,9 @@
     <!--卸车验货校验回调配置-->
     <bean id="jyUnloadVehicleCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
         <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
-        <constructor-arg name="tenantJsfAliasConfigKey" value="xxx"></constructor-arg>
+        <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_UNLOAD_SCAN_ALIES"></constructor-arg>
     </bean>
-    <jsf:consumerGroup id="callbackJsfService"
+    <jsf:consumerGroup id="unloadCallbackJsfService"
                        interface="com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService"
                        protocol="jsf"
                        alias="default"
@@ -1589,6 +1589,20 @@
                        groupRouter="jyUnloadVehicleCallbackJsfServiceGroupRouter">
     </jsf:consumerGroup>
 
-
+    <!--发货校验回调配置-->
+    <bean id="jySendCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
+        <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
+        <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_SEND_SCAN_ALIES"></constructor-arg>
+    </bean>
+    <jsf:consumerGroup id="sendCallbackJsfService"
+                       interface="com.jd.bluedragon.distribution.jy.api.callback.JySendVehicleCallbackJsfService"
+                       protocol="jsf"
+                       alias="default"
+                       timeout="${jsf.timeout}"
+                       retries="${jsf.retries}"
+                       serialization="hessian"
+                       aliasAdaptive="true"
+                       groupRouter="jySendCallbackJsfServiceGroupRouter">
+    </jsf:consumerGroup>
 
 </beans>

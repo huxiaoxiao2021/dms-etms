@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
+import com.jd.bluedragon.distribution.jy.dto.send.SendScanCallbackReqDto;
+import com.jd.bluedragon.distribution.jy.dto.send.SendScanCallbackRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanCallbackReqDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanCallbackRespDto;
 
@@ -17,4 +19,8 @@ public interface JyCallbackJsfManager {
     InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> unloadScanCheckOfCallback(UnloadScanCallbackReqDto request);
 
     InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> unloadScanOfCallback(UnloadScanCallbackReqDto request);
+
+    InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanCheckOfCallback(SendScanCallbackReqDto request);
+
+    InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanOfCallback(SendScanCallbackReqDto request);
 }

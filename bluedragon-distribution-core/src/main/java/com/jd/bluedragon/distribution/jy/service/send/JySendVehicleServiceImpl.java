@@ -58,6 +58,7 @@ import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.task.CalculateOperateProgressTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.common.utils.SdkConvertAndroidUtil;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -73,6 +74,7 @@ import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -98,6 +100,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
+import com.jd.bluedragon.distribution.jy.manager.JyCallbackJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JySendOrUnloadDataReadDuccConfigManager;
 import com.jd.bluedragon.distribution.jy.send.*;
@@ -166,6 +169,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
+import com.jdl.basic.api.enums.TenantEnum;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
@@ -175,6 +179,7 @@ import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -400,6 +405,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private PdaSorterApiManager pdaSorterApiManager;
+    @Autowired
+    @Qualifier("jyCallbackJsfManager")
+    private JyCallbackJsfManager jyCallbackJsfManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1741,7 +1749,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
             //回调校验
-            sendScanCheckOfCallback
+            sendScanCheckOfCallback(result, request);
+            if (!result.codeSuccess()) {
+                return result;
+            }
 
             if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
                 log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
@@ -1833,7 +1844,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             asyncProductOperateProgress(taskSend);
 
             //回调执行
-            sendScanOfCallback
+            this.sendScanOfCallback(result,request);
 
         } catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
@@ -1845,6 +1856,67 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         return result;
     }
+
+    /**
+     * 发送扫描回调
+     * @param result JdVerifyResponse对象，发送扫描回调的响应
+     * @param request SendScanRequest对象，发送扫描请求
+     */
+    private void sendScanOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request) {
+        String tenantCode = TenantContext.getTenantCode();
+        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanOfCallback(transferDto(request));
+            //返回 code 成功继续执行,不成功时不要阻断，不处理
+            if (callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
+                //data暂时没有
+                //result.setData(callbackResult.getData());
+            }
+        }
+    }
+
+    private void sendScanCheckOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request){
+        //需要判断当非拣运租户时在触发回调
+        String tenantCode = TenantContext.getTenantCode();
+        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanCheckOfCallback(transferDto(request));
+            //返回 code 非成功时需要阻断服务，不运行继续执行
+            if (!callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
+            }
+        }
+    }
+
+    /**
+     * 将SendScanRequest转换为SendScanCallbackReqDto
+     * @param request 要转换的SendScanRequest对象
+     * @return 转换后的SendScanCallbackReqDto对象
+     */
+    private SendScanCallbackReqDto transferDto(SendScanRequest request) {
+        SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
+        callbackReqDto.setBarCode(request.getBarCode());
+        callbackReqDto.setBarCodeType(request.getBarCodeType());
+        callbackReqDto.setForceSubmit(request.getForceSubmit());
+        callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+        callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
+        if (request.getUser() != null) {
+            callbackReqDto.setUserCode(request.getUser().getUserCode());
+            callbackReqDto.setUserName(request.getUser().getUserName());
+        }
+        callbackReqDto.setOperateTime(new Date());
+        return callbackReqDto;
+    }
+
 
     /**
      * 构建新发货入参
@@ -2848,7 +2920,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
 
-        sendScanCheckOfCallback
+        //sendScanCheckOfCallback
 
         return true;
     }

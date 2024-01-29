@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
+import com.jd.bluedragon.distribution.jy.api.callback.JySendVehicleCallbackJsfService;
 import com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService;
+import com.jd.bluedragon.distribution.jy.dto.send.SendScanCallbackReqDto;
+import com.jd.bluedragon.distribution.jy.dto.send.SendScanCallbackRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanCallbackReqDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanCallbackRespDto;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -29,8 +32,12 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
     private static final Logger log = LoggerFactory.getLogger(JyCallbackJsfManagerImpl.class);
 
     @Autowired
-    @Qualifier("callbackJsfService")
-    private JyUnloadVehicleCallbackJsfService callbackJsfService;
+    @Qualifier("unloadCallbackJsfService")
+    private JyUnloadVehicleCallbackJsfService unloadCallbackJsfService;
+
+    @Autowired
+    @Qualifier("sendCallbackJsfService")
+    private JySendVehicleCallbackJsfService sendCallbackJsfService;
 
     /**
      * 拣运作业工作台 卸车验货 校验环节回调
@@ -49,7 +56,7 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
             return result;
         }
         try{
-            return callbackJsfService.unloadScanCheckOfCallback(request);
+            return unloadCallbackJsfService.unloadScanCheckOfCallback(request);
         }catch (Exception e) {
             log.error("JyCallbackJsfManagerImpl验货时校验异常，入参：{}", JsonHelper.toJson(request),e);
             result.toBizError("后端接口异常，请重试");
@@ -71,7 +78,40 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
             return result;
         }
         try{
-            return callbackJsfService.unloadScanOfCallback(request);
+            return unloadCallbackJsfService.unloadScanOfCallback(request);
+        }catch (Exception e) {
+            log.error("JyCallbackJsfManagerImpl验货时回调异常，入参：{}", JsonHelper.toJson(request),e);
+            return result;
+        }
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCallbackJsfManagerImpl.sendScanCheckOfCallback", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanCheckOfCallback(SendScanCallbackReqDto request){
+        InvokeWithMsgBoxResult<SendScanCallbackRespDto> result = new InvokeWithMsgBoxResult<>();
+        result.toSuccess();
+        if(request == null){
+            return result;
+        }
+        try{
+            return sendCallbackJsfService.sendScanCheckOfCallback(request);
+        }catch (Exception e) {
+            log.error("JyCallbackJsfManagerImpl发货时校验异常，入参：{}", JsonHelper.toJson(request),e);
+            result.toBizError("后端接口异常，请重试");
+            return result;
+        }
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCallbackJsfManagerImpl.sendScanOfCallback", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanOfCallback(SendScanCallbackReqDto request) {
+        InvokeWithMsgBoxResult<SendScanCallbackRespDto> result = new InvokeWithMsgBoxResult<>();
+        result.toSuccess();
+        if(request == null){
+            return result;
+        }
+        try{
+            return sendCallbackJsfService.sendScanOfCallback(request);
         }catch (Exception e) {
             log.error("JyCallbackJsfManagerImpl验货时回调异常，入参：{}", JsonHelper.toJson(request),e);
             return result;
