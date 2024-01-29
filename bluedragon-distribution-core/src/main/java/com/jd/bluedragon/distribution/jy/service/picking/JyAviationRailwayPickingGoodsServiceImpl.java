@@ -1180,10 +1180,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishTaskWhenTimeExceed",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void finishTaskWhenTimeExceed() {
+        Date startTime = getStartTime();
         Date endTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getPropertyConfig().getPickingGoodTaskManualTimeRange());
         JyBizTaskPickingGoodQueryDto queryDto = new JyBizTaskPickingGoodQueryDto();
         int pageNumber = 1;
         queryDto.setLimit(1000);
+        // 兜底时间
+        queryDto.setStartTime(startTime);
+        // 业务卡控时间
         queryDto.setEndTime(endTime);
         queryDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
         queryDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
