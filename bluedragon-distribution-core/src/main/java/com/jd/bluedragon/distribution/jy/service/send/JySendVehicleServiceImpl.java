@@ -1740,6 +1740,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             String sendCode = this.getOrCreateSendCode(request, curSendDetail);
             SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
+            //回调校验
+            sendScanCheckOfCallback
 
             if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
                 log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
@@ -1829,6 +1831,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
 
             asyncProductOperateProgress(taskSend);
+
+            //回调执行
+            sendScanOfCallback
+
         } catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());
@@ -2841,6 +2847,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
+
+        sendScanCheckOfCallback
 
         return true;
     }
