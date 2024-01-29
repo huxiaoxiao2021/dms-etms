@@ -136,12 +136,17 @@ public class SpotCheckConstants {
     public static final Integer SPOT_CHECK_AI_TYPE_FACE = 2;
     public static final String SPOT_CHECK_AI_WEIGHT_HIT = "录入重量:%s和图片识别重量:%s不一致，请重新上传!";
     public static final String SPOT_CHECK_AI_FACE_HIT = "录入的运单号:%s和图片识别单号:%s不一致，请重新上传!";
+
     /**
      * 超标类型
-     *  重量超标：1 体积超标：2
+     *   1-重量超标
+     *   2-体积超标
+     *   3-未超标
      */
     public static final Integer EXCESS_TYPE_WEIGHT = 1;
     public static final Integer EXCESS_TYPE_VOLUME = 2;
+    public static final Integer EXCESS_TYPE_BELOW = 3;
+
     /**
      * 图片识别异常编码
      */
