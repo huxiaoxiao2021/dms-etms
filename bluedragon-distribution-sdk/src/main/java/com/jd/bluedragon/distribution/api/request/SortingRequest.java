@@ -58,7 +58,7 @@ public class SortingRequest extends JdRequest {
     /**
      * 操作信息对象
      */
-	private OperatorData operatorData;	
+	private OperatorData operatorData;
 
     public String getBoxCode() {
         return this.boxCode;

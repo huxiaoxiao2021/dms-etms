@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sorting> {
     
@@ -127,7 +128,9 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     /**
      * 操作信息对象
      */
-	private OperatorData operatorData;    
+	private OperatorData operatorData;
+
+
     public Sorting() {
         super();
     }
