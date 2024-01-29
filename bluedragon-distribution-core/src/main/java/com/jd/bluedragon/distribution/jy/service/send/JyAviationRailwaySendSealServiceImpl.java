@@ -752,7 +752,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                 throw new JyBizException(String.format("没有找到%s的流向场地", keyword));
             }
             // 入参有则取入参的，没有则取路由
-            entity.setNextSiteId(Integer.valueOf(keyword));
+            entity.setNextSiteId(routeNextDto.getFirstNextSiteId());
         }
         //航班号(拼音开头)
         else if(Character.isLetter(keyword.charAt(0))) {
@@ -1408,6 +1408,17 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
                         //获取运力信息
                         sealListDto.setDepartureTimeStr(summaryEntity.getDepartTime());
                         sealListDto.setTransportCode(summaryEntity.getTransportCode());
+                    }else {
+                        if(log.isInfoEnabled()) {
+                            //可能是老版封车同步触发，老版封车同步仅变更状态,只有通过航空发货岗操作的封车才会记录封车封车统计
+                            log.info("航空发货岗干支已封查询封车统计数据为空, bizId={}", sealListDto.getBizId());
+                        }
+                        sealListDto.setWeight(0d);
+                        sealListDto.setVolume(0d);
+                        sealListDto.setItemNum(0);
+                        //获取运力信息
+                        sealListDto.setDepartureTimeStr(StringUtils.EMPTY);
+                        sealListDto.setTransportCode(StringUtils.EMPTY);
                     }
                 });
             }

@@ -62,6 +62,14 @@ public interface ISortingDao {
     List<Sorting> queryByCode2(Sorting sorting);
 
     /**
+     * 根据运单号或者包裹号查询分拣明细
+     * 无发货校验，不关联send_m
+     * @param sorting
+     * @return
+     */
+    List<Sorting> querySortingByCode(Sorting sorting);
+
+    /**
      * 根据批次号查询分拣明细
      * @param sorting
      * @return
@@ -103,4 +111,9 @@ public interface ISortingDao {
      * @return
      */
     List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request);
+
+    /**
+     * 查询场地最后一次分拣记录
+     */
+    Sorting findLastSortingByPackageCode(Sorting sorting);
 }

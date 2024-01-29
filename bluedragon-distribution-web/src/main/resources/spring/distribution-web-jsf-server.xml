@@ -634,4 +634,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <!-- 对外签到接口服务 -->
+    <jsf:provider id="jsfForeignUserSignService"
+                  interface="com.jd.bluedragon.distribution.external.intensive.service.ForeignUserSignService"
+                  alias="${dms.jsf.alias}"
+                  ref="foreignUserSignService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

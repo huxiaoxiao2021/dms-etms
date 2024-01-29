@@ -29,6 +29,8 @@ public class Box {
 	public static final Integer BOX_STATUS_DEPARTURE_PROCESSING = 6; // 发车处理中
 	public static final Integer BOX_STATUS_DEPARTURE = 7; // 发车完成
 
+	public static final Integer BOX_STATUS_SEALED = 8; // 封箱
+
 	public static final String TYPE_BC = "BC"; // 正向普通箱号
 	public static final String TYPE_BS = "BS"; // 正向奢侈品箱号
 	public static final String TYPE_TC = "TC"; // 退货普通箱号

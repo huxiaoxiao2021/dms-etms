@@ -343,6 +343,7 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         send.setSendType(MaterialSendTypeEnum.SEND_BY_SINGLE_MATERIAL.getCode());
         send.setSendNum(1);
         send.setCreateUserErp(request.getUserErp());
+        send.setCreateUserId(request.getUserCode());
         send.setCreateUserName(request.getUserName());
         send.setUpdateUserErp(request.getUserErp());
         send.setUpdateUserName(request.getUserName());

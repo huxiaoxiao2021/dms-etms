@@ -1581,6 +1581,21 @@ public class UccPropertyConfiguration{
      */
     private Integer jyWarehouseTaskCreateTimeBeginHours;
 
+    /**
+     * 接货仓发货岗自建任务常用车型置顶
+     */
+    private String jyWarehouseManualTaskKeyVehicleTypes;
+
+    /**
+     * 包裹非0重量体积拦截开关
+     */
+    private Boolean waybillZeroWeightInterceptSwitch;
+
+    /**
+     * 自动化称重限制开关
+     */
+    private Boolean automaticWeightVolumeUpperCheckSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -1878,6 +1893,29 @@ public class UccPropertyConfiguration{
     private boolean collectPackageTaskRefreshSwitch;
 
     private long jyCollectPackageInterceptBitCode;
+
+    /**
+     * 存储仓打包明细 单个箱子的上限
+     */
+    private Integer storageBoxDetailMaxSizeLimit;
+
+    private boolean thanosSwitch;
+
+    public boolean getThanosSwitch(){
+        return thanosSwitch;
+    }
+
+    public void setThanosSwitch(boolean thanosSwitch) {
+        this.thanosSwitch = thanosSwitch;
+    }
+
+    public Integer getStorageBoxDetailMaxSizeLimit(){
+        return storageBoxDetailMaxSizeLimit;
+    }
+
+    public void setStorageBoxDetailMaxSizeLimit(Integer storageBoxDetailMaxSizeLimit) {
+        this.storageBoxDetailMaxSizeLimit = storageBoxDetailMaxSizeLimit;
+    }
 
     public long getJyCollectPackageInterceptBitCode(){
         return jyCollectPackageInterceptBitCode;
@@ -4259,5 +4297,30 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
         this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public String getJyWarehouseManualTaskKeyVehicleTypes() {
+        return jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+    public void setJyWarehouseManualTaskKeyVehicleTypes(String jyWarehouseManualTaskKeyVehicleTypes) {
+        this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+
+    public Boolean getWaybillZeroWeightInterceptSwitch() {
+        return waybillZeroWeightInterceptSwitch;
+    }
+
+    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
+        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    }
+
+    public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
+        return automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
+        this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
     }
 }

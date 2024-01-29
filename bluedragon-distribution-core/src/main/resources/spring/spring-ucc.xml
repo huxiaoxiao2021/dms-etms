@@ -317,6 +317,7 @@
 		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
 		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
 		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
+		<property name="collectPackageOrgForbiddenList" value="${collectPackageOrgForbiddenList:''}"/>
 
 		<property name="userSignIgnoreCaseSwitch" value="${userSignIgnoreCaseSwitch:true}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
@@ -336,6 +337,11 @@
 		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
+		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
+		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
+		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
+		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
+		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -641,6 +647,7 @@
 				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.collectPackageOrgForbiddenList</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 				<value>uccPropertyConfiguration.czSealCarBoardCountMinLimit</value>
@@ -658,6 +665,11 @@
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
+				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
+				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
+				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
+				<value>uccPropertyConfiguration.thanosSwitch</value>
 			</list>
 		</property>
 	</bean>

@@ -94,6 +94,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     @Autowired
     private BaseService baseService;
 
+	@Autowired
+	private FuncUsageConfigService funcUsageConfigService;
+
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
@@ -621,7 +624,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         operateUser.setSiteCode(checkMenuAuthRequest.getSiteCode());
 		operateUser.setUserCode(checkMenuAuthRequest.getUserCode());
         funcUsageConfigRequestDto.setOperateUser(operateUser);
-        FuncUsageProcessDto menuUsageConfig = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+        FuncUsageProcessDto menuUsageConfig = funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
         if(menuUsageConfig != null) {
         	respData.setCanUse(menuUsageConfig.getCanUse());
         	respData.setMsg(menuUsageConfig.getMsg());

@@ -67,4 +67,14 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     public int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
         return sqlSession.update(this.nameSpace+".updateByWaybillCode", waybillConsumableRelationPDADto);
     }
+
+    @Override
+    public WaybillConsumableRelation findByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation) {
+        return sqlSession.selectOne(this.nameSpace+".findByWaybillCodeAndConsumableCode", waybillConsumableRelation);
+    }
+
+    @Override
+    public int updateByWaybillCodeAndConsumableCode(WaybillConsumableRelation waybillConsumableRelation) {
+        return sqlSession.update(this.nameSpace+".updateByWaybillCodeAndConsumableCode", waybillConsumableRelation);
+    }
 }
