@@ -209,6 +209,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
             // 调用质控接口，上报异常
             List<ReportRecord> reportRecords =  convertReportRecord(req);
+            logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
             JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
             if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
                 return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
