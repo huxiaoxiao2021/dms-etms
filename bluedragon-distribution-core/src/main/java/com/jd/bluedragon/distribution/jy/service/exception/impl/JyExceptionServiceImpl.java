@@ -2515,7 +2515,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 bizTaskExceptionUpdate.setBizId(req.getBizId());
                 // 0重量的不设置为处理中
                 bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
-                bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_PRINT.getCode());
+                assembleJyBizExceptionTaskProcessingStatus(jyExceptionInterceptDetailExist, bizTaskExceptionUpdate);
                 bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
                 bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
                 bizTaskExceptionUpdate.setUpdateTime(currentDate);
@@ -2536,6 +2536,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return result.toFail(checkCommonResult.getMessage(), checkCommonResult.getCode());
         }
         return result;
+    }
+
+
+    private void assembleJyBizExceptionTaskProcessingStatus(JyExceptionInterceptDetail jyExceptionInterceptDetailExist, JyBizTaskExceptionEntity bizTaskExceptionUpdate) {
+        final List<Integer> disposeNodeMatchedList = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
+        // 需要 换单打印
+        if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_EXCHANGE_WAYBILL_PRINT)){
+            bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_EXCHANGE_PRINT.getCode());
+        }
+        // 需要 补称重
+        if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_WEIGHT_VOLUME)){
+            bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_UPLOAD_WEIGHT_VOLUME.getCode());
+        }
+        // 需要 补打
+        if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_REPRINT)){
+            bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_REPRINT.getCode());
+        }
     }
 
     /**

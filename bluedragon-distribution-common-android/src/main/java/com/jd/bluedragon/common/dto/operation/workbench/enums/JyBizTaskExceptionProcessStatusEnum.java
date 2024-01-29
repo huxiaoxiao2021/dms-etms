@@ -19,6 +19,9 @@ public enum JyBizTaskExceptionProcessStatusEnum {
     APPROVE_REJECT(7, "审批驳回"),
     WAITER_INTERVENTION(8, "客服介入中"),
     WAITER_EXECUTION(9,"待执行"),
+    WAITING_EXCHANGE_PRINT(10,"待换单打印"),
+    WAITING_UPLOAD_WEIGHT_VOLUME(11,"待称重"),
+    WAITING_REPRINT(12,"待补打"),
     ;
 
     private Integer code;
