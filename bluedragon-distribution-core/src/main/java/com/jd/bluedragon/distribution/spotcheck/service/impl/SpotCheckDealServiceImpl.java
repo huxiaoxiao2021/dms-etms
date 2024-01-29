@@ -681,6 +681,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
 
+    /**
+     * 体积超标软包抽检需要再次使用自己的重量和终端的体积调用一次称重再造系统判断是否超标
+     * 此方法只用于此特殊用途
+     */
     private boolean checkExcessStatus(WeightVolumeSpotCheckDto spotCheckDto) {
         ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
         // 运单号
