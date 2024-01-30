@@ -122,9 +122,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     public Boolean finishSendTask(FinishSendTaskReq req) {
         Date now = new Date();
         JyPickingSendDestinationDetailEntity entity = new JyPickingSendDestinationDetailEntity();
-        entity.setStatus(JyPickingSendTaskEnum.TO_SEAL.getCode());
-        entity.setCreateSiteId((long) req.getCurrentOperate().getSiteCode());
-        entity.setNextSiteId((long) req.getNextSiteId());
+        entity.setSendCode(req.getSendCode());
         entity.setCompleteTime(now);
         entity.setUpdateTime(now);
         entity.setUpdateUserErp(req.getUser().getUserErp());
@@ -295,7 +293,13 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setCreateSiteId(createSiteId);
         entity.setNextSiteId(nextSiteId);
         entity.setTaskType(taskType);
+        entity.setStatus(JyPickingSendTaskEnum.SENDING.getCode());
         return jyPickingSendDestinationDetailDao.getSendDetailBySiteId(entity);
 
+    }
+
+    @Override
+    public String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId, Integer taskType) {
+        return jyPickingSendDestinationDetailDao.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, taskType);
     }
 }

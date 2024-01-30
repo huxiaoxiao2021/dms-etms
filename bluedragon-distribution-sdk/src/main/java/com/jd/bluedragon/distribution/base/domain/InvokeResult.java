@@ -338,6 +338,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE = 3077;
     public static final String WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE = "单件货物重量不能超过%skg!";
 
+    public static final int AVRA_SEND_TASK_FINISHED_CODE = 3078;
+    public static final String AVRA_SEND_TASK_FINISHED_MESSAGE = "发货任务已完成！";
+
     public static final String SEND_CHECK_OPERATOR_MESSAGE = "未获取到操作人信息，请重新登录!";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

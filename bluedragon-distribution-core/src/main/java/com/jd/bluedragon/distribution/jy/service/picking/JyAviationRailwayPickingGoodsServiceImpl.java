@@ -726,6 +726,14 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         if (!ret.codeSuccess()) {
             return ret;
         }
+        long curSiteId = req.getCurrentOperate().getSiteCode();
+        long nextSiteId = (long) req.getNextSiteId();
+        String sendCode = jyPickingSendDestinationService.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, req.getTaskType());
+        if (StringUtils.isEmpty(sendCode)) {
+            ret.customMessage(InvokeResult.AVRA_SEND_TASK_FINISHED_CODE, InvokeResult.AVRA_SEND_TASK_FINISHED_MESSAGE);
+            return ret;
+        }
+        req.setSendCode(sendCode);
         jyPickingSendDestinationService.finishSendTask(req);
         return ret;
     }
@@ -1189,7 +1197,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         queryDto.setStartTime(startTime);
         // 业务卡控时间
         queryDto.setEndTime(endTime);
-        queryDto.setStatus(PickingGoodStatusEnum.PICKING_COMPLETE.getCode());
+        queryDto.setStatusList(Arrays.asList(PickingGoodStatusEnum.TO_PICKING.getCode(), PickingGoodStatusEnum.PICKING.getCode()));
         queryDto.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
         List<String> bizIdList;
         do {

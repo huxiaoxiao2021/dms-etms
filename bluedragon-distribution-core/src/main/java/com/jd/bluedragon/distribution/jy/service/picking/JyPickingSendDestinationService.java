@@ -62,4 +62,13 @@ public interface JyPickingSendDestinationService {
      * 查询流向信息
      */
     JyPickingSendDestinationDetailEntity getSendDetailBySiteId(Long createSiteId, Long nextSiteId, Integer taskType);
+
+    /**
+     * 查询流向最后一个未发货完成的批次
+     * @param curSiteId
+     * @param nextSiteId
+     * @param taskType
+     * @return
+     */
+    String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId, Integer taskType);
 }

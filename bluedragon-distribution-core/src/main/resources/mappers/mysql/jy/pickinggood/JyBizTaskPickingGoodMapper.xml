@@ -503,9 +503,11 @@
     and create_time <![CDATA[ >= ]]> #{startTime}
     and task_type = #{taskType}
     and manual_created_flag = 1
-    <!-- todo 走in -->
-    <if test="status != null">
-      and status <![CDATA[ < ]]> #{status}
+    <if test="statusList != null and statusList.size() > 0">
+      and status in
+      <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
     </if>
     limit #{offset}, #{limit}
   </select>
