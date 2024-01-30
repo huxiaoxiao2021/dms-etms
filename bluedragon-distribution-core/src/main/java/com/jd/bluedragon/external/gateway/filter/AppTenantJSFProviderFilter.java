@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @version V1.0
  * @Project: ql-dms-distribution
  * @Package com.jd.bd.dms.automatic.marshal.filter
- * @Description: 接收分拣app传入的租户编码
+ * @Description: 接收分拣app传入的租户编码，专用app
  * @date Date : 2024年01月29日 14:59
  */
 public class AppTenantJSFProviderFilter extends AbstractFilter {

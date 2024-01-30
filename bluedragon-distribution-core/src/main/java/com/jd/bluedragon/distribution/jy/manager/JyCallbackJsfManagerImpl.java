@@ -45,7 +45,7 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
      * @return
      *
      * InvokeResult 中的code 返回非成功的时候（不等于200）认为服务异常。会阻断后续的代码执行逻辑。
-     * 如果只是为了做提醒类的场景，则放在msgbox中处理，依赖特定的msgbox code来做处理。
+     * 提醒类的不放在校验环节回调。，放在下面的执行回调
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCallbackJsfManagerImpl.unloadScanCheckOfCallback", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -85,6 +85,14 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
         }
     }
 
+    /**
+     * 拣运作业工作台 发货 校验环节回调
+     * @param request
+     * @return
+     *
+     * InvokeResult 中的code 返回非成功的时候（不等于200）认为服务异常。会阻断后续的代码执行逻辑。
+     * 提醒类的不放在校验环节回调。，放在下面的执行回调
+     */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCallbackJsfManagerImpl.sendScanCheckOfCallback", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanCheckOfCallback(SendScanCallbackReqDto request){
@@ -101,7 +109,11 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
             return result;
         }
     }
-
+    /**
+     * 拣运作业工作台 发货 执行环节回调
+     * @param request
+     * @return
+     */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCallbackJsfManagerImpl.sendScanOfCallback", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeWithMsgBoxResult<SendScanCallbackRespDto> sendScanOfCallback(SendScanCallbackReqDto request) {
@@ -113,7 +125,7 @@ public class JyCallbackJsfManagerImpl implements JyCallbackJsfManager{
         try{
             return sendCallbackJsfService.sendScanOfCallback(request);
         }catch (Exception e) {
-            log.error("JyCallbackJsfManagerImpl验货时回调异常，入参：{}", JsonHelper.toJson(request),e);
+            log.error("JyCallbackJsfManagerImpl发货时回调异常，入参：{}", JsonHelper.toJson(request),e);
             return result;
         }
     }

@@ -1867,19 +1867,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
             String barCode = request.getBarCode();
             InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanOfCallback(transferDto(request));
-            //返回 code 成功继续执行,不成功时不要阻断，不处理
+            //返回 code 成功继续执行,不成功时不要阻断，不处理，
             if (callbackResult.isSuccess()) {
                 //返回个性服务标识
                 result.setSelfDomFlag(Boolean.TRUE);
                 result.setCode(callbackResult.getCode());
                 result.setMessage(callbackResult.getMessage());
+                //提示类的提示语不放在这个，放在执行回调,这里保留代码。实际不返回
                 result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
-                //data暂时没有
-                //result.setData(callbackResult.getData());
             }
         }
     }
 
+    /**
+     * 执行完成的回调
+     * @param result 结果响应对象
+     * @param request 发送扫描请求对象
+     */
     private void sendScanCheckOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request){
         //需要判断当非拣运租户时在触发回调
         String tenantCode = TenantContext.getTenantCode();
@@ -1893,6 +1897,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 result.setCode(callbackResult.getCode());
                 result.setMessage(callbackResult.getMessage());
                 result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
+                //data暂时没有
+                //result.setData(callbackResult.getData());
             }
         }
     }

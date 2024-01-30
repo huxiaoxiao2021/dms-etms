@@ -203,6 +203,12 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         }
     }
 
+    /**
+     * 执行卸载扫描操作-新接口
+     * @param request 卸载扫描请求
+     * @return 带有校验结果的卸载扫描响应
+     * @throws Exception 可能抛出异常
+     */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.doUnloadScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
