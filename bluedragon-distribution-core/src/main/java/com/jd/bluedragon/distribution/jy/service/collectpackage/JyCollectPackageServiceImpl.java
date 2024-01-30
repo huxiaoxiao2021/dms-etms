@@ -683,7 +683,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds, taskMap);
 
         // 批量获取统计信息
-        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(boxCodeList);
+        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(bizIds);
 
         // 组装任务
         List<CollectPackageTaskDto> collectPackTaskDtoList = taskList.stream().map(task -> {
@@ -753,7 +753,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return aggMap;
         }
 
-        listTaskStatisticDto.getStatisticsUnderTaskDtoList().stream().map(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
+        listTaskStatisticDto.getStatisticsUnderTaskDtoList().forEach(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
         return aggMap;
     }
 

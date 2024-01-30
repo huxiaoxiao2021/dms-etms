@@ -1835,6 +1835,8 @@ public class WaybillServiceImpl implements WaybillService {
             waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceAgencyName());
             waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
             waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
+            waybillForPreSortOnSiteRequest.setWaybillSign(waybill.getWaybillSign());
+            waybillForPreSortOnSiteRequest.setReceiveSiteCode(waybill.getOldSiteId());
             if(log.isInfoEnabled()){
                 log.info("waybillForPreSortOnSiteRequest-{}",JSON.toJSONString(waybillForPreSortOnSiteRequest));
             }

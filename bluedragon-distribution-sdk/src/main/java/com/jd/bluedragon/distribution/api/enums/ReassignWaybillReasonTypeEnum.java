@@ -13,7 +13,8 @@ public enum ReassignWaybillReasonTypeEnum {
     NO_PRE_SORTING_STATION(4,0,"无预分拣站点"),
     RECOMMENDS_WAREHOUSE_NOT_ACC(5,1,"系统推荐仓不收"),
     JUDGMENT_REASSIGN(6,1,"根据判责结果反调"),
-    NO_ROUTING(7,1,"退仓无线上路由");
+    NO_ROUTING(7,1,"退仓无线上路由"),
+    OTHER(8,1,"其他");
 
 
     private Integer code;
