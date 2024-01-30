@@ -140,7 +140,7 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
             String sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
             String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
             // 报废运单不发送消息
-            if (BusinessUtil.isSx(sendPay) && !isScrapWaybill(waybillSign)) {
+            if (BusinessUtil.isSx(sendPay) && !isScrapWaybill(waybillSign) || BusinessUtil.isColdChainExpressScrap(waybillSign)) {
                 String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
                 this.bdBlockerCompleteMQ.send(waybillCode, mqData);
             }

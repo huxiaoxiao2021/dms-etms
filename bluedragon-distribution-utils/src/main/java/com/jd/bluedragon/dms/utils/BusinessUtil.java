@@ -3106,4 +3106,14 @@ public class BusinessUtil {
                 && BusinessUtil.isSignChar(waybillSign,POSITION_29,CHAR_29_8)
                 && !BusinessUtil.isSignChar(waybillSign,POSITION_61, CHAR_61_0);
     }
+
+    /**
+     * 判断是否是冷链专送且异常即报废
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isColdChainExpressScrap(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+    }
 }
