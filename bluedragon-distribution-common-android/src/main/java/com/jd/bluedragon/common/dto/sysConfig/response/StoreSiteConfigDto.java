@@ -10,7 +10,7 @@ public class StoreSiteConfigDto implements Serializable {
     private static final long serialVersionUID = 5558432835220167498L;
 
     /**
-     * 配置列表
+     * 配置列表 key 预分拣站点 value 营业部
      */
     private HashMap<Integer, List<Integer>> configMap;
 
