@@ -117,6 +117,20 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private String deviceSubTypeName;
     /**
+     * 操作人所在网格码  db_column: operate_position_code
+     */
+    private String operatePositionCode;
+
+    /**
+     * 操作网格key  db_column: operate_work_station_grid_key
+     */
+    private String operateWorkGridKey;
+
+    /**
+     * 操作网格工序  db_column: operate_work_grid_key
+     */
+    private String operateWorkStationGridKey;
+    /**
      * 拦截消息编码  db_column: intercept_code
      */
     private Integer interceptCode;
@@ -420,6 +434,30 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.deviceSubTypeName = deviceSubTypeName;
     }
 
+    public String getOperatePositionCode() {
+        return operatePositionCode;
+    }
+
+    public void setOperatePositionCode(String operatePositionCode) {
+        this.operatePositionCode = operatePositionCode;
+    }
+
+    public String getOperateWorkGridKey() {
+        return operateWorkGridKey;
+    }
+
+    public void setOperateWorkGridKey(String operateWorkGridKey) {
+        this.operateWorkGridKey = operateWorkGridKey;
+    }
+
+    public String getOperateWorkStationGridKey() {
+        return operateWorkStationGridKey;
+    }
+
+    public void setOperateWorkStationGridKey(String operateWorkStationGridKey) {
+        this.operateWorkStationGridKey = operateWorkStationGridKey;
+    }
+
     public Integer getInterceptCode() {
         return interceptCode;
     }
@@ -633,13 +671,16 @@ public class JyExceptionInterceptDetail implements Serializable{
                 ", operateNode=" + operateNode +
                 ", operateNodeName='" + operateNodeName + '\'' +
                 ", interceptEffectTime=" + interceptEffectTime +
-                ", interceptTypeName='" + interceptTypeName + '\'' +
                 ", interceptType=" + interceptType +
+                ", interceptTypeName='" + interceptTypeName + '\'' +
                 ", deviceCode='" + deviceCode + '\'' +
                 ", deviceType=" + deviceType +
                 ", deviceTypeName='" + deviceTypeName + '\'' +
                 ", deviceSubType=" + deviceSubType +
                 ", deviceSubTypeName='" + deviceSubTypeName + '\'' +
+                ", operatePositionCode='" + operatePositionCode + '\'' +
+                ", operateWorkGridKey='" + operateWorkGridKey + '\'' +
+                ", operateWorkStationGridKey='" + operateWorkStationGridKey + '\'' +
                 ", interceptCode=" + interceptCode +
                 ", interceptMessage='" + interceptMessage + '\'' +
                 ", disposeNode=" + disposeNode +
@@ -653,6 +694,7 @@ public class JyExceptionInterceptDetail implements Serializable{
                 ", inputLength=" + inputLength +
                 ", inputWidth=" + inputWidth +
                 ", inputHeight=" + inputHeight +
+                ", saveType=" + saveType +
                 ", createUserId=" + createUserId +
                 ", createUserCode='" + createUserCode + '\'' +
                 ", createUserName='" + createUserName + '\'' +

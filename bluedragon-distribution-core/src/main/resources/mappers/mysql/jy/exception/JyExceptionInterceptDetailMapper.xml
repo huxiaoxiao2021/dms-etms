@@ -28,6 +28,9 @@
         <result property="deviceTypeName" column="device_type_name"/>
         <result property="deviceSubType" column="device_sub_type"/>
         <result property="deviceSubTypeName" column="device_sub_type_name"/>
+        <result property="operatePositionCode" column="operate_position_code"/>
+        <result property="operateWorkGridKey" column="operate_work_station_grid_key"/>
+        <result property="operateWorkStationGridKey" column="operate_work_grid_key"/>
         <result property="interceptCode" column="intercept_code"/>
         <result property="interceptMessage" column="intercept_message"/>
         <result property="disposeNode" column="dispose_node"/>
@@ -56,7 +59,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `operate_node_name`, `intercept_effect_time`, `intercept_type_name`, `intercept_type`, `device_code`, `device_type`, `device_type_name`, `device_sub_type`, `device_sub_type_name`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_node_name`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `operate_node_name`, `intercept_effect_time`, `intercept_type_name`, `intercept_type`, `device_code`, `device_type`, `device_type_name`, `device_sub_type`, `device_sub_type_name`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_node_name`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 插入 -->
@@ -87,6 +90,9 @@
             device_type_name,
             device_sub_type,
             device_sub_type_name,
+            operate_position_code,
+            operate_work_station_grid_key,
+            operate_work_grid_key,
             intercept_code,
             intercept_message,
             dispose_node,
@@ -137,6 +143,9 @@
             #{deviceTypeName},
             #{deviceSubType},
             #{deviceSubTypeName},
+            #{operatePositionCode},
+            #{operateWorkStationGridKey},
+            #{operateWorkGridKey},
             #{interceptCode},
             #{interceptMessage},
             #{disposeNode},
@@ -242,6 +251,15 @@
             </if>
             <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
                 device_sub_type_name,
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code,
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key,
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key,
             </if>
             <if test="interceptCode != null">
                 intercept_code,
@@ -392,6 +410,15 @@
             <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
                 #{deviceSubTypeName},
             </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                #{operateWorkGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                #{operateWorkGridKey},
+            </if>
             <if test="interceptCode != null">
                 #{interceptCode},
             </if>
@@ -495,6 +522,9 @@
             device_type_name,
             device_sub_type,
             device_sub_type_name,
+            operate_position_code,
+            operate_work_station_grid_key,
+            operate_work_grid_key,
             intercept_code,
             intercept_message,
             dispose_node,
@@ -548,6 +578,9 @@
                     #{item.deviceTypeName},
                     #{item.deviceSubType},
                     #{item.deviceSubTypeName},
+                    #{item.operatePositionCode},
+                    #{item.operateWorkStationGridKey},
+                    #{item.operateWorkGridKey},
                     #{item.interceptCode},
                     #{item.interceptMessage},
                     #{item.disposeNode},
@@ -647,6 +680,15 @@
             </if>
             <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
                 device_sub_type_name = #{deviceSubTypeName},
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code = #{operatePositionCode},
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key = #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key = #{operateWorkGridKey},
             </if>
             <if test="interceptCode != null ">
                 intercept_code = #{interceptCode},
@@ -924,6 +966,15 @@
             </if>
             <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
                 device_sub_type_name = #{deviceSubTypeName},
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code = #{operatePositionCode},
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key = #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key = #{operateWorkGridKey},
             </if>
             <if test="interceptCode != null ">
                 intercept_code = #{interceptCode},
