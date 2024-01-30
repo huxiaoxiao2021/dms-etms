@@ -243,7 +243,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private void doSendArTransportModeChangeMq(ExpContrabandReq req, BigWaybillDto bigWaybillDto) {
         try{
-            arTransportModeChangeProducer.send(req.getBarCode(), JsonHelper.toJson(convertMessage(req,bigWaybillDto)));
+            ArTransportModeChangeDto arTransportModeChangeDto = convertMessage(req, bigWaybillDto);
+            logger.info("航空转陆运向路由发送消息{}", JsonHelper.toJson(arTransportModeChangeDto));
+            arTransportModeChangeProducer.send(req.getBarCode(), JsonHelper.toJson(arTransportModeChangeDto));
         }catch (Exception e) {
             logger.error("包裹{}航空转陆运发送消息异常",req.getBarCode());
         }
