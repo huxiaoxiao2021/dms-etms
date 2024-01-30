@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
@@ -16,16 +17,14 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 空铁提货任务服务
@@ -49,6 +48,8 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -123,7 +124,16 @@ public class JyBizTaskPickingGoodServiceImpl implements JyBizTaskPickingGoodServ
 
     @Override
     public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType) {
-        return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(siteId, taskType);
+        Date createTimeStartRange = this.getCreateTimeStartRange();
+        JyBizTaskPickingGoodEntityCondition entity = new JyBizTaskPickingGoodEntityCondition();
+        entity.setNextSiteId(siteId);
+        entity.setTaskType(taskType);
+        entity.setCreateTimeStart(createTimeStartRange);
+        return jyBizTaskPickingGoodDao.findLatestEffectiveManualCreateTask(entity);
+    }
+
+    private Date getCreateTimeStartRange() {
+        return DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -dmsConfigManager.getUccPropertyConfiguration().getJyBizTaskPickingGoodTimeRange());
     }
 
     @Override

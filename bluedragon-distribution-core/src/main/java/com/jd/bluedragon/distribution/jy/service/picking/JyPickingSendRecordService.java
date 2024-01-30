@@ -29,28 +29,6 @@ public interface JyPickingSendRecordService {
      */
     JyPickingSendRecordEntity latestPickingRecord(Long curSiteId, String bizId, String barCode);
 
-    /**
-     * 统计
-     * @param siteId 操作场地
-     * @param bizId 提货任务bizId
-     * @param nextSiteId  发货流向，非空是统计该流向发货数据
-     */
-//    PickingGoodTaskStatisticsDto statisticsByBizId(Long siteId, String bizId, Long nextSiteId);
-
-    /**
-     * 已提件数
-     * @param bizId
-     * @param siteId
-     * @return
-     */
-    Integer countTaskRealScanItemNum(String bizId, Long siteId);
-    /**
-     * 待提件数
-     * @param bizId
-     * @param siteId
-     * @return
-     */
-    Integer countTaskWaitScanItemNum(String bizId, Long siteId);
 
     public JyPickingSendRecordEntity fetchByPackageCodeAndCondition(Long curSiteId, String packageCode, String bizId);
     /**

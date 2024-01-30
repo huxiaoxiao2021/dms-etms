@@ -24,10 +24,7 @@ public class JyBizTaskPickingGoodDao extends BaseDao<JyBizTaskPickingGoodEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateTaskByBizIdWithCondition", entity);
     }
 
-    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(Long siteId, Integer taskType) {
-        JyBizTaskPickingGoodEntity entity = new JyBizTaskPickingGoodEntity();
-        entity.setNextSiteId(siteId);
-        entity.setTaskType(taskType);
+    public JyBizTaskPickingGoodEntity findLatestEffectiveManualCreateTask(JyBizTaskPickingGoodEntityCondition entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findLatestEffectiveManualCreateTask", entity);
     }
 
