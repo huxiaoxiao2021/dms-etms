@@ -444,6 +444,14 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             String barCode = paramObj.getBarCode();
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
 
+            // 暂存判断
+            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
+                if (!waybillTraceManager.isOpCodeWaste(barCode)) {
+                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
+                    return result.toFail("不是弃件，请勿操作弃件暂存");
+                }
+            }
+
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(true);
             choice.setQueryPackList(true);
@@ -475,13 +483,6 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 }
             }
 
-            // 暂存判断
-            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                if (!waybillTraceManager.isOpCodeWaste(barCode)) {
-                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
-                    return result.toFail("不是弃件，请勿操作弃件暂存");
-                }
-            }
             // 3. 执行业务操作逻辑
             final DiscardedStorageContext context = new DiscardedStorageContext();
             context.setScanDiscardedPackagePo(paramObj);
