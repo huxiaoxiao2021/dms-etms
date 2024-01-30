@@ -6,6 +6,10 @@
     <result column="box_code" property="boxCode" jdbcType="VARCHAR" />
     <result column="relation_box_code" property="relationBoxCode" jdbcType="VARCHAR" />
     <result column="create_site_code" property="createSiteCode" jdbcType="BIGINT" />
+      <result column="province_agency_code" property="provinceAgencyCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="province_agency_name" property="provinceAgencyName" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="area_hub_code" property="areaHubCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <result column="area_hub_name" property="areaHubName" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
     <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
@@ -16,8 +20,9 @@
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, box_code, relation_box_code, create_site_code, create_user_erp, create_user_name, 
-    update_user_erp, update_user_name, create_time, update_time, yn, ts
+    id, box_code, relation_box_code, create_site_code, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, create_time, update_time, yn, ts,
+      province_agency_code, province_agency_name, area_hub_code, area_hub_name
   </sql>
 
     <sql id="uniqQueryKey">
@@ -40,6 +45,18 @@
       <if test="createSiteCode != null" >
         create_site_code,
       </if>
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+            province_agency_code,
+        </if>
+        <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+            province_agency_name,
+        </if>
+        <if test="areaHubCode != null and areaHubCode != ''" >
+            area_hub_code,
+        </if>
+        <if test="areaHubName != null and areaHubName != ''" >
+            area_hub_name,
+        </if>
       <if test="createUserErp != null" >
         create_user_erp,
       </if>
@@ -75,6 +92,18 @@
       <if test="createSiteCode != null" >
         #{createSiteCode,jdbcType=BIGINT},
       </if>
+        <if test="provinceAgencyCode != null" >
+            #{provinceAgencyCode,jdbcType=VARCHAR},
+        </if>
+        <if test="provinceAgencyName != null" >
+            #{provinceAgencyName,jdbcType=VARCHAR},
+        </if>
+        <if test="areaHubCode != null" >
+            #{areaHubCode,jdbcType=VARCHAR},
+        </if>
+        <if test="areaHubName != null" >
+            #{areaHubName,jdbcType=VARCHAR},
+        </if>
       <if test="createUserErp != null" >
         #{createUserErp,jdbcType=VARCHAR},
       </if>
@@ -167,6 +196,12 @@
             </if>
             <if test="relationBoxCode != null and relationBoxCode !='' ">
                 AND relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                AND province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR}
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                AND area_hub_code = #{areaHubCode,jdbcType=VARCHAR}
             </if>
         </where>
     </sql>

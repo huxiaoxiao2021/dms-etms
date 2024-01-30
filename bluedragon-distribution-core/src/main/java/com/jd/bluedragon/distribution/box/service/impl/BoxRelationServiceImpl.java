@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.box.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.dao.BoxRelationDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -56,6 +58,9 @@ public class BoxRelationServiceImpl implements BoxRelationService {
 
     @Autowired
     private SortingDao sortingDao;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     @JProfiler(jKey = "dms.web.BoxRelationService.queryBoxRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.FunctionError })
@@ -198,6 +203,13 @@ public class BoxRelationServiceImpl implements BoxRelationService {
             result.customMessage(DmsMessageConstants.CODE_50005, DmsMessageConstants.MESSAGE_50005);
             return result;
         }
+
+        // 补全省区字段
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(relation.getCreateSiteCode().intValue());
+        relation.setProvinceAgencyCode(siteOrgDto.getProvinceAgencyCode());
+        relation.setProvinceAgencyName(siteOrgDto.getProvinceAgencyName());
+        relation.setAreaHubCode(siteOrgDto.getAreaCode());
+        relation.setAreaHubName(siteOrgDto.getAreaName());
 
         return result;
     }
