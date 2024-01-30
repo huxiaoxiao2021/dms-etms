@@ -34,11 +34,15 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -65,6 +69,9 @@ import java.util.stream.Collectors;
 public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailwayPickingGoodsService{
 
     private static final Logger log = LoggerFactory.getLogger(JyAviationRailwayPickingGoodsServiceImpl.class);
+
+    private final String SYS_UPDATE_USER_ERP = "sys";
+    private final String SYS_UPDATE_USER_NAME = "sys";
 
 
     @Autowired
@@ -536,11 +543,27 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
+        closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
         boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.COMPLETE_BTN.getCode(), req.getUser());
         if (!success) {
             log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
         }
         return ret;
+    }
+
+    private boolean closeScheduleTask(String bizId, String updateUserErp, String updateUserName) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.PICKING.getCode()));
+        req.setOpeUser(updateUserErp);
+        req.setOpeUserName(updateUserName);
+        req.setOpeTime(new Date());
+        JyScheduleTaskResp res = jyScheduleTaskManager.closeScheduleTask(req);
+        if(Objects.isNull(res)) {
+            log.error("提货岗关闭调度任务返回null, 参数={}", JsonUtils.toJSONString(req));
+            throw new JyBizException("关闭调度任务异常返回null:" + bizId);
+        }
+        return true;
     }
 
     @Override
@@ -552,6 +575,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
+        closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
         // 当前异常上报只将任务状态修改为完成
         boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
         if (!success) {
@@ -1174,6 +1198,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     private void batchFinishPickingTaskByBizId(List<String> bizIdList, Integer completeNode) {
+        bizIdList.forEach(item -> {
+            closeScheduleTask(item, SYS_UPDATE_USER_ERP, SYS_UPDATE_USER_NAME);
+        });
         Date now = new Date();
         JyPickingTaskBatchUpdateDto updateDto = new JyPickingTaskBatchUpdateDto();
         updateDto.setBizIdList(bizIdList);
