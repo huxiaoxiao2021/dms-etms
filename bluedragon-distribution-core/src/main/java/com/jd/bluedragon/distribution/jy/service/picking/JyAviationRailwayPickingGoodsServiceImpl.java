@@ -320,7 +320,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }else if(StringUtils.isNotBlank(request.getLastScanTaskBizId())) {
             //不存在待提任务取上次扫描任务
             JyBizTaskPickingGoodEntity taskPickingGoodEntity = jyBizTaskPickingGoodService.findByBizIdWithYn(request.getLastScanTaskBizId(), false);
-            if(!Objects.isNull(taskPickingGoodEntity) && !PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(taskPickingGoodEntity) && !JyBizTaskPickingGoodEntity.INTERCEPT_FLAG.equals(taskPickingGoodEntity.getIntercept())) {
+            if(!Objects.isNull(taskPickingGoodEntity) && !PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(taskPickingGoodEntity.getStatus()) && !JyBizTaskPickingGoodEntity.INTERCEPT_FLAG.equals(taskPickingGoodEntity.getIntercept())) {
                 logInfo("扫描单据{}查提货任务为空-待提任务取上次扫描任务{}", request.getBarCode(), JsonHelper.toJson(taskPickingGoodEntity));
                 resData.setTaskSource(BarCodeFetchPickingTaskRuleEnum.LAST_PICKING_TASK.getCode());
                 return taskPickingGoodEntity;
@@ -399,7 +399,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         taskRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
         taskRequest.setSiteName(request.getCurrentOperate().getSiteName());
-        taskRequest.setType(Task.TASK_TYPE_OFFLINE);// todo zcf 1800离线模式
+        taskRequest.setType(Task.TASK_TYPE_OFFLINE);
         taskRequest.setUserCode(request.getUser().getUserCode());
         taskRequest.setUserName(request.getUser().getUserName());
         taskService.add(taskRequest);
@@ -504,7 +504,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         taskRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
         taskRequest.setSiteName(request.getCurrentOperate().getSiteName());
-        taskRequest.setType(Task.TASK_TYPE_OFFLINE);// todo zcf 1800离线模式
+        taskRequest.setType(Task.TASK_TYPE_OFFLINE);
         taskRequest.setUserCode(request.getUser().getUserCode());
         taskRequest.setUserName(request.getUser().getUserName());
         taskService.add(taskRequest);
@@ -763,6 +763,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         List<String> bizIdList = resolveKeyword(req.getKeyword(), req.getCurrentOperate().getSiteCode(), req.getTaskType());
         // count当前场地各个status的任务数
         calculateCountStatus(req, bizIdList, res);
+//        todo laoqingchang
         // 根据搜索关键字查询bizId没有查到则返回
         if (StringUtils.isNotEmpty(req.getKeyword()) && CollectionUtils.isEmpty(bizIdList)) {
             return ret;

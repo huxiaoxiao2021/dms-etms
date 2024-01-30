@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -14,6 +13,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  * @Description
  */
 public interface CommonService {
+
+    //todo zcf 放在router或者baseService
 
     BoxNextSiteDto getRouteNextSiteByBox(Integer curSiteId, String box);
 

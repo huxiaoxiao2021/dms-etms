@@ -76,8 +76,9 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PickingGoodDetailInitByDmsSendInfoServiceImpl.pickingGoodDetailInitSplit",mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean pickingGoodDetailInitSplit(PickingGoodTaskDetailInitDto initDto) {
+//        todo zcf  改成分页查询
         List<SendDetail> sendDetailList = sendDatailReadDao.querySendDSimpleInfoBySendCode(initDto.getBatchCode(), initDto.getStartSiteId().intValue());
-
+        //todo zcf
         this.sendInitDetailPackageMq(initDto, sendDetailList);
         //计算待提agg中待提件数
         this.calculateWaitPickingItemNum(initDto, sendDetailList);

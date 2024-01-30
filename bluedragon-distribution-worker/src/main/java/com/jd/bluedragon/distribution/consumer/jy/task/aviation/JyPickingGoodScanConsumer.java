@@ -136,6 +136,7 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
             Sorting sorting =new Sorting();
             sorting.setBoxCode(mqBody.getBarCode());
             sorting.setCreateSiteCode(box.getCreateSiteCode());
+            //todo zcf 获取箱号明细
             List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
             if (CollectionUtils.isEmpty(sortingList)) {
                 logInfo("按箱号提货扫描拆分包裹数据，箱内包裹查询为空，boxCode={}，siteId={}", mqBody.getBarCode(), sorting.getCreateSiteCode());

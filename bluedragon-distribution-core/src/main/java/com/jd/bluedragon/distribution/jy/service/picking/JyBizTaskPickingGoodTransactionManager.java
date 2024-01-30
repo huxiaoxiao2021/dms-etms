@@ -80,6 +80,7 @@ public class JyBizTaskPickingGoodTransactionManager {
 //        }
         JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(scanDto.getBizId(), false);
         if(Objects.isNull(entity) || !PickingGoodStatusEnum.TO_PICKING.getCode().equals(entity.getStatus())) {
+            //todo zcf 时间先后修改
             return true;
         }
         logInfo("提货任务{}首次扫描逻辑开始.{}", JsonHelper.toJson(scanDto));
@@ -88,7 +89,7 @@ public class JyBizTaskPickingGoodTransactionManager {
         updateEntity.setNextSiteId(scanDto.getPickingSiteId());
         updateEntity.setBizId(scanDto.getBizId());
         updateEntity.setStatus(PickingGoodStatusEnum.PICKING.getCode());
-        Long startTime = scanDto.getOperateTime() - 2000l;//开始时间设置在第一单前几秒，区分边界
+        Long startTime = scanDto.getOperateTime();
         updateEntity.setPickingStartTime(new Date());
         updateEntity.setUpdateTime(new Date(startTime));
         updateEntity.setUpdateUserErp(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
@@ -182,7 +183,7 @@ public class JyBizTaskPickingGoodTransactionManager {
     }
 
     /**
-     * 实操扫描统计
+     * 实操扫描统计DB计数
      * @param mqBody
      */
     @Transactional(value = "tm_jy_core_main", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

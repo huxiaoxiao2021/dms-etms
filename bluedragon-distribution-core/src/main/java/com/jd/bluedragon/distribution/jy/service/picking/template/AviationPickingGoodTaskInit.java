@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking.template;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
@@ -22,11 +23,15 @@ import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -72,6 +77,9 @@ public class AviationPickingGoodTaskInit extends PickingGoodTaskInit {
     }
 
     @Override
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "AviationPickingGoodTaskInit.generatePickingGoodTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     protected boolean generatePickingGoodTask(PickingGoodTaskInitDto initDto) {
         JyBizTaskPickingGoodEntity pickingGoodEntity = jyBizTaskPickingGoodService.findLatestTaskByBusinessNumber(initDto.getBusinessNumber(), initDto.getTaskType());
         if(!Objects.isNull(pickingGoodEntity)) {

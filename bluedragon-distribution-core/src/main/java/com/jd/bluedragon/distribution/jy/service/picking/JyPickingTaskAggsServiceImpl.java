@@ -55,8 +55,9 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     private JyPickingTaskAggsDao jyPickingTaskAggsDao;
     @Autowired
     private JyPickingTaskSendAggsDao jyPickingTaskSendAggsDao;
+    //todo zcf cacheService 命名
     @Autowired
-    private JyPickingTaskAggsCacheService cacheService;
+    private JyPickingTaskAggsCacheService jyPickingTaskAggsCacheService;
     @Autowired
     private JyBizTaskPickingGoodService jyBizTaskPickingGoodService;
     @Autowired
@@ -110,18 +111,18 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             Integer handoverSendBox = 0;
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提箱件数
-                morePickingBox = cacheService.incrRealScanMorePickingBoxNum(bizId, siteId);
+                morePickingBox = jyPickingTaskAggsCacheService.incrRealScanMorePickingBoxNum(bizId, siteId);
             }else {
                 //交接提箱件数
-                handoverPickingBox = cacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
+                handoverPickingBox = jyPickingTaskAggsCacheService.incrRealScanWaitPickingBoxNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 if(Boolean.TRUE.equals(request.getForceSendFlag())) {
                     //多发的箱件数【流向维度】
-                    moreSendBox = cacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
+                    moreSendBox = jyPickingTaskAggsCacheService.incrRealScanFlowMoreSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }else {
                     //交接提发箱的件数【流向维度】
-                    handoverSendBox = cacheService.incrRealScanFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
+                    handoverSendBox = jyPickingTaskAggsCacheService.incrRealScanFlowWaitSendBoxNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发箱件数
                 logInfo("提货箱件数redis计数加工，bizId={},多提箱件数={}，交接提箱件数={}，发货流向为{}，多发箱件数={}，交接发箱件数={}",
@@ -134,18 +135,18 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             Integer handoverSendPackage = 0;
             if(!BarCodeFetchPickingTaskRuleEnum.WAIT_PICKING_TASK.getCode().equals(resData.getTaskSource())) {
                 //多提包裹件数
-                morePickingPackage = cacheService.incrRealScanMorePickingPackageNum(bizId, siteId);
+                morePickingPackage = jyPickingTaskAggsCacheService.incrRealScanMorePickingPackageNum(bizId, siteId);
             }else {
                 //交接提包裹件数
-                handoverPickingPackage = cacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
+                handoverPickingPackage = jyPickingTaskAggsCacheService.incrRealScanWaitPickingPackageNum(bizId, siteId);
             }
             if(Boolean.TRUE.equals(request.getSendGoodFlag())) {
                 if(Boolean.TRUE.equals(request.getForceSendFlag())) {
                     //多发的包裹件数【流向维度】
-                    moreSendPackage = cacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
+                    moreSendPackage = jyPickingTaskAggsCacheService.incrRealScanFlowMoreSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }else {
                     //交接提发的包裹件数【流向维度】
-                    handoverSendPackage = cacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
+                    handoverSendPackage = jyPickingTaskAggsCacheService.incrRealScanFlowWaitSendPackageNum(bizId, siteId, request.getNextSiteId());
                 }
                 //强发包裹件数
             }
@@ -217,9 +218,9 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         bizIdList.forEach(bizId -> {
             Integer num = null;
             if(Objects.isNull(sendNextSiteId)) {
-                num = cacheService.getCacheInitWaitPickingTotalItemNum(bizId, siteId);
+                num = jyPickingTaskAggsCacheService.getCacheInitWaitPickingTotalItemNum(bizId, siteId);
             }else {
-                num = cacheService.getCacheInitWaitSendTotalItemNum(bizId, siteId, sendNextSiteId);
+                num = jyPickingTaskAggsCacheService.getCacheInitWaitSendTotalItemNum(bizId, siteId, sendNextSiteId);
             }
             if(NumberHelper.gt0(num)) {
                 PickingSendGoodAggsDto aggs = new PickingSendGoodAggsDto();
@@ -245,7 +246,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                     aggs.setBizId(entity.getBizId());
                     aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
                     res.add(aggs);
-                    cacheService.saveCacheInitWaitPickingTotalItemNum(entity.getBizId(), siteId, entity.getWaitScanTotalCount());
+                    jyPickingTaskAggsCacheService.saveCacheInitWaitPickingTotalItemNum(entity.getBizId(), siteId, entity.getWaitScanTotalCount());
                     logInfo("任务维度待提件数agg查询同步到redis计数加工：bizId={},num={}", entity.getBizId(), entity.getWaitScanTotalCount());
                 });
             }else {
@@ -255,7 +256,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
                     aggs.setBizId(entity.getBizId());
                     aggs.setWaitSendTotalNum(entity.getWaitScanTotalCount());
                     res.add(aggs);
-                    cacheService.saveCacheInitWaitSendTotalItemNum(entity.getBizId(), siteId, sendNextSiteId, entity.getWaitScanTotalCount());
+                    jyPickingTaskAggsCacheService.saveCacheInitWaitSendTotalItemNum(entity.getBizId(), siteId, sendNextSiteId, entity.getWaitScanTotalCount());
                     logInfo("流向维度待提件数agg查询同步到redis计数加工：bizId={},nextSiteId={}, num={}", entity.getBizId(), sendNextSiteId, entity.getWaitScanTotalCount());
 
                 });
@@ -302,23 +303,23 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         Integer handoverPackageNum;
         Integer handoverBoxNum;
         if(!Objects.isNull(sendNextSiteId)) {
-            handoverPackageNum = cacheService.getValueRealScanFlowWaitSendPackageNum(bizId, siteId, sendNextSiteId);
-            handoverBoxNum = cacheService.getValueRealScanFlowWaitSendBoxNum(bizId, siteId, sendNextSiteId);
+            handoverPackageNum = jyPickingTaskAggsCacheService.getValueRealScanFlowWaitSendPackageNum(bizId, siteId, sendNextSiteId);
+            handoverBoxNum = jyPickingTaskAggsCacheService.getValueRealScanFlowWaitSendBoxNum(bizId, siteId, sendNextSiteId);
         }else {
-            handoverPackageNum = cacheService.getValueRealScanWaitPickingPackageNum(bizId, siteId);
-            handoverBoxNum = cacheService.getValueRealScanWaitPickingBoxNum(bizId, siteId);
+            handoverPackageNum = jyPickingTaskAggsCacheService.getValueRealScanWaitPickingPackageNum(bizId, siteId);
+            handoverBoxNum = jyPickingTaskAggsCacheService.getValueRealScanWaitPickingBoxNum(bizId, siteId);
         }
         return handoverPackageNum + handoverBoxNum;
     }
     //实际扫描多扫总件数
     private int getRealPickingMoreScanTotalNum(String bizId, Long siteId, Long sendNextSiteId) {
         if(!Objects.isNull(sendNextSiteId)) {
-            Integer moreScanPackageNum = cacheService.getValueRealScanFlowMoreSendPackageNum(bizId, siteId, sendNextSiteId);
-            Integer moreScanBoxNum = cacheService.getValueRealScanFlowMoreSendBoxNum(bizId, siteId, sendNextSiteId);
+            Integer moreScanPackageNum = jyPickingTaskAggsCacheService.getValueRealScanFlowMoreSendPackageNum(bizId, siteId, sendNextSiteId);
+            Integer moreScanBoxNum = jyPickingTaskAggsCacheService.getValueRealScanFlowMoreSendBoxNum(bizId, siteId, sendNextSiteId);
             return moreScanPackageNum + moreScanBoxNum;
         }else {
-            Integer handoverPackageNum = cacheService.getValueRealScanMorePickingPackageNum(bizId, siteId);
-            Integer handoverBoxNum = cacheService.getValueRealScanMorePickingBoxNum(bizId, siteId);
+            Integer handoverPackageNum = jyPickingTaskAggsCacheService.getValueRealScanMorePickingPackageNum(bizId, siteId);
+            Integer handoverBoxNum = jyPickingTaskAggsCacheService.getValueRealScanMorePickingBoxNum(bizId, siteId);
             return handoverPackageNum + handoverBoxNum;
         }
     }
@@ -338,7 +339,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             totalNum = entity.getWaitScanTotalCount() + paramDto.getWaitPickingItemNum();
             jyPickingTaskAggsDao.updatePickingAggWaitScanItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
         }
-        cacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
+        jyPickingTaskAggsCacheService.saveCacheInitWaitPickingTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(), totalNum);
         logInfo("任务维度待提件数初始化到redis计数加工：bizId={},num={}, 批次号={}", paramDto.getBizId(), totalNum, paramDto.getCode());
 
 
@@ -359,7 +360,9 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
             totalNum = entity.getWaitScanTotalCount() + paramDto.getWaitPickingItemNum();
             jyPickingTaskSendAggsDao.updatePickingAggWaitScanItemNum(paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), paramDto.getBizId(), totalNum);
         }
-        cacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
+
+        //todo zcf 考虑agg待提实操加工一个方法，避免多处加工逻辑
+        jyPickingTaskAggsCacheService.saveCacheInitWaitSendTotalItemNum(paramDto.getBizId(), paramDto.getPickingSiteId(),  paramDto.getNextSiteId(), totalNum);
         logInfo("流向维度待提件数初始化到redis计数加工：bizId={}, nextSiteId={}, num={}, 批次号={}", paramDto.getBizId(), paramDto.getNextSiteId(), totalNum, paramDto.getCode());
 
     }
