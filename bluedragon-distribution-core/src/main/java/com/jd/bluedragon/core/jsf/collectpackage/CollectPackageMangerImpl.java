@@ -214,11 +214,11 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         collectScanDtoList.add(haveScan);
 
 
-        CollectScanDto force =new CollectScanDto();
+        /*CollectScanDto force =new CollectScanDto();
         force.setType(CollectPackageExcepScanEnum.FORCE_SEND.getCode());
         force.setName(CollectPackageExcepScanEnum.FORCE_SEND.getName());
         force.setCount(udataTaskStatisticDto.getForceNum());
-        collectScanDtoList.add(force);
+        collectScanDtoList.add(force);*/
 
 
         statisticsUnderTaskDto.setExcepScanDtoList(collectScanDtoList);
@@ -278,7 +278,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         params.put("bizId", request.getBizId());
         params.put("endSiteId",request.getEndSiteId());
         params.put("pageSize",request.getPageSize());
-        params.put("pageNum",request.getPageNo());
+        params.put("pageNumber",request.getPageNo());
         apiDataQueryRequest.setParams(params);
         return apiDataQueryRequest;
     }
