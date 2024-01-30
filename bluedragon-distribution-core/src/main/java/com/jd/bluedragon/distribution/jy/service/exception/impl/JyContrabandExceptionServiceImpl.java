@@ -207,17 +207,20 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
 
-            // 调用质控接口，上报异常
-            List<ReportRecord> reportRecords =  convertReportRecord(req);
-            logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
-            JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
-            if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
-                return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
-            }
+            // 该判断为了兼容新老版本，新版app上线后可删除
+            if (!StringUtils.isEmpty(req.getFirstReasonLevelCode())) {
+                // 调用质控接口，上报异常
+                List<ReportRecord> reportRecords =  convertReportRecord(req);
+                logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
+                JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
+                if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
+                    return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
+                }
 
-            // 如果是航空转路由，向路由发送消息
-            if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
-                doSendArTransportModeChangeMq(req,bigWaybillDto);
+                // 如果是航空转路由，向路由发送消息
+                if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
+                    doSendArTransportModeChangeMq(req,bigWaybillDto);
+                }
             }
 
         } catch (Exception e) {
