@@ -545,7 +545,10 @@ public class BoxResource {
         if(!StringUtils.isEmpty(box.getMaterialCode())){
             response.setMaterialCode(box.getMaterialCode());
         }
-        response.setSubType(box.getBoxSubType());
+        response.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
+        if (!StringUtils.isEmpty(box.getBoxSubType())) {
+            response.setSubType(box.getBoxSubType());
+        }
         return response;
     }
 
