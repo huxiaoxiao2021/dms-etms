@@ -92,16 +92,16 @@
       <if test="createSiteCode != null" >
         #{createSiteCode,jdbcType=BIGINT},
       </if>
-        <if test="provinceAgencyCode != null" >
-            #{provinceAgencyCode,jdbcType=VARCHAR},
+        <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+        #{provinceAgencyCode,jdbcType=VARCHAR},
         </if>
-        <if test="provinceAgencyName != null" >
-            #{provinceAgencyName,jdbcType=VARCHAR},
+        <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+        #{provinceAgencyName,jdbcType=VARCHAR},
         </if>
-        <if test="areaHubCode != null" >
+        <if test="areaHubCode != null and areaHubCode != ''" >
             #{areaHubCode,jdbcType=VARCHAR},
         </if>
-        <if test="areaHubName != null" >
+        <if test="areaHubName != null and areaHubName != ''" >
             #{areaHubName,jdbcType=VARCHAR},
         </if>
       <if test="createUserErp != null" >
