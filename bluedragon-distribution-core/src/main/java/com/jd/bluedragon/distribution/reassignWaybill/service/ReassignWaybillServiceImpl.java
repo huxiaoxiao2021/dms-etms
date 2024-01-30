@@ -524,7 +524,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					return result;
 				case NO_ROUTING:
 					// 获取营业部和仓关系配置信息
-					String msg = "未获取到退仓站点协助配送关系配置, 请联系分拣小秘!";
+					String msg = "退仓站点的'协助配送关系'未配置, 请联系分拣小秘!";
 					SysConfig configContent = sysConfigService.findConfigContentByConfigName(REASSIGN_WAYBILL_STORE_SITE_CONFIG);
 					if(configContent == null){
 						result.toFail(msg);
@@ -537,7 +537,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					}
 					HashMap<Integer, List<Integer>> configMap = configDto.getConfigMap();
 					if (Objects.equals(preSortOnSiteRequest.getReceiveSiteCode(), null)) {
-						result.toFail("未获取到运单预分拣站点！");
+						result.toFail("运单无预分拣站点，无法反调度！");
 						return result;
 					}
 					List<Integer> siteIdList = configMap.get(preSortOnSiteRequest.getReceiveSiteCode());
