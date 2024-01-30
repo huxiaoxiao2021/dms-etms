@@ -42,6 +42,8 @@ import com.jd.wlai.center.service.outter.domian.AutoReportingResponse;
 import com.jdl.express.weight.report.api.CommonDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoQuery;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyDTO;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyQuery;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -686,26 +688,19 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * 此方法只用于此特殊用途
      */
     private boolean checkExcessStatus(WeightVolumeSpotCheckDto spotCheckDto) {
-        ReportInfoQuery reportInfoQuery = new ReportInfoQuery();
-        // 运单号
-        reportInfoQuery.setWaybillCode(spotCheckDto.getWaybillCode());
-        // 抽检来源
-        reportInfoQuery.setChannel(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        // 复核重量
-        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
-        // 核对体积
-        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 组装判断是否超标查询参数
+        StandardResultAndDutyBodyQuery queryDto = createStandardQueryParam(spotCheckDto);
         // 再次调用称重再造系统接口判断是否超标
-        CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        CommonDTO<StandardResultAndDutyBodyDTO> commonDTO = weightReportCommonRuleManager.getOverStandardResultAndDutyBody(queryDto);
         if (logger.isInfoEnabled()) {
             logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
-                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(reportInfoQuery));
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(commonDTO));
         }
         if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
             logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
             return false;
         }
-        ReportInfoDTO reportInfo = commonDTO.getData();
+        StandardResultAndDutyBodyDTO reportInfo = commonDTO.getData();
         // 是否超标标识
         boolean excessFlag = !SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType());
         // 超标状态
@@ -729,6 +724,27 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return true;
         }
         return false;
+    }
+
+    private StandardResultAndDutyBodyQuery createStandardQueryParam(WeightVolumeSpotCheckDto spotCheckDto) {
+        StandardResultAndDutyBodyQuery queryDto = new StandardResultAndDutyBodyQuery();
+        // 运单号
+        queryDto.setWaybillCode(spotCheckDto.getWaybillCode());
+        // 抽检来源
+        queryDto.setChannel(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
+        // 实测重量取复核重量
+        queryDto.setMeasureWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
+        // 实测体积取核对体积
+        queryDto.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 核对重量
+        queryDto.setRecheckWeight(NumberHelper.formatMoney(spotCheckDto.getContrastWeight()));
+        // 核对体积
+        queryDto.setRecheckVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 核对重量来源
+        queryDto.setRecheckSource(spotCheckDto.getContrastSource());
+        // 称重操作人ID
+        queryDto.setOperatorId(spotCheckDto.getcon);
+        return queryDto;
     }
 
     /**
