@@ -2732,7 +2732,7 @@ public class BusinessUtil {
         }
         return BusinessUtil.isSignChar(waybillSign,40,'2')
                 && BusinessUtil.isSignChar(waybillSign,54,'0')
-                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9', 'D')
                 && BusinessUtil.isSignChar(waybillSign,89,'0');
     }
 
