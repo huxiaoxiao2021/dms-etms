@@ -480,9 +480,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         List<BoxMaterialRelation> boxMaterialRelations = boxMaterialRelationService.getLimitDataByMaterialCode(request.getMaterialCode(), Constants.CONSTANT_NUMBER_TWO);
         if(boxMaterialRelations==null
             || boxMaterialRelations.isEmpty()
-            || boxMaterialRelations.size() < Constants.CONSTANT_NUMBER_TWO){
+            || boxMaterialRelations.size() < Constants.CONSTANT_NUMBER_TWENTY){
             if(log.isInfoEnabled()){
-                log.info("isSuspiciousOperation boxMaterialRelations size < 2 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
+                log.info("isSuspiciousOperation boxMaterialRelations size < 20 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
             }
             return false;
         }
@@ -497,9 +497,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         }
         if(sends==null
                 || sends.isEmpty()
-                || sends.size() < Constants.CONSTANT_NUMBER_TWO){
+                || sends.size() < Constants.CONSTANT_NUMBER_TWENTY){
             if(log.isInfoEnabled()){
-                log.info("isSuspiciousOperation sends size < 2 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
+                log.info("isSuspiciousOperation sends size < 0 ,{},{}",JsonHelper.toJson(request),JsonHelper.toJson(boxMaterialRelations));
             }
             return false;
         }
