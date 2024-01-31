@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetail
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
+import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -40,6 +41,9 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
 
     @Autowired
     private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+
+    @Autowired
+    private JyAviationRailwayPickingGoodsService jyAviationRailwayPickingGoodsService;
 
     @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerOverTimeException",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -105,5 +109,19 @@ public class DmsTimingHandlerServiceImpl implements DmsTimingHandlerService {
             logger.info("定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务开始执行:{}", System.currentTimeMillis());
         }
         jyBizTaskSendVehicleService.timingHandlerCleanSendingStatusManualTask();
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFinishAirRailTask",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public void timingHandlerFinishAirRailTask() {
+        jyAviationRailwayPickingGoodsService.finishTaskWhenWaitScanEqZero();
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsTimingHandlerService.timingHandlerFinishAirRailManualTask",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public void timingHandlerFinishAirRailManualTask() {
+        jyAviationRailwayPickingGoodsService.finishTaskWhenTimeExceed();
     }
 }

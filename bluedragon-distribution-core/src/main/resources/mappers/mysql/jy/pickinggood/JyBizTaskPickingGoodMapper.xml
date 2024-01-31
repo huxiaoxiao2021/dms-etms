@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="start_site_id" property="startSiteId" jdbcType="BIGINT" />
+    <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+    <result column="business_number" property="businessNumber" jdbcType="VARCHAR" />
+    <result column="service_number" property="serviceNumber" jdbcType="VARCHAR" />
+    <result column="begin_node_code" property="beginNodeCode" jdbcType="VARCHAR" />
+    <result column="begin_node_name" property="beginNodeName" jdbcType="VARCHAR" />
+    <result column="end_node_code" property="endNodeCode" jdbcType="VARCHAR" />
+    <result column="end_node_name" property="endNodeName" jdbcType="VARCHAR" />
+    <result column="node_plan_start_time" property="nodePlanStartTime" jdbcType="TIMESTAMP" />
+    <result column="node_real_start_time" property="nodeRealStartTime" jdbcType="TIMESTAMP" />
+    <result column="node_plan_arrive_time" property="nodePlanArriveTime" jdbcType="TIMESTAMP" />
+    <result column="node_real_arrive_time" property="nodeRealArriveTime" jdbcType="TIMESTAMP" />
+    <result column="operate_node_type" property="operateNodeType" jdbcType="INTEGER" />
+    <result column="cargo_number" property="cargoNumber" jdbcType="INTEGER" />
+    <result column="cargo_weight" property="cargoWeight" jdbcType="DOUBLE" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="complete_node" property="completeNode" jdbcType="TINYINT" />
+    <result column="picking_start_time" property="pickingStartTime" jdbcType="TIMESTAMP" />
+    <result column="picking_complete_time" property="pickingCompleteTime" jdbcType="TIMESTAMP" />
+    <result column="intercept" property="intercept" jdbcType="TINYINT" />
+    <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
+    <result column="manual_created_flag" property="manualCreatedFlag" jdbcType="TINYINT" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, biz_id, start_site_id, next_site_id, business_number, service_number, begin_node_code, 
+    begin_node_name, end_node_code, end_node_name, node_plan_start_time, node_real_start_time, node_plan_arrive_time,
+    node_real_arrive_time, operate_node_type, cargo_number, cargo_weight, status, complete_node, picking_start_time,
+    picking_complete_time, intercept, intercept_time, task_type, manual_created_flag, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+      insert into jy_biz_task_picking_good
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="bizId != null" >
+          biz_id,
+        </if>
+        <if test="startSiteId != null" >
+          start_site_id,
+        </if>
+        <if test="nextSiteId != null" >
+          next_site_id,
+        </if>
+        <if test="businessNumber != null" >
+          business_number,
+        </if>
+        <if test="serviceNumber != null" >
+          service_number,
+        </if>
+        <if test="beginNodeCode != null" >
+          begin_node_code,
+        </if>
+        <if test="beginNodeName != null" >
+          begin_node_name,
+        </if>
+        <if test="endNodeCode != null" >
+          end_node_code,
+        </if>
+        <if test="endNodeName != null" >
+          end_node_name,
+        </if>
+        <if test="nodePlanStartTime != null" >
+          node_plan_start_time,
+        </if>
+        <if test="nodeRealStartTime != null" >
+          node_real_start_time,
+        </if>
+        <if test="nodePlanArriveTime != null" >
+          node_plan_arrive_time,
+        </if>
+        <if test="nodeRealArriveTime != null" >
+          node_real_arrive_time,
+        </if>
+        <if test="operateNodeType != null" >
+          operate_node_type,
+        </if>
+        <if test="cargoNumber != null" >
+          cargo_number,
+        </if>
+        <if test="cargoWeight != null" >
+          cargo_weight,
+        </if>
+        <if test="status != null" >
+          status,
+        </if>
+        <if test="completeNode != null" >
+          complete_node,
+        </if>
+        <if test="pickingStartTime != null" >
+          picking_start_time,
+        </if>
+        <if test="pickingCompleteTime != null" >
+          picking_complete_time,
+        </if>
+        <if test="intercept != null" >
+          intercept,
+        </if>
+        <if test="interceptTime != null" >
+          intercept_time,
+        </if>
+        <if test="taskType != null" >
+          task_type,
+        </if>
+        <if test="manualCreatedFlag != null" >
+          manual_created_flag,
+        </if>
+        <if test="createUserErp != null" >
+          create_user_erp,
+        </if>
+        <if test="createUserName != null" >
+          create_user_name,
+        </if>
+        <if test="updateUserErp != null" >
+          update_user_erp,
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        yn
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id},
+        </if>
+        <if test="bizId != null" >
+          #{bizId},
+        </if>
+        <if test="startSiteId != null" >
+          #{startSiteId},
+        </if>
+        <if test="nextSiteId != null" >
+          #{nextSiteId},
+        </if>
+        <if test="businessNumber != null" >
+          #{businessNumber},
+        </if>
+        <if test="serviceNumber != null" >
+          #{serviceNumber},
+        </if>
+        <if test="beginNodeCode != null" >
+          #{beginNodeCode},
+        </if>
+        <if test="beginNodeName != null" >
+          #{beginNodeName},
+        </if>
+        <if test="endNodeCode != null" >
+          #{endNodeCode},
+        </if>
+        <if test="endNodeName != null" >
+          #{endNodeName},
+        </if>
+        <if test="nodePlanStartTime != null" >
+          node_plan_start_time,
+        </if>
+        <if test="nodeRealStartTime != null" >
+          node_real_start_time,
+        </if>
+        <if test="nodePlanArriveTime != null" >
+          #{nodePlanArriveTime},
+        </if>
+        <if test="nodeRealArriveTime != null" >
+          #{nodeRealArriveTime},
+        </if>
+        <if test="operateNodeType != null" >
+          #{operateNodeType},
+        </if>
+        <if test="cargoNumber != null" >
+          #{cargoNumber},
+        </if>
+        <if test="cargoWeight != null" >
+          #{cargoWeight},
+        </if>
+        <if test="status != null" >
+          #{status},
+        </if>
+        <if test="completeNode != null" >
+          #{completeNode},
+        </if>
+        <if test="pickingStartTime != null" >
+          #{pickingStartTime},
+        </if>
+        <if test="pickingCompleteTime != null" >
+          #{pickingCompleteTime},
+        </if>
+        <if test="intercept != null" >
+          #{intercept},
+        </if>
+        <if test="interceptTime != null" >
+          #{interceptTime},
+        </if>
+        <if test="taskType != null" >
+          #{taskType},
+        </if>
+        <if test="manualCreatedFlag != null" >
+          #{manualCreatedFlag},
+        </if>
+        <if test="createUserErp != null" >
+          #{createUserErp},
+        </if>
+        <if test="createUserName != null" >
+          #{createUserName},
+        </if>
+        <if test="updateUserErp != null" >
+          #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          #{updateUserName},
+        </if>
+        <if test="createTime != null" >
+          #{createTime},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime},
+        </if>
+        1
+      </trim>
+    </insert>
+
+  <insert id="batchInsert" parameterType="List">
+    insert into jy_biz_task_picking_good
+    (
+    biz_id,
+    start_site_id,
+    next_site_id,
+    business_number,
+    service_number,
+    begin_node_code,
+    begin_node_name,
+    end_node_code,
+    end_node_name,
+    node_plan_start_time,
+    node_real_start_time,
+    node_plan_arrive_time,
+    node_real_arrive_time,
+    operate_node_type,
+    cargo_number,
+    cargo_weight,
+    status,
+    complete_node,
+    picking_start_time,
+    picking_complete_time,
+    intercept,
+    intercept_time,
+    task_type,
+    manual_created_flag,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn
+    )
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.bizId},
+      #{item.startSiteId},
+      #{item.nextSiteId},
+      #{item.businessNumber},
+      #{item.serviceNumber},
+      #{item.beginNodeCode},
+      #{item.beginNodeName},
+      #{item.endNodeCode},
+      #{item.endNodeName},
+      #{item.nodePlanStartTime},
+      #{item.nodeRealStartTime},
+      #{item.nodePlanArriveTime},
+      #{item.nodeRealArriveTime},
+      #{item.operateNodeType},
+      #{item.cargoNumber},
+      #{item.cargoWeight},
+      #{item.status},
+      #{item.completeNode},
+      #{item.pickingStartTime},
+      #{item.pickingCompleteTime},
+      #{item.intercept},
+      #{item.interceptTime},
+      #{item.taskType},
+      #{item.manualCreatedFlag},
+      #{item.createUserErp},
+      #{item.createUserName},
+      #{item.updateUserErp},
+      #{item.updateUserName},
+      #{item.createTime},
+      #{item.updateTime},
+      1
+      )
+    </foreach>
+  </insert>
+  
+  <select id="findByBizIdWithYn" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where biz_id = #{bizId}
+      <if test="yn != null" >
+        and yn = #{yn}
+      </if>
+    limit 1
+  </select>
+
+  <update id="updateTaskByBizIdWithCondition" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
+      update jy_biz_task_picking_good
+      <set>
+        <if test="status != null" >
+          status = #{status},
+        </if>
+        <if test="completeNode != null" >
+          complete_node = #{completeNode},
+        </if>
+        <if test="pickingStartTime != null" >
+          picking_start_time = #{pickingStartTime},
+        </if>
+        <if test="pickingCompleteTime != null" >
+          picking_complete_time = #{pickingCompleteTime},
+        </if>
+        <if test="intercept != null" >
+          intercept = #{intercept},
+        </if>
+        <if test="interceptTime != null" >
+          intercept_time = #{interceptTime},
+        </if>
+        <if test="updateUserErp != null" >
+          update_user_erp = #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name = #{updateUserName},
+        </if>
+        update_time = #{updateTime}
+      </set>
+      where yn = 1 and biz_id = #{bizId}
+    </update>
+
+
+  <select id="findLatestEffectiveManualCreateTask" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where yn = 1
+      and task_type = #{taskType}
+      and manual_created_flag = 1
+      and status != 2
+      and next_site_id= #{nextSiteId}
+      and create_time >= #{createTimeStart}
+    order by create_time desc
+    limit 1
+  </select>
+
+  <select id="findLatestTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where yn = 1
+    and business_number= #{businessNumber}
+    and task_type = #{taskType}
+    order by create_time desc
+    limit 1
+  </select>
+
+  <select id="findAllTaskByBusinessNumber" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_biz_task_picking_good
+    where yn = 1
+    and business_number= #{businessNumber}
+    and task_type = #{taskType}
+    order by create_time desc
+  </select>
+
+  <update id="deleteByBusinessNumber" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition" >
+    update jy_biz_task_picking_good
+    set
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName},
+      </if>
+      update_time = #{updateTime},
+      yn = 0
+    where yn = 1
+      and business_number = #{businessNumber}
+      and task_type = #{taskType}
+  </update>
+
+  <select id="listTaskGroupByPickingNodeCode" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     status = #{status}
+    and     task_type = #{taskType}
+    and     create_time >= #{createTime}
+    <if test="status == 0">
+      and   (node_plan_arrive_time is null
+      or node_real_arrive_time is null
+      or node_plan_arrive_time >= #{nodePlanArriveTime}
+      or node_real_arrive_time >= #{nodeRealArriveTime})
+    </if>
+    <if test="status == 2">
+      and picking_complete_time >= #{pickingCompleteTime}
+    </if>
+    <if test="bizIdList != null and bizIdList.size() > 0">
+      and   biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    group by end_node_code
+    limit #{offset}, #{limit}
+  </select>
+
+  <select id="listTaskByPickingNodeCode" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     status = #{status}
+    and     task_type = #{taskType}
+    and     create_time >= #{createTime}
+    <if test="status == 0">
+      and   (node_plan_arrive_time is null
+      or node_real_arrive_time is null
+      or node_plan_arrive_time >= #{nodePlanArriveTime}
+      or node_real_arrive_time >= #{nodeRealArriveTime})
+    </if>
+    <if test="status == 2">
+      and picking_complete_time >= #{pickingCompleteTime}
+    </if>
+    <if test="pickingNodeCodeList != null and pickingNodeCodeList.size() > 0">
+    and     end_node_code in
+      <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    <if test="bizIdList != null and bizIdList.size() > 0">
+    and     biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    limit #{offset}, #{limit}
+  </select>
+
+  <select id="countAllStatusByPickingSiteId" resultType="com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto">
+    select  count(*) as count,
+            status
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     create_time >= #{createTime}
+    <if test="bizIdList != null and bizIdList.size() > 0">
+      and     biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    group by status
+  </select>
+
+  <update id="batchFinishPickingTaskByBizId">
+    update  jy_biz_task_picking_good
+    set     complete_node = #{completeNode},
+            picking_complete_time = #{pickingCompleteTime},
+            status = #{status},
+            update_time = #{updateTime}
+    where   yn = 1
+    and     task_type = #{taskType}
+    and     status = 1
+    and     biz_id in
+    <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </update>
+
+  <select id="pageRecentCreatedManualBizId" resultType="java.lang.String">
+    select biz_id
+    from jy_biz_task_picking_good
+    where yn = 1
+    and create_time <![CDATA[ <= ]]> #{endTime}
+    and create_time <![CDATA[ >= ]]> #{startTime}
+    and task_type = #{taskType}
+    and manual_created_flag = 1
+    <if test="statusList != null and statusList.size() > 0">
+      and status in
+      <foreach collection="statusList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    limit #{offset}, #{limit}
+  </select>
+
+  <select id="findManualCreateTaskBizIds" resultType="String"  parameterType="List">
+    select biz_id
+    from jy_biz_task_picking_good
+    where manual_created_flag = 1
+      and biz_id in
+      <foreach collection="list" item="items" index="index" open="("
+               close=")" separator=",">
+        #{items}
+      </foreach>
+  </select>
+
+  <select id="listAllBizByPickingSiteId" resultType="String">
+    select  biz_id
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     create_time <![CDATA[ >= ]]> #{createTime}
+    <if test="status != null">
+      and   status = #{status}
+    </if>
+    <if test="pickingNodeCodeList != null and pickingNodeCodeList.size() > 0">
+      and    end_node_code in
+      <foreach collection="pickingNodeCodeList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+
+  <select id="countStatusByCondition" resultType="com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.AirRailTaskCountDto">
+    select  count(*) as count,
+            status
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     next_site_id = #{pickingSiteId}
+    and     task_type = #{taskType}
+    and     status = #{status}
+    and     create_time >= #{createTime}
+    <if test="status == 0">
+      and   (node_plan_arrive_time is null
+      or    node_real_arrive_time is null
+      or    node_plan_arrive_time >= #{nodePlanArriveTime}
+      or    node_real_arrive_time >= #{nodeRealArriveTime})
+    </if>
+    <if test="status == 2">
+      and   picking_complete_time >= #{pickingCompleteTime}
+    </if>
+    <if test="bizIdList != null and bizIdList.size() > 0">
+      and     biz_id in
+      <foreach collection="bizIdList" item="item" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+
+  <select id="pageRecentCreatedNoManualPickingBiz" resultType="java.lang.String">
+    select  biz_id
+    from    jy_biz_task_picking_good
+    where   yn = 1
+    and     create_time <![CDATA[ >= ]]> #{startTime}
+    and     picking_start_time <![CDATA[ >= ]]> #{pickingStartTime}
+    and     task_type = #{taskType}
+    and     status = #{status}
+    and     manual_created_flag = 0
+    limit #{offset}, #{limit}
+  </select>
+
+</mapper>

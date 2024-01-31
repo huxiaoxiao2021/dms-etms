@@ -43,4 +43,15 @@ public interface DmsTimingHandlerService {
      */
     void timingHandlerCleanSendingStatusManualTask();
 
+
+    /**
+     * 定时完成待提件数为0的任务
+     */
+    void timingHandlerFinishAirRailTask();
+
+    /**
+     * 定时完成24小时前创建的自建任务
+     */
+    void timingHandlerFinishAirRailManualTask();
+
 }

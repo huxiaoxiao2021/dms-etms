@@ -1024,4 +1024,32 @@
         <property name="topic" value="${jmq.topic.evaluate.load.info.to.qc}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--  拣运提货扫描  -->
+    <bean id="jyPickingGoodScanProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.scan}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运提货待提明细初始化  -->
+    <bean id="jyPickingGoodDetailInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货待提明细初始化拆分  -->
+    <bean id="jyPickingGoodDetailInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init.split}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运提货待提件数保持  -->
+    <bean id="jyPickingGoodSaveWaitScanItemNumProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.wait.scan.num}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货扫描箱号拆分包裹维度数据  -->
+    <bean id="jyPickingGoodSplitPackageProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.scan.split.package}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
