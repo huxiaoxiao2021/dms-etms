@@ -937,17 +937,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return 若满足条件则返回true，否则返回false
      */
     private boolean checkBeforeScan(JdVerifyResponse<UnLoadScanResponse> result, UnloadScanRequest request,boolean isNewApp) {
-        // 一个单号只能扫描一次
-        if (checkBarScannedAlready(request)) {
-            result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
-            return false;
-        }
         //回调
         if(isNewApp) {
             unloadScanCheckOfCallback(result, request);
             if (!result.codeSuccess()) {
                 return false;
             }
+        }
+        // 一个单号只能扫描一次
+        if (checkBarScannedAlready(request)) {
+            result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
+            return false;
         }
 
         return true;
