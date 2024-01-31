@@ -2137,7 +2137,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 // 3.2 插入明细
                 JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
                 jyExceptionInterceptDetail.setBizId(bizId);
-                this.assembleJyExceptionInterceptDetail(jyExceptionInterceptDetail, businessInterceptReport);
+                this.assembleJyExceptionInterceptDetail(jyExceptionInterceptDetail, businessInterceptReport, workStationGrid);
                 jyExceptionInterceptDetailDao.insertSelective(jyExceptionInterceptDetail);
 
                 // 3.3 记录日志
@@ -2254,7 +2254,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         taskEntity.setCreateTime(new Date(businessInterceptReport.getOperateTime()));
     }
 
-    private void assembleJyExceptionInterceptDetail(JyExceptionInterceptDetail jyExceptionInterceptDetail, BusinessInterceptReport businessInterceptReport){
+    private void assembleJyExceptionInterceptDetail(JyExceptionInterceptDetail jyExceptionInterceptDetail, BusinessInterceptReport businessInterceptReport, WorkStationGrid workStationGrid){
         jyExceptionInterceptDetail.setInterceptBizId(businessInterceptReport.getBizId());
         jyExceptionInterceptDetail.setBarCode(businessInterceptReport.getBarCode());
         jyExceptionInterceptDetail.setBizSource(businessInterceptReport.getBizSource());
@@ -2269,19 +2269,20 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetail.setWaybillCode(businessInterceptReport.getWaybillCode());
         jyExceptionInterceptDetail.setBoxCode(businessInterceptReport.getBoxCode());
         jyExceptionInterceptDetail.setOperateNode(businessInterceptReport.getOperateNode());
-        jyExceptionInterceptDetail.setOperateNodeName(businessInterceptReport.getOperateNodeName());
         jyExceptionInterceptDetail.setInterceptEffectTime(businessInterceptReport.getInterceptEffectTime());
         jyExceptionInterceptDetail.setInterceptType(businessInterceptReport.getInterceptType());
-        if (StringUtils.isNotBlank(businessInterceptReport.getInterceptTypeName())) {
-            jyExceptionInterceptDetail.setInterceptTypeName(businessInterceptReport.getInterceptTypeName());
-        } else {
-            jyExceptionInterceptDetail.setInterceptTypeName(businessInterceptConfig.getInterceptTypeNodeConfig().get(businessInterceptReport.getInterceptType().toString()));
-        }
         jyExceptionInterceptDetail.setDeviceCode(businessInterceptReport.getDeviceCode());
         jyExceptionInterceptDetail.setDeviceType(businessInterceptReport.getDeviceType());
-        jyExceptionInterceptDetail.setDeviceTypeName(businessInterceptReport.getDeviceTypeName());
         jyExceptionInterceptDetail.setDeviceSubType(businessInterceptReport.getDeviceSubType());
-        jyExceptionInterceptDetail.setDeviceSubTypeName(businessInterceptReport.getDeviceSubTypeName());
+        jyExceptionInterceptDetail.setOperatePositionCode(businessInterceptReport.getOperatePositionCode());
+        jyExceptionInterceptDetail.setOperateWorkStationGridKey(businessInterceptReport.getOperateWorkStationGridKey());
+        jyExceptionInterceptDetail.setOperateWorkGridKey(businessInterceptReport.getOperateWorkGridKey());
+        jyExceptionInterceptDetail.setOperateAreaCode(workStationGrid.getAreaCode());
+        jyExceptionInterceptDetail.setOperateAreaName(workStationGrid.getAreaName());
+        jyExceptionInterceptDetail.setOperateAreaName(workStationGrid.getAreaName());
+        jyExceptionInterceptDetail.setOperateAreaName(workStationGrid.getAreaName());
+        jyExceptionInterceptDetail.setOperateWorkCode(workStationGrid.getWorkCode());
+        jyExceptionInterceptDetail.setOperateWorkName(workStationGrid.getWorkName());
         jyExceptionInterceptDetail.setInterceptCode(businessInterceptReport.getInterceptCode());
         jyExceptionInterceptDetail.setInterceptMessage(businessInterceptReport.getInterceptMessage());
         if (businessInterceptReport.getCreateUserId() != null) {
@@ -2381,7 +2382,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetail.setSiteId(businessInterceptDisposeRecord.getSiteCode());
         jyExceptionInterceptDetail.setDisposeTime(businessInterceptDisposeRecord.getDisposeTime());
         jyExceptionInterceptDetail.setDisposeNode(businessInterceptDisposeRecord.getDisposeNode());
-        jyExceptionInterceptDetail.setDisposeNodeName(businessInterceptDisposeRecord.getDisposeNodeName());
         jyExceptionInterceptDetail.setDisposeUserCode(businessInterceptDisposeRecord.getDisposeUser());
         jyExceptionInterceptDetail.setDisposeUserId(businessInterceptDisposeRecord.getDisposeUserId() != null ? businessInterceptDisposeRecord.getDisposeUserId().longValue() : null);
         jyExceptionInterceptDetail.setDisposeUserName(businessInterceptDisposeRecord.getDisposeUserName());
@@ -2458,22 +2458,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDto.setTaskType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
         jyExceptionInterceptDetailDto.setTaskTypeName(JyBizTaskExceptionTypeEnum.INTERCEPT.getName());
         jyExceptionInterceptDetailDto.setInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
-        jyExceptionInterceptDetailDto.setInterceptTypeName(jyExceptionInterceptDetailExist.getInterceptTypeName());
-        if (StringUtils.isNotBlank(jyExceptionInterceptDetailExist.getInterceptTypeName())) {
-            jyExceptionInterceptDetailDto.setInterceptTypeName(jyExceptionInterceptDetailExist.getInterceptTypeName());
-        } else {
-            jyExceptionInterceptDetailDto.setInterceptTypeName(businessInterceptConfig.getInterceptTypeNodeConfig().get(jyExceptionInterceptDetailExist.getInterceptType().toString()));
-        }
+        jyExceptionInterceptDetailDto.setInterceptTypeName(businessInterceptConfig.getInterceptTypeNodeConfig().get(jyExceptionInterceptDetailExist.getInterceptType().toString()));
 
         // 已处理过的，显示实际的处理方式
         List<Integer> disposeNodeList = new ArrayList<>();
         List<String> disposeNodeNameList = new ArrayList<>();
         if(jyExceptionInterceptDetailExist.getDisposeNode() != null && jyExceptionInterceptDetailExist.getDisposeNode() > 0){
             disposeNodeList.add(jyExceptionInterceptDetailExist.getDisposeNode());
-            disposeNodeNameList.add(jyExceptionInterceptDetailExist.getDisposeNodeName());
-        } else
-        // 未处理的，显示可以处理的所有方式
-        {
+            // 未处理的，显示可以处理的所有方式
             disposeNodeList = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
             if (CollectionUtils.isNotEmpty(disposeNodeList)) {
                 disposeNodeNameList = disposeNodeList.stream().map(item -> {

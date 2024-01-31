@@ -19,22 +19,23 @@
         <result property="waybillCode" column="waybill_code"/>
         <result property="boxCode" column="box_code"/>
         <result property="operateNode" column="operate_node"/>
-        <result property="operateNodeName" column="operate_node_name"/>
         <result property="interceptEffectTime" column="intercept_effect_time"/>
-        <result property="interceptTypeName" column="intercept_type_name"/>
         <result property="interceptType" column="intercept_type"/>
         <result property="deviceCode" column="device_code"/>
         <result property="deviceType" column="device_type"/>
-        <result property="deviceTypeName" column="device_type_name"/>
         <result property="deviceSubType" column="device_sub_type"/>
-        <result property="deviceSubTypeName" column="device_sub_type_name"/>
         <result property="operatePositionCode" column="operate_position_code"/>
-        <result property="operateWorkGridKey" column="operate_work_station_grid_key"/>
-        <result property="operateWorkStationGridKey" column="operate_work_grid_key"/>
+        <result property="operateWorkStationGridKey" column="operate_work_station_grid_key"/>
+        <result property="operateWorkGridKey" column="operate_work_grid_key"/>
+        <result property="operateAreaCode" column="operate_area_code"/>
+        <result property="operateAreaName" column="operate_area_name"/>
+        <result property="operateGridCode" column="operate_grid_code"/>
+        <result property="operateGridName" column="operate_grid_name"/>
+        <result property="operateWorkCode" column="operate_work_code"/>
+        <result property="operateWorkName" column="operate_work_name"/>
         <result property="interceptCode" column="intercept_code"/>
         <result property="interceptMessage" column="intercept_message"/>
         <result property="disposeNode" column="dispose_node"/>
-        <result property="disposeNodeName" column="dispose_node_name"/>
         <result property="disposeUserId" column="dispose_user_id"/>
         <result property="disposeUserCode" column="dispose_user_code"/>
         <result property="disposeUserName" column="dispose_user_name"/>
@@ -59,7 +60,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `operate_node_name`, `intercept_effect_time`, `intercept_type_name`, `intercept_type`, `device_code`, `device_type`, `device_type_name`, `device_sub_type`, `device_sub_type_name`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_node_name`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_node_name`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 插入 -->
@@ -81,22 +82,23 @@
             waybill_code,
             box_code,
             operate_node,
-            operate_node_name,
             intercept_effect_time,
-            intercept_type_name,
             intercept_type,
             device_code,
             device_type,
-            device_type_name,
             device_sub_type,
-            device_sub_type_name,
             operate_position_code,
             operate_work_station_grid_key,
             operate_work_grid_key,
+            operate_area_code,
+            operate_area_name,
+            operate_grid_code,
+            operate_grid_name,
+            operate_work_code,
+            operate_work_name,
             intercept_code,
             intercept_message,
             dispose_node,
-            dispose_node_name,
             dispose_user_id,
             dispose_user_code,
             dispose_user_name,
@@ -134,22 +136,23 @@
             #{waybillCode},
             #{boxCode},
             #{operateNode},
-            #{operateNodeName},
             #{interceptEffectTime},
-            #{interceptTypeName},
             #{interceptType},
             #{deviceCode},
             #{deviceType},
-            #{deviceTypeName},
             #{deviceSubType},
-            #{deviceSubTypeName},
             #{operatePositionCode},
             #{operateWorkStationGridKey},
             #{operateWorkGridKey},
+            #{operateAreaCode},
+            #{operateAreaName},
+            #{operateGridCode},
+            #{operateGridName},
+            #{operateWorkCode},
+            #{operateWorkName},
             #{interceptCode},
             #{interceptMessage},
             #{disposeNode},
-            #{disposeNodeName},
             #{disposeUserId},
             #{disposeUserCode},
             #{disposeUserName},
@@ -170,7 +173,7 @@
             #{updateTime},
             #{yn},
             #{ts}
-        )
+         )
     </insert>
 
     <!-- 增加 -->
@@ -225,14 +228,8 @@
             <if test="operateNode != null">
                 operate_node,
             </if>
-            <if test="operateNodeName != null and operateNodeName != ''">
-                operate_node_name,
-            </if>
             <if test="interceptEffectTime != null">
                 intercept_effect_time,
-            </if>
-            <if test="interceptTypeName != null and interceptTypeName != ''">
-                intercept_type_name,
             </if>
             <if test="interceptType != null">
                 intercept_type,
@@ -243,14 +240,8 @@
             <if test="deviceType != null">
                 device_type,
             </if>
-            <if test="deviceTypeName != null and deviceTypeName != ''">
-                device_type_name,
-            </if>
             <if test="deviceSubType != null">
                 device_sub_type,
-            </if>
-            <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
-                device_sub_type_name,
             </if>
             <if test="operatePositionCode != null and operatePositionCode != ''">
                 operate_position_code,
@@ -261,6 +252,24 @@
             <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
                 operate_work_grid_key,
             </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code,
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name,
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code,
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name,
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code,
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name,
+            </if>
             <if test="interceptCode != null">
                 intercept_code,
             </if>
@@ -269,9 +278,6 @@
             </if>
             <if test="disposeNode != null">
                 dispose_node,
-            </if>
-            <if test="disposeNodeName != null and disposeNodeName != ''">
-                dispose_node_name,
             </if>
             <if test="disposeUserId != null">
                 dispose_user_id,
@@ -383,14 +389,8 @@
             <if test="operateNode != null">
                 #{operateNode},
             </if>
-            <if test="operateNodeName != null and operateNodeName != ''">
-                #{operateNodeName},
-            </if>
             <if test="interceptEffectTime != null">
                 #{interceptEffectTime},
-            </if>
-            <if test="interceptTypeName != null and interceptTypeName != ''">
-                #{interceptTypeName},
             </if>
             <if test="interceptType != null">
                 #{interceptType},
@@ -401,14 +401,11 @@
             <if test="deviceType != null">
                 #{deviceType},
             </if>
-            <if test="deviceTypeName != null and deviceTypeName != ''">
-                #{deviceTypeName},
-            </if>
             <if test="deviceSubType != null">
                 #{deviceSubType},
             </if>
-            <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
-                #{deviceSubTypeName},
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                #{operatePositionCode},
             </if>
             <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
                 #{operateWorkStationGridKey},
@@ -416,8 +413,23 @@
             <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
                 #{operateWorkGridKey},
             </if>
-            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
-                #{operateWorkGridKey},
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                #{operateAreaCode},
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                #{operateAreaName},
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                #{operateGridCode},
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                #{operateGridName},
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                #{operateWorkCode},
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                #{operateWorkName},
             </if>
             <if test="interceptCode != null">
                 #{interceptCode},
@@ -427,9 +439,6 @@
             </if>
             <if test="disposeNode != null">
                 #{disposeNode},
-            </if>
-            <if test="disposeNodeName != null and disposeNodeName != ''">
-                #{disposeNodeName},
             </if>
             <if test="disposeUserId != null">
                 #{disposeUserId},
@@ -513,22 +522,23 @@
             waybill_code,
             box_code,
             operate_node,
-            operate_node_name,
             intercept_effect_time,
-            intercept_type_name,
             intercept_type,
             device_code,
             device_type,
-            device_type_name,
             device_sub_type,
-            device_sub_type_name,
             operate_position_code,
             operate_work_station_grid_key,
             operate_work_grid_key,
+            operate_area_code,
+            operate_area_name,
+            operate_grid_code,
+            operate_grid_name,
+            operate_work_code,
+            operate_work_name,
             intercept_code,
             intercept_message,
             dispose_node,
-            dispose_node_name,
             dispose_user_id,
             dispose_user_code,
             dispose_user_name,
@@ -553,58 +563,59 @@
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix=" (" suffix=")" suffixOverrides=",">
-                    #{item.id},
-                    #{item.bizId},
-                    #{item.interceptBizId},
-                    #{item.barCode},
-                    #{item.bizSource},
-                    #{item.siteId},
-                    #{item.siteName},
-                    #{item.provinceAgencyCode},
-                    #{item.provinceAgencyName},
-                    #{item.areaHubCode},
-                    #{item.areaHubName},
-                    #{item.packageCode},
-                    #{item.packageTotal},
-                    #{item.waybillCode},
-                    #{item.boxCode},
-                    #{item.operateNode},
-                    #{item.operateNodeName},
-                    #{item.interceptEffectTime},
-                    #{item.interceptTypeName},
-                    #{item.interceptType},
-                    #{item.deviceCode},
-                    #{item.deviceType},
-                    #{item.deviceTypeName},
-                    #{item.deviceSubType},
-                    #{item.deviceSubTypeName},
-                    #{item.operatePositionCode},
-                    #{item.operateWorkStationGridKey},
-                    #{item.operateWorkGridKey},
-                    #{item.interceptCode},
-                    #{item.interceptMessage},
-                    #{item.disposeNode},
-                    #{item.disposeNodeName},
-                    #{item.disposeUserId},
-                    #{item.disposeUserCode},
-                    #{item.disposeUserName},
-                    #{item.disposeTime},
-                    #{item.inputWeight},
-                    #{item.inputVolume},
-                    #{item.inputLength},
-                    #{item.inputWidth},
-                    #{item.inputHeight},
-                    #{item.saveType},
-                    #{item.createUserId},
-                    #{item.createUserCode},
-                    #{item.createUserName},
-                    #{item.updateUserId},
-                    #{item.updateUserCode},
-                    #{item.updateUserName},
-                    #{item.createTime},
-                    #{item.updateTime},
-                    #{item.yn},
-                    #{item.ts},
+                #{item.id},
+                #{item.bizId},
+                #{item.interceptBizId},
+                #{item.barCode},
+                #{item.bizSource},
+                #{item.siteId},
+                #{item.siteName},
+                #{item.provinceAgencyCode},
+                #{item.provinceAgencyName},
+                #{item.areaHubCode},
+                #{item.areaHubName},
+                #{item.packageCode},
+                #{item.packageTotal},
+                #{item.waybillCode},
+                #{item.boxCode},
+                #{item.operateNode},
+                #{item.interceptEffectTime},
+                #{item.interceptType},
+                #{item.deviceCode},
+                #{item.deviceType},
+                #{item.deviceSubType},
+                #{item.operatePositionCode},
+                #{item.operateWorkStationGridKey},
+                #{item.operateWorkGridKey},
+                #{item.operateAreaCode},
+                #{item.operateAreaName},
+                #{item.operateGridCode},
+                #{item.operateGridName},
+                #{item.operateWorkCode},
+                #{item.operateWorkName},
+                #{item.interceptCode},
+                #{item.interceptMessage},
+                #{item.disposeNode},
+                #{item.disposeUserId},
+                #{item.disposeUserCode},
+                #{item.disposeUserName},
+                #{item.disposeTime},
+                #{item.inputWeight},
+                #{item.inputVolume},
+                #{item.inputLength},
+                #{item.inputWidth},
+                #{item.inputHeight},
+                #{item.saveType},
+                #{item.createUserId},
+                #{item.createUserCode},
+                #{item.createUserName},
+                #{item.updateUserId},
+                #{item.updateUserCode},
+                #{item.updateUserName},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.yn},
+                #{item.ts},
             </trim>
         </foreach>
     </insert>
@@ -623,6 +634,9 @@
             </if>
             <if test="bizSource != null and bizSource != ''">
                 biz_source = #{bizSource},
+            </if>
+            <if test="siteId != null ">
+                site_id = #{siteId},
             </if>
             <if test="siteName != null and siteName != ''">
                 site_name = #{siteName},
@@ -654,14 +668,8 @@
             <if test="operateNode != null ">
                 operate_node = #{operateNode},
             </if>
-            <if test="operateNodeName != null and operateNodeName != ''">
-                operate_node_name = #{operateNodeName},
-            </if>
             <if test="interceptEffectTime != null ">
                 intercept_effect_time = #{interceptEffectTime},
-            </if>
-            <if test="interceptTypeName != null and interceptTypeName != ''">
-                intercept_type_name = #{interceptTypeName},
             </if>
             <if test="interceptType != null ">
                 intercept_type = #{interceptType},
@@ -672,14 +680,8 @@
             <if test="deviceType != null ">
                 device_type = #{deviceType},
             </if>
-            <if test="deviceTypeName != null and deviceTypeName != ''">
-                device_type_name = #{deviceTypeName},
-            </if>
             <if test="deviceSubType != null ">
                 device_sub_type = #{deviceSubType},
-            </if>
-            <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
-                device_sub_type_name = #{deviceSubTypeName},
             </if>
             <if test="operatePositionCode != null and operatePositionCode != ''">
                 operate_position_code = #{operatePositionCode},
@@ -690,6 +692,24 @@
             <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
                 operate_work_grid_key = #{operateWorkGridKey},
             </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code = #{operateAreaCode},
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name = #{operateAreaName},
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code = #{operateGridCode},
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name = #{operateGridName},
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code = #{operateWorkCode},
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name = #{operateWorkName},
+            </if>
             <if test="interceptCode != null ">
                 intercept_code = #{interceptCode},
             </if>
@@ -698,9 +718,6 @@
             </if>
             <if test="disposeNode != null ">
                 dispose_node = #{disposeNode},
-            </if>
-            <if test="disposeNodeName != null and disposeNodeName != ''">
-                dispose_node_name = #{disposeNodeName},
             </if>
             <if test="disposeUserId != null ">
                 dispose_user_id = #{disposeUserId},
@@ -976,6 +993,24 @@
             </if>
             <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
                 operate_work_grid_key = #{operateWorkGridKey},
+            </if>
+            <if test="item.operateAreaCode != null and item.operateAreaCode != ''">
+                operate_area_code = #{item.operateAreaCode},
+            </if>
+            <if test="item.operateAreaName != null and item.operateAreaName != ''">
+                operate_area_name = #{item.operateAreaName},
+            </if>
+            <if test="item.operateGridCode != null and item.operateGridCode != ''">
+                operate_grid_code = #{item.operateGridCode},
+            </if>
+            <if test="item.operateGridName != null and item.operateGridName != ''">
+                operate_grid_name = #{item.operateGridName},
+            </if>
+            <if test="item.operateWorkCode != null and item.operateWorkCode != ''">
+                operate_work_code = #{item.operateWorkCode},
+            </if>
+            <if test="item.operateWorkName != null and item.operateWorkName != ''">
+                operate_work_name = #{item.operateWorkName},
             </if>
             <if test="interceptCode != null ">
                 intercept_code = #{interceptCode},
