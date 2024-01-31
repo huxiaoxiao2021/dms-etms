@@ -180,19 +180,28 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         JdCResponse<List<AbnormalReasonResp>> response = new JdCResponse<>();
         List<AbnormalReasonDto> abnormalReasonDtoList = abnormalReasonManagerOfZK.queryAbnormalReasonListBySystemCode();
         if (!CollectionUtils.isEmpty(abnormalReasonDtoList)) {
-            List<AbnormalReasonResp> abnormalReasonRespList =
-                    abnormalReasonDtoList.stream()
-                            // 过滤掉一级为非违禁品的异常类型
-//                            .filter(item -> !Objects.equals(item.getReasonLevel(), INTEGER_ONE.byteValue())
-//                                    || Objects.equals(String.valueOf(item.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE))
-                            .map(item -> {
-                                AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
-                                BeanUtils.copyProperties(item, abnormalReasonResp);
-                                return abnormalReasonResp;
-                            }).collect(Collectors.toList());
+            List<AbnormalReasonResp> abnormalReasonRespList = new ArrayList<>();
+            for (AbnormalReasonDto abnormalReasonDto : abnormalReasonDtoList) {
+                if (Objects.equals(abnormalReasonDto.getReasonLevel(), INTEGER_ONE.byteValue())
+                        && !Objects.equals(String.valueOf(abnormalReasonDto.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE)) {
+                    continue;
+                }
+                abnormalReasonRespList.add(convertAbnormalReason(abnormalReasonDto));
+            }
             response.setData(abnormalReasonRespList);
         }
         return response;
+    }
+
+    private AbnormalReasonResp convertAbnormalReason(AbnormalReasonDto abnormalReasonDto) {
+        AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
+        abnormalReasonResp.setCode(String.valueOf(abnormalReasonDto.getCode()));
+        abnormalReasonResp.setReasonLevel(String.valueOf(abnormalReasonDto.getReasonLevel()));
+        abnormalReasonResp.setDescription(abnormalReasonDto.getDescription());
+        abnormalReasonResp.setName(abnormalReasonDto.getName());
+        abnormalReasonResp.setUpperCode(String.valueOf(abnormalReasonDto.getUpperCode()));
+        abnormalReasonResp.setUpperId(String.valueOf(abnormalReasonDto.getUpperId()));
+        return abnormalReasonResp;
     }
 
     @Override
