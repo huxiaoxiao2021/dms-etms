@@ -743,8 +743,43 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         // 核对重量来源
         queryDto.setRecheckSource(spotCheckDto.getContrastSource());
         // 称重操作人ID
-        queryDto.setOperatorId(spotCheckDto.getcon);
+        queryDto.setOperatorId(spotCheckDto.get);
         return queryDto;
+    }
+
+    private void fillSecondContrastData(WeightVolumeSpotCheckDto spotCheckDto, StandardResultAndDutyBodyDTO reportInfo) {
+        spotCheckDto.setContrastSource(reportInfo == null ? null : reportInfo.getRecheckSource());
+        spotCheckDto.setContrastWeight((reportInfo == null || reportInfo.getRecheckWeight() == null)
+                ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckWeight()), 2));
+        spotCheckDto.setContrastVolume((reportInfo == null || reportInfo.getRecheckVolume() == null)
+                ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckVolume()), 2));
+        spotCheckDto.setContrastOrgCode(reportInfo == null ? null : reportInfo.getDutyOrgId());
+        spotCheckDto.setContrastOrgName(reportInfo == null ? null : reportInfo.getDutyOrgName());
+        spotCheckDto.setContrastProvinceAgencyCode(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyCode());
+        spotCheckDto.setContrastProvinceAgencyName(reportInfo == null ? null : reportInfo.getDutyProvinceAgencyName());
+        spotCheckDto.setContrastWarZoneCode(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyCode());
+        spotCheckDto.setContrastWarZoneName(reportInfo == null ? null : reportInfo.getDutyProvinceCompanyName());
+        spotCheckDto.setContrastAreaCode(reportInfo == null ? null : reportInfo.getDutyAreaCode());
+        spotCheckDto.setContrastAreaName(reportInfo == null ? null : reportInfo.getDutyAreaName());
+        spotCheckDto.setContrastSiteCode(reportInfo == null ? null : reportInfo.getDutySiteId());
+        spotCheckDto.setContrastSiteName(reportInfo == null ? null : reportInfo.getDutySiteName());
+        spotCheckDto.setContrastStaffAccount(reportInfo == null ? null : reportInfo.getDutyStaffAccount());
+        spotCheckDto.setContrastStaffName(reportInfo == null ? null : reportInfo.getDutyStaffName());
+        spotCheckDto.setContrastStaffType(reportInfo == null ? null : reportInfo.getDutyStaffType());
+        spotCheckDto.setContrastDutyType(reportInfo == null ? null : reportInfo.getDutyType());
+
+        // 超标数据
+        int excessStatus = ExcessStatusEnum.EXCESS_ENUM_NO.getCode();
+        if(reportInfo != null && reportInfo.getExceedType() != null){
+            excessStatus = Objects.equals(reportInfo.getExceedType(), OUT_EXCESS_STATUS)
+                    ? ExcessStatusEnum.EXCESS_ENUM_NO.getCode() : ExcessStatusEnum.EXCESS_ENUM_YES.getCode();
+        }
+        spotCheckContext.setExcessStatus(excessStatus);
+        spotCheckContext.setExcessType(reportInfo == null ? null : reportInfo.getExceedType());
+        spotCheckContext.setDiffWeight((reportInfo == null || reportInfo.getDiffWeight() == null) ? null : Double.parseDouble(reportInfo.getDiffWeight()));
+        spotCheckContext.setDiffStandard(reportInfo == null ? null : reportInfo.getDiffStandard());
+        spotCheckContext.setVolumeRate((reportInfo == null || reportInfo.getConvertCoefficient() == null)
+                ? null : reportInfo.getConvertCoefficient());
     }
 
     /**
