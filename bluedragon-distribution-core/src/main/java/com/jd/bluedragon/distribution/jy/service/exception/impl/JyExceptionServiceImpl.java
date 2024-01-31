@@ -2079,6 +2079,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setBarCode(businessInterceptReport.getPackageCode());
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptReport.getSiteCode().longValue());
             jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            jyBizTaskExceptionQuery.setYn(Constants.YN_YES);
             // final List<JyBizTaskExceptionEntity> currentSiteSamePackageTaskList = jyBizTaskExceptionDao.selectListByCondition(jyBizTaskExceptionQuery);
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
 
@@ -2090,10 +2091,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             // 如果已有任务
             if (currentSiteSamePackageTaskExist != null) {
+                logger.info("currentSiteSamePackageTaskExist {}", JsonHelper.toJson(currentSiteSamePackageTaskExist));
                 final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
                 jyExceptionInterceptDetailQuery.setSiteId(businessInterceptReport.getSiteCode());
                 jyExceptionInterceptDetailQuery.setBizId(currentSiteSamePackageTaskExist.getBizId());
                 jyExceptionInterceptDetailQuery.setPackageCode(businessInterceptReport.getPackageCode());
+                jyExceptionInterceptDetailQuery.setYn(Constants.YN_YES);
                 final JyExceptionInterceptDetail jyExceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
                 // 1.1 拦截类型不同 丢弃
                 if (!Objects.equals(jyExceptionInterceptDetailExist.getInterceptType(), businessInterceptReport.getInterceptType())) {
@@ -2144,9 +2147,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_SUBMIT, taskEntity);
 
                 // 3.4 插入拦截包裹和场地关系 插入kv时防重
-                JyExceptionInterceptDetailKv jyExceptionInterceptDetailKv = new JyExceptionInterceptDetailKv();
+                /*JyExceptionInterceptDetailKv jyExceptionInterceptDetailKv = new JyExceptionInterceptDetailKv();
                 this.assembleJyExceptionInterceptDetailKv(jyExceptionInterceptDetailKv, jyExceptionInterceptDetail);
-                jyExceptionBusinessInterceptDetailKvService.addOneNoRepeat(jyExceptionInterceptDetailKv);
+                jyExceptionBusinessInterceptDetailKvService.addOneNoRepeat(jyExceptionInterceptDetailKv);*/
 
                 // 3.6 更新其他场地数据
                 finishOtherSiteTaskAnd2Fail(businessInterceptReport.getPackageCode(), businessInterceptReport.getSiteCode());
@@ -2215,7 +2218,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 删除明细
         JyExceptionInterceptDetail jyExceptionInterceptDetailUpdate = new JyExceptionInterceptDetail();
-        jyExceptionInterceptDetailUpdate.setSiteId(taskEntityUpdate.getSiteCode().intValue());
+        jyExceptionInterceptDetailUpdate.setSiteId(taskExist.getSiteCode().intValue());
         jyExceptionInterceptDetailUpdate.setBizId(taskExist.getBizId());
         jyExceptionInterceptDetailUpdate.setYn(Constants.YN_NO);
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetailUpdate);
