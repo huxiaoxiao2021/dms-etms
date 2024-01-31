@@ -101,6 +101,7 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
@@ -915,7 +916,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         final List<JyExceptionInterceptDetail> jyExceptionInterceptDetails = jyExceptionInterceptDetailDao.queryList(jyExceptionInterceptDetailQuery);
         if(CollectionUtils.isNotEmpty(jyExceptionInterceptDetails)){
-            mapResult = jyExceptionInterceptDetails.stream().collect(Collectors.toMap(JyExceptionInterceptDetail::getBizId, v -> v));
+            mapResult = jyExceptionInterceptDetails.stream().collect(Collectors.toMap(JyExceptionInterceptDetail::getBizId, Function.identity()));
         }
         return mapResult;
     }
