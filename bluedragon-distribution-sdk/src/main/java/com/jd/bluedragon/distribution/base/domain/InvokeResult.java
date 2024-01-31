@@ -319,6 +319,15 @@ public class InvokeResult<T> implements Serializable {
     public static final int COLLECT_PACKAGE_TASK_NO_EXIT_CODE = 3071;
     public static final String COLLECT_PACKAGE_TASK_NO_EXIT_MESSAGE = "集包任务不存在或已过期/作废！";
 
+    public static final int AIR_RAIL_SEND_FLOW_ADD_FAIL_CODE = 3076;
+    public static final String AIR_RAIL_SEND_FLOW_ADD_FAIL_MESSAGE = "其他人正在添加流向，请稍后重试！";
+
+    public static final int AIR_RAIL_SEND_FLOW_DELETE_FAIL_CODE = 3077;
+    public static final String AIR_RAIL_SEND_FLOW_DELETE_FAIL_MESSAGE = "流程存在未封车批次，请先封车再删除！";
+
+    public static final int AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_CODE = 3078;
+    public static final String AIR_RAIL_SEND_FLOW_EXCEED_LIMIT_MESSAGE = "超出最大允许添加流向数据量！";
+
     public static final int CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_CODE = 3070;
     public static final String CZ_SEAL_CAR_BOARD_COUNT_MIN_LIMIT_MESSAGE = "车辆封车的板数量小于【%s】 件数小于【%s】 请拍照！";
     public static final int CZ_SEAL_CAR_GRID_NOT_HAVA_FLOW_CODE = 3072;
@@ -335,6 +344,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE = 3077;
     public static final String WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE = "单件货物重量不能超过%skg!";
+
+    public static final int AVRA_SEND_TASK_FINISHED_CODE = 3078;
+    public static final String AVRA_SEND_TASK_FINISHED_MESSAGE = "发货任务已完成！";
 
     public static final String SEND_CHECK_OPERATOR_MESSAGE = "未获取到操作人信息，请重新登录!";
     public InvokeResult(){

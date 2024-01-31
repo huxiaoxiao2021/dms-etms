@@ -808,5 +808,31 @@
     <jmq:consumer id="jmq.boxDetailFromStoreConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxDetailFromStore}" listener="boxDetailFromStoreConsumer"/>
     </jmq:consumer>
+    <!--  运输航空提货计划下发  -->
+    <jmq:consumer id="jmq.TmsAviationPickingGoodConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.aviationPickingGood}" listener="tmsAviationPickingGoodConsumer"/>
+    </jmq:consumer>
+    <!--  空铁提货扫描  -->
+    <jmq:consumer id="jmq.JyPickingGoodScanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.scan}" listener="jyPickingGoodScanConsumer"/>
+    </jmq:consumer>
+
+
+    <!--  空铁提货待提明细初始化  -->
+    <jmq:consumer id="jmq.jyPickingGoodDetailInitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.detail.init}" listener="jyPickingGoodDetailInitConsumer"/>
+    </jmq:consumer>
+    <!--  空铁提货待提明细初始化拆分消费  -->
+    <jmq:consumer id="jmq.jyPickingGoodDetailInitSplitConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.detail.init.split}" listener="jyPickingGoodDetailInitSplitConsumer"/>
+    </jmq:consumer>
+    <!--  空铁提货待提统计字段修改消费  -->
+    <jmq:consumer id="jmq.jyPickingGoodWaitScanItemNumUpdateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.wait.scan.num}" listener="jyPickingGoodWaitScanItemNumUpdateConsumer"/>
+    </jmq:consumer>
+    <!--  提货扫描数据拆分为包裹维度  -->
+    <jmq:consumer id="jmq.jyPickingGoodScanSplitPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
+    </jmq:consumer>
 </beans>
 
