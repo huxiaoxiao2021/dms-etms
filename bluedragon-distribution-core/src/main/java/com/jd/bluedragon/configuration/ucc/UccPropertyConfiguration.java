@@ -1894,6 +1894,29 @@ public class UccPropertyConfiguration{
 
     private long jyCollectPackageInterceptBitCode;
 
+    /**
+     * 存储仓打包明细 单个箱子的上限
+     */
+    private Integer storageBoxDetailMaxSizeLimit;
+
+    private boolean thanosSwitch;
+
+    public boolean getThanosSwitch(){
+        return thanosSwitch;
+    }
+
+    public void setThanosSwitch(boolean thanosSwitch) {
+        this.thanosSwitch = thanosSwitch;
+    }
+
+    public Integer getStorageBoxDetailMaxSizeLimit(){
+        return storageBoxDetailMaxSizeLimit;
+    }
+
+    public void setStorageBoxDetailMaxSizeLimit(Integer storageBoxDetailMaxSizeLimit) {
+        this.storageBoxDetailMaxSizeLimit = storageBoxDetailMaxSizeLimit;
+    }
+
     public long getJyCollectPackageInterceptBitCode(){
         return jyCollectPackageInterceptBitCode;
     }
@@ -1915,6 +1938,19 @@ public class UccPropertyConfiguration{
      * 箱号类型新版切换开关
      */
     private boolean boxTypeNewVersionSwitch;
+
+    /**
+     * 排班允许进入闸机误差小时数
+     */
+    private Integer allowEntryHours;
+
+    public Integer getAllowEntryHours() {
+        return allowEntryHours;
+    }
+
+    public void setAllowEntryHours(Integer allowEntryHours) {
+        this.allowEntryHours = allowEntryHours;
+    }
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;

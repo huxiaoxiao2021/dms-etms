@@ -52,6 +52,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -82,6 +83,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -150,6 +154,13 @@ public class QualityControlService {
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    @Qualifier("abnormalReportRecordProducer")
+    private DefaultJMQProducer abnormalReportRecordProducer;
+
+    @Autowired
+    private PositionManager positionManager;
 
     /**
      * 协商再投状态校验
@@ -271,8 +282,30 @@ public class QualityControlService {
             }
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
+            // 报废运单拦截
+            if (StringUtils.isNotEmpty(waybillCode)) {
+                Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
+                if (waybill != null && StringUtils.isNotEmpty(waybill.getWaybillSign())) {
+                    // waybillSign的19位等于2是报废运单 拦截
+                    String waybillSign = waybill.getWaybillSign();
+                    if (isScrapWaybill(waybillSign)) {
+                        return result.toFail(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
+                    }
+                }
+            }
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
-            if(isExistOldWaybillCode(waybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
+            //获取运信息
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
+                    && BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
+                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION));
+            }
+            if(isExistOldWaybillCode(baseEntity) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
             }
             String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
@@ -289,13 +322,6 @@ public class QualityControlService {
         }
         return result;
     }
-
-    @Autowired
-    @Qualifier("abnormalReportRecordProducer")
-    private DefaultJMQProducer abnormalReportRecordProducer;
-
-    @Autowired
-    private PositionManager positionManager;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -1079,15 +1105,9 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  boolean isExistOldWaybillCode(String waybillCode){
+    private  boolean isExistOldWaybillCode(BaseEntity<BigWaybillDto> baseEntity){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
         boolean flag=false;
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
             WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
             if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){

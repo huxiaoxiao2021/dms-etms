@@ -14,6 +14,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
@@ -21,13 +22,18 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao;
+import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpContrabandNoticCustomerMQ;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
+import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyContrabandExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -63,6 +69,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
@@ -122,6 +130,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     private DmsConfigManager dmsConfigManager;
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
+    @Autowired
+    private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
+    @Autowired
+    private SortingService sortingService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.processTaskOfContraband", mState = {JProEnum.TP})
@@ -156,6 +168,25 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             BeanUtils.copyProperties(entity,dto);
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
+
+            // 新增自动取消集包:根据包裹号获取箱号
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(dto.getBarCode());
+            if (logger.isInfoEnabled()){
+                logger.info("安检岗自动取消集包-根据包裹号查询集包箱号数据：包裹号：{},集包数据：{}", dto.getBarCode(), JsonHelper.toJson(sortingDto));
+            }
+            if (Objects.nonNull(sortingDto)){
+                CancelCollectPackageDto cancelCollectPackageDto = buildCancelCollectPackageDto(dto, sortingDto);
+                // 调用取消集包接口（新版，可删除扫描记录）
+                boolean b = jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+                if(b){
+                    logger.info("该包裹关联集包取消成功！包裹号：{}", dto.getBarCode());
+                }else{
+                    logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
+                }
+            }
+        } catch (JyBizException e) {
+            logger.error("jy取消集包服务异常{}", req.getBarCode(), e);
+            return JdCResponse.fail("违禁品正常上报,取消集包失败:" + e.getMessage());
         } catch (Exception e) {
             logger.error("提交违禁品上报报错:", e);
             return JdCResponse.fail(e.getMessage());
@@ -599,6 +630,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             String msg = entity.getBarCode() + " 已经提报，请勿重复提交！";
             throw new RuntimeException(msg);
         }
+
+        // 报废运单拦截
+        if (isScrapWaybill(waybill.getWaybillSign())) {
+            throw new RuntimeException(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
+        }
     }
 
     private boolean isInternationWaybill(String waybillCode) {
@@ -669,5 +705,27 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
         }
         return false;
+    }
+
+    /**
+     * 构建取消集包DTO对象
+     * @param dto 禁运异常DTO对象
+     * @return 取消集包DTO对象
+     */
+    private CancelCollectPackageDto buildCancelCollectPackageDto(JyExceptionContrabandDto dto, SortingDto sortingDto){
+        CancelCollectPackageDto cancelCollectPackageDto = new CancelCollectPackageDto();
+        cancelCollectPackageDto.setBizId(dto.getBizId());
+        //不能设置箱号，设置箱号，按照箱号取消集包
+        cancelCollectPackageDto.setBoxCode(sortingDto.getBoxCode());
+        cancelCollectPackageDto.setPackageCode(dto.getBarCode());
+        cancelCollectPackageDto.setSiteCode(sortingDto.getCreateSiteCode());
+        cancelCollectPackageDto.setSiteName(sortingDto.getCreateSiteName());
+        cancelCollectPackageDto.setUpdateUserCode(dto.getCreateUserId());
+        cancelCollectPackageDto.setUpdateUserErp(dto.getCreateErp());
+        cancelCollectPackageDto.setUpdateUserName(dto.getCreateStaffName());
+        cancelCollectPackageDto.setUpdateTime(new Date());
+        cancelCollectPackageDto.setCurrentSiteCode(dto.getSiteCode());
+        cancelCollectPackageDto.setSkipSendCheck(true);
+        return cancelCollectPackageDto;
     }
 }

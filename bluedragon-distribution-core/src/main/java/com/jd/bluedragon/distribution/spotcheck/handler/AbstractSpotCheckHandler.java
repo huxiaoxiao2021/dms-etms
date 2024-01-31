@@ -351,6 +351,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setSpotCheckStatus(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())
                 ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_UN_EXCESS.getCode());
         dto.setYn(Constants.CONSTANT_NUMBER_ONE);
+        // 扩展字段
+        dto.setExtendMap(spotCheckContext.getExtendMap());
         return dto;
     }
 

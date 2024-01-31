@@ -83,6 +83,8 @@ public class BoxCodeUtil {
             return "逆配";
         } else if (type.equals("LP")) {
             return "理赔";
+        } else if (type.equals("BW")) {
+            return "仓储";
         }
         return "未知类型";
     }

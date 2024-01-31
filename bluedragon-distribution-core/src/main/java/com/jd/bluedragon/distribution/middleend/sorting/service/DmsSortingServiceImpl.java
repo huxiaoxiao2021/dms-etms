@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingFactory;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -40,5 +41,10 @@ public class DmsSortingServiceImpl implements ISortingService {
     @Override
     public SortingResponse cancelSorting(Sorting sorting) {
         return dmsSortingService.doCancelSorting(sorting);
+    }
+
+    @Override
+    public SortingResponse cancelSortingOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto) {
+        return dmsSortingService.doCancelSortingOffsite(cancelSortingOffsiteDto);
     }
 }

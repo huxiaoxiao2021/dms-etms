@@ -473,4 +473,18 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_34 = 34;
 	char CHAR_34_0 = '0';
+
+	/**
+	 * 19
+	 */
+	int POSITION_19 = 19;
+	char CHAR_19_2 = '2';
+
+	/**
+	 * 运单标识第5位 异常单处理方式
+	 */
+	int POSITION_5 = 5;
+
+	char CHAR_5_5 = '5'; //异常即报废
+
 }

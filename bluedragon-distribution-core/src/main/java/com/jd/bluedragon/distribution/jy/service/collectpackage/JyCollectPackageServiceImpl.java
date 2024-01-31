@@ -683,7 +683,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds, taskMap);
 
         // 批量获取统计信息
-        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(boxCodeList);
+        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(bizIds);
 
         // 组装任务
         List<CollectPackageTaskDto> collectPackTaskDtoList = taskList.stream().map(task -> {
@@ -753,7 +753,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return aggMap;
         }
 
-        listTaskStatisticDto.getStatisticsUnderTaskDtoList().stream().map(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
+        listTaskStatisticDto.getStatisticsUnderTaskDtoList().forEach(item -> aggMap.put(item.getBizId(), item.getExcepScanDtoList()));
         return aggMap;
     }
 
@@ -1213,7 +1213,25 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isNotNull(taskFlowStatistic) && CollectionUtils.isNotEmpty(taskFlowStatistic.getCollectPackageFlowDtoList())){
             statisticsUnderTaskQueryResp.setCollectPackageFlowDtoList(taskFlowStatistic.getCollectPackageFlowDtoList());
         }
+        getAndSetEndSiteName(statisticsUnderTaskQueryResp);
         return statisticsUnderTaskQueryResp;
+    }
+
+    private void getAndSetEndSiteName(StatisticsUnderTaskQueryResp statisticsUnderTaskQueryResp) {
+        try {
+            if (CollectionUtils.isNotEmpty(statisticsUnderTaskQueryResp.getCollectPackageFlowDtoList()) && statisticsUnderTaskQueryResp.getCollectPackageFlowDtoList().size() <10){
+                for (CollectPackageFlowDto collectPackageFlowDto: statisticsUnderTaskQueryResp.getCollectPackageFlowDtoList()){
+                    if (ObjectHelper.isNotNull(collectPackageFlowDto.getEndSiteId())){
+                        BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseSiteBySiteId(collectPackageFlowDto.getEndSiteId().intValue());
+                        if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())){
+                            collectPackageFlowDto.setEndSiteName(baseStaffSiteOrgDto.getSiteName());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("queryStatisticsUnderTask.getAndSetEndSiteName err",e);
+        }
     }
 
     private void checkStatisticsUnderTaskQueryReq(StatisticsUnderTaskQueryReq request) {

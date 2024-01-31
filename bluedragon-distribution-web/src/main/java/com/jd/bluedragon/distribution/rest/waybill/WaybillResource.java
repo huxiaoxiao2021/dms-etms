@@ -33,10 +33,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.client.enums.DeskClientMenuEnum;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -148,6 +145,9 @@ public class WaybillResource {
 
 	@Autowired
 	private BaseService baseService;
+
+	@Autowired
+	private FuncUsageConfigService funcUsageConfigService;
 
 	@Autowired
 	private CrossSortingService crossSortingService;
@@ -2698,7 +2698,7 @@ public class WaybillResource {
 			operateUser.setSiteCode(waybillForPreSortOnSiteRequest.getSortingSite());
 			operateUser.setUserCode(waybillForPreSortOnSiteRequest.getErp());
 			funcUsageConfigRequestDto.setOperateUser(operateUser);
-			FuncUsageProcessDto processDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+			FuncUsageProcessDto processDto = funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
 			if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
 				log.info("WaybillResource.checkWaybillForPreSortOnSite {}", JsonHelper.toJson(waybillForPreSortOnSiteRequest));
 				InvokeResult<String> result = new InvokeResult<>();

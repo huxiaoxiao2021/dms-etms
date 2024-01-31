@@ -17,10 +17,7 @@ import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.LoginService;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
@@ -96,6 +93,9 @@ public class BaseResource {
 
 	@Autowired
 	private BaseService baseService;
+
+	@Autowired
+	private FuncUsageConfigService funcUsageConfigService;
 
     @Autowired
     VmsManager vmsManager;
@@ -332,43 +332,10 @@ public class BaseResource {
 			return loginUserResponse;
 		}
 
-		return checkCanUse(request,((LoginService)userService).clientLoginIn(request));
+		return ((LoginService)userService).clientLoginIn(request);
 
 	}
 
-	/**
-	 * 检查是否可以登录使用
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	private LoginUserResponse checkCanUse(LoginRequest request,LoginUserResponse response){
-		if(JdResponse.CODE_OK.equals(response.getCode())){
-			if(StringUtils.isNotBlank(request.getClientInfo()) ){
-				ClientInfo clientInfo = com.jd.bluedragon.distribution.api.utils.JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
-
-				if(ProgramTypeEnum.PDA_WF_10.getCode().equals(clientInfo.getProgramType())
-						|| ProgramTypeEnum.PDA_WF_20.getCode().equals(clientInfo.getProgramType())
-						|| ProgramTypeEnum.PDA_WF_30.getCode().equals(clientInfo.getProgramType())
-						|| ProgramTypeEnum.PDA_PC.getCode().equals(clientInfo.getProgramType())){
-
-					FuncUsageConfigRequestDto funcUsageConfigRequestDto = new FuncUsageConfigRequestDto();
-					funcUsageConfigRequestDto.setFuncCode("win_pda_offline");
-					com.jd.bluedragon.common.dto.base.request.OperateUser operateUser = new com.jd.bluedragon.common.dto.base.request.OperateUser();
-					operateUser.setSiteCode(response.getSiteCode());
-					funcUsageConfigRequestDto.setOperateUser(operateUser);
-					FuncUsageProcessDto processDto =  baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
-					if(processDto != null && Constants.YN_NO.equals(processDto.getCanUse())){
-						response.setCode(JdResponse.CODE_WRONG_STATUS);
-						response.setMessage(processDto.getMsg());
-						return response;
-					}
-				}
-			}
-		}
-
-		return response;
-	}
 
 	/**
 	 * 设备信息上传
@@ -1919,7 +1886,7 @@ public class BaseResource {
         InvokeResult<FuncUsageProcessDto> result = new InvokeResult<>();
         result.success();
         try {
-            final FuncUsageProcessDto funcUsageProcessDto = baseService.getFuncUsageConfig(funcUsageConfigRequestDto);
+            final FuncUsageProcessDto funcUsageProcessDto = funcUsageConfigService.getFuncUsageConfig(funcUsageConfigRequestDto);
             result.setData(funcUsageProcessDto);
         } catch (Exception e) {
             log.error("BaseResource.getFuncUsageConfig exception ", e);
