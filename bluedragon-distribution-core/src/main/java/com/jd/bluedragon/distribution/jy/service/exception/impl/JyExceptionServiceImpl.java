@@ -910,6 +910,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
         jyExceptionInterceptDetailQuery.setSiteId(req.getSiteId());
         jyExceptionInterceptDetailQuery.setBizIdList(bizIdList);
+        jyExceptionInterceptDetailQuery.setYn(Constants.YN_YES);
         Map<String, JyExceptionInterceptDetail> mapResult = new HashMap<>();
         if (CollectionUtils.isEmpty(bizIdList)) {
             return mapResult;
@@ -2214,6 +2215,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 删除明细
         JyExceptionInterceptDetail jyExceptionInterceptDetailUpdate = new JyExceptionInterceptDetail();
+        jyExceptionInterceptDetailUpdate.setSiteId(taskEntityUpdate.getSiteCode().intValue());
         jyExceptionInterceptDetailUpdate.setBizId(taskExist.getBizId());
         jyExceptionInterceptDetailUpdate.setYn(Constants.YN_NO);
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetailUpdate);
