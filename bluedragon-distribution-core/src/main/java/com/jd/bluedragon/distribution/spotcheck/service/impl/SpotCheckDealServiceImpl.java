@@ -744,7 +744,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         queryDto.setRecheckSource(spotCheckDto.getContrastSource());
         // 称重操作人ID
         queryDto.setOperatorId(spotCheckDto.getOperatorId());
-        // 称重操作人名称
+        // 称重操作人erp或pin
         queryDto.setOperator(spotCheckDto.getOperator());
         return queryDto;
     }
