@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleJobCancelMq;
 import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
 import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.dbs.util.CollectionUtils;
 import com.jd.etms.vos.dto.SealVehicleJobDto;
 import com.jd.etms.vos.dto.SealVehicleRouteDto;
 import com.jd.jmq.common.message.Message;
