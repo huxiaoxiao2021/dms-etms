@@ -60,7 +60,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_node_name`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 插入 -->
@@ -958,14 +958,8 @@
             <if test="operateNode != null ">
                 operate_node = #{operateNode},
             </if>
-            <if test="operateNodeName != null and operateNodeName != ''">
-                operate_node_name = #{operateNodeName},
-            </if>
             <if test="interceptEffectTime != null ">
                 intercept_effect_time = #{interceptEffectTime},
-            </if>
-            <if test="interceptTypeName != null and interceptTypeName != ''">
-                intercept_type_name = #{interceptTypeName},
             </if>
             <if test="interceptType != null ">
                 intercept_type = #{interceptType},
@@ -976,14 +970,8 @@
             <if test="deviceType != null ">
                 device_type = #{deviceType},
             </if>
-            <if test="deviceTypeName != null and deviceTypeName != ''">
-                device_type_name = #{deviceTypeName},
-            </if>
             <if test="deviceSubType != null ">
                 device_sub_type = #{deviceSubType},
-            </if>
-            <if test="deviceSubTypeName != null and deviceSubTypeName != ''">
-                device_sub_type_name = #{deviceSubTypeName},
             </if>
             <if test="operatePositionCode != null and operatePositionCode != ''">
                 operate_position_code = #{operatePositionCode},
@@ -1020,9 +1008,6 @@
             </if>
             <if test="disposeNode != null ">
                 dispose_node = #{disposeNode},
-            </if>
-            <if test="disposeNodeName != null and disposeNodeName != ''">
-                dispose_node_name = #{disposeNodeName},
             </if>
             <if test="disposeUserId != null ">
                 dispose_user_id = #{disposeUserId},
