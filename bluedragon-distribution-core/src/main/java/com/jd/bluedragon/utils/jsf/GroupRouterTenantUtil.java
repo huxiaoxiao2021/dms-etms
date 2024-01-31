@@ -25,7 +25,7 @@ public class GroupRouterTenantUtil implements GroupRouter {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRouterTenantUtil.class);
 
-    @Resource
+    @Resource(name="tenantManager")
     private TenantManager tenantManager;
 
     public GroupRouterTenantUtil(String tenantJsfAliasConfigKey) {

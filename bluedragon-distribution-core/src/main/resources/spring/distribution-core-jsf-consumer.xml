@@ -1572,7 +1572,7 @@
     </jsf:consumer>
 
     <!--卸车验货校验回调配置-->
-    <bean id="jyUnloadVehicleCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
+    <bean id="jyUnloadVehicleCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil" depends-on="tenantManager">
         <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
         <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_UNLOAD_SCAN_ALIES"></constructor-arg>
     </bean>
@@ -1588,7 +1588,7 @@
     </jsf:consumerGroup>
 
     <!--发货校验回调配置-->
-    <bean id="jySendCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
+    <bean id="jySendCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil" depends-on="tenantManager">
         <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
         <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_SEND_SCAN_ALIES"></constructor-arg>
     </bean>
