@@ -982,23 +982,23 @@
             <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
                 operate_work_grid_key = #{operateWorkGridKey},
             </if>
-            <if test="item.operateAreaCode != null and item.operateAreaCode != ''">
-                operate_area_code = #{item.operateAreaCode},
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code = #{operateAreaCode},
             </if>
-            <if test="item.operateAreaName != null and item.operateAreaName != ''">
-                operate_area_name = #{item.operateAreaName},
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name = #{operateAreaName},
             </if>
-            <if test="item.operateGridCode != null and item.operateGridCode != ''">
-                operate_grid_code = #{item.operateGridCode},
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code = #{operateGridCode},
             </if>
-            <if test="item.operateGridName != null and item.operateGridName != ''">
-                operate_grid_name = #{item.operateGridName},
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name = #{operateGridName},
             </if>
-            <if test="item.operateWorkCode != null and item.operateWorkCode != ''">
-                operate_work_code = #{item.operateWorkCode},
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code = #{operateWorkCode},
             </if>
-            <if test="item.operateWorkName != null and item.operateWorkName != ''">
-                operate_work_name = #{item.operateWorkName},
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name = #{operateWorkName},
             </if>
             <if test="interceptCode != null ">
                 intercept_code = #{interceptCode},
