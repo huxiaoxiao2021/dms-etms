@@ -342,6 +342,7 @@
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
+		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -670,6 +671,7 @@
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
+				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
 			</list>
 		</property>
 	</bean>
