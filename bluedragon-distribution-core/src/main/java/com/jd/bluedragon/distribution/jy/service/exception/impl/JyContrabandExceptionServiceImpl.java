@@ -183,8 +183,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             List<AbnormalReasonResp> abnormalReasonRespList =
                     abnormalReasonDtoList.stream()
                             // 过滤掉一级为非违禁品的异常类型
-                            .filter(item -> !Objects.equals(item.getReasonLevel(), INTEGER_ONE.byteValue())
-                                    || Objects.equals(String.valueOf(item.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE))
+//                            .filter(item -> !Objects.equals(item.getReasonLevel(), INTEGER_ONE.byteValue())
+//                                    || Objects.equals(String.valueOf(item.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE))
                             .map(item -> {
                                 AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
                                 BeanUtils.copyProperties(item, abnormalReasonResp);
