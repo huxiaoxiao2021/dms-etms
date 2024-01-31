@@ -72,6 +72,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -719,6 +720,12 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             trunkY.setTotal(0);
             statusAggList.add(trunkY);
 
+            TaskStatusStatistics trunkYAndShuttleN = new TaskStatusStatistics();
+            trunkY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode());
+            trunkY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getName());
+            trunkY.setTotal(0);
+            statusAggList.add(trunkYAndShuttleN);
+
         }
 
         if(CollectionUtils.isEmpty(dbQuery)) {
@@ -893,6 +900,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             condition.setBizId(request.getToSealBizId());
         }
         List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        //干支已封&摆渡未封单独处理
+        this.trunkSealShuttleNoSealStatistics(request, condition, taskStatusStatisticsList);
+
         List<TaskStatusStatistics> taskStatusStatistics = this.convertFillStatusDefaultValue(taskStatusStatisticsList, false);
         resData.setTaskStatusStatisticsList(taskStatusStatistics);
 
@@ -907,7 +917,10 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         List<AviationSealListDto> sealListDtoArrayList = new ArrayList<>();
         resData.setAviationSealListDtoList(sealListDtoArrayList);
         if(existTaskFlag) {
-            //当前状态统计>0 查具体流向
+            if(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode().equals(request.getStatusCode())) {
+                condition.setShuttleSealFlag(Constants.NUMBER_ZERO);
+            }
+            //当前状态统计>0 查具体流向列表
             List<JyBizTaskSendAviationPlanEntity> aviationPlanEntityList = jyBizTaskSendAviationPlanService.pageQueryAviationPlanByCondition(condition);
             if(CollectionUtils.isNotEmpty(aviationPlanEntityList)) {
                 List<String> bizIdList = new ArrayList<>();
@@ -929,6 +942,41 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             }
         }
         return res;
+    }
+
+    /**
+     * 干支已封&摆渡未封单独处理
+     * @return
+     */
+    private void trunkSealShuttleNoSealStatistics(AviationSendTaskSealListReq request,
+                                                   JyBizTaskSendAviationPlanQueryCondition condition,
+                                                   List<JyBizTaskAviationStatusStatistics> taskStatusStatisticsList) {
+        if(!JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode().equals(request.getStatusCode())) {
+            return;
+        }
+        if(CollectionUtils.isEmpty(taskStatusStatisticsList)) {
+            return ;
+        }
+        boolean existTrunkSeal = false;
+        for(JyBizTaskAviationStatusStatistics statistics : taskStatusStatisticsList) {
+            if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getSendTaskStatus().equals(statistics.getTaskStatus())) {
+                existTrunkSeal = true;
+                break;
+            }
+        }
+        if(!existTrunkSeal) {//摆渡未封是干线已封的子集，如果干线已封为空，摆渡已封不做处理
+            return;
+        }
+        JyBizTaskSendAviationPlanQueryCondition queryCondition = new JyBizTaskSendAviationPlanQueryCondition();
+        BeanUtils.copyProperties(condition, queryCondition);
+        queryCondition.setShuttleSealFlag(Constants.NUMBER_ZERO);
+        List<JyBizTaskAviationStatusStatistics> statisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        for (JyBizTaskAviationStatusStatistics statistics : statisticsList) {
+            if(JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getSendTaskStatus().equals(statistics.getTaskStatus())) {
+                taskStatusStatisticsList.add(statistics);
+                break;
+            }
+        }
     }
 
     @Override

@@ -86,6 +86,12 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
      */
     private Integer manualCreatedFlag;
 
+    /**
+     * 是否摆渡已封车
+     */
+    private Integer shuttleSealFlag;
+
+
     public Long getId() {
         return id;
     }
@@ -364,5 +370,13 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     public void setManualCreatedFlag(Integer manualCreatedFlag) {
         this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+    public Integer getShuttleSealFlag() {
+        return shuttleSealFlag;
+    }
+
+    public void setShuttleSealFlag(Integer shuttleSealFlag) {
+        this.shuttleSealFlag = shuttleSealFlag;
     }
 }
