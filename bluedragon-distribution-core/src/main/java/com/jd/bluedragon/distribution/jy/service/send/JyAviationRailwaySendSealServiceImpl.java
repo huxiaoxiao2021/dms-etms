@@ -525,7 +525,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         param.setCurrentOperate(request.getCurrentOperate());
         param.setTransportCode(request.getTransportCode());
         param.setEndSiteId(request.getNextSiteId());
-
+        param.setTemporaryTransferSwitch(request.getTemporaryTransferSwitch());
         InvokeResult<TransportResp> transportResp = jySealVehicleService.checkTransCode(param);
         if(!transportResp.codeSuccess()) {
             res.setCode(transportResp.getCode());
