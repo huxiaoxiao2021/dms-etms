@@ -4336,7 +4336,7 @@ public class UccPropertyConfiguration{
 
     public void setTeanWorkAreaCodes(String teanWorkAreaCodes) {
         this.teanWorkAreaCodes = teanWorkAreaCodes;
-        this.setTerminalSiteTypeListForBoxType();
+        this.setTeanWorkAreaCodesList();
     }
 
     public List<String> getTeanWorkAreaCodesList() {
