@@ -721,9 +721,9 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             statusAggList.add(trunkY);
 
             TaskStatusStatistics trunkYAndShuttleN = new TaskStatusStatistics();
-            trunkY.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode());
-            trunkY.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getName());
-            trunkY.setTotal(0);
+            trunkYAndShuttleN.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode());
+            trunkYAndShuttleN.setTaskStatusName(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getName());
+            trunkYAndShuttleN.setTotal(0);
             statusAggList.add(trunkYAndShuttleN);
 
         }
