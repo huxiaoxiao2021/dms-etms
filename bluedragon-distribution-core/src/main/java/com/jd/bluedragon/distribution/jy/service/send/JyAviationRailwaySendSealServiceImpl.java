@@ -966,7 +966,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         JyBizTaskSendAviationPlanQueryCondition queryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, queryCondition);
         queryCondition.setShuttleSealFlag(Constants.NUMBER_ZERO);
-        List<JyBizTaskAviationStatusStatistics> statisticsList = jyBizTaskSendAviationPlanService.statusStatistics(condition);
+        queryCondition.setTaskStatusList(Arrays.asList(JyBizTaskSendDetailStatusEnum.SEALED.getCode()));
+        List<JyBizTaskAviationStatusStatistics> statisticsList = jyBizTaskSendAviationPlanService.statusStatistics(queryCondition);
         for (JyBizTaskAviationStatusStatistics statistics : statisticsList) {
             if(JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getSendTaskStatus().equals(statistics.getTaskStatus())) {
                 TaskStatusStatistics trunkYAndShuttleN = new TaskStatusStatistics();
