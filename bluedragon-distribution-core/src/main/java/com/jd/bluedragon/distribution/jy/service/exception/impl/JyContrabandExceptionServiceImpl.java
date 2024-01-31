@@ -182,10 +182,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         if (!CollectionUtils.isEmpty(abnormalReasonDtoList)) {
             List<AbnormalReasonResp> abnormalReasonRespList = new ArrayList<>();
             for (AbnormalReasonDto abnormalReasonDto : abnormalReasonDtoList) {
-                if (Objects.equals(abnormalReasonDto.getReasonLevel(), INTEGER_ONE.byteValue())
-                        && !Objects.equals(String.valueOf(abnormalReasonDto.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE)) {
-                    continue;
-                }
+//                if (Objects.equals(abnormalReasonDto.getReasonLevel(), INTEGER_ONE.byteValue())
+//                        && !Objects.equals(String.valueOf(abnormalReasonDto.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE)) {
+//                    continue;
+//                }
                 abnormalReasonRespList.add(convertAbnormalReason(abnormalReasonDto));
             }
             response.setData(abnormalReasonRespList);
