@@ -39,8 +39,9 @@ public class WaybillUtil {
             if(packageCode.length() - temp.length() == 2){
                 return false;
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     public static boolean isEffectiveOperateCode(String operateCode) {
