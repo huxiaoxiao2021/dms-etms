@@ -158,6 +158,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private static final String CONTRABAND_FIRST_REASON_LEVEL_CODE = "370000";
 
+    public static void main(String[] args) {
+        System.out.println(1);
+    }
 
     @Override
     public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
