@@ -341,4 +341,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     public JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables() {
         return jyDamageExceptionService.getConsumables();
     }
+
+    @Override
+    public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
+        return jyContrabandExceptionService.getAbnormalReason();
+    }
 }
