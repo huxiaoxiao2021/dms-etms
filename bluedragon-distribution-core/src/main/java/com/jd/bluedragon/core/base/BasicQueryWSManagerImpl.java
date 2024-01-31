@@ -8,7 +8,6 @@ import com.jd.tms.basic.dto.*;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.wss.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
