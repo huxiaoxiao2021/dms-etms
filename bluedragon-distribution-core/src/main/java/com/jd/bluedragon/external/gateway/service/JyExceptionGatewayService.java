@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionCountDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
@@ -212,4 +213,11 @@ public interface JyExceptionGatewayService {
      */
     JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables();
 
+
+    /**
+     * 获取质控异常原因枚举
+     *
+     * @return
+     */
+    JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
 }

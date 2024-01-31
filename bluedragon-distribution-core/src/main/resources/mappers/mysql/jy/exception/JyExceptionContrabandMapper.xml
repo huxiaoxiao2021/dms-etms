@@ -18,10 +18,14 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
     <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="first_reason_level" property="firstReasonLevel" jdbcType="VARCHAR" />
+    <result column="second_reason_level" property="secondReasonLevel" jdbcType="VARCHAR" />
+    <result column="third_reason_level" property="thirdReasonLevel" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     id, biz_id, site_code, site_name, bar_code, contraband_type, feed_back_type, description, create_erp, 
-    create_staff_name, create_time, update_erp, update_staff_name, update_time, ts, yn
+    create_staff_name, create_time, update_erp, update_staff_name, update_time, ts, yn, first_reason_level,
+    second_reason_level, third_reason_level
   </sql>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandEntity" >
     insert into jy_exception_contraband
@@ -74,6 +78,15 @@
       <if test="yn != null" >
         yn,
       </if>
+      <if test="firstReasonLevel != null" >
+        first_reason_level,
+      </if>
+      <if test="secondReasonLevel != null" >
+        second_reason_level,
+      </if>
+      <if test="thirdReasonLevel != null" >
+        third_reason_level,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -123,6 +136,15 @@
       </if>
       <if test="yn != null" >
         #{yn,jdbcType=BIT},
+      </if>
+      <if test="firstReasonLevel != null" >
+        #{firstReasonLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="secondReasonLevel != null" >
+        #{secondReasonLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdReasonLevel != null" >
+        #{thirdReasonLevel,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
