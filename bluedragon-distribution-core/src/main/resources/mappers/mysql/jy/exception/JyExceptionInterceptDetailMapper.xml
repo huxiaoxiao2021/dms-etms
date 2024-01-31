@@ -782,6 +782,7 @@
         <include refid="Base_Column_List"/>
         FROM `jy_exception_intercept_detail`
         <include refid="where"/>
+        limit 1
     </select>
     <!-- where条件 -->
     <sql id="where">
