@@ -165,6 +165,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Override
     public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
         JdCResponse<List<AbnormalReasonResp>> response = new JdCResponse<>();
+        response.toSucceed();
         List<AbnormalReasonDto> abnormalReasonDtoList = abnormalReasonManagerOfZK.queryAbnormalReasonListBySystemCode();
         if (!CollectionUtils.isEmpty(abnormalReasonDtoList)) {
             List<AbnormalReasonResp> abnormalReasonRespList = new ArrayList<>();
