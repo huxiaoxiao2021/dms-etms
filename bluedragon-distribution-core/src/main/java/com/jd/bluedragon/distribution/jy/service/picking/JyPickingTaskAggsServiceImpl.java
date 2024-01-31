@@ -55,7 +55,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     private JyPickingTaskAggsDao jyPickingTaskAggsDao;
     @Autowired
     private JyPickingTaskSendAggsDao jyPickingTaskSendAggsDao;
-    //todo zcf cacheService 命名
     @Autowired
     private JyPickingTaskAggsCacheService jyPickingTaskAggsCacheService;
     @Autowired

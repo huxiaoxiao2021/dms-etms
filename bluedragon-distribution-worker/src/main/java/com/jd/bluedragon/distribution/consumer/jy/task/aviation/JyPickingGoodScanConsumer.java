@@ -10,7 +10,8 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodBoxSplitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.picking.JyAviationRailwayPickingGoodsCacheService;
 import com.jd.bluedragon.distribution.jy.service.picking.JyBizTaskPickingGoodTransactionManager;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -50,10 +51,10 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
     @Autowired
     private BoxService boxService;
     @Autowired
-    private SortingService sortingService;
-    @Autowired
     @Qualifier(value = "jyPickingGoodSplitPackageProducer")
     private DefaultJMQProducer jyPickingGoodSplitPackageProducer;
+    @Autowired
+    private DeliveryService deliveryService;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -133,27 +134,21 @@ public class JyPickingGoodScanConsumer extends MessageBaseConsumer {
                 return ;
             }
             //查询分拣集包数据
-            Sorting sorting =new Sorting();
-            sorting.setBoxCode(mqBody.getBarCode());
-            sorting.setCreateSiteCode(box.getCreateSiteCode());
-            //todo zcf 获取箱号明细
-            List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
-            if (CollectionUtils.isEmpty(sortingList)) {
-                logInfo("按箱号提货扫描拆分包裹数据，箱内包裹查询为空，boxCode={}，siteId={}", mqBody.getBarCode(), sorting.getCreateSiteCode());
+            List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox(mqBody.getBarCode());
+            if (CollectionUtils.isEmpty(sendDetailList)) {
+                logInfo("按箱号提货扫描拆分包裹数据，箱内包裹查询为空，boxCode={}, mqBody={}", mqBody.getBarCode(), JsonHelper.toJson(mqBody));
                 return ;
             }
-
-
             List<Message> messageList = new ArrayList<>();
-            sortingList.forEach(sortingParam -> {
+            sendDetailList.forEach(sendDetail -> {
                 PickingGoodBoxSplitDto boxSplitDto = new PickingGoodBoxSplitDto();
                 BeanUtils.copyProperties(mqBody, boxSplitDto);
-                boxSplitDto.setPackageCode(sortingParam.getPackageCode());
+                boxSplitDto.setPackageCode(sendDetail.getPackageBarcode());
                 boxSplitDto.setSysTime(System.currentTimeMillis());
 
                 String msgText = JsonHelper.toJson(boxSplitDto);
-                logInfo("提货扫描箱号拆分包裹数据，businessId={},msg={}", sortingParam.getPackageCode(), msgText);
-                messageList.add(new Message(jyPickingGoodSplitPackageProducer.getTopic(), msgText, sortingParam.getPackageCode()));
+                logInfo("提货扫描箱号拆分包裹数据，businessId={},msg={}", sendDetail.getPackageBarcode(), msgText);
+                messageList.add(new Message(jyPickingGoodSplitPackageProducer.getTopic(), msgText, sendDetail.getPackageBarcode()));
             });
             jyPickingGoodSplitPackageProducer.batchSendOnFailPersistent(messageList);
 
