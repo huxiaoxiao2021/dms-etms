@@ -81,6 +81,7 @@ import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyException
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 
 
 /**
@@ -155,6 +156,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     private static final Integer ALL_SUCCESS = 5;
 
+    private static final String CONTRABAND_FIRST_REASON_LEVEL_CODE = "370000";
+
 
     @Override
     public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
@@ -162,11 +165,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         List<AbnormalReasonDto> abnormalReasonDtoList = abnormalReasonManagerOfZK.queryAbnormalReasonListBySystemCode();
         if (!CollectionUtils.isEmpty(abnormalReasonDtoList)) {
             List<AbnormalReasonResp> abnormalReasonRespList =
-                    abnormalReasonDtoList.stream().map(item -> {
-                        AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
-                        BeanUtils.copyProperties(item, abnormalReasonResp);
-                        return abnormalReasonResp;
-                    }).collect(Collectors.toList());
+                    abnormalReasonDtoList.stream()
+                            // 过滤掉一级为非违禁品的异常类型
+                            .filter(item -> !Objects.equals(item.getReasonLevel(), INTEGER_ONE.byteValue())
+                                    || Objects.equals(String.valueOf(item.getCode()), CONTRABAND_FIRST_REASON_LEVEL_CODE))
+                            .map(item -> {
+                                AbnormalReasonResp abnormalReasonResp = new AbnormalReasonResp();
+                                BeanUtils.copyProperties(item, abnormalReasonResp);
+                                return abnormalReasonResp;
+                            }).collect(Collectors.toList());
             response.setData(abnormalReasonRespList);
         }
         return response;
