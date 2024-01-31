@@ -31,12 +31,12 @@ public class AppTenantJSFProviderFilter extends AbstractFilter {
 
     @Override
     public ResponseMessage invoke(RequestMessage requestMessage) {
-        String attachment = null;
+        Object attachment = null;
         try {
-            attachment = String.valueOf(requestMessage.getInvocationBody().getAttachment(tenantAppConfigKey));
-            if (StringUtils.isNotBlank(attachment)) {
+            attachment = requestMessage.getInvocationBody().getAttachment(tenantAppConfigKey);
+            if (attachment != null) {
                 Tenant tenant = new Tenant();
-                tenant.setCode(attachment);
+                tenant.setCode(String.valueOf(attachment));
                 log.debug("调用端传递租户信息：{}", tenant);
                 TenantContext.setTenant(tenant);
             }
