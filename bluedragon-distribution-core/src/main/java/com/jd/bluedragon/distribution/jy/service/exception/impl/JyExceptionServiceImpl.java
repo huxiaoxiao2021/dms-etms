@@ -61,6 +61,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.jim.cli.Cluster;
@@ -87,6 +88,7 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -710,8 +712,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         if (detailDto != null) {
                             this.dealScrappedTaskList(dto, entity, detailDto);
                         }
-                    } else if(Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), dto.getType())) {
-                        this.dealInterceptTaskList(dto, entity);
                     }
                 }
                 // 读取破损数据
@@ -735,6 +735,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     final JyExceptionInterceptDetail jyExceptionInterceptDetail = interceptDetailMapGbBizId.get(entity.getBizId());
                     if (jyExceptionInterceptDetail != null) {
                         dto.setSaved(Objects.equals(JyExpSaveTypeEnum.TEMP_SAVE.getCode(), jyExceptionInterceptDetail.getSaveType()));
+                        dto.setCreateTime(DateUtil.formatDateTime(jyExceptionInterceptDetail.getCreateTime()));
                     }
                 }
                 list.add(dto);
@@ -904,7 +905,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         || Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), t.getStatus())
                         || Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), t.getStatus())))
                 .map(JyBizTaskExceptionEntity::getBizId).collect(Collectors.toList());
-        logger.info("setDataForDamageList getInterceptDetailMapByBizTaskList:{}, status:{}", JSON.toJSONString(bizIdList), status);
+        logger.info("getInterceptDetailMapByBizTaskList:{}, status:{}", JSON.toJSONString(bizIdList), status);
         final JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
         jyExceptionInterceptDetailQuery.setSiteId(req.getSiteId());
         jyExceptionInterceptDetailQuery.setBizIdList(bizIdList);
@@ -972,20 +973,28 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             // 校验操作人的岗位 与 任务被分配岗位是否匹配
             String gridRid = getGridRid(position);
             String bizId = getBizId(req.getBarCode(), position.getSiteCode());
-            JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
-            if (taskEntity == null) {
-                return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
+            JyBizTaskExceptionEntity jyBizTaskExceptionExist = jyBizTaskExceptionDao.findByBizId(bizId);
+            if (jyBizTaskExceptionExist == null) {
+                // 如果为空，则进一步按条件查询
+                final JyBizTaskExceptionQuery jyBizTaskExceptionQuery = new JyBizTaskExceptionQuery();
+                jyBizTaskExceptionQuery.setSiteCode(req.getSiteId().longValue());
+                jyBizTaskExceptionQuery.setBarCode(req.getBarCode());
+                jyBizTaskExceptionExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
+                if (jyBizTaskExceptionExist == null) {
+                    return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
+                }
             }
-            if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), taskEntity.getStatus())) {
+
+            if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), jyBizTaskExceptionExist.getStatus())) {
                 return JdCResponse.fail("当前任务"+req.getBarCode()+"已被领取,请勿重复操作!");
             }
-            if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
-    //            return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
+            if (!Objects.equals(gridRid, jyBizTaskExceptionExist.getDistributionTarget())) {
+    //            return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + jyBizTaskExceptionExist.getDistributionTarget());
                 return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
             }
 
             JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
-            update.setBizId(bizId);
+            update.setBizId(jyBizTaskExceptionExist.getBizId());
             update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
             update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
             update.setHandlerErp(req.getUserErp());
@@ -997,11 +1006,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionDao.updateByBizId(update);
             recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
             //发送修改状态消息
-            sendScheduleTaskStatusMsg(bizId, baseStaffByErp.getAccountNumber(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
+            sendScheduleTaskStatusMsg(jyBizTaskExceptionExist.getBizId(), baseStaffByErp.getAccountNumber(), JyScheduleTaskStatusEnum.STARTED, scheduleTaskChangeStatusProducer);
 
 
             // 拼装已领取的任务
-            taskDto = getTaskDto(taskEntity);
+            taskDto = getTaskDto(jyBizTaskExceptionExist);
         } catch (Exception e) {
             logger.error("receive exception {}", JsonHelper.toJson(req), e);
             throw new RuntimeException(e);
