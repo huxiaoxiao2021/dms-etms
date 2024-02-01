@@ -962,7 +962,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private void unloadScanCheckOfCallback(JdVerifyResponse<UnLoadScanResponse> result,UnloadScanRequest request){
         //需要判断当非拣运租户时在触发回调
         String tenantCode = TenantContext.getTenantCode();
-        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
             String barCode = request.getBarCode();
             InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanCheckOfCallback(transferDto(request));
             //返回 code 非成功时需要阻断服务，不运行继续执行
@@ -988,7 +988,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if(isNewApp) {
             //需要判断当非拣运租户时在触发回调
             String tenantCode = TenantContext.getTenantCode();
-            if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+            if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
                 String barCode = request.getBarCode();
                 InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
                 //返回 code 成功继续执行,不成功时不要阻断，不处理

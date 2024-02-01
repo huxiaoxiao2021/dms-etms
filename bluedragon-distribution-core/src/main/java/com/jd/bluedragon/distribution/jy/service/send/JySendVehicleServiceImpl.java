@@ -1864,7 +1864,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private void sendScanOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request) {
         String tenantCode = TenantContext.getTenantCode();
-        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
             String barCode = request.getBarCode();
             InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanOfCallback(transferDto(request));
             //返回 code 成功继续执行,不成功时不要阻断，不处理，
@@ -1887,7 +1887,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private void sendScanCheckOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request){
         //需要判断当非拣运租户时在触发回调
         String tenantCode = TenantContext.getTenantCode();
-        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.equals(tenantCode)) {
+        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
             String barCode = request.getBarCode();
             InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanCheckOfCallback(transferDto(request));
             //返回 code 非成功时需要阻断服务，不运行继续执行
