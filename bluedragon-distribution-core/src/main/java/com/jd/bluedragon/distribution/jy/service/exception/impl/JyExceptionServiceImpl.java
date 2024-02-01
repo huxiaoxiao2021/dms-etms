@@ -2347,7 +2347,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptDisposeRecord.getSiteCode().longValue());
             // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
             // 0重量拦截的，待处理状态，需要置为完结状态
-            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PICK.getCode(), JyExpStatusEnum.COMPLETE.getCode())));
+            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
 
             if (currentSiteSamePackageTaskExist != null) {
@@ -2357,20 +2357,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 jyExceptionInterceptDetailQuery.setBizId(currentSiteSamePackageTaskExist.getBizId());
                 final JyExceptionInterceptDetail exceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
                 if (needHandleInterceptTypeList.contains(exceptionInterceptDetailExist.getInterceptType())) {
-                    // 0重量拦截的，待处理状态，需要置为完结状态
-                    if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
-                        List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
-                        if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
-                            // 完结已有任务
-                            this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                    //如果是撤销拦截的，不论何种状态都置为完结状态、撤销拦截处理状态
+                    if(businessInterceptConfig.getRecallDisposeNodeList().contains(businessInterceptDisposeRecord.getDisposeNode())){
+                        this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                    } else {
+                        // 0重量拦截的，待处理状态，需要置为完结状态
+                        if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
+                            List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
+                            if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
+                                // 完结已有任务
+                                this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                            }
                         }
-                    }
-                    // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
-                    else {
-                        List<Integer> excludeZeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.PROCESSING.getCode()));
-                        if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
-                            // 完结已有任务
-                            this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                        // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
+                        else {
+                            List<Integer> excludeZeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.PROCESSING.getCode()));
+                            if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
+                                // 完结已有任务
+                                this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                            }
                         }
                     }
                 }
