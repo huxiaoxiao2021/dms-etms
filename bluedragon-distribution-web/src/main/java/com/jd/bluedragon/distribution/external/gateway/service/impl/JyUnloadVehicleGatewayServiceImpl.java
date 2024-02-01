@@ -233,6 +233,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             }
             response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
         }
+        response.setSelfDomFlag(scanResponse.getSelfDomFlag());
         if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.setData(scanResponse.getData());
             response.toSuccess();

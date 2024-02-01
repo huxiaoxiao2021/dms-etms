@@ -971,6 +971,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 result.setSelfDomFlag(Boolean.TRUE);
                 result.setCode(callbackResult.getCode());
                 result.setMessage(callbackResult.getMessage());
+                //提示类的提示语不放在这个，放在执行回调,这里保留代码。实际不返回
                 result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
             }
         }

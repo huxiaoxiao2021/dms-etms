@@ -1858,28 +1858,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     /**
-     * 发送扫描回调
-     * @param result JdVerifyResponse对象，发送扫描回调的响应
-     * @param request SendScanRequest对象，发送扫描请求
-     */
-    private void sendScanOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request) {
-        String tenantCode = TenantContext.getTenantCode();
-        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
-            String barCode = request.getBarCode();
-            InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanOfCallback(transferDto(request));
-            //返回 code 成功继续执行,不成功时不要阻断，不处理，
-            if (callbackResult.isSuccess()) {
-                //返回个性服务标识
-                result.setSelfDomFlag(Boolean.TRUE);
-                result.setCode(callbackResult.getCode());
-                result.setMessage(callbackResult.getMessage());
-                //提示类的提示语不放在这个，放在执行回调,这里保留代码。实际不返回
-                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
-            }
-        }
-    }
-
-    /**
      * 执行完成的回调
      * @param result 结果响应对象
      * @param request 发送扫描请求对象
@@ -1896,9 +1874,31 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 result.setSelfDomFlag(Boolean.TRUE);
                 result.setCode(callbackResult.getCode());
                 result.setMessage(callbackResult.getMessage());
+                //提示类的提示语不放在这个，放在执行回调,这里保留代码。实际不返回
                 result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
                 //data暂时没有
                 //result.setData(callbackResult.getData());
+            }
+        }
+    }
+
+    /**
+     * 发送扫描回调
+     * @param result JdVerifyResponse对象，发送扫描回调的响应
+     * @param request SendScanRequest对象，发送扫描请求
+     */
+    private void sendScanOfCallback(JdVerifyResponse<SendScanResponse> result, SendScanRequest request) {
+        String tenantCode = TenantContext.getTenantCode();
+        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<SendScanCallbackRespDto> callbackResult = jyCallbackJsfManager.sendScanOfCallback(transferDto(request));
+            //返回 code 成功继续执行,不成功时不要阻断，不处理，
+            if (callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
             }
         }
     }
