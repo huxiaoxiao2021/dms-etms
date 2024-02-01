@@ -176,4 +176,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     public List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition) {
         return jyBizTaskSendAviationPlanDao.pageQueryRecommendTaskByNextSiteId(condition);
     }
+
+    @Override
+    public int batchUpdateShuttleSealFlag(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.batchUpdateShuttleSealFlag(condition);
+    }
+
 }

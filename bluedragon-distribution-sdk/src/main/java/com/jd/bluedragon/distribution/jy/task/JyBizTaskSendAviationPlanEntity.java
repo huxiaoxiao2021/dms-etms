@@ -90,6 +90,7 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
      * 是否摆渡已封车
      */
     private Integer shuttleSealFlag;
+    private Date shuttleSealTime;
 
 
     public Long getId() {
@@ -378,5 +379,13 @@ public class JyBizTaskSendAviationPlanEntity implements Serializable {
 
     public void setShuttleSealFlag(Integer shuttleSealFlag) {
         this.shuttleSealFlag = shuttleSealFlag;
+    }
+
+    public Date getShuttleSealTime() {
+        return shuttleSealTime;
+    }
+
+    public void setShuttleSealTime(Date shuttleSealTime) {
+        this.shuttleSealTime = shuttleSealTime;
     }
 }

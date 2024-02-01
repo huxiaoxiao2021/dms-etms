@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.TaskBindTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.send.AviationNextSiteStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizSendTaskAssociationDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
@@ -35,6 +37,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.seal.JySeaCarlCacheService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
@@ -1950,5 +1953,29 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         }
 
         return invokeResult;
+    }
+
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.batchCodeShuttleSealMark",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public boolean batchCodeShuttleSealMark(BatchCodeShuttleSealDto request) {
+        List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(request.getSuccessSealBatchCodeList());
+        if (CollectionUtils.isEmpty(sendCodeEntityList)){
+            if(log.isInfoEnabled()) {
+                log.info("摆渡封车成功后按封车成功的批次号反查jy_send_code表未查到数据，request={}", JSONObject.toJSONString(request));
+            }
+            return true;
+        }
+
+        List<String> bizIdList = sendCodeEntityList.stream().map(JySendCodeEntity::getSendVehicleBizId).collect(Collectors.toList());
+        JyBizTaskSendAviationPlanQueryCondition condition = new JyBizTaskSendAviationPlanQueryCondition();
+        condition.setShuttleSealFlag(Constants.NUMBER_ONE);
+        condition.setShuttleSealTime(request.getOperateTime());
+        condition.setUpdateTime(new Date());
+        condition.setBizIdList(bizIdList);
+        jyBizTaskSendAviationPlanService.batchUpdateShuttleSealFlag(condition);
+
+        return true;
     }
 }

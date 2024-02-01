@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -15,6 +16,9 @@ import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
+import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealService;
 import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
@@ -39,9 +43,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author : xumigen
@@ -63,6 +66,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     private NewSealVehicleService newSealVehicleService;
     @Autowired
     private WeightVolSendCodeJSFService weightVolSendCodeJSFService;
+
+    @Autowired
+    private JyAviationRailwaySendSealService jyAviationRailwaySendSealService;
+
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
@@ -377,7 +384,39 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         jdCResponse.setCode(newSealVehicleResponse.getCode());
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
 
+        List<com.jd.etms.vos.dto.SealCarDto > successSealCarList = (List<com.jd.etms.vos.dto.SealCarDto>)newSealVehicleResponse.getData();
+        //结果处理
+        this.doSealCarWithVehicleJobResponseHandler(sealCarRequest, successSealCarList);
         return jdCResponse;
+    }
+    //干支封车结果集加工处理
+    private void doSealCarWithVehicleJobResponseHandler(SealCarRequest request, List<com.jd.etms.vos.dto.SealCarDto> successSealCarList) {
+        if(CollectionUtils.isEmpty(successSealCarList)) {
+            return;
+        }
+        this.aviationRailwayTrunkSendTaskHandler(request, successSealCarList);
+    }
+
+    //空铁发货岗干支发货任务相关逻辑处理
+    private void aviationRailwayTrunkSendTaskHandler(SealCarRequest request, List<com.jd.etms.vos.dto.SealCarDto > successSealCarList) {
+        if(!JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request.getPost())) {
+            return;
+        }
+        BatchCodeShuttleSealDto shuttleSealDto = new BatchCodeShuttleSealDto();
+        shuttleSealDto.setOperatorErp(Objects.isNull(request.getUser()) ? Constants.SYS_DMS : request.getUser().getUserErp());
+        if(!Objects.isNull(request.getCurrentOperate())) {
+            shuttleSealDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        }
+        List<String> successSealCarBatchCodes = successSealCarList.stream().map(o -> o.getBatchCodes()).flatMap(Collection::stream).collect(Collectors.toList());
+        shuttleSealDto.setSuccessSealBatchCodeList(successSealCarBatchCodes);
+        shuttleSealDto.setOperateTime(new Date());
+        try{
+            jyAviationRailwaySendSealService.batchCodeShuttleSealMark(shuttleSealDto);
+        }catch (Exception ex) {
+            logger.error("传摆封车成功后触发修改航空干支封车传摆已封标识失败，errMsg={},封车成功批次为{}，request={}",
+                    ex.getMessage(), JSONObject.toJSONString(successSealCarBatchCodes), JSONObject.toJSONString(request));
+            //todo zcf 这里发mq补偿，不做同步感知
+        }
     }
 
     /**
