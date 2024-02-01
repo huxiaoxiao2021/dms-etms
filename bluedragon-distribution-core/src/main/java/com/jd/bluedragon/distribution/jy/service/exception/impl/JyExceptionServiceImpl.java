@@ -2360,7 +2360,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     // 0重量拦截的，待处理状态，需要置为完结状态
                     if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
                         List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
-                        if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getProcessingStatus())) {
+                        if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                             // 完结已有任务
                             this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
                         }
@@ -2368,7 +2368,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
                     else {
                         List<Integer> excludeZeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.PROCESSING.getCode()));
-                        if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getProcessingStatus())) {
+                        if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                             // 完结已有任务
                             this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
                         }
@@ -2629,7 +2629,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
             // 3.2. 如果是需要触发换单的拦截单
             final List<Integer> disposeNodeMatchedList = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
-            if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_WEIGHT_VOLUME)){
+            if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_EXCHANGE_WAYBILL_PRINT)){
                 final ExchangeWaybillRequest exchangeWaybillRequest = new ExchangeWaybillRequest();
                 exchangeWaybillRequest.setUser(BeanConverter.convertToSdkUser(req.getUser()));
                 exchangeWaybillRequest.setCurrentOperate(BeanConverter.convertToSdkCurrentOperate(req.getCurrentOperate()));
