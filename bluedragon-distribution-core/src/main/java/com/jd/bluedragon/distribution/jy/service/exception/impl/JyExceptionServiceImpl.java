@@ -2345,7 +2345,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
             jyBizTaskExceptionQuery.setBarCode(businessInterceptDisposeRecord.getPackageCode());
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptDisposeRecord.getSiteCode().longValue());
-            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
+            // 0重量拦截的，待处理状态，需要置为完结状态
+            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PICK.getCode(), JyExpStatusEnum.COMPLETE.getCode())));
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
 
             if (currentSiteSamePackageTaskExist != null) {
@@ -2355,14 +2357,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 jyExceptionInterceptDetailQuery.setBizId(currentSiteSamePackageTaskExist.getBizId());
                 final JyExceptionInterceptDetail exceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
                 if (needHandleInterceptTypeList.contains(exceptionInterceptDetailExist.getInterceptType())) {
-                    // 完结已有任务
-                    this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                    // 0重量拦截的，待处理状态，需要置为完结状态
+                    if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
+                        List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
+                        if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getProcessingStatus())) {
+                            // 完结已有任务
+                            this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                        }
+                    }
+                    // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
+                    else {
+                        List<Integer> excludeZeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.PROCESSING.getCode()));
+                        if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getProcessingStatus())) {
+                            // 完结已有任务
+                            this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                        }
+                    }
                 }
             }
 
             // 2. 关闭其他场地任务数据
             finishOtherSiteTaskAnd2Fail(businessInterceptDisposeRecord.getPackageCode(), businessInterceptDisposeRecord.getSiteCode());
-            // 查找需要处理的拦截任务bizId列表
         } catch (Exception e) {
             logger.error("JyExceptionServiceImpl.handleDmsBusinessInterceptDispose param: {}", JsonHelper.toJson(businessInterceptDisposeRecord), e);
             result.toFail("系统异常");
