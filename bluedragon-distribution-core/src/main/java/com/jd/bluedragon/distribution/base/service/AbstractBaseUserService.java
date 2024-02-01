@@ -109,7 +109,7 @@ public abstract class AbstractBaseUserService implements LoginService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private PositionManager positionManager;
-    @Resource(name="tenantManager")
+    @Resource
     private TenantManager tenantManager;
 
     @Autowired

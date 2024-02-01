@@ -21,7 +21,7 @@ import javax.annotation.Resource;
  * @date Date : 2024年01月18日 21:48
  */
 @Slf4j
-@Service("tenantManager")
+@Service
 public class TenantManagerImpl implements TenantManager {
 
     @Resource
