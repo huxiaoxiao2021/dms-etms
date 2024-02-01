@@ -144,11 +144,10 @@ public class JyWorkGridManagerData implements Serializable {
 
 	//任务业务类型：1-日常巡查 2-管理巡视 3-异常及时检查 4-指标周期改善 5-事件治理整改任务
 	private Integer taskBizType;
-	//任务责任人 erp
-	private String responsibleErp;
-	//任务责任人 姓名
-	private String responsibleName;
-
+	/**
+	 * 任务责任人信息
+	 */
+	private ResponsibleInfo responsibleInfo;
 
 	public String getOrignHandlerErp() {
 		return orignHandlerErp;
@@ -372,22 +371,6 @@ public class JyWorkGridManagerData implements Serializable {
 
 	public void setTaskBizType(Integer taskBizType) {
 		this.taskBizType = taskBizType;
-	}
-
-	public String getResponsibleErp() {
-		return responsibleErp;
-	}
-
-	public void setResponsibleErp(String responsibleErp) {
-		this.responsibleErp = responsibleErp;
-	}
-
-	public String getResponsibleName() {
-		return responsibleName;
-	}
-
-	public void setResponsibleName(String responsibleName) {
-		this.responsibleName = responsibleName;
 	}
 	
 }

@@ -300,4 +300,40 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		return result;
 	}
 
+	@Override
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+		JdCResponse<List<ResponsibleInfo>> response = new  JdCResponse<List<ResponsibleInfo>>();
+		response.toSucceed();
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		for(int i=0 ;i<5;i++){
+			ResponsibleInfo info = new ResponsibleInfo();
+			info.setWorkType(ResponsibleWorkTypeEnum.FORMAL_WORKER.getCode());
+			info.setErp("zhangsan" + i);
+			info.setName("张三" + i);
+			responsibleInfos.add(info);
+		}
+		for(int i=0 ;i<5;i++){
+			ResponsibleInfo info = new ResponsibleInfo();
+			info.setWorkType(ResponsibleWorkTypeEnum.OUTWORKER.getCode());
+			info.setIdCard("11000000000000000" + i);
+			info.setName("李四" + i);
+			info.setSupplierId("WB0000"+i);
+			info.setSupplierName("外包商" + i);
+			responsibleInfos.add(info);
+
+		}
+		for(int i=0 ;i<5;i++){
+			ResponsibleInfo info = new ResponsibleInfo();
+			info.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
+			info.setIdCard("11000000000000000" + i);
+			info.setName("王五" + i);
+			info.setGridOwnerErp("zuzhang" + i);
+			info.setGridOwnerName("组长" + i);
+			responsibleInfos.add(info);
+
+		}
+		response.setData(responsibleInfos);
+		return response;
+	}
+
 }

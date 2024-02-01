@@ -60,4 +60,12 @@ public interface JyWorkGridManagerGatewayService {
 	JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query);
 
 	JdCResponse<List<WorkGridCandidateData>> queryCandidates(JyWorkGridManagerQueryRequest query);
+
+	/**
+	 * 任务负责人信息
+	 * @param bizId
+	 * @return
+	 */
+	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId);
+	
 }
