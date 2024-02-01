@@ -23,6 +23,15 @@
         <!-- 处理类型 -->
         <property name="disposeNodeConfig">
             <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="-10001" value="撤销取消拦截"/>
+                <entry key="-10002" value="撤销0重量拦截"/>
+                <entry key="-10003" value="撤销白条强制拦截"/>
+                <entry key="-10004" value="撤销恶意订单"/>
+                <entry key="-10005" value="撤销拒收订单"/>
+                <entry key="-10006" value="撤销病单"/>
+                <entry key="-10007" value="撤销改址"/>
+                <entry key="-10008" value="撤销京喜整包未称"/>
+                <entry key="-10009" value="撤销京喜空包拦截"/>
                 <entry key="10001" value="换单打印"/>
                 <entry key="10002" value="补称重"/>
                 <entry key="10003" value="补打"/>
@@ -35,46 +44,68 @@
             <util:map>
                 <entry key="10001">
                     <util:list>
+                        <value>-10001</value>
                         <value>10001</value>
                         <value>10005</value>
                     </util:list>
                 </entry>
                 <entry key="10002">
                     <util:list>
+                        <value>-10002</value>
                         <value>10002</value>
                     </util:list>
                 </entry>
                 <entry key="10003">
                     <util:list>
+                        <value>-10003</value>
                         <value>10001</value>
                     </util:list>
                 </entry>
                 <entry key="10004">
                     <util:list>
+                        <value>-10004</value>
                         <value>10001</value>
                     </util:list>
                 </entry>
                 <entry key="10005">
                     <util:list>
+                        <value>-10005</value>
                         <value>10001</value>
                     </util:list>
                 </entry>
                 <entry key="10006">
                     <util:list>
+                        <value>-10006</value>
                         <value>10001</value>
                     </util:list>
                 </entry>
                 <entry key="10007">
                     <util:list>
+                        <value>-10007</value>
                         <value>10003</value>
                     </util:list>
                 </entry>
                 <entry key="10008">
                     <util:list>
+                        <value>-10008</value>
                         <value>10001</value>
                     </util:list>
                 </entry>
             </util:map>
+        </property>
+
+        <property name="recallDisposeNodeList">
+            <util:list>
+                <value>-10001</value>
+                <value>-10002</value>
+                <value>-10003</value>
+                <value>-10004</value>
+                <value>-10005</value>
+                <value>-10006</value>
+                <value>-10007</value>
+                <value>-10008</value>
+                <value>-10009</value>
+            </util:list>
         </property>
     </bean>
 </beans>

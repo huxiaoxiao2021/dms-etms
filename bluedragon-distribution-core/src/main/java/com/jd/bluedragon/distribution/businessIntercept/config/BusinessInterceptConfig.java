@@ -55,6 +55,8 @@ public class BusinessInterceptConfig {
      */
     private Map<String, List<String>> interceptTypeAssocDisposeNodeConfig = new LinkedHashMap<>();
 
+    private List<Integer> recallDisposeNodeList = new ArrayList<>();
+
     // 记录拦截code与拦截类型关系
     private Map<String, String> interceptCodeAssocTypeMap = null;
 
@@ -224,5 +226,9 @@ public class BusinessInterceptConfig {
         Map<String, List<String>> interceptTypeAssocDisposeNodeConfigMap = this.getInterceptTypeAssocDisposeNodeConfig();
         final List<String> disposeNodeStrList = interceptTypeAssocDisposeNodeConfigMap.get(interceptType.toString());
         return disposeNodeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public List<Integer> getRecallDisposeNodeList() {
+        return recallDisposeNodeList;
     }
 }
