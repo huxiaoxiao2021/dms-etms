@@ -789,6 +789,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
             dto.setSaved(saved);
         }
+        dto.setProcessingStatusDesc(JyBizTaskExceptionProcessStatusEnum.getEnumNameByCode(dto.getProcessingStatus()));
         return dto;
     }
     /**
@@ -2046,7 +2047,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public String getBizId(BusinessInterceptReport businessInterceptReport) {
-        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkStationGridKey());
+        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkStationGridKey(), businessInterceptReport.getOperateTime());
     }
 
     /**
@@ -2110,9 +2111,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     }
                     // 1.2.2 网格不同 删除原任务+明细数据，新增任务数据
                     else {
-                        // 删除原场地
+                        // 删除原数据
                         logicDelCurrentSite(currentSiteSamePackageTaskExist);
-                        // 新增明细
+                        // 需新增数据
                         needInsertNewTask = true;
                     }
                 }
