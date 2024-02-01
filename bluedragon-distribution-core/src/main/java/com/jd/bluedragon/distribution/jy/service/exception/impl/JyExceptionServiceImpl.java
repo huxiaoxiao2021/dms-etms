@@ -2469,15 +2469,16 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<String> disposeNodeNameList = new ArrayList<>();
         if(jyExceptionInterceptDetailExist.getDisposeNode() != null && jyExceptionInterceptDetailExist.getDisposeNode() > 0){
             disposeNodeList.add(jyExceptionInterceptDetailExist.getDisposeNode());
+        } else {
             // 未处理的，显示可以处理的所有方式
             disposeNodeList = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
-            if (CollectionUtils.isNotEmpty(disposeNodeList)) {
-                disposeNodeNameList = disposeNodeList.stream().map(item -> {
-                    return businessInterceptConfig.getDisposeNodeConfig().get(item.toString());
-                }).collect(Collectors.toList());
-            }
-            jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
         }
+        if (CollectionUtils.isNotEmpty(disposeNodeList)) {
+            disposeNodeNameList = disposeNodeList.stream().map(item -> {
+                return businessInterceptConfig.getDisposeNodeConfig().get(item.toString());
+            }).collect(Collectors.toList());
+        }
+        jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
         jyExceptionInterceptDetailDto.setDisposeNode(disposeNodeList);
         jyExceptionInterceptDetailDto.setDisposeNodeName(disposeNodeNameList);
 
