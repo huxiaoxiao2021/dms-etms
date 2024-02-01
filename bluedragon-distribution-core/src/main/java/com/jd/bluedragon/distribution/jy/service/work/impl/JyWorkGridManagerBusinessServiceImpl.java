@@ -268,8 +268,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		updateTaskData.setUpdateTime(currentTime);
 		updateTaskData.setProcessEndTime(currentTime);
 		updateTaskData.setId(oldData.getId());
-		updateTaskData.setResponsibleErp(taskData.getResponsibleErp());
-		updateTaskData.setResponsibleName(taskData.getResponsibleName());
+//		updateTaskData.setResponsibleErp(taskData.getResponsibleErp());
+//		updateTaskData.setResponsibleName(taskData.getResponsibleName());
 		List<JyAttachmentDetailEntity> addAttachmentList = new ArrayList<>();
 		//指标改进附件
 		List<JyAttachmentDetailEntity> improveAttachmentList = new ArrayList<>();
