@@ -8,7 +8,6 @@ import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 
 
 /**
@@ -25,17 +24,21 @@ public class GroupRouterTenantUtil implements GroupRouter {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRouterTenantUtil.class);
 
-    @Resource(name="tenantManager")
-    private TenantManager tenantManager;
-
-    public GroupRouterTenantUtil(String tenantJsfAliasConfigKey) {
-        this.tenantJsfAliasConfigKey = tenantJsfAliasConfigKey;
-    }
-
     /**
      * 获取租户配置的JSF别名配置KEY
      */
     private String tenantJsfAliasConfigKey;
+    /**
+     * 查询basic应用租户
+     */
+    private TenantManager tenantManager;
+
+    public GroupRouterTenantUtil(String tenantJsfAliasConfigKey,TenantManager tenantManager) {
+        this.tenantJsfAliasConfigKey = tenantJsfAliasConfigKey;
+        this.tenantManager = tenantManager;
+    }
+
+
 
 
     /**
