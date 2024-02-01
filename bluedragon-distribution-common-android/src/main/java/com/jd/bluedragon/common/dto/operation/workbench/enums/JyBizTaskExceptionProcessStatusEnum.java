@@ -28,6 +28,7 @@ public enum JyBizTaskExceptionProcessStatusEnum {
     WAITING_UPLOAD_WEIGHT_VOLUME(11,"待称重"),
     WAITING_REPRINT(12,"待补打"),
     PROCESS_FAIL(-1,"处理失败"),
+    INTERCEPT_RECALL(-2,"撤销拦截"),
     ;
 
     private Integer code;
