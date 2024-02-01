@@ -1179,6 +1179,7 @@
 		and is_cancel = #{isCancel}
 		and sendd_status = #{status}
 		and yn = 1
+		and operate_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 	</select>
     
     <select id="queryWaybillNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
