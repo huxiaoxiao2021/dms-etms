@@ -117,13 +117,13 @@ public class SpotCheckContrastDetail implements Serializable {
      */
     private String contrastProvinceAgencyName;
     /**
-     * 称重操作人ID
+     * 计费操作人ID
      */
-    private Integer operatorId;
+    private Integer billOperatorId;
     /**
-     * 称重操作人erp或pin
+     * 计费操作人erp或pin
      */
-    private String operator;
+    private String billOperatorErp;
 
     public Integer getContrastSourceFrom() {
         return contrastSourceFrom;
@@ -349,19 +349,19 @@ public class SpotCheckContrastDetail implements Serializable {
         this.dutyThirdName = dutyThirdName;
     }
 
-    public Integer getOperatorId() {
-        return operatorId;
+    public Integer getBillOperatorId() {
+        return billOperatorId;
     }
 
-    public void setOperatorId(Integer operatorId) {
-        this.operatorId = operatorId;
+    public void setBillOperatorId(Integer billOperatorId) {
+        this.billOperatorId = billOperatorId;
     }
 
-    public String getOperator() {
-        return operator;
+    public String getBillOperatorErp() {
+        return billOperatorErp;
     }
 
-    public void setOperator(String operator) {
-        this.operator = operator;
+    public void setBillOperatorErp(String billOperatorErp) {
+        this.billOperatorErp = billOperatorErp;
     }
 }
