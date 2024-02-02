@@ -82,6 +82,10 @@ public class JyBizTaskExceptionEntity implements Serializable {
      */
     private String handlerErp;
     /**
+     * 处理人用户ID
+     */
+    private Integer handlerUserId;
+    /**
      * 异常状态:0：待取件 1：待处理 2：待打印 3：已完成
      */
     private Integer status;
@@ -268,6 +272,14 @@ public class JyBizTaskExceptionEntity implements Serializable {
 
     public void setHandlerErp(String handlerErp) {
         this.handlerErp = handlerErp;
+    }
+
+    public Integer getHandlerUserId() {
+        return handlerUserId;
+    }
+
+    public void setHandlerUserId(Integer handlerUserId) {
+        this.handlerUserId = handlerUserId;
     }
 
     public Integer getStatus() {

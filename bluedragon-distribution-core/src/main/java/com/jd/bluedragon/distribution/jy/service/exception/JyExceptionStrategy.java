@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpTypeCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpSourceEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.service.exception.impl.JyDamageExceptionServiceImpl;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;

@@ -802,7 +802,6 @@
         <jmq:listener topic="${jmq.topic.ai.violentSortingReal}" listener="violentSortingConsumerReal"/>
     </jmq:consumer>
 
-
     <!-- 返调度审批处理自消费  -->
     <jmq:consumer id="jmq.reassignWaybillApprovalConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.reassign.waybill.approval}" listener="reassignWaybillApprovalConsumer"/>
@@ -838,6 +837,14 @@
     <!--  提货扫描数据拆分为包裹维度  -->
     <jmq:consumer id="jmq.jyPickingGoodScanSplitPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptReportConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptReport}" listener="dmsBusinessInterceptReportConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截后处理数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptDisposeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptDispose}" listener="dmsBusinessInterceptDisposeConsumer"/>
     </jmq:consumer>
 </beans>
 
