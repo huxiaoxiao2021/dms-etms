@@ -354,7 +354,7 @@
 			<dependency>
 				<groupId>com.jdl.express.weight.report</groupId>
 				<artifactId>jdl-express-weight-report-api</artifactId>
-				<version>1.1.5-SNAPSHOT</version>
+				<version>1.1.6-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.jdl.basic</groupId>

@@ -8,6 +8,8 @@ import com.jdl.express.weight.report.api.CommonDTO;
 import com.jdl.express.weight.report.api.rule.WeightReportCommonRuleApi;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoQuery;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyDTO;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,21 @@ public class WeightReportCommonRuleManagerImpl implements WeightReportCommonRule
             return weightReportCommonRuleApi.getReportInfo(reportInfoQuery);
         }catch (Exception e){
             logger.error("根据条件:{}获取核对数据异常!", JsonHelper.toJson(reportInfoQuery), e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
+    }
+
+    @Override
+    public CommonDTO<StandardResultAndDutyBodyDTO> getOverStandardResultAndDutyBody(StandardResultAndDutyBodyQuery queryDto) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.WeightReportCommonRuleManager.getOverStandardResultAndDutyBody",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            return weightReportCommonRuleApi.getOverStandardResultAndDutyBody(queryDto);
+        }catch (Exception e){
+            logger.error("根据条件:{}获取核对数据异常!", JsonHelper.toJson(queryDto), e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);
