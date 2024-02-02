@@ -1609,6 +1609,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 sortingCheck.setOperateType(1);
             }
         }
+        sortingCheck.setOperatorData(domain.getOperatorData());
         return sortingCheck;
     }
 

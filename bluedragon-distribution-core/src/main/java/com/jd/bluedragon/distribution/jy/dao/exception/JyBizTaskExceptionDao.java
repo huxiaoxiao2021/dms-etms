@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsTimeOutExpTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionAgg;
+import com.jd.bluedragon.distribution.jy.exception.query.JyBizTaskExceptionQuery;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -140,5 +141,12 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().update(NAMESPACE + ".updateExceptionTaskStatusByBizIds", param);
     }
 
+    public List<JyBizTaskExceptionEntity> selectListByCondition(JyBizTaskExceptionQuery jyBizTaskExceptionQuery){
+        return this.getSqlSession().selectList(NAMESPACE + ".selectListByCondition", jyBizTaskExceptionQuery);
+    }
+
+    public JyBizTaskExceptionEntity selectOneByCondition(JyBizTaskExceptionQuery jyBizTaskExceptionQuery){
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectOneByCondition", jyBizTaskExceptionQuery);
+    }
 
 }
