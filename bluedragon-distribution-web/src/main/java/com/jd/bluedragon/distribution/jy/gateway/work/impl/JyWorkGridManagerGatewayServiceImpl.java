@@ -324,7 +324,9 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 					ResponsibleSupplier supplier = new ResponsibleSupplier();
 					supplier.setSupplierId("WB000000" + i);
 					supplier.setSupplierName("外包商" + j);
+					supplierList.add(supplier);
 				}
+				info.setSupplierList(supplierList);
 			}else{
 				ResponsibleSupplier supplier = new ResponsibleSupplier();
 				supplier.setSupplierId("WB000000" + i);
