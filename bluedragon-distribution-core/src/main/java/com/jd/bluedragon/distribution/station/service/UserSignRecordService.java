@@ -250,4 +250,6 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
+
+    List<UserSignRecord> queryByGridSign(UserSignRecordQuery query);
 }

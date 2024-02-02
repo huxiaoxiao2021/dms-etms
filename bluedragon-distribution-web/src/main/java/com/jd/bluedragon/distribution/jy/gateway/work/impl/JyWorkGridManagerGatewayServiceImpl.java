@@ -301,7 +301,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	}
 
 	@Override
-	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfosMock(String bizId) {
 		JdCResponse<List<ResponsibleInfo>> response = new  JdCResponse<List<ResponsibleInfo>>();
 		response.toSucceed();
 		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
@@ -317,8 +317,20 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			info.setWorkType(ResponsibleWorkTypeEnum.OUTWORKER.getCode());
 			info.setIdCard("11000000000000000" + i);
 			info.setName("李四" + i);
-			info.setSupplierId("WB0000"+i);
-			info.setSupplierName("外包商" + i);
+			
+			if(i == 4){
+				List<ResponsibleSupplier> supplierList = new ArrayList<>();
+				for(int j=0 ;j<4;j++){
+					ResponsibleSupplier supplier = new ResponsibleSupplier();
+					supplier.setSupplierId("WB000000" + i);
+					supplier.setSupplierName("外包商" + j);
+				}
+			}else{
+				ResponsibleSupplier supplier = new ResponsibleSupplier();
+				supplier.setSupplierId("WB000000" + i);
+				supplier.setSupplierName("外包商" + i);
+				info.setSupplier(supplier);
+			}
 			responsibleInfos.add(info);
 
 		}
@@ -334,6 +346,11 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		}
 		response.setData(responsibleInfos);
 		return response;
+	}
+
+	@Override
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+		return jyWorkGridManagerBusinessService.queryResponsibleInfos(bizId);
 	}
 
 }

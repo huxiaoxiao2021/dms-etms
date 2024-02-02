@@ -1257,6 +1257,25 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return true;
 	}
 
+	@Override
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+		JdCResponse<List<ResponsibleInfo>> result = new JdCResponse<List<ResponsibleInfo>>();
+		result.toSucceed("查询成功！");
+		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		if(taskData == null) {
+			result.toFail("任务数据不存在！");
+			return result;
+		}
+		//非暴力分拣任务
+		if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
+			result.toFail("非暴力分拣任务，不用指定责任人！");
+			return result;
+		}
+		//自营
+		
+		return null;
+	}
+
 
 	/**
 	 * 从装车质量报表ck查询该场地网格

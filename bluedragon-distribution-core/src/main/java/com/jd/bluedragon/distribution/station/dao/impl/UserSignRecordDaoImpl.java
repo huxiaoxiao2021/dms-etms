@@ -228,4 +228,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryFirstExistGridRecord", query);
 	}
+
+	@Override
+	public List<UserSignRecord> queryByGridSign(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryByGridSign", query);
+	}
 }

@@ -1,6 +1,9 @@
 package com.jd.bluedragon.common.dto.work;
 
+import javafx.util.Pair;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 暴力分拣任务责任信息
@@ -24,15 +27,13 @@ public class ResponsibleInfo implements Serializable {
      * erp : 自营员工
      */
     private String erp;
+    //外包工外包商
+    private ResponsibleSupplier supplier;
     /**
-     *  外包商Id
+     * 外包工 外包商选项
      */
-    private String supplierId;
-    /**
-     * 外包商名称
-     */
-    private String supplierName;
-
+    private List<ResponsibleSupplier> supplierList;
+    
     /**
      * 网格组长
      * @return
@@ -40,6 +41,7 @@ public class ResponsibleInfo implements Serializable {
     private String gridOwnerErp;
     
     private String gridOwnerName;
+    
     public Integer getWorkType() {
         return workType;
     }
@@ -72,22 +74,6 @@ public class ResponsibleInfo implements Serializable {
         this.erp = erp;
     }
 
-    public String getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(String supplierId) {
-        this.supplierId = supplierId;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
-    }
-
     public String getGridOwnerErp() {
         return gridOwnerErp;
     }
@@ -102,5 +88,21 @@ public class ResponsibleInfo implements Serializable {
 
     public void setGridOwnerName(String gridOwnerName) {
         this.gridOwnerName = gridOwnerName;
+    }
+
+    public ResponsibleSupplier getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(ResponsibleSupplier supplier) {
+        this.supplier = supplier;
+    }
+
+    public List<ResponsibleSupplier> getSupplierList() {
+        return supplierList;
+    }
+
+    public void setSupplierList(List<ResponsibleSupplier> supplierList) {
+        this.supplierList = supplierList;
     }
 }

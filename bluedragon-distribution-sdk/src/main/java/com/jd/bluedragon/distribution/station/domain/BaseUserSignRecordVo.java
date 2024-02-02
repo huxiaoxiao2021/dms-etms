@@ -22,6 +22,10 @@ public class BaseUserSignRecordVo implements Serializable {
      * 签到人员名称
      */
     private String userName;
+    /**
+     * 工种
+     */
+    private Integer jobCode;
 
 
     public Integer getSiteCode() {
@@ -46,5 +50,13 @@ public class BaseUserSignRecordVo implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Integer getJobCode() {
+        return jobCode;
+    }
+
+    public void setJobCode(Integer jobCode) {
+        this.jobCode = jobCode;
     }
 }
