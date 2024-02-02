@@ -18,6 +18,9 @@ import com.google.common.base.Objects;
 import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
@@ -93,6 +96,7 @@ import com.jdl.basic.common.utils.Result;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
 import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
+import static com.jd.bluedragon.distribution.station.enums.JobTypeEnum.*;
 import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.KPI_IMPROVE;
 
 /**
@@ -172,6 +176,9 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
 	@Autowired
 	private IQuotaTargetConfigManager iQuotaTargetConfigManager;
+	
+	@Autowired
+	private UserSignRecordService userSignRecordService;
     /**
      * 任务提前执行时间 （单位：秒）
      */
@@ -1271,11 +1278,31 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("非暴力分拣任务，不用指定责任人！");
 			return result;
 		}
-		//自营
 		
+		//查询网格所有工序
+		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+		workStationGridQuery.setRefWorkGridKey(taskData.getTaskRefGridKey());
+		List<WorkStationGrid> workStationGrids = workStationGridManager.queryListForWorkGridVo(workStationGridQuery);
+		if(CollectionUtils.isEmpty(workStationGrids)){
+			result.toFail("网格无效或网格下无工序，不用指定责任人！");
+			return result;
+		}
+		
+		List<String> refWorkKeys = workStationGrids.stream().map( s -> s.getBusinessKey()).collect(Collectors.toList());
+		UserSignRecordQuery query = new UserSignRecordQuery();
+		query.setRefGridKeyList(refWorkKeys);
+		//正式 外包 临时
+		List<Integer> jobCodeList = Arrays.asList(JOBTYPE1.getCode(), JOBTYPE3.getCode(), JOBTYPE4.getCode());
+		query.setJobCodeList(jobCodeList);
+		//最早查询任务发生前8小时的签到人
+		Date signDateStart = DateHelper.addHours(taskData.getProcessBeginTime(), -8);
+		query.setSignDateStart(signDateStart);
+		query.setSignDateEnd(taskData.getProcessBeginTime());
+		List<UserSignRecord> userSignRecords = userSignRecordService.queryByGridSign(query);
 		return null;
 	}
 
+	
 
 	/**
 	 * 从装车质量报表ck查询该场地网格

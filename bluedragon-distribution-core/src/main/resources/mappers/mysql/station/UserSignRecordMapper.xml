@@ -1237,13 +1237,16 @@
 	</select>
 
 	<select id="queryByGridSign" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
-		select user_code,user_code_encrypt,user_name,user_name_encrypt,
+		select user_code,user_code_encrypt,user_name,user_name_encrypt,job_code
 		from  user_sign_record
 		where yn =1
-		AND ref_grid_key =#{refGridKey}
+		AND ref_grid_key IN
+		<foreach item="refGridKey" collection="refGridKeyList" open="(" close=")" index="index" separator=",">
+			#{refGridKey,jdbcType=VARCHAR}
+		</foreach>
 		AND <![CDATA[ sign_in_time <= #{signDateEnd,jdbcType=TIMESTAMP}  ]]>
 		AND <![CDATA[ sign_in_time >= #{signDateStart,jdbcType=TIMESTAMP}  ]]>
-		AND sign_out_time is null
+		AND (sign_out_time is null or <![CDATA[ sign_out_time >= #{signDateEnd,jdbcType=TIMESTAMP}  ]]> )
 		AND job_code IN
 		<foreach item="item" collection="jobCodeList" open="(" close=")" index="index" separator=",">
 			#{item,jdbcType=INTEGER}

@@ -372,5 +372,12 @@ public class JyWorkGridManagerData implements Serializable {
 	public void setTaskBizType(Integer taskBizType) {
 		this.taskBizType = taskBizType;
 	}
-	
+
+	public ResponsibleInfo getResponsibleInfo() {
+		return responsibleInfo;
+	}
+
+	public void setResponsibleInfo(ResponsibleInfo responsibleInfo) {
+		this.responsibleInfo = responsibleInfo;
+	}
 }

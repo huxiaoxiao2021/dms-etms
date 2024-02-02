@@ -116,4 +116,19 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         return result;
 	}
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryListForWorkGridVo",
+            mState={JProEnum.TP,JProEnum.FunctionError})
+    @Override
+    public List<WorkStationGrid> queryListForWorkGridVo(WorkStationGridQuery workStationGridQuery) {
+        List<WorkStationGrid> result= new ArrayList<>();
+        try {
+            log.info("根据网格businessKey获取工序信息 queryListForWorkGridVo param:"+ JSON.toJSONString(workStationGridQuery));
+            return basicWorkStationGridJsfService.queryListForWorkGridVo(workStationGridQuery);
+        } catch (Exception e) {
+            log.error("根据网格businessKey获取工序信息 {}",  e.getMessage(),e);
+        }
+        return result;
+    }
+    
+    
 }
