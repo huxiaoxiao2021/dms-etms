@@ -116,6 +116,14 @@ public class SpotCheckContrastDetail implements Serializable {
      * 核对省区名称
      */
     private String contrastProvinceAgencyName;
+    /**
+     * 称重操作人ID
+     */
+    private Integer operatorId;
+    /**
+     * 称重操作人erp或pin
+     */
+    private String operator;
 
     public Integer getContrastSourceFrom() {
         return contrastSourceFrom;
@@ -339,5 +347,21 @@ public class SpotCheckContrastDetail implements Serializable {
 
     public void setDutyThirdName(String dutyThirdName) {
         this.dutyThirdName = dutyThirdName;
+    }
+
+    public Integer getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(Integer operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 }

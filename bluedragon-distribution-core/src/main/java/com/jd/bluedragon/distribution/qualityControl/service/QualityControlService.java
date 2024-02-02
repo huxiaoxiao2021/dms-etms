@@ -322,7 +322,7 @@ public class QualityControlService {
             if(!StringUtils.isEmpty(oldWaybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
                 return result;
             }
-            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG);
+            String tipMsg = HintService.getHint(HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT_MSG, HintCodeConstants.EXCEPTION_NO_SUBMIT_CHECK_INTERCEPT);
             return result.toFail(tipMsg);
             // 运单拦截中心下发的存在全部拦截。如果需要判断存在部分拦截则放开下面注释代码
            /*
