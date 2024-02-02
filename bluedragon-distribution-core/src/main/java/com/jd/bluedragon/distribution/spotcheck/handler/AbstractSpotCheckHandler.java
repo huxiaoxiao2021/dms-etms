@@ -305,10 +305,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setContrastDutyType(spotCheckContrastDetail.getDutyType());
         dto.setContrastWeight(spotCheckContrastDetail.getContrastWeight());
         dto.setContrastVolume(spotCheckContrastDetail.getContrastVolume());
-        // 称重操作人ID
-        dto.setOperatorId(spotCheckContrastDetail.getOperatorId());
-        // 称重操作人erp或pin
-        dto.setOperator(spotCheckContrastDetail.getOperator());
+        // 计费操作人ID
+        dto.setBillOperatorId(spotCheckContrastDetail.getBillOperatorId());
+        // 计费操作人erp或pin
+        dto.setBillOperatorErp(spotCheckContrastDetail.getBillOperatorErp());
         // 通用数据
         dto.setReviewDate(System.currentTimeMillis());
         dto.setWaybillCode(spotCheckContext.getWaybillCode());
