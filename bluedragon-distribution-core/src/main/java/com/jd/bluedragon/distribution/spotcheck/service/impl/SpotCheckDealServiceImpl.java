@@ -547,10 +547,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckContrastDetail.setContrastOperateUserName(reportInfo == null ? null : reportInfo.getDutyStaffName());
         spotCheckContrastDetail.setContrastOperateUserAccountType(reportInfo == null ? null : reportInfo.getDutyStaffType());
         spotCheckContrastDetail.setDutyType(reportInfo == null ? null : reportInfo.getDutyType());
-        // 称重操作人ID
-        spotCheckContrastDetail.setOperatorId(reportInfo == null ? null : reportInfo.getOperatorId());
-        // 称重操作人erp或pin
-        spotCheckContrastDetail.setOperator(reportInfo == null ? null : reportInfo.getOperator());
+        // 计费操作人ID
+        spotCheckContrastDetail.setBillOperatorId(reportInfo == null ? null : reportInfo.getOperatorId());
+        // 计费操作人erp或pin
+        spotCheckContrastDetail.setBillOperatorErp(reportInfo == null ? null : reportInfo.getOperator());
         // 超标数据
         int excessStatus = ExcessStatusEnum.EXCESS_ENUM_NO.getCode();
         if(reportInfo != null && reportInfo.getExceedType() != null){
@@ -755,10 +755,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         queryDto.setRecheckVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
         // 核对重量来源
         queryDto.setRecheckSource(spotCheckDto.getContrastSource());
-        // 称重操作人ID
-        queryDto.setOperatorId(spotCheckDto.getOperatorId());
-        // 称重操作人erp或pin
-        queryDto.setOperator(spotCheckDto.getOperator());
+        // 计费操作人ID
+        queryDto.setOperatorId(spotCheckDto.getBillOperatorId());
+        // 计费操作人erp或pin
+        queryDto.setOperator(spotCheckDto.getBillOperatorErp());
         return queryDto;
     }
 
