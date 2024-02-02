@@ -779,5 +779,10 @@
     <jmq:consumer id="jmq.boxDetailFromStoreConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxDetailFromStore}" listener="boxDetailFromStoreConsumer"/>
     </jmq:consumer>
+
+    <!-- 空铁摆渡封车处理干支任务监听逻辑  -->
+    <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
+    </jmq:consumer>
 </beans>
 

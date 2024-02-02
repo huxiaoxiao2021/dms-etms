@@ -26,5 +26,7 @@ public class BatchCodeShuttleSealDto implements Serializable {
 
     private Date operateTime;
 
+    private String transportCode;
+
 
 }
