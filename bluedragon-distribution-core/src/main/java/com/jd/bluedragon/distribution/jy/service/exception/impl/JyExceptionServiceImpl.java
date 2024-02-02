@@ -2359,7 +2359,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 if (needHandleInterceptTypeList.contains(exceptionInterceptDetailExist.getInterceptType())) {
                     //如果是撤销拦截的，不论何种状态都置为完结状态、撤销拦截处理状态
                     if(businessInterceptConfig.getRecallDisposeNodeList().contains(businessInterceptDisposeRecord.getDisposeNode())){
-                        this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                        this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate, JyBizTaskExceptionProcessStatusEnum.INTERCEPT_RECALL.getCode());
                     } else {
                         // 0重量拦截的，待处理状态，需要置为完结状态
                         if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
@@ -2392,10 +2392,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void finishInterceptTaskSuccess(JyBizTaskExceptionEntity taskExist, BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Date currentDate){
+        this.finishInterceptTaskSuccess(taskExist, businessInterceptDisposeRecord, currentDate, null);
+    }
+
+    private void finishInterceptTaskSuccess(JyBizTaskExceptionEntity taskExist, BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Date currentDate, Integer targetProcessStatus){
+        if (targetProcessStatus == null) {
+            targetProcessStatus = JyBizTaskExceptionProcessStatusEnum.DONE.getCode();
+        }
         JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
         bizTaskExceptionUpdate.setBizId(taskExist.getBizId());
         bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.COMPLETE.getCode());
-        bizTaskExceptionUpdate.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        bizTaskExceptionUpdate.setProcessingStatus(targetProcessStatus);
         bizTaskExceptionUpdate.setUpdateUserErp(businessInterceptDisposeRecord.getDisposeUser());
         bizTaskExceptionUpdate.setUpdateUserName(businessInterceptDisposeRecord.getDisposeUserName());
         bizTaskExceptionUpdate.setUpdateTime(new Date(businessInterceptDisposeRecord.getDisposeNode()));
