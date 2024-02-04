@@ -13,8 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.*;
 
 /**
  * @author tangchunqing
@@ -2732,7 +2731,7 @@ public class BusinessUtil {
         }
         return BusinessUtil.isSignChar(waybillSign,40,'2')
                 && BusinessUtil.isSignChar(waybillSign,54,'0')
-                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9', 'D')
                 && BusinessUtil.isSignChar(waybillSign,89,'0');
     }
 
@@ -3095,5 +3094,26 @@ public class BusinessUtil {
             return false;
         }
         return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
+    }
+
+    /**
+     * CTC逆向单判断 waybillsign40=0且29=8且61!=0
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCTCReverseWaybill(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign,POSITION_40,CHAR_40_0)
+                && BusinessUtil.isSignChar(waybillSign,POSITION_29,CHAR_29_8)
+                && !BusinessUtil.isSignChar(waybillSign,POSITION_61, CHAR_61_0);
+    }
+
+    /**
+     * 判断是否是冷链专送且异常即报废
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isColdChainExpressScrap(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
     }
 }

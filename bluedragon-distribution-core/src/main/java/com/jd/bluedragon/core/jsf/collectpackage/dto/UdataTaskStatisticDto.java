@@ -12,5 +12,6 @@ public class UdataTaskStatisticDto {
     private Integer interceptNum;
     private Integer forceNum;
     private Integer scannedNum;
+    private Integer totalNum;
 
 }
