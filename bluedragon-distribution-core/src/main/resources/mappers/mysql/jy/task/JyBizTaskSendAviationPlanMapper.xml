@@ -456,7 +456,7 @@
         yn = 1
         and start_site_id = #{startSiteId}
         and next_site_id = #{nextSiteId}
-        and ((task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1))
+        and ((task_status = 0 and take_off_time &gt;= #{toSendTakeOffTimeStart}) or (task_status = 1 and take_off_time &gt;= #{sendingTakeOffTimeStart}))
         and create_time &gt;= #{createTimeStart}
         order by take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}

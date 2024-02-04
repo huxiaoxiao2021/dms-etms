@@ -109,6 +109,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
     private int listQueryCreateTimeStartDay;
     @Value("${jyAviationSendSealToSendQueryTakeOffTimeStartHour:24}")
     private int toSendQueryTakeOffTimeStartHour;
+    @Value("${jyAviationSendSealSendingQueryTakeOffTimeStartHour:48}")
+    private int sendingQueryTakeOffTimeStartHour;
 
     @Autowired
     private JySeaCarlCacheService jySeaCarlCacheService;
@@ -681,9 +683,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         if(!Objects.isNull(statusCode)) {
             condition.setTaskStatus(JyAviationRailwaySendVehicleStatusEnum.getSendTaskStatusByCode(statusCode));
         }
+        //起飞时间
         if(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode().equals(statusCode)) {
-            //起飞时间
             condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
+        }else if(JyAviationRailwaySendVehicleStatusEnum.SENDING.getCode().equals(statusCode)) {
+            condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), sendingQueryTakeOffTimeStartHour));
         }
         condition.setCreateTimeStart(this.queryDefaultCreateTimeStart());
         //条件筛选
@@ -816,7 +820,8 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
            taskDtoList = jyBizTaskSendAviationPlanService.pageFetchAviationTaskByNextSite(condition);
        }else {
            // 查询推荐任务列表
-           condition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
+           condition.setToSendTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
+           condition.setSendingTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), sendingQueryTakeOffTimeStartHour));
            taskDtoList = jyBizTaskSendAviationPlanService.pageQueryRecommendTaskByNextSiteId(condition);
         }
 
@@ -1256,6 +1261,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             invokeResult.error("该航空任务已封车！");
             return invokeResult;
         }
+
+        if(this.isNullSendTask(req.getSendVehicleBizId(), req.getCurrentOperate().getSiteCode())) {
+            invokeResult.error("空任务禁止完成，请先操作发货");
+            return invokeResult;
+        }
         
         // 查询发货任务数据
         JyBizTaskSendAviationPlanEntity sendAviationPlan = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
@@ -1280,6 +1290,22 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             invokeResult.error("任务完成失败，请联系分拣小秘！");
             return invokeResult;
         }
+    }
+
+    //是否空发货任务
+    private boolean isNullSendTask(String bizId, Integer siteId) {
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(bizId);
+        if(CollectionUtils.isEmpty(sendCodeList)) {
+            return true;
+        }
+        //航空发货岗目前不存在多批次场景
+        for(String sendCode : sendCodeList) {
+            Integer itemNum = sendMDao.countBoxCodeNumBySendCode(sendCode, siteId);
+            if(NumberHelper.gt0(itemNum)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     //任务添加页增加已绑定标签
