@@ -30,8 +30,6 @@ import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
-import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
-import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
@@ -51,6 +49,9 @@ import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -113,9 +114,7 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
@@ -332,6 +331,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Autowired
     SysConfigService sysConfigService;
+
+    @Autowired
+    private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
 
     @Autowired
     private StoragePackageMService storagePackageMService;
@@ -6975,13 +6977,55 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 }
             }
             // 分拣机发货
-            this.packageSend(SendBizSourceEnum.SORT_MACHINE_SEND, domain);
+            //切换新服务
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+                log.info("自动化分拣机发货 启用新模式 {}",domain.getBoxCode());
+                //新接口
+                SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);
+                sendRequest.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
+                // 不允许有失败场景
+                sendOfCapabilityAreaService.doSend(sendRequest);
+            }else{
+                this.packageSend(SendBizSourceEnum.SORT_MACHINE_SEND, domain);
+            }
+
         } else {
-            // 龙门架发货
-            this.packageSend(SendBizSourceEnum.SCANNER_FRAME_SEND, domain);
+            //切换新服务
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+                log.info("自动化龙门架发货 启用新模式 {}",domain.getBoxCode());
+                //新接口
+                SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);
+                sendRequest.setBizSource(SendBizSourceEnum.SCANNER_FRAME_SEND.getCode());
+                // 不允许有失败场景
+                sendOfCapabilityAreaService.doSend(sendRequest);
+            }else {
+                // 龙门架发货
+                this.packageSend(SendBizSourceEnum.SCANNER_FRAME_SEND, domain);
+            }
         }
 
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 自动化请求对象转换发货能力域请求入参使用
+     * @param domain
+     * @return
+     */
+    private SendRequest makeSendRequestOfScannerFrameAuto(SendM domain){
+        SendRequest sendRequest = new SendRequest();
+        BeanUtils.copyProperties(domain,sendRequest);
+        sendRequest.setSiteCode(domain.getCreateSiteCode());
+        sendRequest.setUserCode(domain.getCreateUserCode());
+        sendRequest.setUserName(domain.getCreateUser());
+        sendRequest.setBarCode(domain.getBoxCode());
+        sendRequest.setBusinessType(domain.getSendType());
+        sendRequest.setIsCancelLastSend(Boolean.FALSE);//不需要取消上次发货
+        sendRequest.setIsForceSend(Boolean.TRUE);//强制发货
+        sendRequest.setSendChainModeEnum(SendChainModeEnum.NO_CHECK_MODE);//发货模式设置
+        sendRequest.setUseCustomOperateTime(Boolean.TRUE); //使用自动化上传的自定义操作时间
+        sendRequest.setOperateTime(DateHelper.formatDateTime(domain.getOperateTime()));
+        return sendRequest;
     }
 
     /**

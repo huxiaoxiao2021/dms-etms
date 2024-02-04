@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.capability.send.domain.SendDimensionEnum;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -186,7 +188,7 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
      * @param request
      * @return
      */
-    private SendM toSendMDomain(PackageSendRequest request) {
+    private SendM toSendMDomain(SendRequest request) {
         SendM domain = new SendM();
         domain.setBoxCode(request.getBoxCode());
         domain.setReceiveSiteCode(request.getReceiveSiteCode());
@@ -204,8 +206,13 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
         domain.setTransporttype(request.getTransporttype());
         domain.setBizSource(request.getBizSource());
         domain.setYn(Constants.YN_YES);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        if(request.getUseCustomOperateTime()){
+            domain.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+            domain.setOperateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+        }else{
+            domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+            domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        }
         domain.setOperatorTypeCode(request.getOperatorTypeCode());
         domain.setOperatorId(request.getOperatorId());
         domain.setOperatorData(request.getOperatorData());
