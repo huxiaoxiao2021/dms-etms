@@ -5,12 +5,12 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 
 /**
- * 集包岗网关服务
+ * 集装岗网关服务
  */
-public interface JyCollectPackageGatewayService {
+public interface JyCollectLoadingGatewayService {
 
   /**
-   * 集包扫描
+   * 集装扫描
    */
   JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request);
 

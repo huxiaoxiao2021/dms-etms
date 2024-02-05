@@ -67,6 +67,15 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
     private Long boxReceiveId;
     private String boxReceiveName;
 
+    private String  boxType;
+
+    public String getBoxType(){
+        return boxType;
+    }
+    public void setBoxType(String boxType) {
+        this.boxType = boxType;
+    }
+
     public void setEndSiteName(String endSiteName) {
         this.endSiteName = endSiteName;
     }

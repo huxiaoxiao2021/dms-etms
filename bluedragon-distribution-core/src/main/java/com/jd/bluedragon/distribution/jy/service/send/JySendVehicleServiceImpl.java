@@ -2717,6 +2717,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return false;
             }
             if (BusinessHelper.isBCBoxType(box.getType())) {
+
+                if (!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode)) {
+                    return true;
+                }
                 boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode);
                 if (needBindMaterialBag) {
                     // 箱号未绑定集包袋

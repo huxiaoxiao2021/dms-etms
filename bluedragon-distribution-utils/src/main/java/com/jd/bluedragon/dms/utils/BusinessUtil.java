@@ -113,6 +113,13 @@ public class BusinessUtil {
         }
         return false;
     }
+
+    public static Boolean isLLBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("LL")){
+            return true;
+        }
+        return false;
+    }
     public static Boolean isStoreCode(String s) {
         if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;
