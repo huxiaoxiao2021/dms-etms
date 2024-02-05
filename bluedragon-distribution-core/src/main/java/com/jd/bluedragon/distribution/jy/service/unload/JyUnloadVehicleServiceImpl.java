@@ -555,15 +555,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 执行卸车扫描操作
-     * @param request 卸车扫描请求对象
-     * @param isNewApp 是否为新接口（最新版本调用的）
+     * @param request 卸车扫描请求对
      * @return 返回带有校验结果的卸车扫描响应对象
      * @throws EconomicNetException 经济网异常
      */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.unloadScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request,boolean isNewApp) {
+    public JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request) {
 
         logInfo("开始卸车扫描. {}", JsonHelper.toJson(request));
 
@@ -577,7 +576,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         // 卸车扫描前置校验
-        if (!checkBeforeScan(result, request,isNewApp)) {
+        if (!checkBeforeScan(result, request)) {
             return result;
         }
 
@@ -607,7 +606,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             this.handleSpecialProductType(request, result, unloadScanContextDto);
 
             // 执行回调
-            this.unloadScanOfCallback(result,request,isNewApp);
+            this.unloadScanOfCallback(result,request);
         }
         catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
@@ -933,16 +932,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * 扫描前校验
      * @param result JdVerifyResponse对象，用于存储校验结果
      * @param request UnloadScanRequest对象，表示卸货扫描请求
-     * @param isNewApp 表示是否为新的应用
      * @return 若满足条件则返回true，否则返回false
      */
-    private boolean checkBeforeScan(JdVerifyResponse<UnLoadScanResponse> result, UnloadScanRequest request,boolean isNewApp) {
+    private boolean checkBeforeScan(JdVerifyResponse<UnLoadScanResponse> result, UnloadScanRequest request) {
         //回调
-        if(isNewApp) {
-            unloadScanCheckOfCallback(result, request);
-            if (!result.codeSuccess()) {
-                return false;
-            }
+        unloadScanCheckOfCallback(result, request);
+        if (!result.codeSuccess()) {
+            return false;
         }
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
@@ -981,27 +977,23 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * 卸车扫描回调
      * @param result JdVerifyResponse对象，包含UnLoadScanResponse类型的响应
      * @param request UnloadScanRequest对象，卸载扫描请求
-     * @param isNewApp 是否为新版本app调用的布尔值
-     * @throws 无
      * @return 无
      */
-    private void unloadScanOfCallback(JdVerifyResponse<UnLoadScanResponse> result,UnloadScanRequest request,boolean isNewApp){
-        if(isNewApp) {
-            //需要判断当非拣运租户时在触发回调
-            String tenantCode = TenantContext.getTenantCode();
-            if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
-                String barCode = request.getBarCode();
-                InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
-                //返回 code 成功继续执行,不成功时不要阻断，不处理
-                if (callbackResult.isSuccess()) {
-                    //返回个性服务标识
-                    result.setSelfDomFlag(Boolean.TRUE);
-                    result.setCode(callbackResult.getCode());
-                    result.setMessage(callbackResult.getMessage());
-                    result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
-                    //data暂时没有
-                    //result.setData(callbackResult.getData());
-                }
+    private void unloadScanOfCallback(JdVerifyResponse<UnLoadScanResponse> result,UnloadScanRequest request){
+        //需要判断当非拣运租户时在触发回调
+        String tenantCode = TenantContext.getTenantCode();
+        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
+            //返回 code 成功继续执行,不成功时不要阻断，不处理
+            if (callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
+                //data暂时没有
+                //result.setData(callbackResult.getData());
             }
         }
     }
