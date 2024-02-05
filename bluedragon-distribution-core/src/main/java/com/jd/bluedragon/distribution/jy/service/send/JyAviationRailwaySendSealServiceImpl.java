@@ -1257,16 +1257,20 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
         InvokeResult<Void> invokeResult = new InvokeResult<>();
 
         JyBizTaskSendAviationPlanEntity entity = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
-        if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
+        if (ObjectHelper.isEmpty(entity)){
+            invokeResult.error("未查到该任务");
+            return invokeResult;
+        }else  if(JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(entity.getTaskStatus())) {
+            invokeResult.error("空任务禁止完成，请先操作发货");
+            return invokeResult;
+        }else if(JyBizTaskSendStatusEnum.TO_SEAL.getCode().equals(entity.getTaskStatus())) {
+            invokeResult.error("该任务已完成，请勿重新操作");
+            return invokeResult;
+        } else if (ObjectHelper.isNotNull(entity) && JyBizTaskSendStatusEnum.SEALED.getCode().equals(entity.getTaskStatus())){
             invokeResult.error("该航空任务已封车！");
             return invokeResult;
         }
 
-        if(this.isNullSendTask(req.getSendVehicleBizId(), req.getCurrentOperate().getSiteCode())) {
-            invokeResult.error("空任务禁止完成，请先操作发货");
-            return invokeResult;
-        }
-        
         // 查询发货任务数据
         JyBizTaskSendAviationPlanEntity sendAviationPlan = jyBizTaskSendAviationPlanService.findByBizId(req.getSendVehicleBizId());
         JyBizTaskSendVehicleEntity sendVehicleTask = jyBizTaskSendVehicleService.findByBizId(req.getSendVehicleBizId());
