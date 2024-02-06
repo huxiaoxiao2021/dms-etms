@@ -819,6 +819,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return result;
         }
 
+        // 部分包裹发货只依赖分拣上传的重量数据,这部分包裹重量体积正常上传，不进行拦截
+        if (checkIsOnlyUseSortingWeight(waybillCode, bigWaybill.getWaybill().getWaybillSign())) {
+            logger.info("该包裹{}发货只依赖分拣上传的重量数据,重量体积正常上传", waybillCode);
+            return result;
+        }
+
         // 判断该包裹的揽收站点是否为城配车队，若为城配车队，则不进行以下校验。
         if (checkWaybillPickup(bigWaybill)) {
             logger.info("运单{}揽收站点为城配车队", waybillCode);
@@ -841,6 +847,21 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //            return result;
 //        }
         return result;
+    }
+
+    /**
+     * 部分包裹发货只依赖分拣上传的重量数据,这部分包裹重量体积正常上传，不进行拦截
+     * 1. 众邮包裹
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private boolean checkIsOnlyUseSortingWeight(String waybillCode, String waybillSign) {
+        //众邮包裹
+        if(BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign)){
+            return true;
+        }
+        return false;
     }
 
     /**
