@@ -39,10 +39,7 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.BatchCancelCollectPackageMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
-import com.jd.bluedragon.distribution.jy.enums.BoxTransportTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -90,6 +87,7 @@ import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCo
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SITE_TYPE_WMS;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
@@ -371,8 +369,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isNotNull(entity)){
             if (ObjectHelper.isNotNull(entity.getBoxCode()) && entity.getBoxCode().equals(request.getBoxCode())){
                 throw new JyBizException("该包裹已经在此箱号中,请勿重复集包！");
-            }else {
-                throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请前去取消后再重新集包！");
+            }else if (ObjectHelper.isNotNull(entity.getCreateTime())) {
+                Date createTime = entity.getCreateTime();
+                if (System.currentTimeMillis() - createTime.getTime() <=  dmsConfigManager.getPropertyConfig().getReComboardTimeLimit() * 3600L * 1000L) {
+                    throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请前去取消后再重新集包！");
+                }
             }
         }
     }
@@ -397,7 +398,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             Integer yufenjian = getYufenjianByPackage(waybill);
             if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){//如果预分拣站点不匹配箱号目的地，再去判断末级分拣
                 //获取包裹的末级分拣中心
-                Integer lastDmsId = getLastDmsByPackage(waybill);
+                Integer lastDmsId = getLastDmsByPackage(waybill,collectPackageTask);
                 if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
                     //校验末级分拣中心是否为箱号目的地
                     List<Integer> flowList = Collections.singletonList(collectPackageTask.getEndSiteId().intValue());
@@ -442,14 +443,36 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return waybill.getOldSiteId();
     }
 
-    private Integer getLastDmsByPackage(Waybill waybill) {
+    private Integer getLastDmsByPackage(Waybill waybill,JyBizTaskCollectPackageEntity task) {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(waybill.getOldSiteId());
-        if(ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
-            //todo 这个地方要不要留强制集包的口子呢？
+        if(ObjectHelper.isEmpty(baseStaffSiteOrgDto)){
             log.info("jy getLastDmsByPackage：{}",JsonHelper.toJson(baseStaffSiteOrgDto));
-            throw new JyBizException("未获取到末级分拣中心信息!");
+            throw new JyBizException("未获取到运单对应预分拣站点信息!");
         }
-        return baseStaffSiteOrgDto.getDmsId();
+
+        boolean needCheckReverseWaybill =false;
+        //判断终点是仓库 ，根据路由获取末级分拣
+        if (SITE_TYPE_WMS.equals(baseStaffSiteOrgDto.getSiteType())){
+            if (needCheckReverseWaybill){
+                Integer lastDmsId =getLastDmsFromRouter(waybill);
+                if (ObjectHelper.isEmpty(lastDmsId)){
+                    //TODO 强发提醒
+                }
+                return lastDmsId;
+            }else {
+                return task.getEndSiteId().intValue();
+            }
+        }else {
+            if(ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
+                log.info("jy getLastDmsByPackage：{},{}",waybill.getWaybillCode(),JsonHelper.toJson(baseStaffSiteOrgDto));
+                throw new JyBizException("未获取到末级分拣中心信息!");
+            }
+            return baseStaffSiteOrgDto.getDmsId();
+        }
+    }
+
+    private Integer getLastDmsFromRouter(Waybill waybill) {
+        return null;
     }
 
     /**
