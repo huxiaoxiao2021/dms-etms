@@ -1649,6 +1649,10 @@ public class Constants {
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
     /**
+     * 常量值：-1
+     * */
+    public static final Integer NEGATIVE_NUMBER_ONE = -1;
+    /**
      * 常量值：2
      * */
     public static final int  CONSTANT_NUMBER_TWO = 2;

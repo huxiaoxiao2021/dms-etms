@@ -16,9 +16,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.attBlackList.AttendanceBlackListManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
+import com.jd.bluedragon.core.jsf.workStation.*;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
@@ -54,14 +52,17 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.basic.api.domain.workStation.*;
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
-import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
 import com.jdl.basic.common.utils.DateUtil;
+import com.jdl.jy.flat.dto.schedule.UserGridScheduleDto;
+import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -70,6 +71,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,6 +113,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Autowired
 	@Qualifier("workStationAttendPlanService")
 	WorkStationAttendPlanService workStationAttendPlanService;
+
+	@Autowired
+	private WorkGridManager workGridManager;
+
+	@Autowired
+	private WorkGridScheduleManager workGridScheduleManager;
 
 	@Autowired
 	private PositionManager positionManager;
@@ -561,7 +569,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateData.setUpdateTime(now);
                     updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
                     updateData.setUpdateUserName(updateData.getUpdateUser());
-
+					// 查询排班计划执行自动签退
+					for (Long id : toSignOutPks) {
+						handleAutoSignOut(id, now);
+					}
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
         			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
         			removeMemberRequest.setSignRecordIdList(toSignOutPks);
@@ -583,6 +594,185 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
+
+	private void handleAutoSignOut(Long recordId, Date currentDate) {
+		// 根据签到记录主键查询签到记录详情
+		UserSignRecord userSignRecord = userSignRecordDao.queryByIdForFlow(recordId);
+		if (userSignRecord == null) {
+			return;
+		}
+		// 网格工序业务主键
+		String refGridKey = userSignRecord.getRefGridKey();
+		// 根据网格工序业务主键查询网格业务主键
+		com.jdl.basic.common.utils.Result<WorkGrid> result = workGridManager.queryByWorkGridKey(refGridKey);
+		if (result == null || result.getData() == null) {
+			return;
+		}
+		// 网格主键
+		String workGridKey = result.getData().getBusinessKey();
+		// 签到时间
+		Date signInTime = userSignRecord.getSignInTime();
+		// 签到日期
+		Date signDate = userSignRecord.getSignDate();
+		// 签到日期前一天
+		String yesterday = DateHelper.formatDate(DateUtils.addDays(signDate, Constants.NEGATIVE_NUMBER_ONE));
+		// 签到人erp
+		String userCode = userSignRecord.getUserCode();
+		// 工种
+		Integer jobCode = userSignRecord.getJobCode();
+
+		// 查询指定网格下指定人员指定日期的排班记录
+		List<UserGridScheduleDto> list = findScheduleListByCondition(yesterday, signDate, jobCode, userCode, workGridKey);
+		if (CollectionUtils.isEmpty(list)) {
+			return;
+		}
+		// 签到日期的排班记录
+		List<UserGridScheduleDto> signDateScheduleList = new ArrayList<>();
+		// 签到日期前一天的排班记录
+		List<UserGridScheduleDto> yesterdayScheduleList = new ArrayList<>();
+		// 筛选出当天的和前一天的排班记录
+		for (UserGridScheduleDto scheduleDto : list) {
+			if (yesterday.equals(scheduleDto.getScheduleDate())) {
+				yesterdayScheduleList.add(scheduleDto);
+			} else {
+				signDateScheduleList.add(scheduleDto);
+			}
+		}
+
+		// 设置更新参数
+		userSignRecord.setUpdateTime(currentDate);
+		userSignRecord.setUpdateUser(Constants.SYS_NAME);
+		userSignRecord.setUpdateUserName(Constants.SYS_NAME);
+
+		// 开始执行签退
+		startSignOut(userSignRecord, signDateScheduleList, yesterdayScheduleList, signInTime, currentDate);
+	}
+
+
+	private List<UserGridScheduleDto> findScheduleListByCondition(String yesterday, Date signDate, Integer jobCode,
+																  String userCode, String workGridKey) {
+		UserGridScheduleQueryDto scheduleQueryDto = new UserGridScheduleQueryDto();
+		scheduleQueryDto.setScheduleDateList(Arrays.asList(yesterday, DateHelper.formatDate(signDate)));
+		scheduleQueryDto.setNature(String.valueOf(jobCode));
+		scheduleQueryDto.setUserUniqueCode(userCode);
+		scheduleQueryDto.setWorkGridKey(workGridKey);
+		return workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
+	}
+
+	private void startSignOut(UserSignRecord userSignRecord, List<UserGridScheduleDto> signDateScheduleList,
+								 List<UserGridScheduleDto> yesterdayScheduleList, Date signInTime, Date currentDate) {
+		// 判断当前签到时间是否命中当天人员排班开始时间前一小时~排班结束时间（不能正好等于排班结束时间）
+		// 若存在，则直接以排班结束时间替换自动签退时间 如果存在多条，选择最早的一条的数据
+		Date minEndDate = computeMinScheduleEndDateBySceneOne(signDateScheduleList, signInTime);
+		if (minEndDate != null) {
+			userSignRecord.setSignOutTime(minEndDate);
+			signOutByDeleteAndInsert(userSignRecord);
+			return;
+		}
+		// 若不存在，则需要进一步判断
+		// （对应跨天场景）签到时间是否在人员签到日期的前一天的排班计划人员排班开始时间前一小时~排班结束时间（不能正好等于排班结束时间），若存在，则以前一天排班计划的排班结束时间替换自动签退时间
+		minEndDate = computeMinScheduleEndDateBySceneOne(yesterdayScheduleList, signInTime);
+		if (minEndDate != null) {
+			userSignRecord.setSignOutTime(minEndDate);
+			signOutByDeleteAndInsert(userSignRecord);
+			return;
+		}
+		// 如果当天和前一天都不满足
+		// 则判断当天的排班计划中，是否存在排班班次的结束时间在签到时间~自动签退时间之间
+		minEndDate = computeMinScheduleEndDateBySceneTwo(signDateScheduleList, signInTime, currentDate);
+		// 若存在则更新班次结束时间为自动签退时间
+		if (minEndDate != null) {
+			userSignRecord.setSignOutTime(minEndDate);
+			signOutByDeleteAndInsert(userSignRecord);
+			return;
+		}
+		// 若不存在，则认为该人员今天未排班，将该签到数据作废处理
+		userSignRecordDao.deleteById(userSignRecord);
+	}
+
+	private Date computeMinScheduleEndDateBySceneTwo(List<UserGridScheduleDto> scheduleList, Date signInTime, Date currentDate) {
+		Date minEndDate = null;
+		for (UserGridScheduleDto scheduleDto : scheduleList) {
+			// 排班开始时间 HH:mm
+			String startTime = scheduleDto.getStartTime();
+			// 排班结束时间 HH:mm
+			String endTime = scheduleDto.getEndTime();
+			// 排班结束日期 yyyy-MM-dd HH:mm:ss
+			Date endDate;
+			// 如果结束日期代表第二天的时间点，则转换时需要加一天
+			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
+				endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+			} else {
+				endDate = getSpecialDateByStr(endTime, null);
+			}
+			if (endDate.getTime() >= signInTime.getTime() && endDate.getTime() <= currentDate.getTime()) {
+				if (minEndDate == null) {
+					minEndDate = endDate;
+				} else {
+					if (minEndDate.after(endDate)) {
+						minEndDate = endDate;
+					}
+				}
+			}
+		}
+		return minEndDate;
+	}
+
+	private Date computeMinScheduleEndDateBySceneOne(List<UserGridScheduleDto> scheduleList, Date signInTime) {
+		Date minEndDate = null;
+		for (UserGridScheduleDto scheduleDto : scheduleList) {
+			// 排班开始时间 HH:mm
+			String startTime = scheduleDto.getStartTime();
+			// 排班结束时间 HH:mm
+			String endTime = scheduleDto.getEndTime();
+			// 排班开始日期 yyyy-MM-dd HH:mm:ss
+			Date startDate = getSpecialDateByStr(startTime, null);
+			// 排班结束日期 yyyy-MM-dd HH:mm:ss
+			Date endDate;
+			// 如果结束日期代表第二天的时间点，则转换时需要加一天
+			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
+				endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+			} else {
+				endDate = getSpecialDateByStr(endTime, null);
+			}
+			// 排班开始日期前一小时
+			Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
+			if (signInTime.getTime() >= startDateBeforeOneHour.getTime() && signInTime.getTime() < endDate.getTime()) {
+				if (minEndDate == null) {
+					minEndDate = endDate;
+				} else {
+					if (minEndDate.after(endDate)) {
+						minEndDate = endDate;
+					}
+				}
+			}
+		}
+		return minEndDate;
+	}
+
+	/**
+	 * 为保证计提回算 以上逻辑均采用删除+增加，而不针对原有数据进行修改。
+	 */
+	private void signOutByDeleteAndInsert(UserSignRecord userSignRecord) {
+		// 先逻辑删除
+		userSignRecordDao.deleteById(userSignRecord);
+		// 再新增一条
+		userSignRecordDao.insert(userSignRecord);
+	}
+
+	private Date getSpecialDateByStr(String timeStr, Integer addDay) {
+		LocalTime localTime = LocalTime.parse(timeStr);
+		int hour = localTime.getHour();
+		int minute = localTime.getMinute();
+		Calendar calendar = Calendar.getInstance();
+		if (addDay != null) {
+			calendar.add(Calendar.DATE, addDay);
+		}
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.SECOND, Constants.CONSTANT_NUMBER_ZERO);
+		return calendar.getTime();
+	}
 
 	@Override
 	public JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData) {
