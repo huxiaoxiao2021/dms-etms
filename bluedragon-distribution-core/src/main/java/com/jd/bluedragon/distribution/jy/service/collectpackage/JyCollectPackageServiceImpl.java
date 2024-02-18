@@ -446,19 +446,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             log.info("jy getLastDmsByPackage：{}",JsonHelper.toJson(baseStaffSiteOrgDto));
             throw new JyBizException("未获取到运单对应预分拣站点信息!");
         }
-
-        boolean needCheckReverseWaybill =false;
-        //判断终点是仓库 ，根据路由获取末级分拣
+        //判断终点是仓库
         if (SITE_TYPE_WMS.equals(baseStaffSiteOrgDto.getSiteType())){
-            if (needCheckReverseWaybill){
-                Integer lastDmsId =getLastDmsFromRouter(waybill);
-                if (ObjectHelper.isEmpty(lastDmsId)){
-                    //TODO 强发提醒
-                }
-                return lastDmsId;
-            }else {
-                return task.getEndSiteId().intValue();
-            }
+            return task.getEndSiteId().intValue();
         }else {
             if(ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
                 log.info("jy getLastDmsByPackage：{},{}",waybill.getWaybillCode(),JsonHelper.toJson(baseStaffSiteOrgDto));
