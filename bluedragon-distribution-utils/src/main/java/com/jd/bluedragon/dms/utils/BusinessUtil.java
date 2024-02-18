@@ -3159,4 +3159,16 @@ public class BusinessUtil {
                 && BusinessUtil.isSignChar(waybillSign,POSITION_29,CHAR_29_8)
                 && !BusinessUtil.isSignChar(waybillSign,POSITION_61, CHAR_61_0);
     }
+    /**
+     * 判断场地是不是:仓库 备件库 售后
+     */
+    public static boolean isReverseSite(Integer siteType){
+        if (siteType == null){
+            return false;
+        }
+        if (SITE_TYPE_WMS.equals(siteType) || SITE_TYPE_AMS.equals(siteType) || SITE_TYPE_SPWMS.equals(siteType)){
+            return true;
+        }
+        return false;
+    }
 }
