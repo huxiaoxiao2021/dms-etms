@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1944,6 +1945,12 @@ public class UccPropertyConfiguration{
      */
     private String teanWorkAreaCodes;
     private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链场地白名单
+     */
+    private String teanSiteIdWhiteListStr4InterceptFilter;
+    private List<Integer> teanSiteIdWhiteList4InterceptFilter = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4356,5 +4363,32 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanSiteIdWhiteListStr4InterceptFilter() {
+        return teanSiteIdWhiteListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdWhiteListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+    }
+
+    public List<Integer> getTeanSiteIdWhiteList4InterceptFilter() {
+        return teanSiteIdWhiteList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteList4InterceptFilter() {
+        this.teanSiteIdWhiteList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdWhiteListStr4InterceptFilter)){
+            this.teanSiteIdWhiteList4InterceptFilter = Arrays.stream(teanSiteIdWhiteListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdWhite4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdWhiteListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdWhiteList4InterceptFilter.contains(siteCode);
     }
 }

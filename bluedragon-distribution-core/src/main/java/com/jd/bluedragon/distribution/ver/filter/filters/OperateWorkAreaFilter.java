@@ -44,28 +44,32 @@ public class OperateWorkAreaFilter implements Filter {
     public void doFilter(FilterContext filterContext, FilterChain chain) throws Exception {
         logger.info("do filter process...");
 
-        // 检查运单是否为特安运单，如果是特安运单需校验网格
-        final Result<Boolean> checkWaybillVasResult = waybillCommonService.checkWaybillVas(filterContext.getWaybillCode(), WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY, filterContext.getWaybillVasDtos());
-        if(!checkWaybillVasResult.isSuccess()){
-            logger.error("OperateWorkAreaFilter_doFilter checkWaybillVas fail filterContext {} {}", JsonHelper.toJson(filterContext), JsonHelper.toJson(checkWaybillVasResult));
-        } else {
-            if (checkWaybillVasResult.getData()) {
-                // 查看网格作业区信息
-                final PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
-                // 没有签到网格码
-                if (StringUtils.isBlank(pdaOperateRequest.getWorkStationGridKey())) {
-                    throw new SortingCheckException(SortingResponse.CODE_29466, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
-                }
+        final PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
 
-                final WorkStationGrid workStationGrid = this.getWorkStationGrid(pdaOperateRequest.getWorkStationGridKey());
-                // 网格查找作业区为空
-                if (workStationGrid == null) {
-                    throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
-                }
+        // 增加场地白名单，白名单中的场地不需要校验特安作业区
+        if (!dmsConfigManager.getPropertyConfig().isTeanSiteIdWhite4InterceptFilter(pdaOperateRequest.getCreateSiteCode())) {
+            // 检查运单是否为特安运单，如果是特安运单需校验网格
+            final Result<Boolean> checkWaybillVasResult = waybillCommonService.checkWaybillVas(filterContext.getWaybillCode(), WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY, filterContext.getWaybillVasDtos());
+            if(!checkWaybillVasResult.isSuccess()){
+                logger.error("OperateWorkAreaFilter_doFilter checkWaybillVas fail filterContext {} {}", JsonHelper.toJson(filterContext), JsonHelper.toJson(checkWaybillVasResult));
+            } else {
+                if (checkWaybillVasResult.getData()) {
+                    // 查看网格作业区信息
+                    // 没有签到网格码
+                    if (StringUtils.isBlank(pdaOperateRequest.getWorkStationGridKey())) {
+                        throw new SortingCheckException(SortingResponse.CODE_29466, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
+                    }
 
-                // 不是特安作业区
-                if (!dmsConfigManager.getPropertyConfig().isTeanWorkAreaCode(workStationGrid.getAreaCode())) {
-                    throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE));
+                    final WorkStationGrid workStationGrid = this.getWorkStationGrid(pdaOperateRequest.getWorkStationGridKey());
+                    // 网格查找作业区为空
+                    if (workStationGrid == null) {
+                        throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
+                    }
+
+                    // 不是特安作业区
+                    if (!dmsConfigManager.getPropertyConfig().isTeanWorkAreaCode(workStationGrid.getAreaCode())) {
+                        throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE));
+                    }
                 }
             }
         }

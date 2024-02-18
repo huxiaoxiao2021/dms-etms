@@ -343,6 +343,7 @@
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -672,6 +673,7 @@
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 			</list>
 		</property>
 	</bean>
