@@ -119,6 +119,8 @@ public class DmsConstants {
      * 站点类型-仓
      */
     public static final Integer SITE_TYPE_WMS = 900;
+    public static final Integer SITE_TYPE_AMS = 901;
+    public static final Integer SITE_TYPE_SPWMS = 903;
     /**
      * 站点类型-分拣中心
      */
