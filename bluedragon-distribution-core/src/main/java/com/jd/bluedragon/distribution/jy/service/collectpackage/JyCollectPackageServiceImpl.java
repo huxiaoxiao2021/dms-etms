@@ -461,10 +461,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private Integer getLastDmsFromRouter(Waybill waybill) {
-        return null;
-    }
-
     /**
      * 检查包裹末级分拣中心是否存在于可集包流向集合中
      * @param dmsId Dms的唯一标识符
@@ -482,6 +478,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }
         }
         if (!collectEnable) {
+            log.info("集包箱号:{},包裹号:{} 对应末级分拣:{},不在允许集包的流向:{}",request.getBoxCode(),request.getBarCode(),dmsId,JsonHelper.toJson(flowSiteList));
             checkIfPermitForceCollectPackage(request,collectPackageTask);
             throw new JyBizException("末级分拣中心不在允许集包的流向内，禁止集包！");
         }
@@ -490,7 +487,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     //判断当前场地是否可以强制集包
     private void checkIfPermitForceCollectPackage(CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
         List<String> siteList = dmsConfigManager.getPropertyConfig().getForceCollectPackageSiteList();
-        if (CollectionUtils.isNotEmpty(siteList) && siteList.contains(request.getCurrentOperate().getSiteCode())) {
+        if (CollectionUtils.isNotEmpty(siteList) && (siteList.contains(Constants.TOTAL_URL_INTERCEPTOR) || siteList.contains(String.valueOf(request.getCurrentOperate().getSiteCode())))) {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(collectPackageTask.getEndSiteId().intValue());
             if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())) {
                 throw new JyBizException(FORCE_COLLECT_PACKAGE_WARNING, "末级分拣中心不在允许集包的流向内，是否强制集往【" + baseStaffSiteOrgDto.getSiteName() + "】？");
