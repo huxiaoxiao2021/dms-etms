@@ -2188,6 +2188,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         taskSend.setUpdateTime(new Date());
         taskSend.setUpdateUserErp(request.getUser().getUserErp());
         taskSend.setUpdateUserName(request.getUser().getUserName());
+        taskSend.setRefGroupCode(request.getGroupCode());
         curSendDetail.setUpdateTime(taskSend.getUpdateTime());
         curSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
         curSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
