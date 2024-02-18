@@ -446,8 +446,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             log.info("jy getLastDmsByPackage：{}",JsonHelper.toJson(baseStaffSiteOrgDto));
             throw new JyBizException("未获取到运单对应预分拣站点信息!");
         }
-        //判断终点是仓库
-        if (SITE_TYPE_WMS.equals(baseStaffSiteOrgDto.getSiteType())){
+        //判断终点是逆向站点
+        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
             return task.getEndSiteId().intValue();
         }else {
             if(ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
@@ -1485,7 +1485,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     public static void main(String[] args) {
-
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setSiteType(901);
+        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+            System.out.println(1);
+        }
     }
 
 
