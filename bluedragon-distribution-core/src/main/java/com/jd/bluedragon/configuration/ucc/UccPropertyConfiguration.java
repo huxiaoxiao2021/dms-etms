@@ -4371,6 +4371,7 @@ public class UccPropertyConfiguration{
 
     public void setTeanSiteIdWhiteListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
         this.teanSiteIdWhiteListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdWhiteList4InterceptFilter();
     }
 
     public List<Integer> getTeanSiteIdWhiteList4InterceptFilter() {
