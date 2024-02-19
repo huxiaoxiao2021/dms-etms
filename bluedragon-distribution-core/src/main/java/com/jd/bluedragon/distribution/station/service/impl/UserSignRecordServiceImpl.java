@@ -569,11 +569,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateData.setUpdateTime(now);
                     updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
                     updateData.setUpdateUserName(updateData.getUpdateUser());
+					// 未排班的非自有员工签到记录主键列表,用来兜底
+					List<Long> noScheduleList = new ArrayList<>();
 					// 查询排班计划执行自动签退
 					for (Long id : toSignOutPks) {
-						handleAutoSignOut(id, now);
+						handleAutoSignOut(id, now, noScheduleList);
 					}
-                    updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
+					if (CollectionUtils.isNotEmpty(noScheduleList)) {
+						userSignRecordDao.signOutById(updateData, noScheduleList);
+					}
+					updateRows += toSignOutPks.size();
         			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
         			removeMemberRequest.setSignRecordIdList(toSignOutPks);
         			removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
@@ -595,35 +600,41 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         return result;
     }
 
-	private void handleAutoSignOut(Long recordId, Date currentDate) {
+	private void handleAutoSignOut(Long recordId, Date currentDate, List<Long> noScheduleList) {
 		// 根据签到记录主键查询签到记录详情
 		UserSignRecord userSignRecord = userSignRecordDao.queryByIdForFlow(recordId);
 		if (userSignRecord == null) {
+			log.warn("handleAutoSignOut|根据主键未查询到签到记录详情:id={}", recordId);
 			return;
 		}
-		// 网格工序业务主键
-		String refGridKey = userSignRecord.getRefGridKey();
+		// 员工ERP|拼音|身份证号
+		String idCard = userSignRecord.getIdCard();
+		// 工种
+		Integer jobCode = userSignRecord.getJobCode();
 		// 根据网格工序业务主键查询网格业务主键
-		com.jdl.basic.common.utils.Result<WorkGrid> result = workGridManager.queryByWorkGridKey(refGridKey);
+		com.jdl.basic.common.utils.Result<WorkGrid> result = workGridManager.queryByWorkGridKey(userSignRecord.getRefGridKey());
 		if (result == null || result.getData() == null) {
+			log.warn("handleAutoSignOut|根据网格工序业务主键未查询到网格业务主键:id={},idCard={},jobCode={},refGridKey={}", recordId, idCard, jobCode, userSignRecord.getRefGridKey());
 			return;
 		}
-		// 网格主键
-		String workGridKey = result.getData().getBusinessKey();
-		// 签到时间
-		Date signInTime = userSignRecord.getSignInTime();
+
 		// 签到日期
 		Date signDate = userSignRecord.getSignDate();
 		// 签到日期前一天
 		String yesterday = DateHelper.formatDate(DateUtils.addDays(signDate, Constants.NEGATIVE_NUMBER_ONE));
-		// 签到人erp
-		String userCode = userSignRecord.getUserCode();
-		// 工种
-		Integer jobCode = userSignRecord.getJobCode();
 
 		// 查询指定网格下指定人员指定日期的排班记录
-		List<UserGridScheduleDto> list = findScheduleListByCondition(yesterday, signDate, jobCode, userCode, workGridKey);
-		if (CollectionUtils.isEmpty(list)) {
+		List<UserGridScheduleDto> totalScheduleList = findScheduleListByCondition(yesterday, userSignRecord, result.getData());
+		// 如果没有排班
+		if (CollectionUtils.isEmpty(totalScheduleList)) {
+			log.warn("handleAutoSignOut|根据条件未查询到排班计划:id={},idCard={},jobCode={}", recordId, idCard, jobCode);
+			// 如果是正式工或派遣工，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
+			if (JobTypeEnum.JOBTYPE1.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+				userSignRecordDao.deleteById(userSignRecord);
+			} else {
+				// 如果是非自有员工，需要走兜底逻辑
+				noScheduleList.add(recordId);
+			}
 			return;
 		}
 		// 签到日期的排班记录
@@ -631,13 +642,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 签到日期前一天的排班记录
 		List<UserGridScheduleDto> yesterdayScheduleList = new ArrayList<>();
 		// 筛选出当天的和前一天的排班记录
-		for (UserGridScheduleDto scheduleDto : list) {
-			if (yesterday.equals(scheduleDto.getScheduleDate())) {
-				yesterdayScheduleList.add(scheduleDto);
-			} else {
-				signDateScheduleList.add(scheduleDto);
-			}
-		}
+		filterScheduleListByDate(totalScheduleList, signDateScheduleList, yesterdayScheduleList, yesterday);
+		log.info("handleAutoSignOut|根据条件查询到排班计划:id={},idCard={},jobCode={},signDateList={},yesterdayList={}",
+				recordId, idCard, jobCode, signDateScheduleList.size(), yesterdayScheduleList.size());
 
 		// 设置更新参数
 		userSignRecord.setUpdateTime(currentDate);
@@ -645,12 +652,29 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setUpdateUserName(Constants.SYS_NAME);
 
 		// 开始执行签退
-		startSignOut(userSignRecord, signDateScheduleList, yesterdayScheduleList, signInTime, currentDate);
+		startSignOut(userSignRecord, signDateScheduleList, yesterdayScheduleList, currentDate);
 	}
 
+	private void filterScheduleListByDate(List<UserGridScheduleDto> totalList, List<UserGridScheduleDto> signDateScheduleList,
+										  List<UserGridScheduleDto> yesterdayScheduleList, String yesterday) {
+		for (UserGridScheduleDto scheduleDto : totalList) {
+			if (yesterday.equals(scheduleDto.getScheduleDate())) {
+				yesterdayScheduleList.add(scheduleDto);
+			} else {
+				signDateScheduleList.add(scheduleDto);
+			}
+		}
+	}
 
-	private List<UserGridScheduleDto> findScheduleListByCondition(String yesterday, Date signDate, Integer jobCode,
-																  String userCode, String workGridKey) {
+	private List<UserGridScheduleDto> findScheduleListByCondition(String yesterday, UserSignRecord userSignRecord, WorkGrid workGrid) {
+		// 签到人erp
+		String userCode = userSignRecord.getUserCode();
+		// 签到日期
+		Date signDate = userSignRecord.getSignDate();
+		// 工种
+		Integer jobCode = userSignRecord.getJobCode();
+		// 网格主键
+		String workGridKey = workGrid.getBusinessKey();
 		UserGridScheduleQueryDto scheduleQueryDto = new UserGridScheduleQueryDto();
 		scheduleQueryDto.setScheduleDateList(Arrays.asList(yesterday, DateHelper.formatDate(signDate)));
 		scheduleQueryDto.setNature(String.valueOf(jobCode));
@@ -660,7 +684,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	private void startSignOut(UserSignRecord userSignRecord, List<UserGridScheduleDto> signDateScheduleList,
-								 List<UserGridScheduleDto> yesterdayScheduleList, Date signInTime, Date currentDate) {
+								 List<UserGridScheduleDto> yesterdayScheduleList, Date currentDate) {
+		// 签到时间
+		Date signInTime = userSignRecord.getSignInTime();
 		// 判断当前签到时间是否命中当天人员排班开始时间前一小时~排班结束时间（不能正好等于排班结束时间）
 		// 若存在，则直接以排班结束时间替换自动签退时间 如果存在多条，选择最早的一条的数据
 		Date minEndDate = computeMinScheduleEndDateBySceneOne(signDateScheduleList, signInTime);
@@ -686,12 +712,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			signOutByDeleteAndInsert(userSignRecord);
 			return;
 		}
-		// 若不存在，则认为该人员今天未排班，将该签到数据作废处理
+		// 若不存在，则认为该人员今天未排班，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
 		userSignRecordDao.deleteById(userSignRecord);
 	}
 
 	private Date computeMinScheduleEndDateBySceneTwo(List<UserGridScheduleDto> scheduleList, Date signInTime, Date currentDate) {
 		Date minEndDate = null;
+		if (CollectionUtils.isEmpty(scheduleList)) {
+			return null;
+		}
 		for (UserGridScheduleDto scheduleDto : scheduleList) {
 			// 排班开始时间 HH:mm
 			String startTime = scheduleDto.getStartTime();
@@ -720,6 +749,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	private Date computeMinScheduleEndDateBySceneOne(List<UserGridScheduleDto> scheduleList, Date signInTime) {
 		Date minEndDate = null;
+		if (CollectionUtils.isEmpty(scheduleList)) {
+			return null;
+		}
 		for (UserGridScheduleDto scheduleDto : scheduleList) {
 			// 排班开始时间 HH:mm
 			String startTime = scheduleDto.getStartTime();
