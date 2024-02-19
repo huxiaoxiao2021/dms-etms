@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCount;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -18,13 +19,17 @@ import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -132,6 +137,8 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
      * @return 返回取消集包操作的结果，true表示成功取消集包，false表示集包已经被取消或不存在
      */
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskCollectPackageServiceImpl.cancelJyCollectPackage",
+        jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public boolean cancelJyCollectPackage(CancelCollectPackageDto dto) {
         //先判断一下是否已经被取消-幂等
         if (!checkPackageNoExitOrCanceled(dto)) {
@@ -273,7 +280,16 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
             }
 
             Sorting sorting = Sorting.toSorting2(sortingRequest);
-            SortingResponse sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
+            SortingResponse sortingResponse;
+            // 异场地取消分拣(操作场地和集包场地不相同)
+            if (Objects.nonNull(dto.getCurrentSiteCode()) && !Objects.equals(dto.getSiteCode(), dto.getCurrentSiteCode())){
+                CancelSortingOffsiteDto cancelSortingOffsiteDto = buildCancelSortingOffsiteDto(dto, sorting);
+                sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode())
+                    .cancelSortingOffsite(cancelSortingOffsiteDto);
+            }else {
+                // 同场地取消分拣（默认取消分拣的场景）
+                sortingResponse = sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
+            }
             if (!Objects.equals(sortingResponse.getCode(), SortingResponse.CODE_OK)) {
                 throw new JyBizException(sortingResponse.getMessage());
             }
@@ -285,6 +301,20 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
                 cacheService.del(fingerPrintKey);
             }
         }
+    }
+
+    /**
+     * 构建取消分拣外站DTO
+     * @param dto 取消收集包裹DTO
+     * @param sorting 分拣对象
+     * @return cancelSortingOffsiteDto 取消分拣外站DTO
+     */
+    private static CancelSortingOffsiteDto buildCancelSortingOffsiteDto(CancelCollectPackageDto dto, Sorting sorting) {
+        CancelSortingOffsiteDto cancelSortingOffsiteDto = new CancelSortingOffsiteDto();
+        BeanCopyUtil.copy(sorting, cancelSortingOffsiteDto);
+        cancelSortingOffsiteDto.setCurrentSiteCode(dto.getCurrentSiteCode());
+        cancelSortingOffsiteDto.setSkipSendCheck(dto.getSkipSendCheck());
+        return cancelSortingOffsiteDto;
     }
 
     private SortingRequest checkIfExitsProcessingSortingTask(CancelCollectPackageDto dto) {

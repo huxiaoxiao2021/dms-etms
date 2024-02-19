@@ -1090,4 +1090,19 @@ public class HintCodeConstants {
 
     // 无残值货物，请操作报废！
     public static String SCRAP_WAYBILL_INTERCEPT_HINT_CODE = "40033";
+    /**
+     * 非冷链专送运单，请勿操作弃件废弃
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP = "40034";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG = "非冷链专送运单，请勿操作弃件废弃";
+    /**
+     * 订单为异常即报废单，不允许执行异常提报
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION = "40035";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG = "订单为异常即报废单，不允许执行异常提报";
+    /**
+     * 该运单为冷链专送订单异常即报废单，不可以操作逆向换单
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
 }

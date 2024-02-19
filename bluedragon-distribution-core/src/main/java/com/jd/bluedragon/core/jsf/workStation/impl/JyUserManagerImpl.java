@@ -80,4 +80,23 @@ public class JyUserManagerImpl implements JyUserManager {
 		return result;
 	}
 
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "JyUserManagerImpl.getUserByErpOrIdNum", mState={JProEnum.TP,JProEnum.FunctionError})
+	public JyUserDto getUserByErpOrIdNum(JyUserQueryDto queryDto) {
+		com.jd.dms.java.utils.sdk.base.Result<JyUserDto> result = userJsfService.getUserByErpOrIdNum(queryDto);
+		if (result == null) {
+			log.error("WorkGridScheduleManagerImpl.getUserByUserCode 返回结果为空！");
+			return null;
+		}
+		if (result.isFail()) {
+			log.error("WorkGridScheduleManagerImpl.getUserByUserCode 调用失败  message{}！", result.getMessage());
+			return null;
+		}
+		if (result.getData() == null) {
+			log.error("WorkGridScheduleManagerImpl.getUserByUserCode 返回data为null");
+			return null;
+		}
+		return result.getData();
+	}
+
 }

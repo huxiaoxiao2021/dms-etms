@@ -119,6 +119,8 @@ public class DmsConstants {
      * 站点类型-仓
      */
     public static final Integer SITE_TYPE_WMS = 900;
+    public static final Integer SITE_TYPE_AMS = 901;
+    public static final Integer SITE_TYPE_SPWMS = 903;
     /**
      * 站点类型-分拣中心
      */
@@ -544,4 +546,8 @@ public class DmsConstants {
      */
     public static final String FIX_TEMPERATURE_RANGE_EXTEND = "temperatureRange";
 
+    /**
+     * 换单打印时指定KA商家
+     */
+    public static final List<String> KA_CUNSTOMER = Arrays.asList("021K221922","021K104578","021K193222");
 }
