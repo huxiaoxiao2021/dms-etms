@@ -2006,8 +2006,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 */
 	private JyJobTypeQuery buildJyJobTypeQuery() {
 		JyJobTypeQuery jyJobTypeQuery = new JyJobTypeQuery();
-		jyJobTypeQuery.setPageSize(1);
-		jyJobTypeQuery.setPageNumber(100);
+		jyJobTypeQuery.setPageSize(100);
+		jyJobTypeQuery.setPageNumber(1);
 		return jyJobTypeQuery;
 	}
 

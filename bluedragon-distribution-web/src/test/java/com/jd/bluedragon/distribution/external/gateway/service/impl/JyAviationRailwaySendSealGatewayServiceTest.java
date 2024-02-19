@@ -16,9 +16,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.station.gateway.impl.UserSignGatewayServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +58,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Autowired
     private NewSealVehicleGatewayService newSealVehicleGatewayService;
+
+    @Autowired
+    private UserSignGatewayServiceImpl userSignGatewayService;
+
 
 
     @Test
@@ -632,5 +638,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.fetchToSealShuttleTaskDetail(request);
             System.out.println("succ");
         }
+    }
+    @Test
+    public void test() {
+        JdCResponse<List<JyJobType>> listJdCResponse = userSignGatewayService.queryAllJyJobType();
+        System.out.println(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(listJdCResponse));
     }
 }
