@@ -50,6 +50,12 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
      */
     private Boolean returnGroupFlag;
 
+    private String waybillSign;
+
+    /**
+     * 运单目的地
+     */
+    private Integer receiveSiteCode;
 
     public String getErp() {
         return erp;
@@ -129,5 +135,21 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
 
     public void setReturnGroupFlag(Boolean returnGroupFlag) {
         this.returnGroupFlag = returnGroupFlag;
+    }
+
+    public String getWaybillSign() {
+        return waybillSign;
+    }
+
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
     }
 }

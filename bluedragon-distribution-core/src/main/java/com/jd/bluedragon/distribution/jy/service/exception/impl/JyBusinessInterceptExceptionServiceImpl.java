@@ -66,7 +66,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
             final Result<Void> businessCheckResult = this.checkBusinessParam4ConsumeDmsBusinessInterceptReport(businessInterceptReport);
             if (!businessCheckResult.isSuccess()) {
                 if(businessCheckResult.getCode() == businessParamCheckNoWorkStationGrid4ConsumeDmsBusinessInterceptReportCode){
-                    log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptReport no operatePositionCode {}", JsonHelper.toJson(businessInterceptReport));
+                    log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptReport no operateGridInfo {}", JsonHelper.toJson(businessInterceptReport));
                     return result.toSuccess();
                 }
                 return result.toFail(businessCheckResult.getMessage(), businessCheckResult.getCode());
@@ -175,22 +175,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      */
     @Override
     public String getBizId(BusinessInterceptReport businessInterceptReport) {
-        // return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType());
-        return null;
-    }
-
-    /**
-     * 获取bizId
-     *
-     * @param businessInterceptDisposeRecord 拦截处理记录
-     * @return bizId结果包装
-     * @author fanggang7
-     * @time 2024-01-21 20:21:11 周日
-     */
-    @Override
-    public String getBizId(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer interceptType) {
-        // return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptDisposeRecord.getSiteCode(), businessInterceptDisposeRecord.getPackageCode(), interceptType);
-        return null;
+        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkStationGridKey());
     }
 
     private String getInterceptDetailKvKeyword(String packageCode, Integer interceptType){

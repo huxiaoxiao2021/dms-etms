@@ -342,6 +342,7 @@
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
+		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 	</bean>
@@ -672,6 +673,7 @@
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
+				<value>uccPropertyConfiguration.allowEntryHours</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 			</list>

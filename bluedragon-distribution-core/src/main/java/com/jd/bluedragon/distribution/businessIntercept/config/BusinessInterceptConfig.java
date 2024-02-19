@@ -55,6 +55,8 @@ public class BusinessInterceptConfig {
      */
     private Map<String, List<String>> interceptTypeAssocDisposeNodeConfig = new LinkedHashMap<>();
 
+    private List<Integer> recallDisposeNodeList = new ArrayList<>();
+
     // 记录拦截code与拦截类型关系
     private Map<String, String> interceptCodeAssocTypeMap = null;
 
@@ -64,9 +66,34 @@ public class BusinessInterceptConfig {
     public final static Integer WITHOUT_WEIGHT_INTERCEPT_TYPE = 10002;
 
     /**
+     * 拦截处理动作节点-换单打印
+     */
+    public final static Integer DISPOSE_NODE_EXCHANGE_WAYBILL_PRINT = 10001;
+
+    /**
+     * 拦截处理动作节点-补称重
+     */
+    public final static Integer DISPOSE_NODE_WEIGHT_VOLUME = 10002;
+
+    /**
+     * 拦截处理动作节点-补打
+     */
+    public final static Integer DISPOSE_NODE_REPRINT = 10003;
+
+    /**
      * 需要换单的拦截类型
      */
     private List<Integer> needExchangeNewWaybillInterceptTypeList = new ArrayList<>();
+
+    /**
+     * 需要称重的拦截类型
+     */
+    private List<Integer> needWeightVolumeInterceptTypeList = new ArrayList<>();
+
+    /**
+     * 需要补打的拦截类型
+     */
+    private List<Integer> needReprintWaybillInterceptTypeList = new ArrayList<>();
 
     /**
      * 根据拦截返回码判断是否需要处理
@@ -199,5 +226,9 @@ public class BusinessInterceptConfig {
         Map<String, List<String>> interceptTypeAssocDisposeNodeConfigMap = this.getInterceptTypeAssocDisposeNodeConfig();
         final List<String> disposeNodeStrList = interceptTypeAssocDisposeNodeConfigMap.get(interceptType.toString());
         return disposeNodeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public List<Integer> getRecallDisposeNodeList() {
+        return recallDisposeNodeList;
     }
 }

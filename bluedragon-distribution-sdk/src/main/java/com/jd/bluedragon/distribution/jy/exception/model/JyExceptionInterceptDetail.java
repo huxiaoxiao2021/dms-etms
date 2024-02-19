@@ -81,10 +81,6 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private Integer operateNode;
     /**
-     * 操作节点名称  db_column: operate_node_name
-     */
-    private String operateNodeName;
-    /**
      * 拦截生效时间  db_column: intercept_effect_time
      */
     private Long interceptEffectTime;
@@ -92,10 +88,6 @@ public class JyExceptionInterceptDetail implements Serializable{
      * 拦截类型  db_column: intercept_type
      */
     private Integer interceptType;
-    /**
-     * 拦截类型名称  db_column: intercept_type_name
-     */
-    private String interceptTypeName;
     /**
      * 设备编码  db_column: device_code
      */
@@ -105,17 +97,45 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private Integer deviceType;
     /**
-     * 设备类型名称  db_column: device_type_name
-     */
-    private String deviceTypeName;
-    /**
      * 设备子类型  db_column: device_sub_type
      */
     private Integer deviceSubType;
     /**
-     * 设备子类型名称  db_column: device_sub_type_name
+     * 操作人所在网格码  db_column: operate_position_code
      */
-    private String deviceSubTypeName;
+    private String operatePositionCode;
+    /**
+     * 操作网格工序  db_column: operate_work_station_grid_key
+     */
+    private String operateWorkStationGridKey;
+    /**
+     * 操作网格  db_column: operate_work_grid_key
+     */
+    private String operateWorkGridKey;
+    /**
+     * 作业区编码  db_column: operate_area_code
+     */
+    private String operateAreaCode;
+    /**
+     * 作业区名称  db_column: operate_area_name
+     */
+    private String operateAreaName;
+    /**
+     * 网格ID  db_column: operate_grid_code
+     */
+    private String operateGridCode;
+    /**
+     * 网格名称  db_column: operate_grid_name
+     */
+    private String operateGridName;
+    /**
+     * 工序编码  db_column: operate_work_code
+     */
+    private String operateWorkCode;
+    /**
+     * 工序名称  db_column: operate_work_name
+     */
+    private String operateWorkName;
     /**
      * 拦截消息编码  db_column: intercept_code
      */
@@ -128,10 +148,6 @@ public class JyExceptionInterceptDetail implements Serializable{
      * 拦截后处理节点  db_column: dispose_node
      */
     private Integer disposeNode;
-    /**
-     * 拦截后处理节点  db_column: dispose_node_name
-     */
-    private String disposeNodeName;
     /**
      * 拦截处理人ID  db_column: dispose_user_id
      */
@@ -169,7 +185,7 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private BigDecimal inputHeight;
     /**
-     * 保存状态 0：暂存 1 ：保存  db_column: save_type
+     * 保存状态 0：暂存 1 ：保存   db_column: save_type
      */
     private Integer saveType;
     /**
@@ -348,14 +364,6 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.operateNode = operateNode;
     }
 
-    public String getOperateNodeName() {
-        return operateNodeName;
-    }
-
-    public void setOperateNodeName(String operateNodeName) {
-        this.operateNodeName = operateNodeName;
-    }
-
     public Long getInterceptEffectTime() {
         return interceptEffectTime;
     }
@@ -370,14 +378,6 @@ public class JyExceptionInterceptDetail implements Serializable{
 
     public void setInterceptType(Integer interceptType) {
         this.interceptType = interceptType;
-    }
-
-    public String getInterceptTypeName() {
-        return interceptTypeName;
-    }
-
-    public void setInterceptTypeName(String interceptTypeName) {
-        this.interceptTypeName = interceptTypeName;
     }
 
     public String getDeviceCode() {
@@ -396,14 +396,6 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.deviceType = deviceType;
     }
 
-    public String getDeviceTypeName() {
-        return deviceTypeName;
-    }
-
-    public void setDeviceTypeName(String deviceTypeName) {
-        this.deviceTypeName = deviceTypeName;
-    }
-
     public Integer getDeviceSubType() {
         return deviceSubType;
     }
@@ -412,12 +404,76 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.deviceSubType = deviceSubType;
     }
 
-    public String getDeviceSubTypeName() {
-        return deviceSubTypeName;
+    public String getOperatePositionCode() {
+        return operatePositionCode;
     }
 
-    public void setDeviceSubTypeName(String deviceSubTypeName) {
-        this.deviceSubTypeName = deviceSubTypeName;
+    public void setOperatePositionCode(String operatePositionCode) {
+        this.operatePositionCode = operatePositionCode;
+    }
+
+    public String getOperateWorkStationGridKey() {
+        return operateWorkStationGridKey;
+    }
+
+    public void setOperateWorkStationGridKey(String operateWorkStationGridKey) {
+        this.operateWorkStationGridKey = operateWorkStationGridKey;
+    }
+
+    public String getOperateWorkGridKey() {
+        return operateWorkGridKey;
+    }
+
+    public void setOperateWorkGridKey(String operateWorkGridKey) {
+        this.operateWorkGridKey = operateWorkGridKey;
+    }
+
+    public String getOperateAreaCode() {
+        return operateAreaCode;
+    }
+
+    public void setOperateAreaCode(String operateAreaCode) {
+        this.operateAreaCode = operateAreaCode;
+    }
+
+    public String getOperateAreaName() {
+        return operateAreaName;
+    }
+
+    public void setOperateAreaName(String operateAreaName) {
+        this.operateAreaName = operateAreaName;
+    }
+
+    public String getOperateGridCode() {
+        return operateGridCode;
+    }
+
+    public void setOperateGridCode(String operateGridCode) {
+        this.operateGridCode = operateGridCode;
+    }
+
+    public String getOperateGridName() {
+        return operateGridName;
+    }
+
+    public void setOperateGridName(String operateGridName) {
+        this.operateGridName = operateGridName;
+    }
+
+    public String getOperateWorkCode() {
+        return operateWorkCode;
+    }
+
+    public void setOperateWorkCode(String operateWorkCode) {
+        this.operateWorkCode = operateWorkCode;
+    }
+
+    public String getOperateWorkName() {
+        return operateWorkName;
+    }
+
+    public void setOperateWorkName(String operateWorkName) {
+        this.operateWorkName = operateWorkName;
     }
 
     public Integer getInterceptCode() {
@@ -442,14 +498,6 @@ public class JyExceptionInterceptDetail implements Serializable{
 
     public void setDisposeNode(Integer disposeNode) {
         this.disposeNode = disposeNode;
-    }
-
-    public String getDisposeNodeName() {
-        return disposeNodeName;
-    }
-
-    public void setDisposeNodeName(String disposeNodeName) {
-        this.disposeNodeName = disposeNodeName;
     }
 
     public Long getDisposeUserId() {
@@ -631,19 +679,23 @@ public class JyExceptionInterceptDetail implements Serializable{
                 ", waybillCode='" + waybillCode + '\'' +
                 ", boxCode='" + boxCode + '\'' +
                 ", operateNode=" + operateNode +
-                ", operateNodeName='" + operateNodeName + '\'' +
                 ", interceptEffectTime=" + interceptEffectTime +
-                ", interceptTypeName='" + interceptTypeName + '\'' +
                 ", interceptType=" + interceptType +
                 ", deviceCode='" + deviceCode + '\'' +
                 ", deviceType=" + deviceType +
-                ", deviceTypeName='" + deviceTypeName + '\'' +
                 ", deviceSubType=" + deviceSubType +
-                ", deviceSubTypeName='" + deviceSubTypeName + '\'' +
+                ", operatePositionCode='" + operatePositionCode + '\'' +
+                ", operateWorkStationGridKey='" + operateWorkStationGridKey + '\'' +
+                ", operateWorkGridKey='" + operateWorkGridKey + '\'' +
+                ", operateAreaCode='" + operateAreaCode + '\'' +
+                ", operateAreaName='" + operateAreaName + '\'' +
+                ", operateGridCode='" + operateGridCode + '\'' +
+                ", operateGridName='" + operateGridName + '\'' +
+                ", operateWorkCode='" + operateWorkCode + '\'' +
+                ", operateWorkName='" + operateWorkName + '\'' +
                 ", interceptCode=" + interceptCode +
                 ", interceptMessage='" + interceptMessage + '\'' +
                 ", disposeNode=" + disposeNode +
-                ", disposeNodeName='" + disposeNodeName + '\'' +
                 ", disposeUserId=" + disposeUserId +
                 ", disposeUserCode='" + disposeUserCode + '\'' +
                 ", disposeUserName='" + disposeUserName + '\'' +
@@ -653,6 +705,7 @@ public class JyExceptionInterceptDetail implements Serializable{
                 ", inputLength=" + inputLength +
                 ", inputWidth=" + inputWidth +
                 ", inputHeight=" + inputHeight +
+                ", saveType=" + saveType +
                 ", createUserId=" + createUserId +
                 ", createUserCode='" + createUserCode + '\'' +
                 ", createUserName='" + createUserName + '\'' +

@@ -13,6 +13,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.response.base.ResultCodeConstant;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -29,6 +31,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -440,8 +443,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             String barCode = paramObj.getBarCode();
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            
-            // 弃件判断
+
+            // 暂存判断
             if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
                 if (!waybillTraceManager.isOpCodeWaste(barCode)) {
                     log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
@@ -466,15 +469,17 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 return result.toFail("没有查询到运单包裹信息");
             }
 
-            // 如果是报废运单，不需要该校验
             if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
                 String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
                 // 报废运单标识
                 boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
-                if (!scrapWaybillFlag) {
-                    if (!BusinessUtil.isScrapSortingSite(waybillSign)) {
-                        return result.toFail("提交失败，非返分拣报废运单！");
-                    }
+                //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件
+                boolean coldChainExpressScrapFlag = BusinessUtil.isColdChainExpressScrap(waybillSign);
+
+                if (!BusinessUtil.isScrapSortingSite(waybillSign)
+                        && !scrapWaybillFlag
+                        && !coldChainExpressScrapFlag) {
+                    return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP));
                 }
             }
 

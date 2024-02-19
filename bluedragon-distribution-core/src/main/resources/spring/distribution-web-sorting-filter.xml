@@ -6,6 +6,19 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
+    <!-- 验货拦截链配置 -->
+    <util:list id="inspectionFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZeroWeightVolumeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+    </util:list>
+    <!-- 验货拦截链 -->
+    <bean id="inspectionFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.InspectionFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="inspectionFilterList">
+        </property>
+    </bean>
+
     <util:list id="proceedFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WJBoxSortingNumberLimitFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />

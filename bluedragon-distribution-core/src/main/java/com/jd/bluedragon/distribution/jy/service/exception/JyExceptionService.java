@@ -154,17 +154,8 @@ public interface JyExceptionService {
      * @return bizId结果包装
      * @author fanggang7
      * @time 2024-01-21 20:21:11 周日
-     *//*
+     */
     String getBizId(BusinessInterceptReport businessInterceptReport);
-
-    *//**
-     * 获取bizId
-     * @param businessInterceptDisposeRecord 拦截处理记录
-     * @return bizId结果包装
-     * @author fanggang7
-     * @time 2024-01-21 20:21:11 周日
-     *//*
-    String getBizId(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer interceptType);*/
 
     /**
      * 消费拦截报表明细数据

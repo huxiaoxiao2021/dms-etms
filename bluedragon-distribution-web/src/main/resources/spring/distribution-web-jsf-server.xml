@@ -642,4 +642,11 @@
                   ref="foreignUserSignService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <jsf:provider id="jsfDmsUserScheduleService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsUserScheduleService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsUserScheduleService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

@@ -44,15 +44,6 @@ public interface JyBusinessInterceptExceptionService {
     String getBizId(BusinessInterceptReport businessInterceptReport);
 
     /**
-     * 获取bizId
-     * @param businessInterceptDisposeRecord 拦截处理记录
-     * @return bizId结果包装
-     * @author fanggang7
-     * @time 2024-01-21 20:21:11 周日
-     */
-    String getBizId(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer interceptType);
-
-    /**
      * 根据包裹和拦截类型查询上次处理过的场地异常任务处理记录
      * @param query 查询入参
      * @return 结果列表

@@ -1941,6 +1941,19 @@ public class UccPropertyConfiguration{
     private boolean boxTypeNewVersionSwitch;
 
     /**
+     * 排班允许进入闸机误差小时数
+     */
+    private Integer allowEntryHours;
+
+    public Integer getAllowEntryHours() {
+        return allowEntryHours;
+    }
+
+    public void setAllowEntryHours(Integer allowEntryHours) {
+        this.allowEntryHours = allowEntryHours;
+    }
+
+    /**
      * 特安作业区编码，逗号分隔
      */
     private String teanWorkAreaCodes;

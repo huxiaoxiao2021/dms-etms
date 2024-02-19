@@ -14,6 +14,44 @@ import java.util.Map;
 public enum BusinessInterceptDisposeNodeEnum {
 
     /**
+     * 撤销 取消拦截
+     */
+    CANCEL_RECALL(-10001, "取消拦截"),
+    /**
+     * 撤销 0重量拦截
+     */
+    ZERO_WEIGHT_RECALL(-10002, "0重量拦截"),
+    /**
+     * 撤销 白条强制拦截 I owe you
+     */
+    PAY_BY_IOU_FORCE_RECALL(-10003, "白条强制拦截"),
+    /**
+     * 撤销 恶意订单
+     */
+    MALICIOUS_ORDER_RECALL(-10004, "恶意订单"),
+    /**
+     * 撤销 拒收订单
+     */
+    REJECT_RECEIVE_RECALL(-10005, "拒收订单"),
+    /**
+     * 撤销 病单
+     */
+    SICK_WAYBILL_RECALL(-10006, "病单"),
+    /**
+     * 撤销 改址
+     */
+    CHANGE_ADDRESS_RECALL(-10007, "改址"),
+    /**
+     * 撤销 京喜整包未称
+     */
+    JINGXI_ALL_PACK_NO_WEIGHT_RECALL(-10008, "京喜整包未称"),
+
+    /**
+     * 撤销 京喜空包拦截
+     */
+    JINGXI_EMPTY_BOX_RECALL(-10009, "京喜空包拦截"),
+
+    /**
      * 换单打印
      */
     EXCHANGE_WAYBILL(10001, "换单打印"),
