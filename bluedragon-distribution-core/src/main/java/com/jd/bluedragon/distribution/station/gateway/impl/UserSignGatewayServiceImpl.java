@@ -19,6 +19,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -352,5 +354,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toError("查询岗位信息异常");
 		}
 		return result ;
+	}
+
+	@Override
+	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
+		return userSignRecordService.queryAllJyJobType();
 	}
 }

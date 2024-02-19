@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 
 import java.util.List;
 
@@ -250,4 +252,11 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
+
+	/**
+	 * 查询所有的拣运工种信息
+	 * @param
+	 * @return
+	 */
+	JdCResponse<List<JyJobType>> queryAllJyJobType();
 }

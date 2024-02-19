@@ -53,11 +53,14 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
+import com.jdl.basic.api.domain.jyJobType.JyJobTypeQuery;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
+import com.jdl.basic.api.service.jyJobType.JyJobTypeJsfService;
 import com.jdl.basic.common.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -155,6 +158,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
+
+	@Autowired
+	private JyJobTypeJsfService jyJobTypeJsfService;
 
 	/**
 	 * 插入一条数据
@@ -1973,6 +1979,36 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
 		return userSignRecordDao.queryByBusinessKeyAndJobCode(query);
+	}
+
+	@Override
+	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
+		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
+		result.toSucceed();
+		JyJobTypeQuery query = buildJyJobTypeQuery();
+		try {
+			com.jdl.basic.common.utils.Result<com.jdl.basic.common.utils.PageDto<JyJobType>> pageDtoResult =
+				jyJobTypeJsfService.queryPageList(query);
+			if (pageDtoResult.isSuccess() && !pageDtoResult.isEmptyData()){
+				result.setData(pageDtoResult.getData().getResult());
+			}
+		} catch (Exception e) {
+			result.toFail("查询所有拣运工种异常");
+			log.error("UserSignRecordServiceImpl.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
+		}
+		return result;
+	}
+
+	/**
+	 * 构建JyJobTypeQuery对象
+	 *
+	 * @return JyJobTypeQuery对象，根据查询条件构建的查询对象
+	 */
+	private JyJobTypeQuery buildJyJobTypeQuery() {
+		JyJobTypeQuery jyJobTypeQuery = new JyJobTypeQuery();
+		jyJobTypeQuery.setPageSize(1);
+		jyJobTypeQuery.setPageNumber(100);
+		return jyJobTypeQuery;
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
