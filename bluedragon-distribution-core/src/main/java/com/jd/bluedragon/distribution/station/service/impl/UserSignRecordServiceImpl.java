@@ -115,9 +115,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	WorkStationAttendPlanService workStationAttendPlanService;
 
 	@Autowired
-	private WorkGridManager workGridManager;
-
-	@Autowired
 	private WorkGridScheduleManager workGridScheduleManager;
 
 	@Autowired
@@ -612,7 +609,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 工种
 		Integer jobCode = userSignRecord.getJobCode();
 		// 根据网格工序业务主键查询网格业务主键
-		com.jdl.basic.common.utils.Result<WorkGrid> result = workGridManager.queryByWorkGridKey(userSignRecord.getRefGridKey());
+		com.jdl.basic.common.utils.Result<WorkStationGrid> result = workStationGridManager
+				.queryWorkStationGridByBusinessKeyWithCache(userSignRecord.getRefGridKey());
 		if (result == null || result.getData() == null) {
 			log.warn("handleAutoSignOut|根据网格工序业务主键未查询到网格业务主键:id={},idCard={},jobCode={},refGridKey={}", recordId, idCard, jobCode, userSignRecord.getRefGridKey());
 			return;
@@ -668,20 +666,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 	}
 
-	private List<UserGridScheduleDto> findScheduleListByCondition(String yesterday, UserSignRecord userSignRecord, WorkGrid workGrid) {
-		// 签到人erp
-		String userCode = userSignRecord.getUserCode();
-		// 签到日期
-		Date signDate = userSignRecord.getSignDate();
-		// 工种
-		Integer jobCode = userSignRecord.getJobCode();
-		// 网格主键
-		String workGridKey = workGrid.getBusinessKey();
+	private List<UserGridScheduleDto> findScheduleListByCondition(String yesterday, UserSignRecord userSignRecord,
+																  WorkStationGrid workStationGrid) {
+		// 排班查询参数对象
 		UserGridScheduleQueryDto scheduleQueryDto = new UserGridScheduleQueryDto();
-		scheduleQueryDto.setScheduleDateList(Arrays.asList(yesterday, DateHelper.formatDate(signDate)));
-		scheduleQueryDto.setNature(String.valueOf(jobCode));
-		scheduleQueryDto.setUserUniqueCode(userCode);
-		scheduleQueryDto.setWorkGridKey(workGridKey);
+		// 排班日期集合
+		scheduleQueryDto.setScheduleDateList(Arrays.asList(yesterday, DateHelper.formatDate(userSignRecord.getSignDate())));
+		// 工种
+		scheduleQueryDto.setNature(String.valueOf(userSignRecord.getJobCode()));
+		// 签到人erp
+		scheduleQueryDto.setUserUniqueCode(userSignRecord.getUserCode());
+		// 网格业务主键
+		scheduleQueryDto.setWorkGridKey(workStationGrid.getBusinessKey());
 		return workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
 	}
 
