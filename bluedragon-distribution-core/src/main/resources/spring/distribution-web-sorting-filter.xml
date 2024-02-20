@@ -97,7 +97,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
