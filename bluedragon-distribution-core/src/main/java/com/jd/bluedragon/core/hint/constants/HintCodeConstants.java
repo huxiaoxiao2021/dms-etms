@@ -1048,7 +1048,7 @@ public class HintCodeConstants {
 
     public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
 
-    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
+    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到或工种已被停用，请联系网格负责人%s";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40027";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
@@ -1105,4 +1105,9 @@ public class HintCodeConstants {
      */
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
+    /**
+     * 该运单为冷链专送订单异常即报废单，不可以操作逆向换单
+     */
+    public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
+
 }

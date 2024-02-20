@@ -1127,6 +1127,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
+		log.info("checkJobCodeSignIn,当前登录的工种:{}", jobCode);
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
 		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch() || JobTypeEnum.JOBTYPE8.getCode().equals(jobCode)){
 			log.warn("网格工种限制功能开关关闭!");
@@ -1139,20 +1140,37 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//获取当前网格的工种信息
 		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
 		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
-		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
-		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
-		if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
-			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		//判断网关工种维护关系之前,再判断维护的工种是否处于生效的状态
+		JdCResponse<List<JyJobType>> listJdCResponse = queryAllJyJobType();
+		if(log.isInfoEnabled()){
+			log.info("checkJobCodeSignIn -获取所有工种信息，出参-{}", JSON.toJSONString(listJdCResponse));
 		}
-		boolean flag = false;
-		for (int i = 0; i < jobTypes.size(); i++) {
-			if(Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
-				flag =true;
-				break;
+		if (listJdCResponse.isSucceed() && CollectionUtils.isNotEmpty(listJdCResponse.getData())){
+			Map<Integer, JyJobType> collect =
+				listJdCResponse.getData().stream().filter(jyJobType -> jyJobType.getStatus() == 1)
+					.collect(Collectors.toMap(JyJobType::getCode, v -> v));
+			JyJobType jyJobType = collect.get(jobCode);
+			if (Objects.isNull(jyJobType)){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_MSG,jobCode,ownerUserErp);
 			}
-		}
-		if(!flag){
-			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+
+			//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+			String jobTypeName = jyJobType.getName();
+			if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+			}
+
+			boolean flag = false;
+			for (int i = 0; i < jobTypes.size(); i++) {
+				JyJobType jyJobType1 = collect.get(jobTypes.get(i).getJobCode());
+				if(Objects.nonNull(jyJobType1) && Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
+					flag =true;
+					break;
+				}
+			}
+			if(!flag){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+			}
 		}
 		return "";
 	}
