@@ -2395,7 +2395,7 @@
 		<dependency>
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 		</dependency>
 		<!--查询冷链耗材-->
 		<dependency>

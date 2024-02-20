@@ -42,5 +42,16 @@ public interface DmsTimingHandlerService {
      * 定时清理超72小时处于发货中状态并且没有绑定或删除的自建任务
      */
     void timingHandlerCleanSendingStatusManualTask();
-    
+
+
+    /**
+     * 定时完成待提件数为0的任务
+     */
+    void timingHandlerFinishAirRailTask();
+
+    /**
+     * 定时完成24小时前创建的自建任务
+     */
+    void timingHandlerFinishAirRailManualTask();
+
 }
