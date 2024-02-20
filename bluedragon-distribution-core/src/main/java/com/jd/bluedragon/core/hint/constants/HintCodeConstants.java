@@ -1105,9 +1105,6 @@ public class HintCodeConstants {
      */
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
-    /**
-     * 该运单为冷链专送订单异常即报废单，不可以操作逆向换单
-     */
     public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
 }
