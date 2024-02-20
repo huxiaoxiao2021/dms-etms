@@ -95,7 +95,7 @@ public class SendOfCapabilityAreaFactory {
 
 
     /**
-     * 构建默认执行链
+     * 构建无校验发货链
      * @return
      */
     private SendHandlerChain buildOfNoCheck(){

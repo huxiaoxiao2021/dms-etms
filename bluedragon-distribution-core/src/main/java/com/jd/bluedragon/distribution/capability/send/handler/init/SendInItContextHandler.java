@@ -206,6 +206,7 @@ public class SendInItContextHandler extends SendDimensionStrategyHandler {
         domain.setTransporttype(request.getTransporttype());
         domain.setBizSource(request.getBizSource());
         domain.setYn(Constants.YN_YES);
+        //开启使用自定义操作时间
         if(request.getUseCustomOperateTime()){
             domain.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
             domain.setOperateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
