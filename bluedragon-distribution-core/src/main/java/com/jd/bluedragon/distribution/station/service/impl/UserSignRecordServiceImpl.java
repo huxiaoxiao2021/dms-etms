@@ -677,7 +677,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 签到人erp
 		scheduleQueryDto.setUserUniqueCode(userSignRecord.getUserCode());
 		// 网格业务主键
-		scheduleQueryDto.setWorkGridKey(workStationGrid.getBusinessKey());
+		scheduleQueryDto.setWorkGridKey(workStationGrid.getRefWorkGridKey());
 		return workGridScheduleManager.getUserScheduleByCondition(scheduleQueryDto);
 	}
 
@@ -796,6 +796,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setModifyType(Constants.NUMBER_ONE);
 		// 先逻辑删除
 		userSignRecordDao.deleteById(userSignRecord);
+		userSignRecord.setId(null);
 		// 再新增一条
 		userSignRecordDao.insert(userSignRecord);
 	}
