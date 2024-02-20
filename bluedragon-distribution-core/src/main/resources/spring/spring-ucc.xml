@@ -342,6 +342,7 @@
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
+		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
 		<!-- 空铁提货岗 -->
 		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
 		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:3}"/>
@@ -679,6 +680,7 @@
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
+				<value>uccPropertyConfiguration.allowEntryHours</value>
 				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
 				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
 				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>

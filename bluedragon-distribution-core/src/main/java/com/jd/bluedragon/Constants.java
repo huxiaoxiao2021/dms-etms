@@ -1673,6 +1673,11 @@ public class Constants {
     public static final int CONSTANT_ONE_THOUSAND = 1000;
 
     /**
+     * 常量值：20
+     * */
+    public static final int  CONSTANT_NUMBER_TWENTY = 20;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -2408,6 +2413,12 @@ public class Constants {
      * android_pda下线
      */
     public static final String SYS_CONFIG_ANDROID_PDA_OFFLINE = "android_pda_offline";
+
+    /**
+     * 返调度退仓站点协助配送关系配置
+     */
+    public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
+
     /**
      * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
      */

@@ -2024,6 +2024,19 @@ public class UccPropertyConfiguration{
      */
     private boolean boxTypeNewVersionSwitch;
 
+    /**
+     * 排班允许进入闸机误差小时数
+     */
+    private Integer allowEntryHours;
+
+    public Integer getAllowEntryHours() {
+        return allowEntryHours;
+    }
+
+    public void setAllowEntryHours(Integer allowEntryHours) {
+        this.allowEntryHours = allowEntryHours;
+    }
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }

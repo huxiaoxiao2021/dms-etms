@@ -55,6 +55,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
@@ -105,6 +106,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
 
 /**
  * 逆向换单打印
@@ -971,6 +974,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //3.2拒收运单，可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
             reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
+            return result;
+        }
+        //3.3 冷链专送 waybillSign 第5位等于5：异常即报废，不可以操作逆向换单
+        if (BusinessUtil.isColdChainExpressScrap(waybillDto.getWaybill().getWaybillSign())){
+            result.setData(false);
+            result.setMessage(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE));
             return result;
         }
         //4.查询运单是否操作异常处理
