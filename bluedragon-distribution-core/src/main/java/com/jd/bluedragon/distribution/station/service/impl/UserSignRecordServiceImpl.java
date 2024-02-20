@@ -630,6 +630,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.warn("handleAutoSignOut|根据条件未查询到排班计划:id={},idCard={},jobCode={}", recordId, idCard, jobCode);
 			// 如果是正式工或派遣工，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
 			if (JobTypeEnum.JOBTYPE1.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+				// 留痕-设置修改类型为2-人员未排班数据作废处理
+				userSignRecord.setModifyType(Constants.CONSTANT_NUMBER_TWO);
 				userSignRecordDao.deleteById(userSignRecord);
 			} else {
 				// 如果是非自有员工，需要走兜底逻辑
@@ -712,6 +714,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			signOutByDeleteAndInsert(userSignRecord);
 			return;
 		}
+		// 留痕-设置修改类型为2-人员未排班数据作废处理
+		userSignRecord.setModifyType(Constants.CONSTANT_NUMBER_TWO);
 		// 若不存在，则认为该人员今天未排班，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
 		userSignRecordDao.deleteById(userSignRecord);
 	}
@@ -726,6 +730,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			String startTime = scheduleDto.getStartTime();
 			// 排班结束时间 HH:mm
 			String endTime = scheduleDto.getEndTime();
+			if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+				continue;
+			}
 			// 排班结束日期 yyyy-MM-dd HH:mm:ss
 			Date endDate;
 			// 如果结束日期代表第二天的时间点，则转换时需要加一天
@@ -757,6 +764,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			String startTime = scheduleDto.getStartTime();
 			// 排班结束时间 HH:mm
 			String endTime = scheduleDto.getEndTime();
+			if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+				continue;
+			}
 			// 排班开始日期 yyyy-MM-dd HH:mm:ss
 			Date startDate = getSpecialDateByStr(startTime, null);
 			// 排班结束日期 yyyy-MM-dd HH:mm:ss
@@ -786,6 +796,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * 为保证计提回算 以上逻辑均采用删除+增加，而不针对原有数据进行修改。
 	 */
 	private void signOutByDeleteAndInsert(UserSignRecord userSignRecord) {
+		// 留痕-设置修改类型为1-系统修改未人工签退
+		userSignRecord.setModifyType(Constants.NUMBER_ONE);
 		// 先逻辑删除
 		userSignRecordDao.deleteById(userSignRecord);
 		// 再新增一条
