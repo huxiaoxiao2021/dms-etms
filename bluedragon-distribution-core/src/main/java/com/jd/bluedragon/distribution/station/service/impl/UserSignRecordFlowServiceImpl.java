@@ -142,7 +142,7 @@ public class UserSignRecordFlowServiceImpl implements UserSignRecordFlowService 
 			if(signInTime != null && !signInTime.after(lastModifyAccrualDate) && signInTime.after(lastAccrualDate)) {
 				return false;
 			}
-			if(signInTimeNew != null && !signInTimeNew.after(lastModifyAccrualDate)) {
+			if(signInTimeNew != null && !signInTimeNew.after(lastModifyAccrualDate) && signInTimeNew.after(lastAccrualDate)) {
 				return false;
 			}
 			return true;
