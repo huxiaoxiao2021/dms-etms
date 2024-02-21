@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -78,6 +79,8 @@ import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandImageUrlEnum.*;
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
@@ -229,17 +232,17 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
             // 该判断为了兼容新老版本，新版app上线后可删除
             if (!StringUtils.isEmpty(req.getFirstReasonLevelCode())) {
+                // 如果是航空转路由，向路由发送消息
+                if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
+                    doSendArTransportModeChangeMq(req,bigWaybillDto);
+                }
+
                 // 调用质控接口，上报异常
                 List<ReportRecord> reportRecords =  convertReportRecord(req);
                 logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
                 JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
                 if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
-                    return JdCResponse.fail(req.getBarCode()+" 违禁品上报质控系统失败，请联系分拣小秘!");
-                }
-
-                // 如果是航空转路由，向路由发送消息
-                if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
-                    doSendArTransportModeChangeMq(req,bigWaybillDto);
+                    return new JdCResponse<>(WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE,WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE);
                 }
             }
 

@@ -329,6 +329,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int WAYBILL_WEIGHT_OUT_UPPER_LIMIT_CODE = 3077;
     public static final String WAYBILL_WEIGHT_OUT_UPPER_LIMIT_MESSAGE = "单件货物重量不能超过%skg!";
+
+    public static final Integer WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE = 3078;
+    public static final String WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE = "分拣上报成功，质控系统提交失败！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
