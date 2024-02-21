@@ -110,16 +110,12 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
             toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
             toSendQueryCondition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
         }
-        //非发货中状态查询时：查发货中统计数据卡起飞时间范围
-        else if(!JyAviationRailwaySendVehicleStatusEnum.SENDING.getSendTaskStatus().equals(condition.getTaskStatus())) {
-            toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), sendingQueryTakeOffTimeStartHour));
-        }
         List<JyBizTaskAviationStatusStatistics> toSendRes = jyBizTaskSendAviationPlanDao.statusStatistics(toSendQueryCondition);
 
         //发货中统计
         JyBizTaskSendAviationPlanQueryCondition sendingQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, sendingQueryCondition);
-        sendingQueryCondition.setTakeOffTimeStart(null);
+        sendingQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), sendingQueryTakeOffTimeStartHour));
         sendingQueryCondition.setManualCreatedFlag(null);
         List<JyBizTaskAviationStatusStatistics> sendingRes = jyBizTaskSendAviationPlanDao.statusStatistics(sendingQueryCondition);
 
