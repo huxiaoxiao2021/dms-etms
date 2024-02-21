@@ -68,6 +68,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -689,16 +691,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 若存在，则直接以排班结束时间替换自动签退时间 如果存在多条，选择最早的一条的数据
 		Date minEndDate = computeMinScheduleEndDateBySceneOne(signDateScheduleList, signInTime);
 		if (minEndDate != null) {
-			userSignRecord.setSignOutTime(minEndDate);
-			signOutByDeleteAndInsert(userSignRecord);
+			signOutByTransaction(userSignRecord, minEndDate);
 			return;
 		}
 		// 若不存在，则需要进一步判断
 		// （对应跨天场景）签到时间是否在人员签到日期的前一天的排班计划人员排班开始时间前一小时~排班结束时间（不能正好等于排班结束时间），若存在，则以前一天排班计划的排班结束时间替换自动签退时间
 		minEndDate = computeMinScheduleEndDateBySceneOne(yesterdayScheduleList, signInTime);
 		if (minEndDate != null) {
-			userSignRecord.setSignOutTime(minEndDate);
-			signOutByDeleteAndInsert(userSignRecord);
+			signOutByTransaction(userSignRecord, minEndDate);
 			return;
 		}
 		// 如果当天和前一天都不满足
@@ -706,8 +706,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		minEndDate = computeMinScheduleEndDateBySceneTwo(signDateScheduleList, signInTime, currentDate);
 		// 若存在则更新班次结束时间为自动签退时间
 		if (minEndDate != null) {
-			userSignRecord.setSignOutTime(minEndDate);
-			signOutByDeleteAndInsert(userSignRecord);
+			signOutByTransaction(userSignRecord, minEndDate);
 			return;
 		}
 		// 留痕-设置修改类型为2-人员未排班数据作废处理
@@ -716,6 +715,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecordDao.deleteById(userSignRecord);
 	}
 
+	/**
+	 * 场景二：比较排班结束时间是否在签到时间和当前时间之间，如果命中多个，取最早的结束时间
+	 */
 	private Date computeMinScheduleEndDateBySceneTwo(List<UserGridScheduleDto> scheduleList, Date signInTime, Date currentDate) {
 		Date minEndDate = null;
 		if (CollectionUtils.isEmpty(scheduleList)) {
@@ -750,6 +752,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return minEndDate;
 	}
 
+	/**
+	 * 场景一：比较签到时间是否在排班计划开始时间前一小时和排班结束时间之间，如果命中多个，取最早的结束时间
+	 */
 	private Date computeMinScheduleEndDateBySceneOne(List<UserGridScheduleDto> scheduleList, Date signInTime) {
 		Date minEndDate = null;
 		if (CollectionUtils.isEmpty(scheduleList)) {
@@ -789,9 +794,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	/**
+	 * 以事务的形式进行签退操作
+	 */
+	private void signOutByTransaction(UserSignRecord userSignRecord, Date minEndDate) {
+		UserSignRecordServiceImpl userSignRecordService = (UserSignRecordServiceImpl) SpringHelper
+				.getBean("userSignRecordService");
+		userSignRecord.setSignOutTime(minEndDate);
+		userSignRecordService.signOutByDeleteAndInsert(userSignRecord);
+	}
+
+	/**
 	 * 为保证计提回算 以上逻辑均采用删除+增加，而不针对原有数据进行修改。
 	 */
-	private void signOutByDeleteAndInsert(UserSignRecord userSignRecord) {
+	@Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void signOutByDeleteAndInsert(UserSignRecord userSignRecord) {
 		// 留痕-设置修改类型为1-系统修改未人工签退
 		userSignRecord.setModifyType(Constants.NUMBER_ONE);
 		// 先逻辑删除
@@ -801,6 +817,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecordDao.insert(userSignRecord);
 	}
 
+	/**
+	 * 将排班班次开始时间或结束时间由HH:mm形式转为yyyy-MM-dd HH:mm:ss形式
+	 */
 	private Date getSpecialDateByStr(String timeStr, Integer addDay) {
 		LocalTime localTime = LocalTime.parse(timeStr);
 		int hour = localTime.getHour();
