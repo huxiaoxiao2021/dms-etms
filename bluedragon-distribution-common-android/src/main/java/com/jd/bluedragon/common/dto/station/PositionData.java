@@ -93,7 +93,18 @@ public class PositionData implements Serializable {
 	 * 关联场地网格工序key:work_station_grid
 	 */
 	private String refGridKey;
-    
+
+	/**
+	 * 租户编码
+	 */
+	private String tenantCode;
+	
+	/**
+	 * @see BusinessLineTypeEnum
+	 * 业务条线编码
+	 */
+	private String businessLineCode;
+	
 	public Long getId() {
 		return id;
 	}
@@ -228,5 +239,21 @@ public class PositionData implements Serializable {
 
 	public void setRefGridKey(String refGridKey) {
 		this.refGridKey = refGridKey;
+	}
+
+	public String getTenantCode() {
+		return tenantCode;
+	}
+
+	public void setTenantCode(String tenantCode) {
+		this.tenantCode = tenantCode;
+	}
+
+	public String getBusinessLineCode() {
+		return businessLineCode;
+	}
+
+	public void setBusinessLineCode(String businessLineCode) {
+		this.businessLineCode = businessLineCode;
 	}
 }
