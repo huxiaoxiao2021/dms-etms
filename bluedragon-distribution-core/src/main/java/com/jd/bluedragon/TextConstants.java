@@ -209,7 +209,13 @@ public class TextConstants {
     /**
      * 产品名-京东标快
      */
-    public static final String PRODUCT_NAME_THS = "京东标快";
+    public static final String PRODUCT_NAME_JDBK = "京东标快";
+
+    /**
+     * 产品名-京东标快次晨
+     */
+    public static final String PRODUCT_NAME_BK_CC= "标快次晨";
+
     /**
      * 产品名-函速达
      */
