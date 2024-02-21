@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="picking_site_id" property="pickingSiteId" jdbcType="BIGINT" />
+    <result column="picking_node_code" property="pickingNodeCode" jdbcType="VARCHAR" />
+    <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
+    <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+    <result column="scan_code" property="scanCode" jdbcType="VARCHAR" />
+    <result column="wait_scan_code" property="waitScanCode" jdbcType="VARCHAR" />
+    <result column="wait_scan_code_type" property="waitScanCodeType" jdbcType="TINYINT" />
+    <result column="init_next_site_id" property="initNextSiteId" jdbcType="BIGINT" />
+    <result column="box_init_flow_key" property="boxInitFlowKey" jdbcType="VARCHAR" />
+    <result column="wait_scan_flag" property="waitScanFlag" jdbcType="TINYINT" />
+    <result column="init_time" property="initTime" jdbcType="TIMESTAMP" />
+    <result column="scan_flag" property="scanFlag" jdbcType="TINYINT" />
+    <result column="scan_code_type" property="scanCodeType" jdbcType="TINYINT" />
+    <result column="more_scan_flag" property="moreScanFlag" jdbcType="TINYINT" />
+    <result column="picking_user_erp" property="pickingUserErp" jdbcType="VARCHAR" />
+    <result column="picking_user_name" property="pickingUserName" jdbcType="VARCHAR" />
+    <result column="picking_time" property="pickingTime" jdbcType="TIMESTAMP" />
+    <result column="send_flag" property="sendFlag" jdbcType="TINYINT" />
+    <result column="real_next_site_id" property="realNextSiteId" jdbcType="BIGINT" />
+    <result column="box_real_flow_key" property="boxRealFlowKey" jdbcType="VARCHAR" />
+    <result column="more_send_flag" property="moreSendFlag" jdbcType="TINYINT" />
+    <result column="send_time" property="sendTime" jdbcType="TIMESTAMP" />
+    <result column="send_user_erp" property="sendUserErp" jdbcType="VARCHAR" />
+    <result column="send_user_name" property="sendUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, biz_id, picking_site_id, picking_node_code, package_code, waybill_code, scan_code,
+    wait_scan_code, wait_scan_code_type, init_next_site_id, box_init_flow_key, wait_scan_flag, init_time,
+    scan_flag, scan_code_type, more_scan_flag, picking_user_erp, picking_user_name, picking_time,
+    send_flag, real_next_site_id, box_real_flow_key, more_send_flag,
+    send_time, send_user_erp, send_user_name, create_time, update_time, yn, ts
+  </sql>
+
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+      insert into jy_picking_send_record
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="bizId != null" >
+          biz_id,
+        </if>
+        <if test="pickingSiteId != null" >
+          picking_site_id,
+        </if>
+        <if test="pickingNodeCode != null" >
+          picking_node_code,
+        </if>
+        <if test="packageCode != null" >
+          package_code,
+        </if>
+        <if test="waybillCode != null" >
+          waybill_code,
+        </if>
+        <if test="scanCode != null" >
+          scan_code,
+        </if>
+        <if test="waitScanCode != null" >
+          wait_scan_code,
+        </if>
+        <if test="waitScanCodeType != null" >
+          wait_scan_code_type,
+        </if>
+        <if test="initNextSiteId != null" >
+          init_next_site_id,
+        </if>
+        <if test="boxInitFlowKey != null" >
+          box_init_flow_key,
+        </if>
+        <if test="waitScanFlag != null" >
+          wait_scan_flag,
+        </if>
+        <if test="initTime != null" >
+          init_time,
+        </if>
+        <if test="scanFlag != null" >
+          scan_flag,
+        </if>
+        <if test="scanCodeType != null" >
+          scan_code_type,
+        </if>
+        <if test="moreScanFlag != null" >
+          more_scan_flag,
+        </if>
+        <if test="pickingUserErp != null" >
+          picking_user_erp,
+        </if>
+        <if test="pickingUserName != null" >
+          picking_user_name,
+        </if>
+        <if test="pickingTime != null" >
+          picking_time,
+        </if>
+        <if test="sendFlag != null" >
+          send_flag,
+        </if>
+        <if test="realNextSiteId != null" >
+          real_next_site_id,
+        </if>
+        <if test="boxRealFlowKey != null" >
+          box_real_flow_key,
+        </if>
+        <if test="moreSendFlag != null" >
+          more_send_flag,
+        </if>
+        <if test="sendTime != null" >
+          send_time,
+        </if>
+        <if test="sendUserErp != null" >
+          send_user_erp,
+        </if>
+        <if test="sendUserName != null" >
+          send_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        yn
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id,jdbcType=BIGINT},
+        </if>
+        <if test="bizId != null" >
+          #{bizId,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingSiteId != null" >
+          #{pickingSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="pickingNodeCode != null" >
+          #{pickingNodeCode,jdbcType=VARCHAR},
+        </if>
+        <if test="packageCode != null" >
+          #{packageCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waybillCode != null" >
+          #{waybillCode,jdbcType=VARCHAR},
+        </if>
+        <if test="scanCode != null" >
+          #{scanCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanCode != null" >
+          #{waitScanCode,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanCodeType != null" >
+          #{waitScanCodeType,jdbcType=TINYINT},
+        </if>
+        <if test="initNextSiteId != null" >
+          #{initNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxInitFlowKey != null" >
+          #{boxInitFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="waitScanFlag != null" >
+          #{waitScanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="initTime != null" >
+          #{initTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="scanFlag != null" >
+          #{scanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="scanCodeType != null" >
+          #{scanCodeType,jdbcType=TINYINT},
+        </if>
+        <if test="moreScanFlag != null" >
+          #{moreScanFlag,jdbcType=TINYINT},
+        </if>
+        <if test="pickingUserErp != null" >
+          #{pickingUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingUserName != null" >
+          #{pickingUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="pickingTime != null" >
+          #{pickingTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendFlag != null" >
+          #{sendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="realNextSiteId != null" >
+          #{realNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxRealFlowKey != null" >
+          #{boxRealFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="moreSendFlag != null" >
+          #{moreSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="sendTime != null" >
+          #{sendTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendUserErp != null" >
+          #{sendUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="sendUserName != null" >
+          #{sendUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="createTime != null" >
+          #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime,jdbcType=TIMESTAMP},
+        </if>
+        1
+      </trim>
+    </insert>
+  <!-- 根据待扫code查询 -->
+  <select id="fetchWaitPickingBizIdByBarCode" resultType="java.lang.String" parameterType="JyPickingSendRecordEntity" >
+    select biz_id
+    from jy_picking_send_record
+    where yn = 1
+          and picking_site_id = #{pickingSiteId}
+          and wait_scan_code = #{waitScanCode}
+    limit 1
+  </select>
+  <!-- 根据packageCode查询 -->
+  <select id="fetchByPackageCodeAndCondition" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_picking_send_record
+    where yn = 1
+    and picking_site_id = #{pickingSiteId}
+    and package_code = #{packageCode}
+    <if test="bizId != null" >
+      and biz_id = #{bizId}
+    </if>
+    <if test="scanFlag != null" >
+      and scan_flag = #{scanFlag}
+    </if>
+    limit 1
+  </select>
+  <!-- 根据实扫code查询 -->
+  <select id="latestPickingRecord" resultMap="BaseResultMap" parameterType="JyPickingSendRecordEntity" >
+    select <include refid="Base_Column_List" />
+    from jy_picking_send_record
+    where yn = 1
+          and picking_site_id = #{pickingSiteId}
+          and scan_code = #{waitScanCode}
+          and biz_id = #{bizId}
+    order by picking_time desc
+    limit 1
+  </select>
+    <!-- 实操填充实描字段 -->
+  <update id="fillRealScanField" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+      update jy_picking_send_record
+      set
+          scan_code = #{scanCode,jdbcType=VARCHAR},
+          scan_flag = #{scanFlag,jdbcType=TINYINT},
+          scan_code_type = #{scanCodeType,jdbcType=TINYINT},
+          picking_user_erp = #{pickingUserErp,jdbcType=VARCHAR},
+          picking_user_name = #{pickingUserName,jdbcType=VARCHAR},
+          picking_time = #{pickingTime,jdbcType=TIMESTAMP},
+        <if test="moreScanFlag != null" >
+          more_scan_flag = #{moreScanFlag},
+        </if>
+        <if test="sendFlag != null" >
+          send_flag = #{sendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="realNextSiteId != null" >
+          real_next_site_id = #{realNextSiteId,jdbcType=BIGINT},
+        </if>
+        <if test="boxRealFlowKey != null" >
+          box_real_flow_key = #{boxRealFlowKey,jdbcType=VARCHAR},
+        </if>
+        <if test="moreSendFlag != null" >
+          more_send_flag = #{moreSendFlag,jdbcType=TINYINT},
+        </if>
+        <if test="sendTime != null" >
+          send_time = #{sendTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="sendUserErp != null" >
+          send_user_erp = #{sendUserErp,jdbcType=VARCHAR},
+        </if>
+        <if test="sendUserName != null" >
+          send_user_name = #{sendUserName,jdbcType=VARCHAR},
+        </if>
+        update_time = #{updateTime}
+      where yn = 1
+        and picking_site_id = #{pickingSiteId}
+        and biz_id = #{bizId}
+        and package_code = #{packageCode}
+    </update>
+  <!-- 初始化填充待扫字段 -->
+  <update id="fillInitWaitScanField" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" >
+    update jy_picking_send_record
+    set
+      wait_scan_code = #{waitScanCode},
+      wait_scan_code_type = #{waitScanCodeType},
+      wait_scan_flag = #{waitScanFlag},
+      init_time = #{initTime},
+      <if test="initNextSiteId != null" >
+        init_next_site_id = #{initNextSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="boxInitFlowKey != null" >
+        box_init_flow_key = #{boxInitFlowKey,jdbcType=VARCHAR},
+      </if>
+      update_time = #{updateTime}
+    where
+      yn = 1
+      and picking_site_id = #{pickingSiteId}
+      and biz_id = #{bizId}
+      and package_code = #{packageCode}
+  </update>
+
+</mapper>

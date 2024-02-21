@@ -652,7 +652,6 @@ public class JyWarehouseSendGatewayServiceTest {
 
     @Test
     public void testFindByQiWaybillPage(){
-
         while(true) {
             try{
                 BuQiWaybillReq paramDto = new BuQiWaybillReq();
@@ -673,14 +672,10 @@ public class JyWarehouseSendGatewayServiceTest {
                 e.printStackTrace();
             }
         }
-
     }
-
-
 
     @Test
     public void testFindByQiPackagePage(){
-
         while(true) {
             try{
                 BuQiWaybillReq paramDto = new BuQiWaybillReq();
@@ -703,7 +698,6 @@ public class JyWarehouseSendGatewayServiceTest {
                 e.printStackTrace();
             }
         }
-
     }
 
 
@@ -724,22 +718,17 @@ public class JyWarehouseSendGatewayServiceTest {
                 e.printStackTrace();
             }
         }
-
     }
-
 
     @Test
     public void testBuQiCancelSendScan(){
         while(true) {
-
             BuQiCancelSendScanReq req = new BuQiCancelSendScanReq();
             req.setCurrentOperate(SITE_223094);
             req.setUser(USER_wuyoude);
             req.setGroupCode(GROUP_CODE);
             req.setMixScanTaskCode("CTT23060600000010");
             req.setSendVehicleBizId("SST22081600000007");
-
-
             req.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
 
             jyWarehouseSendGatewayService.buQiCancelSendScan(req);

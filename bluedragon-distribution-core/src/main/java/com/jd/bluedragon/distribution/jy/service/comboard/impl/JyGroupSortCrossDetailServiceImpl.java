@@ -140,7 +140,8 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         return this.batchAddGroup(entities);
     }
 
-    private boolean batchAddGroup(List<JyGroupSortCrossDetailEntity> entities) {
+    @Override
+    public boolean batchAddGroup(List<JyGroupSortCrossDetailEntity> entities) {
         try {
             if (jyGroupSortCrossDetailDao.batchInsert(entities) > 0) {
                 return true;
@@ -526,5 +527,10 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             queryDto.setId(id);
             jyGroupSortCrossDetailDao.deleteCTTGroupDataByGroupCode(queryDto);
         }
+    }
+
+    @Override
+    public boolean deleteSendFlow(JyGroupSortCrossDetailEntity entity) {
+        return jyGroupSortCrossDetailDao.deleteSendFlow(entity) > 0;
     }
 }
