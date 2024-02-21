@@ -9,6 +9,7 @@
     <!-- 验货拦截链配置 -->
     <util:list id="inspectionFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OperateWorkAreaFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZeroWeightVolumeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
