@@ -419,8 +419,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private boolean checkYufenjianIfMatchDestination(Integer yufenjian, CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
-        if (BusinessUtil.isReverse(request.getBusinessType()) && !yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
-            throw new JyBizException("逆向退仓/备件库：包裹预分拣站点跟箱号目的地不一致，禁止集包！");
+        if (BusinessUtil.isReverse(request.getBusinessType()) && MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())
+                && !yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
+            throw new JyBizException("逆向退仓/备件库：包裹预分拣站点与箱号目的地不一致，禁止集包！");
         }
         //预分拣==箱号目的地
         if (yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
