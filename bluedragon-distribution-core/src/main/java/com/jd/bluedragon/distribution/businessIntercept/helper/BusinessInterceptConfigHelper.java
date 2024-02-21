@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class BusinessInterceptConfigHelper {
 
+    // 拦截报表操作节点【验货】类型
+    @Value("${businessIntercept.operate.node.inspection}")
+    private Integer interceptOperateNodeInspection;
     // 拦截报表操作节点【分拣】类型
     @Value("${businessIntercept.operate.node.sorting}")
     private Integer interceptOperateNodeSorting;
@@ -67,6 +70,9 @@ public class BusinessInterceptConfigHelper {
 
     public Integer getOperateNodeByConstants(Integer operateNode){
         switch (operateNode){
+            case OperateNodeConstants.INSPECTION: {
+                return interceptOperateNodeInspection;
+            }
             case OperateNodeConstants.SORTING: {
                 return interceptOperateNodeSorting;
             }

@@ -227,6 +227,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         if(currentOperate.getSiteName() == null){
             return result.toFail("参数错误，siteName不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
+        currentOperate.setOperateTime(new Date());
         final User user = baseReq.getUser();
         if(user == null){
             return result.toFail("参数错误，user不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
@@ -557,7 +558,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             inspectionRequest.setOperateType(2);
             inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
             inspectionRequest.setOperateUserName(request.getUser().getUserName());
-            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionRequest);
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(request);
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
