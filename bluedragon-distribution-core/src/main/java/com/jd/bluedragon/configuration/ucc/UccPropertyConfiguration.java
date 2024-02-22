@@ -1393,6 +1393,19 @@ public class UccPropertyConfiguration{
      */
     private String collectPackageOrgForbiddenList;
 
+    /**
+     * 根据箱号类型下线旧版集包功能 白名单-配置的箱号类型 跳过校验
+     */
+    private String skipOffLineCheckByBoxTypeList;
+
+    public String getSkipOffLineCheckByBoxTypeList(){
+        return skipOffLineCheckByBoxTypeList;
+    }
+
+    public void setSkipOffLineCheckByBoxTypeList(String skipOffLineCheckByBoxTypeList) {
+        this.skipOffLineCheckByBoxTypeList = skipOffLineCheckByBoxTypeList;
+    }
+
     public String getCollectPackageSiteForbiddenList() {
         return collectPackageSiteForbiddenList;
     }

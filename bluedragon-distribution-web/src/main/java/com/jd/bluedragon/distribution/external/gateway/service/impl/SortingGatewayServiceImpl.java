@@ -108,6 +108,10 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
 
         JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
         try {
+            if (checkOfflined(checkRequest)){
+                jdVerifyResponse.toError("新版小件集包岗已上线，旧版AndroidPDA集包功能于02月19日09：00正式下线，请在下线之前切换新版集包岗进行集包作业操作，避免下线以后造成运营混乱，如有问题或后期使用问题请加入咚咚群（群号：10207580968）沟通。谢谢！");
+                return jdVerifyResponse;
+            }
             SortingJsfResponse sortingResponse = sortingResource.check(pdaOperateRequest);
             JdVerifyResponse.MsgBox msgBox = null;
             //校验通过
@@ -140,16 +144,51 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     }
 
     private boolean checkOfflined(SortingCheckRequest checkRequest) {
-        Integer orgId =checkRequest.getCurrentOperate().getOrgId();
-        Integer siteCode =checkRequest.getCurrentOperate().getSiteCode();
-        if ((checkIfOrgForbiddened(orgId)) || checkIfSiteForbiddened(siteCode)){
+        if (needSkipCheckOfflined(checkRequest)){
+            return false;
+        }
+        if (ObjectHelper.isNotNull(checkRequest) && ObjectHelper.isNotNull(checkRequest.getCurrentOperate())){
+            Integer orgId =checkRequest.getCurrentOperate().getOrgId();
+            Integer siteCode =checkRequest.getCurrentOperate().getSiteCode();
+            if ((checkIfOrgForbiddened(orgId)) || checkIfSiteForbiddened(siteCode)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean needSkipCheckOfflined(SortingCheckRequest checkRequest) {
+        if (checkIsNeedSkipBoxType(checkRequest)){
             return true;
         }
         return false;
     }
 
+    private boolean checkIsNeedSkipBoxType(SortingCheckRequest checkRequest) {
+        String  skipOffLineCheckByBoxTypeList =dmsConfigManager.getPropertyConfig().getSkipOffLineCheckByBoxTypeList();
+        if (ObjectHelper.isNotNull(checkRequest) && ObjectHelper.isNotNull(checkRequest.getBoxCode()) && ObjectHelper.isNotNull(skipOffLineCheckByBoxTypeList)){
+            if ("*".equals(skipOffLineCheckByBoxTypeList)){
+                return true;
+            }
+            List<String> boxTypeList = buildSkipOffLineCheckByBoxTypeList(skipOffLineCheckByBoxTypeList);
+            for (String boxType:boxTypeList){
+                if (BusinessUtil.isBoxcode(checkRequest.getBoxCode()) && checkRequest.getBoxCode().startsWith(boxType)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<String> buildSkipOffLineCheckByBoxTypeList(String skipOffLineCheckByBoxTypeList) {
+        return  Arrays.asList(skipOffLineCheckByBoxTypeList.split(","));
+    }
+
     private boolean checkIfOrgForbiddened(Integer orgId) {
         if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList())){
+            if ("*".equals(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList())){
+                return true;
+            }
             List<Integer> orgForbiddenList = buildOrgForbiddenList(dmsConfigManager.getPropertyConfig().getCollectPackageOrgForbiddenList());
             if (CollectionUtils.isNotEmpty(orgForbiddenList) && orgForbiddenList.contains(orgId)){
                 return true;

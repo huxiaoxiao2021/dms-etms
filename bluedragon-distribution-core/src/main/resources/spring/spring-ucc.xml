@@ -351,7 +351,7 @@
 		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
-
+		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -688,6 +688,7 @@
 				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
 			</list>
 		</property>
 	</bean>
