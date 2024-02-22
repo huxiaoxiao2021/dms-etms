@@ -343,6 +343,15 @@
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
+		<!-- 空铁提货岗 -->
+		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
+		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:3}"/>
+		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:1}"/>
+		<property name="sendFlowLimit" value="${sendFlowLimit:15}"/>
+		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
+		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
+		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -672,6 +681,13 @@
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
 				<value>uccPropertyConfiguration.allowEntryHours</value>
+				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>
+				<value>uccPropertyConfiguration.sendFlowLimit</value>
+				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
 			</list>
 		</property>
 	</bean>

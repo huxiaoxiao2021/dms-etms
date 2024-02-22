@@ -28,6 +28,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.collection.entity.CollectionRecordDetailPo" alias="CollectionRecordDetailPo" />
         <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordPo" alias="JyCollectRecordPo" />
         <typeAlias type="com.jd.bluedragon.distribution.collectNew.entity.JyCollectRecordDetailPo" alias="JyCollectRecordDetailPo" />
+        <typeAlias type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity" alias="JyPickingSendRecordEntity" />
 
     </typeAliases>
 
@@ -69,6 +70,7 @@
         <mapper resource="mappers/mysql/collectNew/JyCollectRecordMapper.xml"/>
         <mapper resource="mappers/mysql/jy/common/JyOperateFlowMapper.xml"/>
         <mapper resource="mappers/mysql/jy/collectpackage/JyCollectPackageMapper.xml" />
+        <mapper resource="mappers/mysql/jy/pickinggood/JyPickingSendRecordMapper.xml" />
     </mappers>
 
 </configuration>
