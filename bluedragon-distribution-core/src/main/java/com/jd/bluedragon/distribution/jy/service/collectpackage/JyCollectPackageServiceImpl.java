@@ -1373,6 +1373,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request) {
+        return null;
+    }
+
     private JyBizTaskCollectPackageQuery converUpdateData(List<Long> ids, UpdateMixFlowListReq request) {
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
         query.setIds(ids);
@@ -1494,6 +1499,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
             throw new JyBizException("参数错误：缺失箱号！");
         }
+    }
+
+    @Override
+    public InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request) {
+        return null;
     }
 
     public static void main(String[] args) {

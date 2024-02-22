@@ -48,6 +48,9 @@ public interface JyCollectPackageService {
      */
     InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request);
 
+    InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request);
+
+
 
     /**
      * 检索集包任务
@@ -89,4 +92,6 @@ public interface JyCollectPackageService {
      * @return
      */
     InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
+
+    InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request);
 }

@@ -28,10 +28,7 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
-import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
+import com.jd.bluedragon.distribution.box.domain.*;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
@@ -1234,4 +1231,19 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 
+
+	@Override
+	public List<Container> listAllDescendantsByOuterContainer(Container container) {
+		return null;
+	}
+
+	@Override
+	public List<Container> listSonContainersByOuterContainer(Container container) {
+		return null;
+	}
+
+	@Override
+	public boolean saveContainerBindRelation(ContainerBindDto containerBindDto) {
+		return false;
+	}
 }

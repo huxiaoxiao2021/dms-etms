@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -40,8 +41,13 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
             if (BusinessUtil.isCollectionBag(request.getBarCode())) {
                 BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
                 return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
+            } else if (WaybillUtil.isPackageCode(request.getBarCode())){
+                return retJdCResponse(jyCollectPackageService.collectPackage(request));
+            } else if (BusinessUtil.isBoxcode(request.getBarCode())){
+                return retJdCResponse(jyCollectPackageService.collectLoading(request));
+            } else {
+                return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
             }
-            return retJdCResponse(jyCollectPackageService.collectPackage(request));
         } catch (JyBizException e) {
             if (ObjectHelper.isNotNull(e.getCode())) {
                 return new JdCResponse(e.getCode(), e.getMessage());
