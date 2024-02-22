@@ -1052,4 +1052,10 @@
         <property name="topic" value="${jmq.topic.jy.picking.good.scan.split.package}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!-- 空铁摆渡封车处理干支任务监听数据补偿消息 -->
+    <bean id="aviationRailwayShuttleSealProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.aviationRailwayShuttleSeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>
