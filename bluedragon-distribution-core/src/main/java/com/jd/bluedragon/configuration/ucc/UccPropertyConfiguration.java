@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -2056,6 +2057,18 @@ public class UccPropertyConfiguration{
     public void setAllowEntryHours(Integer allowEntryHours) {
         this.allowEntryHours = allowEntryHours;
     }
+
+    /**
+     * 特安作业区编码，逗号分隔
+     */
+    private String teanWorkAreaCodes;
+    private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链场地白名单
+     */
+    private String teanSiteIdWhiteListStr4InterceptFilter;
+    private List<Integer> teanSiteIdWhiteList4InterceptFilter = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4521,5 +4534,61 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public String getTeanWorkAreaCodes() {
+        return teanWorkAreaCodes;
+    }
+
+    public void setTeanWorkAreaCodes(String teanWorkAreaCodes) {
+        this.teanWorkAreaCodes = teanWorkAreaCodes;
+        this.setTeanWorkAreaCodesList();
+    }
+
+    public List<String> getTeanWorkAreaCodesList() {
+        return teanWorkAreaCodesList;
+    }
+
+    public void setTeanWorkAreaCodesList() {
+        this.teanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanWorkAreaCodes)){
+            final String[] split = teanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanSiteIdWhiteListStr4InterceptFilter() {
+        return teanSiteIdWhiteListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdWhiteListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdWhiteList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdWhiteList4InterceptFilter() {
+        return teanSiteIdWhiteList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteList4InterceptFilter() {
+        this.teanSiteIdWhiteList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdWhiteListStr4InterceptFilter)){
+            this.teanSiteIdWhiteList4InterceptFilter = Arrays.stream(teanSiteIdWhiteListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdWhite4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdWhiteListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdWhiteList4InterceptFilter.contains(siteCode);
     }
 }

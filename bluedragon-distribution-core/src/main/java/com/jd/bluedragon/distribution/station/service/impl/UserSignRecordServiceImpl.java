@@ -1085,6 +1085,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
+		signInData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
 		//身份证拍照签到的直接设置姓名，erp签到的需要查基础资料
 		signInData.setUserName(signInRequest.getUserName());
 		signInData.setModeType(signInRequest.getModeType());
