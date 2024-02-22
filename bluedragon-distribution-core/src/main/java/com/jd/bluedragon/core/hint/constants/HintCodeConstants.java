@@ -1106,4 +1106,13 @@ public class HintCodeConstants {
 
     // 无残值货物，请操作报废！
     public static String SCRAP_WAYBILL_INTERCEPT_HINT_CODE = "40033";
+
+    // 您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE = "40037";
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    // 您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
 }

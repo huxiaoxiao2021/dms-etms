@@ -92,6 +92,11 @@ public class UserSignRecordData implements Serializable {
 	private String refStationKey;
 
 	/**
+	 * ref：work_grid业务主键 场地网格业务主键
+	 */
+	private String refWorkGridKey;
+
+	/**
 	 * 创建人ERP
 	 */
 	private String createUser;
@@ -339,6 +344,15 @@ public class UserSignRecordData implements Serializable {
 	public void setRefStationKey(String refStationKey) {
 		this.refStationKey = refStationKey;
 	}
+
+	public String getRefWorkGridKey() {
+		return refWorkGridKey;
+	}
+
+	public void setRefWorkGridKey(String refWorkGridKey) {
+		this.refWorkGridKey = refWorkGridKey;
+	}
+
 	public String getCreateUser() {
 		return createUser;
 	}

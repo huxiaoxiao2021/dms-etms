@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
@@ -100,11 +102,16 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         pdaOperateRequest.setOperateType(checkRequest.getOperateType());
         pdaOperateRequest.setPackageCode(checkRequest.getPackageCode());
         pdaOperateRequest.setReceiveSiteCode(checkRequest.getReceiveSiteCode());
-        pdaOperateRequest.setCreateSiteCode(checkRequest.getCurrentOperate().getSiteCode());
-        pdaOperateRequest.setCreateSiteName(checkRequest.getCurrentOperate().getSiteName());
-        pdaOperateRequest.setOperateTime(DateUtil.format(checkRequest.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));
+        final CurrentOperate currentOperate = checkRequest.getCurrentOperate();
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
+        pdaOperateRequest.setOperateTime(DateUtil.format(currentOperate.getOperateTime(),DateUtil.FORMAT_DATE_TIME));
         pdaOperateRequest.setOperateUserCode(checkRequest.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(checkRequest.getUser().getUserName());
+        final OperatorData operatorData = currentOperate.getOperatorData();
+        pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+        pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+        pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
 
         JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
         try {

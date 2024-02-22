@@ -420,6 +420,13 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29465 = 29465;
     public static final String  MESSAGE_29465 = "此单为特安包裹，请勿与普通包裹进行混包！";
 
+    public static final Integer CODE_29466 = 29466;
+    public static final String  MESSAGE_29466 = "您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    public static final Integer CODE_29467 = 29467;
+    public static final String  MESSAGE_29467 = "您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
