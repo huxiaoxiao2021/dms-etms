@@ -841,7 +841,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.inspectionOfColdNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<String> inspectionOfColdNew(ColdInspectionVo request) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
@@ -913,7 +912,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendOfColdBusinessNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<ColdSendResult> sendOfColdBusinessNew(ColdSendVo cRequest) {
         InvokeResult<ColdSendResult> result = new InvokeResult<>();
         result.success();
@@ -1060,7 +1058,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendOfColdKYNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo cRequest) {
         InvokeResult<ColdSendResult> result = new InvokeResult<>();
         result.success();
