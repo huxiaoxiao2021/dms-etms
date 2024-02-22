@@ -1177,6 +1177,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.error(ex);
             log.error("发货校验批次号异常：{}",sendCode, ex);
         }
+        log.info("ColdChainExternalService,checkSendCodeStatus，入参:{},结果:{}",JsonHelper.toJson(request),JsonHelper.toJson(result));
         return result;
     }
 
@@ -1240,6 +1241,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         } else {
             result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_GET_TRANSPLAN_ERROR, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_GET_TRANSPLAN_ERROR);
         }
+        log.info("ColdChainExternalService,getTransPlan，入参:{},结果:{}",JsonHelper.toJson(request),JsonHelper.toJson(result));
         return result;
     }
 }
