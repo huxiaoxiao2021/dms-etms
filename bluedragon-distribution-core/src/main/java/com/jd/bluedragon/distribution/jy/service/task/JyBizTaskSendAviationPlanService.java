@@ -49,4 +49,6 @@ public interface JyBizTaskSendAviationPlanService {
     List<JyBizTaskSendAviationPlanEntity> findNoSealTaskByBizIds(List<String> bizIds);
     
     List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition);
+
+    int batchUpdateShuttleSealFlag(JyBizTaskSendAviationPlanQueryCondition condition);
 }
