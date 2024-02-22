@@ -514,19 +514,19 @@
     </bean>
 
     <!-- 业务操作拦截原始动作记录 -->
-    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="businessOperateInterceptActionSendProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.intercept.action.send}"/>
     </bean>
     <!-- 业务操作拦截消息发送给拦截报表 -->
-    <bean id="businessOperateInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="businessOperateInterceptSendProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
     </bean>
     <!-- 拦截后处理原始动作数据发出消息 -->
-    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="disposeActionAfterInterceptSendProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeActionAfterIntercept.send}"/>
     </bean>
     <!-- 拦截后处理数据发送给拦截报表 -->
-    <bean id="disposeAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="disposeAfterInterceptSendProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
     <!-- 离线操作任务上传后发出mq消息 -->
