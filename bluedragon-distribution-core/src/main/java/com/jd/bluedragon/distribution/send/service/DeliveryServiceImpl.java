@@ -4075,8 +4075,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         }
                     }
                     sendDetailList.add(tSendDetail);
+                    log.info("jy_operate_flow底表排查-发货节点1:tSendDetail={}", JsonHelper.toJson(tSendDetail));
                     JyOperateFlowMqData sendFlowMq = BeanConverter.convertToJyOperateFlowMqData(tSendDetail);
                     sendFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SEND.getCode());
+                    log.info("jy_operate_flow底表排查-发货节点2:sendFlowMq={}", JsonHelper.toJson(sendFlowMq));
                     sendFlowMqList.add(sendFlowMq);
                 }
             }
@@ -4322,10 +4324,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
 	                dSendDetail.setBoardCode(newSendM.getBoardCode());
 	                dSendDetail.setBizSource(newSendM.getBizSource());
+                    log.info("jy_operate_flow底表排查-com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl" +
+                            ".updatewaybillCodeMessage-4327:newSendM={}", JsonHelper.toJson(newSendM));
 	                OperatorData operatorData = BeanConverter.convertToOperatorData(newSendM);
 	                dSendDetail.setOperatorTypeCode(operatorData.getOperatorTypeCode());
 	                dSendDetail.setOperatorId(operatorData.getOperatorId());
-	                dSendDetail.setOperatorData(operatorData);   
+	                dSendDetail.setOperatorData(operatorData);
+                    log.info("jy_operate_flow底表排查-com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl" +
+                            ".updatewaybillCodeMessage-4327:dSendDetail={}", JsonHelper.toJson(dSendDetail));
 	                sendDetailList.add(dSendDetail);
 	            }
 	        }

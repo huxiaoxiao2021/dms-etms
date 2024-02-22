@@ -386,6 +386,7 @@ public class BeanConverter {
 			log.error("BeanConverter.convertToJyOperateFlowDto error!", e);
 		}
 		dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
+		log.info("jy_operate_flow底表排查-消费3:dto={}", com.jd.bluedragon.utils.JsonHelper.toJson(dto));
 		return dto;
 	}
 }
