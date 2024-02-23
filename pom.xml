@@ -73,8 +73,8 @@
 		<!--		kafka版本-->
 		<jdq4-sdk-version>1.0.0-SNAPSHOT</jdq4-sdk-version>
 		<vd-service-sdk.version>1.4.5-SNAPSHOT</vd-service-sdk.version>
-
-	</properties>
+		<tenant-jsf-filter-sdk.version>1.0.1-SORTING-RELEASE</tenant-jsf-filter-sdk.version>
+    </properties>
 
 	<dependencies>
 		<dependency>
@@ -472,6 +472,11 @@
 				<groupId>vd-service-sdk</groupId>
 				<artifactId>vd-service-sdk</artifactId>
 				<version>${vd-service-sdk.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jdl.sorting.tech</groupId>
+				<artifactId>tenant-jsf-filter-sdk</artifactId>
+				<version>${tenant-jsf-filter-sdk.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

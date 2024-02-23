@@ -12,6 +12,14 @@
     <bean id="simpleComplexSwitchGatewayFilter" class="com.jd.bluedragon.external.gateway.filter.SimpleComplexSwitchGatewayFilter" scope="prototype"/>
     <jsf:filter id="gatewayFilter" ref="simpleComplexSwitchGatewayFilter" providers="*" consumers=""/>
 
+    <!--接收app传入的租户编码信息-->
+    <bean id="appTenantJSFProviderFilter" class="com.jd.bluedragon.external.gateway.filter.AppTenantJSFProviderFilter" scope="prototype">
+        <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
+        <constructor-arg name="tenantAppConfigKey" value="tenantCodeStr"></constructor-arg>
+    </bean>
+    <jsf:filter id="appTenantProviderFilter" ref="appTenantJSFProviderFilter" providers="jsfJyUnloadVehicleGatewayService,jsfJySendVehicleGatewayService" consumers=""/>
+
+
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
                   interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"
