@@ -158,10 +158,37 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     }
 
     private boolean needSkipCheckOfflined(SortingCheckRequest checkRequest) {
+        if (ObjectHelper.isNotNull(checkRequest) && ObjectHelper.isNotNull(checkRequest.getCurrentOperate())){
+            Integer siteCode =checkRequest.getCurrentOperate().getSiteCode();
+            if (checkIfSitePermit(siteCode)){
+                return true;
+            }
+        }
         if (checkIsNeedSkipBoxType(checkRequest)){
             return true;
         }
         return false;
+    }
+
+    private boolean checkIfSitePermit(Integer siteCode) {
+        if (ObjectHelper.isNotNull(dmsConfigManager.getPropertyConfig().getCollectPackageSitePermitList())){
+            List<Integer> sitePermitList = buildSitePermitList(dmsConfigManager.getPropertyConfig().getCollectPackageSitePermitList());
+            if (CollectionUtils.isNotEmpty(sitePermitList) && sitePermitList.contains(siteCode)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Integer> buildSitePermitList(String collectPackageSitePermitList) {
+        List<Integer> list =new ArrayList<>();
+        if (collectPackageSitePermitList.contains(",")){
+            list = Arrays.asList(collectPackageSitePermitList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+        }
+        else {
+            list.add(Integer.valueOf(collectPackageSitePermitList));
+        }
+        return list;
     }
 
     private boolean checkIsNeedSkipBoxType(SortingCheckRequest checkRequest) {
