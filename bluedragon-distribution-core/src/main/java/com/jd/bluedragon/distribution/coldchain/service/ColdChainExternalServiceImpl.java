@@ -991,6 +991,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                 //新接口
                 SendRequest sendRequest = new SendRequest();
                 BeanUtils.copyProperties(request,sendRequest);
+                sendRequest.setBarCode(request.getBoxCode());
                 sendRequest.setIsCancelLastSend(Boolean.FALSE);//不需要取消上次发货
                 sendRequest.setSendChainModeEnum(SendChainModeEnum.DEFAULT);//发货模式设置
                 JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
