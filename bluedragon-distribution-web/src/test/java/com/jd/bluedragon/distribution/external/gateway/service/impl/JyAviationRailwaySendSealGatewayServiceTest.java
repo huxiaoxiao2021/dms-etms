@@ -72,7 +72,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         SealCarPreRequest jsonParam = JSONObject.parseObject(json, SealCarPreRequest.class);
         int i = 0;
         while(i++<100) {
-
             Object obj = newSealVehicleGatewayService.newCheckTranCodeAndBatchCode(jsonParam);
             System.out.println("success");
         }
@@ -87,13 +86,11 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     @Test
     public void testFetchAviationToSendAndSendingList() {
         AviationSendTaskListReq request = new AviationSendTaskListReq();
-
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
         request.setPost(POST);
         request.setStatusCode(JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getCode());
-
 //        request.setKeyword();
 //        request.setFilterConditionDto();
 
@@ -102,7 +99,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.fetchAviationToSendAndSendingList(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -122,7 +118,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationTaskByNextSite(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -180,7 +175,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setPost(POST);
         request.setPageNo(1);
         request.setPageSize(30);
-
         request.setSendVehicleBizId("SST23082500000056");
         request.setSendVehicleDetailBizId("TW23082500975599-001");
 
@@ -189,7 +183,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.pageFetchAviationSealedList(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -205,7 +198,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.pageFetchFilterCondition(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -224,18 +216,15 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.pageFetchShuttleSendTaskList(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
     public void testfetchTransportCodeList() {
-
         TransportCodeQueryReq request = new TransportCodeQueryReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
         request.setGroupCode(GROUP_CODE);
         request.setPost(POST);
-
         request.setBizId("SST23082300000007");
         request.setDetailBizId("DCH202308230002");
 
@@ -249,7 +238,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Test
     public void testScanAndCheckTransportInfo() {
-
         ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -258,12 +246,12 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setTransportCode("T230831003803");
         request.setNextSiteId(3011);
         request.setTaskType(SendTaskTypeEnum.AVIATION.getCode());
+
         int i = 0;
         while(i++<100) {
             Object obj = aviationRailwaySendSealGatewayService.scanAndCheckTransportInfo(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -300,11 +288,9 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         int i = 0;
         while(i++<100) {
             SendTaskBindReq jsonParam = JSONObject.parseObject(json, SendTaskBindReq.class);
-
             Object obj = aviationRailwaySendSealGatewayService.sendTaskBinding(jsonParam);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -319,12 +305,12 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setBizId("SST23082500000051");
         request.setUnbindBizId("SST23082400000132");
         request.setUnbindDetailBizId("DCH15520230824152643");
+
         int i = 0;
         while(i++<100) {
             Object obj = aviationRailwaySendSealGatewayService.sendTaskUnbinding(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -337,6 +323,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
         request.setDetailBizId("TW23082500975485-001");
         request.setBizId("SST23082500000051");
+
         int i = 0;
         while(i++<100) {
             Object obj = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
@@ -345,7 +332,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj1 = aviationRailwaySendSealGatewayService.fetchSendTaskBindingData(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -363,7 +349,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.fetchShuttleTaskSealCarInfo(request);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -374,7 +359,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         String bizId = "SST23090700000025";
         String detailBizId = "TW23090700977922-001";
 
-
         ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
         request.setCurrentOperate(SITE_910);
         request.setUser(USER_wuyoude);
@@ -383,7 +367,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         request.setTransportCode(transportCode);
         request.setNextSiteId(endSiteId);
         request.setTaskType(SendTaskTypeEnum.VEHICLE.getCode());
-
 
         ShuttleTaskSealCarReq sealReq = new ShuttleTaskSealCarReq();
         sealReq.setCurrentOperate(SITE_910);
@@ -454,18 +437,15 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             JdCResponse<Void> res = aviationRailwaySendSealGatewayService.shuttleTaskSealCar(param);
             System.out.println("succ");
         }
-
     }
 
     @Test
     public void testAviationTaskSealCar() {
         //测试910-40240的封车
-
         String transportCode = "T190703000723";
         Integer endSiteId = 40240;
         String bizId = "SST23082400000051";
         String detailBizId = "DCH20230824144926";
-
 
         ScanAndCheckTransportInfoReq request = new ScanAndCheckTransportInfoReq();
         request.setCurrentOperate(SITE_910);
@@ -534,7 +514,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.aviationTaskSealCar(param);
             System.out.println("succ");
         }
-
     }
 
     @Test
@@ -552,6 +531,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         JdVerifyResponse<AviationSendScanResp> jdVerifyResponse = aviationRailwaySendSealGatewayService.scan(request);
         System.out.println(JsonHelper.toJson(jdVerifyResponse));
     }
+
     @Test
     public void testGetAviationSendVehicleProgress() {
         AviationSendVehicleProgressReq request = new AviationSendVehicleProgressReq();
@@ -568,7 +548,6 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         AviationSendAbnormalPackReq req = new AviationSendAbnormalPackReq();
         req.setBizId("");
         aviationRailwaySendSealGatewayService.abnormalBarCodeDetail(req);
-
     }
     @Test
     public void testSendBarCodeDetail() {
