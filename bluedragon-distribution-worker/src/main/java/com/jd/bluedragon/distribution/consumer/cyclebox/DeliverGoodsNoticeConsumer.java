@@ -94,6 +94,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
                 waybillCodeList=new ArrayList<>(waybillCodeSet);
             }else{
                 log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}" , message.getText());
+                //TODO chec一下是不是LL 嵌套BC 模式
                 return;
             }
             context.setWaybillCode(waybillCodeList);

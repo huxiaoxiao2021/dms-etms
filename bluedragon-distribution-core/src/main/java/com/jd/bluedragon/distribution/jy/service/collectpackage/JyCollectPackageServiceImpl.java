@@ -29,6 +29,8 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
@@ -74,6 +76,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -88,7 +91,7 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.SITE_TYPE_WMS;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
-@Service
+@Service("jyCollectPackageService")
 @Slf4j
 public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
@@ -141,6 +144,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private RouterService routerService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+    @Resource
+    private FuncSwitchConfigService funcSwitchConfigService;
 
 
     /**
@@ -336,7 +341,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return JSON.toJSONString(bodyList);
     }
 
-    private void collectPackageBizCheck(CollectPackageReq request) {
+    public void collectPackageBizCheck(CollectPackageReq request) {
         //重复集包校验
         reCollectCheck(request);
         //校验箱号：是否存在 +是否已打印+状态合法性+是否已经发货
@@ -638,6 +643,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         request.setBoxReceiveId(Long.valueOf(box.getReceiveSiteCode()));
         request.setBoxReceiveName(box.getReceiveSiteName());
+        request.setBoxType(box.getType());
         request.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
         if (ObjectHelper.isNotNull(request.getBoxReceiveId())){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getBoxReceiveId().intValue());
@@ -1003,11 +1009,24 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         // LL类型和BC类型 绑定集包袋校验
         if (BusinessHelper.isLLBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))
                 || BusinessHelper.isBCBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))) {
-            String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
-            if (StringUtils.isEmpty(materialRelation)) {
-                result.setCode(RESULT_THIRD_ERROR_CODE);
-                result.setMessage("该箱号未绑定集包袋，不允许封箱！");
-                return false;
+
+            if (ObjectHelper.isNotNull(request.getCurrentOperate()) && ObjectHelper.isNotNull(request.getCurrentOperate().getSiteCode())){
+                boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), request.getCurrentOperate().getSiteCode());
+                if (needBindMaterialBag){
+                    String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+                    if (StringUtils.isEmpty(materialRelation)) {
+                        result.setCode(RESULT_THIRD_ERROR_CODE);
+                        result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+                        return false;
+                    }
+                }
+            }else {
+                String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+                if (StringUtils.isEmpty(materialRelation)) {
+                    result.setCode(RESULT_THIRD_ERROR_CODE);
+                    result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+                    return false;
+                }
             }
         }
         return true;
