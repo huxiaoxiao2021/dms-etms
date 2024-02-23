@@ -80,7 +80,7 @@ public class JyPickingTaskAggsCacheService {
      * 提货任务初始化后的待提总数
      */
     private static final String CACHE_INIT_WAIT_PICKING_TOTAL_NUM = "cache:init:wait:picking:total:num:%s:%s";
-    //todo zcf 扫描续期
+
     private static final Integer CACHE_INIT_WAIT_PICKING_TOTAL_NUM_TIMEOUT_SECOND = 60;
     /**
      * 提货任务初始化后按流向的待发总数

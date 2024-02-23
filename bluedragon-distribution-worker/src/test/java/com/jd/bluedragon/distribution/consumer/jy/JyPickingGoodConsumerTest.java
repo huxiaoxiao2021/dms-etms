@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.consumer.jy.task.dto.TmsAviationPickingGoo
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jd.bluedragon.distribution.jy.service.common.CommonService;
+import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -54,14 +54,13 @@ public class JyPickingGoodConsumerTest  {
     @Autowired
     private JyPickingGoodDetailInitConsumer jyPickingGoodDetailInitConsumer;
     @Autowired
-    private CommonService commonService;
-    @Autowired
     private JyPickingGoodWaitScanItemNumUpdateConsumer jyPickingGoodWaitScanItemNumUpdateConsumer;
     @Autowired
     private JyPickingGoodDetailInitSplitConsumer jyPickingGoodDetailInitSplitConsumer;
     @Autowired
     private JyPickingGoodScanSplitPackageConsumer jyPickingGoodScanSplitPackageConsumer;
-
+    @Autowired
+    private RouterService routerService;
     @Test
     public void test() {
         String boxCode = "BC1001210816140000000505";
@@ -74,13 +73,13 @@ public class JyPickingGoodConsumerTest  {
 
             long startTime1 = System.currentTimeMillis();
             for (int i = 0; i < waybillNumMax; i++) {
-                commonService.getRouteNextSiteByWaybillCode(40240, waybillCode);
+                routerService.getRouteNextSiteByWaybillCode(40240, waybillCode);
             }
             Long temp1 = (System.currentTimeMillis() - startTime1) / 1000;
 
             long startTime2 = System.currentTimeMillis();
             for (int i = 0; i < boxNumMax; i++) {
-                commonService.getRouteNextSiteByBox(40240, boxCode);
+                routerService.getRouteNextSiteByBox(40240, boxCode);
             }
             Long temp2 = (System.currentTimeMillis() - startTime2) / 1000;
 
