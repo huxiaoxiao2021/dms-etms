@@ -59,6 +59,7 @@ public class GroupRouterTenantUtil implements GroupRouter, ApplicationContextAwa
             tenantManager = context.getBean(TenantManager.class);
         }
         String alies = tenantManager.getCallInterfaceAlies(tenantCode,tenantJsfAliasConfigKey);
+        logger.info("GroupRouterTenantUtil-router,tenantCode={},alies={}",tenantCode,alies);
         return alies;
     }
 
