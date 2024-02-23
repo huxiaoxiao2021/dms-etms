@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.businessIntercept;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.jy.service.exception.JyBusinessInterceptExceptionService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -22,7 +23,7 @@ import java.text.MessageFormat;
  * @time 2024-01-14 17:30:22 周日
  */
 @Service("dmsBusinessInterceptDisposeConsumer")
-public class DmsBusinessInterceptDisposeConsumer extends MessageBaseConsumer {
+public class DmsBusinessInterceptDisposeConsumer extends MessageBaseWithoutUATConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(DmsBusinessInterceptDisposeConsumer.class);
 
