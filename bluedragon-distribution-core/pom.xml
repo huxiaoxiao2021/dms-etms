@@ -2760,6 +2760,16 @@
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>vd-service-sdk</groupId>
+			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
+
+		<!--拣运租户组件-->
+		<dependency>
+			<groupId>com.jdl.sorting.tech</groupId>
+			<artifactId>tenant-jsf-filter-sdk</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>
