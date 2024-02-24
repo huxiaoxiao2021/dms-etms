@@ -230,7 +230,7 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	}
 
 	@Override
-	public List<UserSignRecord> queryByGridSign(UserSignRecordQuery query) {
+	public List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryByGridSign", query);
 	}
 }

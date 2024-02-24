@@ -18,6 +18,7 @@ import com.google.common.base.Objects;
 import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -30,6 +31,8 @@ import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.user.JyThirdpartyUser;
+import com.jdl.basic.api.domain.user.JyTpUserScheduleQueryDto;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
@@ -114,6 +117,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private static final String SEND_SCAN_QUOTA_CODE="dis000034";
 	// 指标改善任务场地数量 sysconfig配置
 	private static final String KPI_IMPROVE_TASK_SITE_NUM_KEY = "kpi.improve.task.site.num";
+	//任务责任人-人员签到数据开始时间查询偏移量 sysconfig配置
+	private static final String SIGN_DATE_START_OFFSET = "sign.date.start.offset";
 
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
@@ -1279,7 +1284,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return result;
 		}
 		
-		//查询网格所有工序
+		//查询任务所在网格下所有工序
 		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
 		workStationGridQuery.setRefWorkGridKey(taskData.getTaskRefGridKey());
 		List<WorkStationGrid> workStationGrids = workStationGridManager.queryListForWorkGridVo(workStationGridQuery);
@@ -1288,20 +1293,155 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return result;
 		}
 		
-		List<String> refWorkKeys = workStationGrids.stream().map( s -> s.getBusinessKey()).collect(Collectors.toList());
+		List<String> refWorkKeys = workStationGrids.stream().map(WorkStationGrid::getBusinessKey).collect(Collectors.toList());
+		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(refWorkKeys, taskData.getProcessBeginTime());
+		if(CollectionUtils.isEmpty(userSignRecords)){
+			result.toFail("该任务所在网格无签到数据！");
+			return result;
+		}
+		
+		//正式工
+		List<ResponsibleInfo> formalWorkerResponsibleInfo = formalWorkerResponsibleInfo(userSignRecords);
+		
+		//网格工序对应外包商
+		List<ResponsibleSupplier> suppliers = getWorkGridSupplier(workStationGrids, bizId);
+		//外包工
+		
+		
+		return null;
+	}
+
+	/**
+	 * 获取网格工序绑定的外包商
+	 * @return
+	 */
+	List<ResponsibleSupplier> getWorkGridSupplier(List<WorkStationGrid> workStationGrids, String bizId){
+		List<ResponsibleSupplier> supplierList = workStationGrids.stream()
+				.filter(w -> StringUtils.isNotBlank(w.getSupplierName()) && StringUtils.isNotBlank(w.getSupplierCode()))
+				.map(w -> {ResponsibleSupplier supplier = new ResponsibleSupplier();
+					supplier.setSupplierName(w.getSupplierName());
+					supplier.setSupplierId(w.getSupplierCode());
+					return supplier;
+				}).collect(Collectors.toList());
+		
+		if(org.apache.commons.collections4.CollectionUtils.isEmpty(supplierList)){
+			logger.info("网格未绑定外包商，bizId:{}, siteCode:{}", bizId, workStationGrids.get(0).getSiteCode());
+			return supplierList;
+		}
+		
+		//去重
+		List<ResponsibleSupplier> suppliers = new ArrayList<>();
+		supplierList.stream().filter(StringHelper.distinctByKey(ResponsibleSupplier::getSupplierId)).forEach(suppliers::add);
+		return suppliers;
+	}
+	/**
+	 * 正式工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> formalWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤正式工签到数据
+		List<BaseUserSignRecordVo> formalWorkerUserSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE1.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(formalWorkerUserSignRecords)){
+			return responsibleInfos;
+		}
+		for(BaseUserSignRecordVo userSignRecord : formalWorkerUserSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(userSignRecord.getJobCode());
+			responsibleInfo.setErp(userSignRecord.getUserCode());
+			responsibleInfo.setName(userSignRecord.getUserName());
+			responsibleInfos.add(responsibleInfo);
+		}
+		return responsibleInfos;
+	}
+	/**
+	 * 外包工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> outsourcingWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords,
+																   Integer siteCode, String bizId, List<ResponsibleSupplier> suppliers){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤外包工签到数据
+		List<BaseUserSignRecordVo> outsourcingUserSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE3.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(outsourcingUserSignRecords)){
+			logger.info("签到数据无外包工签到记录,bizId:{},siteCode:{}", bizId, siteCode);
+			return responsibleInfos;
+		}
+		
+		List<JyTpUserScheduleQueryDto> dtos = new ArrayList<>();
+		for(BaseUserSignRecordVo userSignRecord : outsourcingUserSignRecords){
+			JyTpUserScheduleQueryDto dto = new JyTpUserScheduleQueryDto();
+			dto.setSiteCode(siteCode);
+			//外包工种
+			dto.setNature(String.valueOf(JOBTYPE3.getCode()));
+			dto.setUserCode(userSignRecord.getUserCode());
+			dto.setScheduleDate(userSignRecord.getSignInTime());
+			dtos.add(dto);
+		}
+		//查询三方人员储备，获取外包人员对应的外包商
+		Result<List<JyThirdpartyUser>> jyThirdpartyUserResult = jyUserManager.batchQueryJyThirdpartyUser(dtos);
+		Map<String, JyThirdpartyUser> userCodeToUser = null;
+		if(jyThirdpartyUserResult.isFail() || CollectionUtils.isEmpty(jyThirdpartyUserResult.getData())){
+			logger.info("外包工-责任备选人，未查到外包工,bizId:{}, siteCode:{}", bizId,siteCode);
+		}else {
+			userCodeToUser = jyThirdpartyUserResult.getData().stream().
+					collect(Collectors.toMap(JyThirdpartyUser::getUserCode, user->user));
+		}
+		
+		for(BaseUserSignRecordVo vo : outsourcingUserSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(JOBTYPE3.getCode());
+			responsibleInfo.set
+		}
+		
+		
+		
+	}
+
+	/**
+	 * 查询任务网格签到数据
+	 * @param refWorkKeys 工序外键
+	 * @param processBeginTime 任务开始时间
+	 * @return
+	 */
+	private List<BaseUserSignRecordVo> getWorkStationGridJobSignRecordList(List<String> refWorkKeys, Date processBeginTime){
 		UserSignRecordQuery query = new UserSignRecordQuery();
 		query.setRefGridKeyList(refWorkKeys);
 		//正式 外包 临时
 		List<Integer> jobCodeList = Arrays.asList(JOBTYPE1.getCode(), JOBTYPE3.getCode(), JOBTYPE4.getCode());
 		query.setJobCodeList(jobCodeList);
-		//最早查询任务发生前8小时的签到人
-		Date signDateStart = DateHelper.addHours(taskData.getProcessBeginTime(), -8);
+		//签到时间往前偏移n小时
+		Date signDateStart = DateHelper.addHours(processBeginTime, -1 * getSignDateStartOffset());
 		query.setSignDateStart(signDateStart);
-		query.setSignDateEnd(taskData.getProcessBeginTime());
-		List<UserSignRecord> userSignRecords = userSignRecordService.queryByGridSign(query);
-		return null;
+		query.setSignDateEnd(processBeginTime);
+		//查询任务开始前签到数据
+		List<BaseUserSignRecordVo> records = userSignRecordService.queryByGridSign(query);
+		if(CollectionUtils.isEmpty(records)){
+			return records;
+		}
+		//userCode 在库里为加密存储，不方便在查询sql中去重
+		List<BaseUserSignRecordVo> recordList = new ArrayList<>(records.size());
+		//根据userCode 去重
+		records.stream().filter(StringHelper.distinctByKey(BaseUserSignRecordVo::getUserCode)).forEach(recordList::add);
+		return recordList;
 	}
 
+	/**
+	 * 开始时间偏移量
+	 * @return
+	 */
+	private int getSignDateStartOffset(){
+		int hours = 8;
+		SysConfig signDateStartOffsetConfig = sysConfigService.findConfigContentByConfigName(SIGN_DATE_START_OFFSET);
+		if(signDateStartOffsetConfig != null && org.apache.commons.lang3.StringUtils.isNumeric(signDateStartOffsetConfig.getConfigContent())){
+			hours = Integer.parseInt(signDateStartOffsetConfig.getConfigContent());
+		}
+		return hours;
+	}
 	
 
 	/**

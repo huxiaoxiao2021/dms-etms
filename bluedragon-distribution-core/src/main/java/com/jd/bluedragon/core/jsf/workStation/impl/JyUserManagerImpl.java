@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jdl.basic.api.domain.user.JyUser;
-import org.apache.commons.lang3.ArrayUtils;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jdl.basic.api.domain.user.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.user.JyUserDto;
-import com.jdl.basic.api.domain.user.JyUserQueryDto;
 import com.jdl.basic.api.service.user.UserJsfService;
 import com.jdl.basic.common.utils.Result;
 
@@ -79,5 +78,30 @@ public class JyUserManagerImpl implements JyUserManager {
 		}
 		return result;
 	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "batchQueryJyThirdpartyUser",mState={JProEnum.TP,JProEnum.FunctionError})
+	public Result<List<JyThirdpartyUser>> batchQueryJyThirdpartyUser(List<JyTpUserScheduleQueryDto> dtos) {
+		Result<List<JyThirdpartyUser>> result = Result.success();
+		if(CollectionUtils.isEmpty(dtos)){
+			return Result.fail("批量查询三方储备人员信息查询参数为空");
+		}
+		try {
+			com.jd.dms.java.utils.sdk.base.Result<List<JyThirdpartyUser>> jyThirdpartyUsers = userJsfService.batchQueryJyThirdpartyUser(dtos);
+			if(jyThirdpartyUsers == null){
+				log.info("批量查询三方储备人员信息返回值为null,dtos:{}", JsonHelper.toJson(dtos));
+				return result;
+			}
+			if(CollectionUtils.isEmpty(jyThirdpartyUsers.getData())){
+				log.info("批量查询三方储备人员信息-未查到三方储备信息,dtos:{}", JsonHelper.toJson(dtos));
+			}
+			return result.setData(jyThirdpartyUsers.getData());
+		}catch (Exception e){
+			result.toError("批量查询三方储备人员信息异常");
+			log.error("批量查询三方储备人员信息异常{}",  e.getMessage(),e);
+		}
+		return result;
+	}
+	
 
 }

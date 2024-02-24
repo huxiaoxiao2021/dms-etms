@@ -6,10 +6,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
@@ -251,5 +248,5 @@ public interface UserSignRecordService {
 	 */
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 
-    List<UserSignRecord> queryByGridSign(UserSignRecordQuery query);
+    List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
 }

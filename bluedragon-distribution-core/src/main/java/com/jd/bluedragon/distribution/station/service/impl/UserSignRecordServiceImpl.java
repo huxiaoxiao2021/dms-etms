@@ -2039,7 +2039,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return  "";
 	}
 	@Override
-	public List<UserSignRecord> queryByGridSign(UserSignRecordQuery query){
+	public List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query){
 		return userSignRecordDao.queryByGridSign(query);
 	}
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -27,6 +28,10 @@ public class BaseUserSignRecordVo implements Serializable {
      */
     private Integer jobCode;
 
+    /**
+     * 签到时间
+     */
+    private Date signInTime;
 
     public Integer getSiteCode() {
         return siteCode;
@@ -58,5 +63,13 @@ public class BaseUserSignRecordVo implements Serializable {
 
     public void setJobCode(Integer jobCode) {
         this.jobCode = jobCode;
+    }
+
+    public Date getSignInTime() {
+        return signInTime;
+    }
+
+    public void setSignInTime(Date signInTime) {
+        this.signInTime = signInTime;
     }
 }
