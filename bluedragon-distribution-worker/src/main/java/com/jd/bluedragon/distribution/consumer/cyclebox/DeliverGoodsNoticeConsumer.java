@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
@@ -55,6 +57,9 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
     @Autowired
     BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private BoxService boxService;
+
     @Override
     public void consume(Message message) {
         log.info("DeliverGoodsNoticeConsumer start...");
@@ -85,15 +90,23 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             sorting.setBoxCode(context.getBoxCode());
             sorting.setCreateSiteCode(Integer.parseInt(context.getSiteCode()));
             List<Sorting> list = sortingService.findByBoxCode(sorting);
-            if(list!=null && !list.isEmpty()){
+            if (list != null && !list.isEmpty()) {
+                final Box boxExist = boxService.findBoxByCode(context.getBoxCode());
+                if (boxExist != null) {
+                    sorting.setCreateSiteCode(boxExist.getCreateSiteCode());
+                    list = sortingService.findByBoxCode(sorting);
+                }
+            }
+
+            if (list != null && !list.isEmpty()) {
                 Set<String> waybillCodeSet = new HashSet<>();
-                for(Sorting sort :list){
+                for (Sorting sort : list) {
                     waybillCodeSet.add(sort.getWaybillCode());
                     packageCodeList.add(sort.getPackageCode());
                 }
-                waybillCodeList=new ArrayList<>(waybillCodeSet);
-            }else{
-                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}" , message.getText());
+                waybillCodeList = new ArrayList<>(waybillCodeSet);
+            } else {
+                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}", message.getText());
                 return;
             }
             context.setWaybillCode(waybillCodeList);

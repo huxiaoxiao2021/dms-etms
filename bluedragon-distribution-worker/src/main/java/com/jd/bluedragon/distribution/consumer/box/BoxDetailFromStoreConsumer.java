@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -102,7 +103,10 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         }
         checkBoxIfNeedUpdate(box,boxDetail);
         checkIfNeedConvertUserInfo(boxDetail);
-        boxService.upsertBoxMaterialRelation4WmsBoxUsage(boxDetail);
+        final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = boxService.upsertBoxMaterialRelation4WmsBoxUsage(boxDetail);
+        if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
+            log.error("checkBoxDetailLegality BoxService.upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(boxDetail));
+        }
         //判断箱号状态-总体消息执行的状态-幂等防重
         if (BOX_STATUS_SEALED.equals(box.getStatus())){//TODO  用这个状态会不是对其他业务有影响，换成预留字段 或者 redis
             //消息重放场景-直接跳过
