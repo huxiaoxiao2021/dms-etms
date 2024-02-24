@@ -102,6 +102,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
         }
         checkBoxIfNeedUpdate(box,boxDetail);
         checkIfNeedConvertUserInfo(boxDetail);
+        boxService.upsertBoxMaterialRelation4WmsBoxUsage(boxDetail);
         //判断箱号状态-总体消息执行的状态-幂等防重
         if (BOX_STATUS_SEALED.equals(box.getStatus())){//TODO  用这个状态会不是对其他业务有影响，换成预留字段 或者 redis
             //消息重放场景-直接跳过
@@ -122,10 +123,21 @@ public class BoxDetailFromStoreConsumer extends MessageBaseConsumer {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(packageDto.getUserErp());
                 if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getStaffNo())){
                     packageDto.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+                    if(StringUtils.isBlank(boxDetail.getOperateUserErp())){
+                        boxDetail.setOperateUserErp(packageDto.getUserErp());
+                    }
                 }else {
                     packageDto.setUserCode(-1);
                 }
+            } else {
+                if(StringUtils.isBlank(boxDetail.getOperateUserErp())){
+                    boxDetail.setOperateUserErp(packageDto.getUserErp());
+                }
             }
+        }
+
+        if(StringUtils.isBlank(boxDetail.getOperateUserErp())){
+            boxDetail.setOperateUserErp("system");
         }
     }
 
