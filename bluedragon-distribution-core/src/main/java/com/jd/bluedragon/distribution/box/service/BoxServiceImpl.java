@@ -152,7 +152,7 @@ public class BoxServiceImpl implements BoxService {
     @Resource(name="siteBoxSubTypeMap")
     private Map<String,String> siteBoxSubTypeMap;
 
-    @Resource
+    @Autowired
     private BoxMaterialRelationService boxMaterialRelationService;
 
     public Integer add(Box box) {
@@ -1174,7 +1174,7 @@ public class BoxServiceImpl implements BoxService {
             boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
         } catch (Exception e) {
             result.toFail("系统异常");
-            log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request));
+            log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request), e);
         }
         return result;
     }
