@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -101,6 +102,15 @@ public interface BoxService {
      * @return
      */
     BoxResponse updateBox(UpdateBoxReq request);
+
+    /**
+     * 更新箱号绑定物资关系
+     * @param request 请求入参
+     * @return 处理结果
+     * @auhtor fanggang7
+     * @time 2024-02-24 13:00:58 周六
+     */
+    Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request);
 
     void computeRouter(List<Map.Entry<Integer, String>> router);
 

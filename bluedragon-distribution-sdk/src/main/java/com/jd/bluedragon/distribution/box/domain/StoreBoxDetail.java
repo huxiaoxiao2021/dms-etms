@@ -34,6 +34,8 @@ public class StoreBoxDetail implements Serializable {
      */
     private String materialCode;
 
+    private String operateUserErp;
+
     public String getBoxCode() {
         return boxCode;
     }
@@ -96,5 +98,13 @@ public class StoreBoxDetail implements Serializable {
 
     public void setMaterialCode(String materialCode) {
         this.materialCode = materialCode;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
     }
 }

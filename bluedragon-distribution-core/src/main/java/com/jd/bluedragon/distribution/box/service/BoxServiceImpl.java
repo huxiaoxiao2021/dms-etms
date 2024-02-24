@@ -1147,23 +1147,36 @@ public class BoxServiceImpl implements BoxService {
 		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if (checkBoxIfCanUpdate(request,response)){
 			execUpdateBox(request,response);
-            this.upsertBoxMaterialRelation4WmsBoxUsage(request);
 		}
 		return response;
 	}
 
-    private void upsertBoxMaterialRelation4WmsBoxUsage(UpdateBoxReq request) {
-        if(StringUtils.isBlank(request.getMaterialCode())){
-            return;
+    /**
+     * 更新箱号绑定物资关系
+     * @param request 请求入参
+     * @return 处理结果
+     * @auhtor fanggang7
+     * @time 2024-02-24 13:00:58 周六
+     */
+    public Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request) {
+        Result<Boolean> result = Result.success();
+        try {
+            if(StringUtils.isBlank(request.getMaterialCode())){
+                return result;
+            }
+            // 增加保存箱号绑定物资
+            final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
+            boxMaterialRelation.setBoxCode(request.getBoxCode());
+            boxMaterialRelation.setMaterialCode(request.getMaterialCode());
+            boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
+            boxMaterialRelation.setOperatorErp("");
+            boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
+            boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+        } catch (Exception e) {
+            result.toFail("系统异常");
+            log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request));
         }
-        // 增加保存箱号绑定物资
-        final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
-        boxMaterialRelation.setBoxCode(request.getBoxCode());
-        boxMaterialRelation.setMaterialCode(request.getMaterialCode());
-        boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
-        boxMaterialRelation.setOperatorErp(request.getUserErp());
-        boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
-        boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+        return result;
     }
 
 	/**
