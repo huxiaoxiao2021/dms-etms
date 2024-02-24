@@ -20,6 +20,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.TimeUtils;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             sorting.setBoxCode(context.getBoxCode());
             sorting.setCreateSiteCode(Integer.parseInt(context.getSiteCode()));
             List<Sorting> list = sortingService.findByBoxCode(sorting);
-            if (list != null && !list.isEmpty()) {
+            if (CollectionUtils.isEmpty(list)) {
                 final Box boxExist = boxService.findBoxByCode(context.getBoxCode());
                 if (boxExist != null) {
                     sorting.setCreateSiteCode(boxExist.getCreateSiteCode());
@@ -98,17 +99,16 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
                 }
             }
 
-            if (list != null && !list.isEmpty()) {
-                Set<String> waybillCodeSet = new HashSet<>();
-                for (Sorting sort : list) {
-                    waybillCodeSet.add(sort.getWaybillCode());
-                    packageCodeList.add(sort.getPackageCode());
-                }
-                waybillCodeList = new ArrayList<>(waybillCodeSet);
-            } else {
+            if (CollectionUtils.isEmpty(list)) {
                 log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}", message.getText());
                 return;
             }
+            Set<String> waybillCodeSet = new HashSet<>();
+            for (Sorting sort : list) {
+                waybillCodeSet.add(sort.getWaybillCode());
+                packageCodeList.add(sort.getPackageCode());
+            }
+            waybillCodeList = new ArrayList<>(waybillCodeSet);
             context.setWaybillCode(waybillCodeList);
             context.setPackageCode(packageCodeList);
             context.setOperatorTime(new Date());
