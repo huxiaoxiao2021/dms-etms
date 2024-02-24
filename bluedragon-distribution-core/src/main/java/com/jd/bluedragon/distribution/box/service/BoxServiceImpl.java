@@ -25,15 +25,15 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
-import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
+import com.jd.bluedragon.distribution.box.domain.*;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -151,6 +151,9 @@ public class BoxServiceImpl implements BoxService {
     private Map<String,String> sortingBoxSubTypeMap;
     @Resource(name="siteBoxSubTypeMap")
     private Map<String,String> siteBoxSubTypeMap;
+
+    @Resource
+    private BoxMaterialRelationService boxMaterialRelationService;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -1144,9 +1147,21 @@ public class BoxServiceImpl implements BoxService {
 		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if (checkBoxIfCanUpdate(request,response)){
 			execUpdateBox(request,response);
+            this.upsertBoxMaterialRelation4WmsBoxUsage(request);
 		}
 		return response;
 	}
+
+    private void upsertBoxMaterialRelation4WmsBoxUsage(UpdateBoxReq request) {
+        // 增加保存箱号绑定物资
+        final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
+        boxMaterialRelation.setBoxCode(request.getBoxCode());
+        boxMaterialRelation.setMaterialCode(request.getMaterialCode());
+        boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
+        boxMaterialRelation.setOperatorErp(request.getUserErp());
+        boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
+        boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+    }
 
 	/**
 	 * 校验箱号信息是否能更新

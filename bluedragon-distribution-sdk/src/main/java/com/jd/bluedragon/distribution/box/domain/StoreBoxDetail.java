@@ -29,6 +29,11 @@ public class StoreBoxDetail implements Serializable {
 
     private List<BoxPackageDto> packageList;
 
+    /**
+     * 物资编码
+     */
+    private String materialCode;
+
     public String getBoxCode() {
         return boxCode;
     }
@@ -83,5 +88,13 @@ public class StoreBoxDetail implements Serializable {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
     }
 }
