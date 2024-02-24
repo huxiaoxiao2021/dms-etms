@@ -142,7 +142,7 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
      * @time 2024-02-23 17:35:49 周五
      */
     @Override
-    @Transactional(value = "dms_business", propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(value = "business_support", propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public Result<Boolean> upsertBoxMaterialRelationBind(BoxMaterialRelation boxMaterialRelation) {
         log.info("BoxMaterialRelationImpl.upsertBoxMaterialRelation param {}", JsonHelper.toJson(boxMaterialRelation));
         Result<Boolean> result = Result.success();
