@@ -107,7 +107,7 @@ public interface BoxService {
      * 更新箱号绑定物资关系
      * @param request 请求入参
      * @return 处理结果
-     * @auhtor fanggang7
+     * @author fanggang7
      * @time 2024-02-24 13:00:58 周六
      */
     Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request);
