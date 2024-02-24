@@ -1153,6 +1153,9 @@ public class BoxServiceImpl implements BoxService {
 	}
 
     private void upsertBoxMaterialRelation4WmsBoxUsage(UpdateBoxReq request) {
+        if(StringUtils.isBlank(request.getMaterialCode())){
+            return;
+        }
         // 增加保存箱号绑定物资
         final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
         boxMaterialRelation.setBoxCode(request.getBoxCode());
