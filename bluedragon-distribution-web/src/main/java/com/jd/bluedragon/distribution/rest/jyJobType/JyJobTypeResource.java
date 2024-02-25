@@ -26,8 +26,8 @@ public class JyJobTypeResource {
     private JyJobTypeService jyJobTypeService;
 
     @GET
-    @Path("/jyJobType/getAll")
-    public List<JyJobType> getALlJyJobType() {
-        return jyJobTypeService.getAll();
+    @Path("/jyJobType/getAllAvailable")
+    public List<JyJobType> getAllAvailable() {
+        return jyJobTypeService.getAllAvailable();
     }
 }
