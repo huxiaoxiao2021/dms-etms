@@ -1,15 +1,14 @@
 package com.jd.bluedragon.distribution.rest.jyJobType;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jyJobType.JyJobTypeService;
 import com.jdl.basic.api.domain.jyJobType.JyJobType;
-import com.jdl.basic.api.domain.jyJobType.JyJobTypeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,9 +24,16 @@ public class JyJobTypeResource {
     @Autowired
     private JyJobTypeService jyJobTypeService;
 
+    /**
+     * 获取所有可用的JyJobType列表
+     *
+     * @return 返回包含JyJobType列表的InvokeResult对象
+     */
     @GET
     @Path("/jyJobType/getAllAvailable")
-    public List<JyJobType> getAllAvailable() {
-        return jyJobTypeService.getAllAvailable();
+    public InvokeResult<List<JyJobType>> getAllAvailable() {
+        InvokeResult<List<JyJobType>> result = new InvokeResult<>();
+        result.setData(jyJobTypeService.getAllAvailable());
+        return result;
     }
 }
