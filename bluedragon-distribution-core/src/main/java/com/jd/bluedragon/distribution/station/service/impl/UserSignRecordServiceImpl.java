@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
+import com.jd.bluedragon.distribution.jyJobType.JyJobTypeService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
@@ -60,7 +61,6 @@ import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationJobTypeDto;
-import com.jdl.basic.api.service.jyJobType.JyJobTypeJsfService;
 import com.jdl.basic.common.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -160,7 +160,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationGridManager workStationGridManager;
 
 	@Autowired
-	private JyJobTypeJsfService jyJobTypeJsfService;
+	private JyJobTypeService jyJobTypeService;
 
 	/**
 	 * 插入一条数据
@@ -2003,30 +2003,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
 		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
 		result.toSucceed();
-		JyJobTypeQuery query = buildJyJobTypeQuery();
 		try {
-			com.jdl.basic.common.utils.Result<com.jdl.basic.common.utils.PageDto<JyJobType>> pageDtoResult =
-				jyJobTypeJsfService.queryPageList(query);
-			if (pageDtoResult.isSuccess() && !pageDtoResult.isEmptyData()){
-				result.setData(pageDtoResult.getData().getResult());
-			}
+			List<JyJobType> list = jyJobTypeService.getAll();
+			result.setData(list);
 		} catch (Exception e) {
 			result.toFail("查询所有拣运工种异常");
 			log.error("UserSignRecordServiceImpl.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
 		}
 		return result;
-	}
-
-	/**
-	 * 构建JyJobTypeQuery对象
-	 *
-	 * @return JyJobTypeQuery对象，根据查询条件构建的查询对象
-	 */
-	private JyJobTypeQuery buildJyJobTypeQuery() {
-		JyJobTypeQuery jyJobTypeQuery = new JyJobTypeQuery();
-		jyJobTypeQuery.setPageSize(100);
-		jyJobTypeQuery.setPageNumber(1);
-		return jyJobTypeQuery;
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {
