@@ -33,6 +33,8 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     private int aviationSendSealListNextSiteQueryLimit;
     @Value("${jyAviationSendSealToSendQueryTakeOffTimeStartHour:24}")
     private int toSendQueryTakeOffTimeStartHour;
+    @Value("${jyAviationSendSealSendingQueryTakeOffTimeStartHour:48}")
+    private int sendingQueryTakeOffTimeStartHour;
 
     @Autowired
     private JyBizTaskSendAviationPlanDao jyBizTaskSendAviationPlanDao;
@@ -103,7 +105,7 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         //待发货统计
         JyBizTaskSendAviationPlanQueryCondition toSendQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, toSendQueryCondition);
-        //发货中状态时查待发货统计
+        //非待发货状态查询时：查待发货统计数据卡起飞时间范围
         if(!JyAviationRailwaySendVehicleStatusEnum.TO_SEND.getSendTaskStatus().equals(condition.getTaskStatus())) {
             toSendQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), toSendQueryTakeOffTimeStartHour));
             toSendQueryCondition.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ZERO);
@@ -113,7 +115,7 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
         //发货中统计
         JyBizTaskSendAviationPlanQueryCondition sendingQueryCondition = new JyBizTaskSendAviationPlanQueryCondition();
         BeanUtils.copyProperties(condition, sendingQueryCondition);
-        sendingQueryCondition.setTakeOffTimeStart(null);
+        sendingQueryCondition.setTakeOffTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), sendingQueryTakeOffTimeStartHour));
         sendingQueryCondition.setManualCreatedFlag(null);
         List<JyBizTaskAviationStatusStatistics> sendingRes = jyBizTaskSendAviationPlanDao.statusStatistics(sendingQueryCondition);
 
@@ -176,4 +178,10 @@ public class JyBizTaskSendAviationPlanServiceImpl implements JyBizTaskSendAviati
     public List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition) {
         return jyBizTaskSendAviationPlanDao.pageQueryRecommendTaskByNextSiteId(condition);
     }
+
+    @Override
+    public int batchUpdateShuttleSealFlag(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return jyBizTaskSendAviationPlanDao.batchUpdateShuttleSealFlag(condition);
+    }
+
 }
