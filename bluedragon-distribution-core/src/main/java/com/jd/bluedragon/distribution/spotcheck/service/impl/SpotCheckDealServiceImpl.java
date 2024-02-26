@@ -515,6 +515,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(reviewWeight));
         reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(reviewVolume));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if (logger.isInfoEnabled()) {
+            logger.info("抽检单号:{}第一次调用超标接口返回:result={},reportInfoQuery={}", waybillCode,
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(reportInfoQuery));
+        }
         ReportInfoDTO reportInfo = (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS)) ? null : commonDTO.getData();
         // 组装核对数据
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
@@ -700,7 +704,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         CommonDTO<StandardResultAndDutyBodyDTO> commonDTO = weightReportCommonRuleManager.getOverStandardResultAndDutyBody(queryDto);
         if (logger.isInfoEnabled()) {
             logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
-                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(commonDTO));
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(queryDto));
         }
         if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
             logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
