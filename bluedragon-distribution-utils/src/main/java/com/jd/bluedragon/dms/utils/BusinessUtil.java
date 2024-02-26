@@ -1986,6 +1986,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是仓周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
+    }
+
+    /**
      * 判断是否是LL箱号绑定的笼车|围板箱集包袋编号
      * @param materialCode
      * @return
