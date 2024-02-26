@@ -700,7 +700,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         CommonDTO<StandardResultAndDutyBodyDTO> commonDTO = weightReportCommonRuleManager.getOverStandardResultAndDutyBody(queryDto);
         if (logger.isInfoEnabled()) {
             logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
-                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(commonDTO));
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(queryDto));
         }
         if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
             logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
