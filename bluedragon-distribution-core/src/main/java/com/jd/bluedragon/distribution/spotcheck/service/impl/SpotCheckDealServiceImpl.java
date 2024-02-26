@@ -42,6 +42,8 @@ import com.jd.wlai.center.service.outter.domian.AutoReportingResponse;
 import com.jdl.express.weight.report.api.CommonDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoQuery;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyDTO;
+import com.jdl.express.weight.report.api.rule.queries.terminal.StandardResultAndDutyBodyQuery;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -535,6 +537,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckContrastDetail.setContrastOperateUserName(reportInfo == null ? null : reportInfo.getDutyStaffName());
         spotCheckContrastDetail.setContrastOperateUserAccountType(reportInfo == null ? null : reportInfo.getDutyStaffType());
         spotCheckContrastDetail.setDutyType(reportInfo == null ? null : reportInfo.getDutyType());
+        // 计费操作人ID
+        spotCheckContrastDetail.setBillOperatorId(reportInfo == null ? null : reportInfo.getOperatorId());
+        // 计费操作人erp或pin
+        spotCheckContrastDetail.setBillOperatorErp(reportInfo == null ? null : reportInfo.getOperator());
         // 超标数据
         int excessStatus = ExcessStatusEnum.EXCESS_ENUM_NO.getCode();
         if(reportInfo != null && reportInfo.getExceedType() != null){
@@ -665,12 +671,124 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(Objects.equals(spotCheckDto.getPicIsQualify(), Constants.CONSTANT_NUMBER_ONE)){
             return true;
         }
-        // 目前图片不合格的场景：只有图片类型是软包&&超标类型是重量超标会下发，其他场景都不下发
-        return StringUtils.isNotEmpty(spotCheckDto.getPictureAIDistinguishReason())
-                && spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)
-                && Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT);
+        // 如果图片不合格并且不是软包类型
+        if (StringUtils.isBlank(spotCheckDto.getPictureAIDistinguishReason())
+                || !spotCheckDto.getPictureAIDistinguishReason().contains(SpotCheckConstants.PIC_AI_REASON_RB)) {
+            return false;
+        }
+        // 如果是重量超标
+        if (SpotCheckConstants.EXCESS_TYPE_WEIGHT.equals(spotCheckDto.getExcessType())) {
+            return true;
+        }
+        // 如果是体积超标
+        if (SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(spotCheckDto.getExcessType())) {
+            // 再次调用称重再造系统接口判断是否超标
+            return checkExcessStatus(spotCheckDto);
+        }
+        return false;
     }
 
+
+    /**
+     * 体积超标软包抽检需要再次使用自己的重量和终端的体积调用一次称重再造系统判断是否超标
+     * 此方法只用于此特殊用途
+     */
+    private boolean checkExcessStatus(WeightVolumeSpotCheckDto spotCheckDto) {
+        // 组装判断是否超标查询参数
+        StandardResultAndDutyBodyQuery queryDto = createStandardQueryParam(spotCheckDto);
+        // 再次调用称重再造系统接口判断是否超标
+        CommonDTO<StandardResultAndDutyBodyDTO> commonDTO = weightReportCommonRuleManager.getOverStandardResultAndDutyBody(queryDto);
+        if (logger.isInfoEnabled()) {
+            logger.info("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回:result={},reportInfoQuery={}", spotCheckDto.getWaybillCode(),
+                    JsonHelper.toJson(commonDTO), JsonHelper.toJson(commonDTO));
+        }
+        if (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null) {
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口判断返回失败:result={},不执行下发!", spotCheckDto.getWaybillCode(), JsonHelper.toJson(commonDTO));
+            return false;
+        }
+        StandardResultAndDutyBodyDTO reportInfo = commonDTO.getData();
+        // 填充第二次核对数据
+        fillSecondContrastData(spotCheckDto, reportInfo);
+        // 复核体积取第一次的核对体积
+        spotCheckDto.setReviewVolume(spotCheckDto.getContrastVolume());
+        // 复核长宽高清空
+        spotCheckDto.setReviewLWH(Constants.EMPTY_FILL);
+        // 未超标或体积超标，不下发，只更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType()) || SpotCheckConstants.EXCESS_TYPE_VOLUME.equals(reportInfo.getExceedType())) {
+            logger.warn("设备抽检的单号:{}软包使用核对体积再次调用超标接口返回超标类型为:{},不执行下发!", spotCheckDto.getWaybillCode(), reportInfo.getExceedType());
+            spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
+            return false;
+        }
+        // 重量超标则下传至称重再造系统，并且更新抽检统计报表
+        if (SpotCheckConstants.EXCESS_TYPE_WEIGHT.equals(reportInfo.getExceedType())) {
+            return true;
+        }
+        return false;
+    }
+
+    private StandardResultAndDutyBodyQuery createStandardQueryParam(WeightVolumeSpotCheckDto spotCheckDto) {
+        StandardResultAndDutyBodyQuery queryDto = new StandardResultAndDutyBodyQuery();
+        // 运单号
+        queryDto.setWaybillCode(spotCheckDto.getWaybillCode());
+        // 抽检来源
+        queryDto.setChannel(SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
+        // 实测重量取复核重量
+        queryDto.setMeasureWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
+        // 实测体积取核对体积
+        queryDto.setMeasureVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 核对重量
+        queryDto.setRecheckWeight(NumberHelper.formatMoney(spotCheckDto.getContrastWeight()));
+        // 核对体积
+        queryDto.setRecheckVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
+        // 核对重量来源
+        queryDto.setRecheckSource(spotCheckDto.getContrastSource());
+        // 计费操作人ID
+        queryDto.setOperatorId(spotCheckDto.getBillOperatorId());
+        // 计费操作人erp或pin
+        queryDto.setOperator(spotCheckDto.getBillOperatorErp());
+        return queryDto;
+    }
+
+    private void fillSecondContrastData(WeightVolumeSpotCheckDto spotCheckDto, StandardResultAndDutyBodyDTO reportInfo) {
+        // 核对重量来源
+        spotCheckDto.setContrastSource(reportInfo.getRecheckSource());
+        // 核对重量 单位：kg
+        spotCheckDto.setContrastWeight((reportInfo.getRecheckWeight() == null) ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckWeight()), 2));
+        // 核对体积 单位：cm³
+        spotCheckDto.setContrastVolume(reportInfo.getRecheckVolume() == null ? null : MathUtils.keepScale(Double.parseDouble(reportInfo.getRecheckVolume()), 2));
+        // 责任主体
+        spotCheckDto.setContrastOrgCode(reportInfo.getDutyOrgId());
+        spotCheckDto.setContrastOrgName(reportInfo.getDutyOrgName());
+        spotCheckDto.setContrastProvinceAgencyCode(reportInfo.getDutyProvinceAgencyCode());
+        spotCheckDto.setContrastProvinceAgencyName(reportInfo.getDutyProvinceAgencyName());
+        spotCheckDto.setContrastWarZoneCode(reportInfo.getDutyProvinceCompanyCode());
+        spotCheckDto.setContrastWarZoneName(reportInfo.getDutyProvinceCompanyName());
+        spotCheckDto.setContrastAreaCode(reportInfo.getDutyAreaCode());
+        spotCheckDto.setContrastAreaName(reportInfo.getDutyAreaName());
+        spotCheckDto.setContrastSiteCode(reportInfo.getDutySiteId());
+        spotCheckDto.setContrastSiteName(reportInfo.getDutySiteName());
+        spotCheckDto.setContrastStaffAccount(reportInfo.getDutyStaffAccount());
+        spotCheckDto.setContrastStaffName(reportInfo.getDutyStaffName());
+        spotCheckDto.setContrastStaffType(reportInfo.getDutyStaffType());
+        spotCheckDto.setContrastDutyType(reportInfo.getDutyType());
+
+        // 是否超标标识
+        boolean excessFlag = !SpotCheckConstants.EXCESS_TYPE_BELOW.equals(reportInfo.getExceedType());
+        // 超标状态
+        spotCheckDto.setIsExcess(excessFlag ? ExcessStatusEnum.EXCESS_ENUM_YES.getCode() : ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
+        // 超标类型
+        spotCheckDto.setExcessType(reportInfo.getExceedType());
+        // 差异重量 单位：kg
+        spotCheckDto.setDiffWeight(reportInfo.getDiffWeight() == null ? null : Double.parseDouble(reportInfo.getDiffWeight()));
+        // 差异标准
+        spotCheckDto.setDiffStandard(reportInfo.getDiffStandard());
+        // 计泡系数
+        spotCheckDto.setVolumeRateStr(reportInfo.getConvertCoefficient());
+        // 抽检状态: 1：待核实 2：认责 3：超时认责 4：系统认责 5：升级判责 6：判责有效 7：判责无效 8：处理完成
+        spotCheckDto.setSpotCheckStatus(excessFlag ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_UN_EXCESS.getCode());
+        // 扩展参数
+        spotCheckDto.setExtendMap(reportInfo.getExtendMap() == null ? null : JsonHelper.toJson(reportInfo.getExtendMap()));
+    }
 
     /**
      * 构建并下发数据
