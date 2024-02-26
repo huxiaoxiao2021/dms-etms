@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.capability.send.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.capability.send.domain.SendChainEnum;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.exce.SendOfCapabilityAreaException;
 import com.jd.bluedragon.distribution.capability.send.factory.SendOfCapabilityAreaFactory;
 import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.distribution.api.request.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -18,9 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -66,8 +62,7 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
         try {
             if(response.codeSuccess()){
                 //调用执行逻辑
-                sendOfCapabilityAreaFactory.getSendHandlerChain(
-                                        SendBizSourceEnum.getEnum(request.getBizSource()))
+                sendOfCapabilityAreaFactory.getSendHandlerChain(request.getSendChainModeEnum())
                         .handle(context);
             }
 

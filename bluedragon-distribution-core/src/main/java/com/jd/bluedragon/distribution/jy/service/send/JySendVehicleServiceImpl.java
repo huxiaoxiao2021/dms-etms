@@ -70,7 +70,8 @@ import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
-import com.jd.bluedragon.distribution.api.request.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.base.Result;
@@ -2094,6 +2095,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }else{
             sendRequest.setBarCode(sendM.getBoxCode());
         }
+        sendRequest.setSendChainModeEnum(SendChainModeEnum.WITH_CYCLE_BOX_MODE);//发货模式设置
         return sendRequest;
     }
 
