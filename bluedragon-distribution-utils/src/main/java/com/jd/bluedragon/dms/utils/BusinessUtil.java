@@ -2014,7 +2014,20 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15) ||
+                isWmsTurnoverBox(materialCode);
+    }
+
+    /**
+     * 判断是否是仓周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
     }
 
     /**
