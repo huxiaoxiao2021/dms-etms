@@ -11,10 +11,6 @@ import java.util.Date;
 public class JyJobTypeDto implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
-     * ID
-     */
-    private Long id;
-    /**
      * 工种类型
      * */
     private String name;
@@ -39,37 +35,9 @@ public class JyJobTypeDto implements Serializable {
      * */
     private Integer autoSignOutHour;
     /**
-     * 创建人ERP
+     * 工种排序字段-默认0
      * */
-    private String createUser;
-    /**
-     * 修改人ERP
-     * */
-    private String updateUser;
-    /**
-     * 创建时间
-     * */
-    private Date createTime;
-    /**
-     * 修改时间
-     * */
-    private Date updateTime;
-    /**
-     * 是否存在
-     * */
-    private Integer yn;
-    /**
-     * 数据库时间
-     */
-    private Date ts;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Integer sort;
 
     public String getName() {
         return name;
@@ -119,51 +87,11 @@ public class JyJobTypeDto implements Serializable {
         this.autoSignOutHour = autoSignOutHour;
     }
 
-    public String getCreateUser() {
-        return createUser;
+    public Integer getSort() {
+        return sort;
     }
 
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public String getUpdateUser() {
-        return updateUser;
-    }
-
-    public void setUpdateUser(String updateUser) {
-        this.updateUser = updateUser;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Integer getYn() {
-        return yn;
-    }
-
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
-
-    public Date getTs() {
-        return ts;
-    }
-
-    public void setTs(Date ts) {
-        this.ts = ts;
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 }

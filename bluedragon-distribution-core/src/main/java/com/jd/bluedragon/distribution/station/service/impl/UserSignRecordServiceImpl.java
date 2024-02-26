@@ -31,7 +31,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
-import com.jd.bluedragon.distribution.jyJobType.JyJobTypeService;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
@@ -55,7 +55,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
 import com.jdl.basic.api.domain.jyJobType.JyJobType;
-import com.jdl.basic.api.domain.jyJobType.JyJobTypeQuery;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.workStation.WorkStation;
 import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
@@ -160,7 +159,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationGridManager workStationGridManager;
 
 	@Autowired
-	private JyJobTypeService jyJobTypeService;
+	private JyJobTypeManager jyJobTypeManager;
 
 	/**
 	 * 插入一条数据
@@ -1141,14 +1140,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
 		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
 		//判断网关工种维护关系之前,再判断维护的工种是否处于生效的状态
-		JdCResponse<List<JyJobType>> listJdCResponse = queryAllJyJobType();
+		List<JyJobType> jyJobTypeList = jyJobTypeManager.getAllAvailable();
 		if(log.isInfoEnabled()){
-			log.info("checkJobCodeSignIn -获取所有工种信息，出参-{}", JSON.toJSONString(listJdCResponse));
+			log.info("checkJobCodeSignIn -获取所有工种信息，出参-{}", JSON.toJSONString(jyJobTypeList));
 		}
-		if (listJdCResponse.isSucceed() && CollectionUtils.isNotEmpty(listJdCResponse.getData())){
+		if (CollectionUtils.isNotEmpty(jyJobTypeList)){
 			Map<Integer, JyJobType> collect =
-				listJdCResponse.getData().stream().filter(jyJobType -> jyJobType.getStatus() == 1)
-					.collect(Collectors.toMap(JyJobType::getCode, v -> v));
+				jyJobTypeList.stream().collect(Collectors.toMap(JyJobType::getCode, v -> v));
 			JyJobType jyJobType = collect.get(jobCode);
 			if (Objects.isNull(jyJobType)){
 				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_MSG,jobCode,ownerUserErp);
@@ -1997,20 +1995,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query) {
 		return userSignRecordDao.queryByBusinessKeyAndJobCode(query);
-	}
-
-	@Override
-	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
-		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
-		result.toSucceed();
-		try {
-			List<JyJobType> list = jyJobTypeService.getAll();
-			result.setData(list);
-		} catch (Exception e) {
-			result.toFail("查询所有拣运工种异常");
-			log.error("UserSignRecordServiceImpl.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
-		}
-		return result;
 	}
 
 	private void checkUserSignRecordQuery(UserSignRecordQuery query) {

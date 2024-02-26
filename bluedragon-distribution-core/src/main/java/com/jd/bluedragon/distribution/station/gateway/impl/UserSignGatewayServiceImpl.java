@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
@@ -50,6 +51,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private JyJobTypeManager jyJobTypeManager;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -357,7 +361,18 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}
 
 	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryAllJyJobType",
+		jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
-		return userSignRecordService.queryAllJyJobType();
+		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
+		result.toSucceed();
+		try {
+			List<JyJobType> list = jyJobTypeManager.getAll();
+			result.setData(list);
+		} catch (Exception e) {
+			result.toFail("查询所有拣运工种异常");
+			log.error("UserSignGatewayServiceImpl.queryAllJyJobType.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
+		}
+		return result;
 	}
 }

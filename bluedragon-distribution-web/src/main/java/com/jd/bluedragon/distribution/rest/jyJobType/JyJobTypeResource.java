@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.rest.jyJobType;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jyJobType.JyJobTypeService;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,7 +22,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class JyJobTypeResource {
     @Autowired
-    private JyJobTypeService jyJobTypeService;
+    private JyJobTypeManager jyJobTypeManager;
 
     /**
      * 获取所有可用的JyJobType列表
@@ -33,7 +33,7 @@ public class JyJobTypeResource {
     @Path("/jyJobType/getAllAvailable")
     public InvokeResult<List<JyJobType>> getAllAvailable() {
         InvokeResult<List<JyJobType>> result = new InvokeResult<>();
-        result.setData(jyJobTypeService.getAllAvailable());
+        result.setData(jyJobTypeManager.getAllAvailable());
         return result;
     }
 }
