@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.capability.send.handler.deal;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
-import com.jd.bluedragon.distribution.api.request.SendRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.handler.SendDimensionStrategyHandler;
@@ -14,8 +10,6 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /**
 * 天官赐福 ◎ 百无禁忌
