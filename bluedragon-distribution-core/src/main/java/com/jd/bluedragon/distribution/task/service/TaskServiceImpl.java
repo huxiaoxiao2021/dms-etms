@@ -405,6 +405,9 @@ public class TaskServiceImpl implements TaskService {
 				request.setKeyword2(boxRelation.getRelationBoxCode());
 
 				this.taskAssemblingAndSave(request, eachJson);
+
+				dealRelationBoxReceiveTask(request,receiveMap);
+
 			}
 
 			Profiler.registerInfoEnd(info);

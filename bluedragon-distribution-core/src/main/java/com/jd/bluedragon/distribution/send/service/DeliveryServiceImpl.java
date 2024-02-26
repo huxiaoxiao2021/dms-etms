@@ -1011,10 +1011,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         log.info("[一车一单发货]packageSend-箱号/包裹号:{},批次号：{},操作站点：{},是否强制操作：{}"
                 ,domain.getBoxCode(),domain.getSendCode(),domain.getCreateSiteCode(),isForceSend);
-        // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
         if (BusinessUtil.isBoxcode(domain.getBoxCode()) && checkBoxIfEmpty(domain)){
             return new SendResult(SendResult.CODE_SENDED,"空箱号禁止按箱发货！");
         }
+        // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
         if (!isForceSend) {
             // 发货验证
             SendResult sendResult = this.beforeSendVerification(domain, true, isCancelLastSend);
@@ -2634,11 +2634,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (CollectionUtils.isEmpty(needSendBox)) {
             return result;
         }
-
         // 批量处理新发货逻辑
         long startTime = System.currentTimeMillis();
         for (SendM domain : needSendBox) {
-            result = packageSend(bizSource, domain,true, true);
+            result = packageSend(bizSource, domain,true, false);
         }
         long endTime = System.currentTimeMillis();
 
