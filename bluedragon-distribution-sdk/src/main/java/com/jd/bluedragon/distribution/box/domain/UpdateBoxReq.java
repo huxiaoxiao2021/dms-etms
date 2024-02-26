@@ -51,6 +51,11 @@ public class UpdateBoxReq implements Serializable {
 
     private Long  boxId;
 
+    /**
+     * 物资编码
+     */
+    private String materialCode;
+
     public Long getBoxId() {
         return boxId;
     }
@@ -153,5 +158,13 @@ public class UpdateBoxReq implements Serializable {
 
     public void setUserErp(String userErp) {
         this.userErp = userErp;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
     }
 }
