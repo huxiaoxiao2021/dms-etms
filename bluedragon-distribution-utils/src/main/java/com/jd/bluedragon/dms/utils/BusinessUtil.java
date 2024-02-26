@@ -106,6 +106,13 @@ public class BusinessUtil {
         return isMatchBoxCode(s);
     }
 
+    public static Boolean isLLBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("LL")){
+            return true;
+        }
+        return false;
+    }
+
 
     public static Boolean isWMSBoxcode(String s) {
         if (isBoxcode(s) && s.startsWith("BW")){
@@ -3115,5 +3122,18 @@ public class BusinessUtil {
     public static boolean isColdChainExpressScrap(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+    }
+
+    /**
+     * 判断场地是不是:仓库 备件库 售后
+     */
+    public static boolean isReverseSite(Integer siteType){
+        if (siteType == null){
+            return false;
+        }
+        if (SITE_TYPE_WMS.equals(siteType) || SITE_TYPE_AMS.equals(siteType) || SITE_TYPE_SPWMS.equals(siteType)){
+            return true;
+        }
+        return false;
     }
 }
