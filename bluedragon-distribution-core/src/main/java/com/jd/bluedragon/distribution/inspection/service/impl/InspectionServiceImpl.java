@@ -64,12 +64,12 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -1390,15 +1390,18 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         hintCheckRequest.setNewInspectionCheck(true);
 
         try {
-            final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
-            final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
-            if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
-                if(interceptResult.getCode().equals(SortingResponse.CODE_29467)){
-                    response.toFail(interceptResult.getMessage());
-                    response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
-                    return response;
-                } else {
-                    response.addWarningBox(interceptResult.getCode(), interceptResult.getMessage());
+            if (BarCodeType.WAYBILL_CODE.equals(BusinessUtil.getBarCodeType(request.getBarCode()))
+                    || BarCodeType.PACKAGE_CODE.equals(BusinessUtil.getBarCodeType(request.getBarCode()))) {
+                final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
+                final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
+                if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
+                    if(interceptResult.getCode().equals(SortingResponse.CODE_29467)){
+                        response.toFail(interceptResult.getMessage());
+                        response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
+                        return response;
+                    } else {
+                        response.addWarningBox(interceptResult.getCode(), interceptResult.getMessage());
+                    }
                 }
             }
         } catch (Exception e) {
