@@ -1235,18 +1235,29 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 
-
 	@Override
 	public List<Box> listAllDescendantsByParentBox(Box parent) {
+		return listAllDescendantsByParentBox(parent,null);
+	}
 
+	public List<Box> listAllDescendantsByParentBox(Box parent,Integer level) {
+		if (ObjectHelper.isEmpty(level)){
+			level = 0;
+		}
+		if (level >= Constants.BOX_NESTED_MAX_DEPTH){
+			return Collections.emptyList();
+		}
+		if (ObjectHelper.isEmpty(parent) || ObjectHelper.isEmpty(parent.getCode())) {
+			return Collections.emptyList();
+		}
 		InvokeResult<List<BoxRelation>>  rs = boxRelationService.getRelationsByBoxCode(parent.getCode());
 		if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())){
 			return Collections.emptyList();
 		}
 
 		List<Box> boxList =assembleBoxList(rs.getData());
-		for (Box box:boxList){
-			box.setChildren(listAllDescendantsByParentBox(box));
+		for (Box box : boxList){
+			box.setChildren(listAllDescendantsByParentBox(box,level+1));
 		}
 		return boxList;
 	}

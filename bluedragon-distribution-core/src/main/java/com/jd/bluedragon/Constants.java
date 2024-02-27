@@ -2425,4 +2425,10 @@ public class Constants {
     public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
 
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
 }
