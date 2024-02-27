@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -148,6 +149,9 @@ public class BoxServiceImpl implements BoxService {
     private Map<String,String> sortingBoxSubTypeMap;
     @Resource(name="siteBoxSubTypeMap")
     private Map<String,String> siteBoxSubTypeMap;
+
+	@Autowired
+	BoxRelationService boxRelationService;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -1233,8 +1237,23 @@ public class BoxServiceImpl implements BoxService {
 
 
 	@Override
-	public List<Box> listAllDescendantsByParentBox(Box box) {
-		return null;
+	public List<Box> listAllDescendantsByParentBox(Box parent) {
+
+		InvokeResult<List<BoxRelation>>  rs = boxRelationService.getRelationsByBoxCode(parent.getCode());
+		if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())){
+			return Collections.emptyList();
+		}
+
+		List<Box> boxList =assembleBoxList(rs.getData());
+		for (Box box:boxList){
+			box.setChildren(listAllDescendantsByParentBox(box));
+		}
+		return boxList;
+	}
+
+	private List<Box> assembleBoxList(List<BoxRelation> data) {
+		List<Box> boxes =new ArrayList<>();
+		return boxes;
 	}
 
 	@Override
