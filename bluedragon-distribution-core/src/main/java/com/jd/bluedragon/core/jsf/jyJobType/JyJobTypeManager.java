@@ -14,4 +14,6 @@ public interface JyJobTypeManager {
 
     List<JyJobType> getAllAvailable();
 
+    List<JyJobType> getListByCondition(JyJobType query);
+
 }

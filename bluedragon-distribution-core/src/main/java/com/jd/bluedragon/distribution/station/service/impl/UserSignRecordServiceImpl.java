@@ -1140,14 +1140,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
 		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
 		//判断网关工种维护关系之前,再判断维护的工种是否处于生效的状态
-		List<JyJobType> jyJobTypeList = jyJobTypeManager.getAllAvailable();
+		JyJobType query = buildJyJobType(jobCode);
+		List<JyJobType> jyJobTypeList = jyJobTypeManager.getListByCondition(query);
 		if(log.isInfoEnabled()){
 			log.info("checkJobCodeSignIn -获取所有工种信息，出参-{}", JSON.toJSONString(jyJobTypeList));
 		}
 		if (CollectionUtils.isNotEmpty(jyJobTypeList)){
-			Map<Integer, JyJobType> collect =
-				jyJobTypeList.stream().collect(Collectors.toMap(JyJobType::getCode, v -> v));
-			JyJobType jyJobType = collect.get(jobCode);
+			JyJobType jyJobType = jyJobTypeList.get(0);
 			if (Objects.isNull(jyJobType)){
 				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_MSG,jobCode,ownerUserErp);
 			}
@@ -1160,8 +1159,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 			boolean flag = false;
 			for (int i = 0; i < jobTypes.size(); i++) {
-				JyJobType jyJobType1 = collect.get(jobTypes.get(i).getJobCode());
-				if(Objects.nonNull(jyJobType1) && Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
+				if(Objects.nonNull(jyJobType) && Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
 					flag =true;
 					break;
 				}
@@ -1174,6 +1172,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 
+    /**
+     * 构建JyJobType对象
+     * @param jobCode 工作代码
+     * @return JyJobType对象
+     */
+	private JyJobType buildJyJobType(Integer jobCode) {
+		JyJobType jyJobType = new JyJobType();
+		jyJobType.setCode(jobCode);
+		jyJobType.setStatus(Constants.NUMBER_ONE);
+		return jyJobType;
+	}
 
 	private void setWarZoneInfo(UserSignRecord signInData) {
 		if(signInData.getSiteCode() == null){
