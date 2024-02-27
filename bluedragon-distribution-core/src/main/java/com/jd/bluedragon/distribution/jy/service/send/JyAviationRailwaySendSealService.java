@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.req.*;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
 
 /**
  * @Author zhengchengfa
@@ -57,4 +58,7 @@ public interface JyAviationRailwaySendSealService {
     InvokeResult<PrepareShuttleSealCarRes> prepareShuttleSealCarData(PrepareShuttleSealCarReq request);
 
     InvokeResult<AviationSendTaskDto> fetchLatestAviationTaskByNextSite(AviationSendTaskQueryReq request);
+
+    boolean batchCodeShuttleSealMark(BatchCodeShuttleSealDto request);
+
 }

@@ -36,6 +36,9 @@
         <result column="intercept" property="intercept" jdbcType="INTEGER" />
         <result column="intercept_time" property="interceptTime" jdbcType="TIMESTAMP" />
         <result column="manual_created_flag" property="manualCreatedFlag" jdbcType="INTEGER" />
+        <result column="shuttle_seal_flag" property="shuttleSealFlag" jdbcType="INTEGER" />
+        <result column="shuttle_seal_time" property="shuttleSealTime" jdbcType="TIMESTAMP" />
+
     </resultMap>
 
 
@@ -63,7 +66,7 @@
         begin_node_name, end_node_code, end_node_name, carrier_code, carrier_name, booking_weight,
         cargo_type, air_type, create_user_erp, create_user_name, update_user_erp,
         update_user_name, create_time, update_time, yn, next_site_id, next_site_code,
-        next_site_name,task_status,intercept,intercept_time,manual_created_flag
+        next_site_name,task_status,intercept,intercept_time,manual_created_flag,shuttle_seal_flag,shuttle_seal_time
     </sql>
 
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanEntity" >
@@ -329,6 +332,9 @@
         <if test="manualCreatedFlag != null" >
             and manual_created_flag = #{manualCreatedFlag}
         </if>
+        <if test="shuttleSealFlag != null" >
+            and shuttle_seal_flag = #{shuttleSealFlag}
+        </if>
     </sql>
 
     <select id="statusStatistics" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition"  resultMap="statusStatisticsRes">
@@ -450,10 +456,23 @@
         yn = 1
         and start_site_id = #{startSiteId}
         and next_site_id = #{nextSiteId}
-        and ((task_status = 0 and take_off_time &gt;= #{takeOffTimeStart}) or (task_status = 1))
+        and ((task_status = 0 and take_off_time &gt;= #{toSendTakeOffTimeStart}) or (task_status = 1 and take_off_time &gt;= #{sendingTakeOffTimeStart}))
         and create_time &gt;= #{createTimeStart}
         order by take_off_time is null desc, take_off_time
         limit #{offset},#{pageSize}
     </select>
+
+
+    <update id="batchUpdateShuttleSealFlag" parameterType="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendAviationPlanQueryCondition">
+        update jy_biz_task_send_aviation_plan
+        set
+            shuttle_seal_flag = #{shuttleSealFlag},
+            shuttle_seal_time = #{shuttleSealTime},
+            update_time = #{updateTime}
+        WHERE yn = 1 and shuttle_seal_flag = 0 and biz_id in
+        <foreach item="item" index="index" collection="bizIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
 </mapper>
 
