@@ -367,7 +367,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
 		result.toSucceed();
 		try {
-			List<JyJobType> list = jyJobTypeManager.getAll();
+			List<JyJobType> list = jyJobTypeManager.getAllAvailable();
 			result.setData(list);
 		} catch (Exception e) {
 			result.toFail("查询所有拣运工种异常");

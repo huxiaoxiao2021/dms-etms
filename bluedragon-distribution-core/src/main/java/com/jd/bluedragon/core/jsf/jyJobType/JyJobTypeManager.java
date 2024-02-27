@@ -10,8 +10,6 @@ import java.util.List;
  * @date 2024/2/25
  */
 public interface JyJobTypeManager {
-    List<JyJobType> getAll();
-
     List<JyJobType> getAllAvailable();
 
     List<JyJobType> getListByCondition(JyJobType query);

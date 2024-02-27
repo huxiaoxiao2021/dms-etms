@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.jsf.jyJobType.impl;
 
 import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import com.jdl.basic.api.service.jyJobType.JyJobTypeJsfService;
 import com.jdl.basic.common.utils.Result;
@@ -24,25 +26,11 @@ public class JyJobTypeManagerImpl implements JyJobTypeManager {
     private JyJobTypeJsfService jyJobTypeJsfService;
 
     /**
-     * 获取所有JyJobType对象的列表
-     * @return 返回JyJobType对象的列表
-     */
-    @Override
-    public List<JyJobType> getAll() {
-        List<JyJobType> result = new ArrayList<>();
-        try {
-            result = jyJobTypeJsfService.queryAllList();
-        } catch (Exception e) {
-            log.error("JyJobTypeServiceImpl.getAll error,异常信息:【{}】", e.getMessage(), e);
-        }
-        return result;
-    }
-
-    /**
      * 获取所有可用的JyJobType列表
      * @return 返回所有可用的JyJobType列表
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.JyJobTypeManagerImpl.getAllAvailable", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyJobType> getAllAvailable() {
         List<JyJobType> result = new ArrayList<>();
         try {
@@ -54,6 +42,7 @@ public class JyJobTypeManagerImpl implements JyJobTypeManager {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.JyJobTypeManagerImpl.getListByCondition", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyJobType> getListByCondition(JyJobType query) {
         List<JyJobType> result = new ArrayList<>();
         try {
