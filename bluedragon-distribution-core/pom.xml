@@ -124,6 +124,10 @@
                     <groupId>com.jd.jim.cli</groupId>
                     <artifactId>jim-cli-config</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.jd.etms.waybill</groupId>
+                    <artifactId>etms-waybillcode-rule</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
