@@ -73,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -724,6 +724,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return null;
 		}
 		for (UserGridScheduleDto scheduleDto : scheduleList) {
+			// 排班日期 yyyy-MM-dd
+			String scheduleDate = scheduleDto.getScheduleDate();
 			// 排班开始时间 HH:mm
 			String startTime = scheduleDto.getStartTime();
 			// 排班结束时间 HH:mm
@@ -735,9 +737,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			Date endDate;
 			// 如果结束日期代表第二天的时间点，则转换时需要加一天
 			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
-				endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
+				endDate = getSpecialDateByStr(endTime, scheduleDate, Constants.NUMBER_ONE);
 			} else {
-				endDate = getSpecialDateByStr(endTime, null);
+				endDate = getSpecialDateByStr(endTime, scheduleDate, Constants.NUMBER_ZERO);
 			}
 			if (endDate.getTime() >= signInTime.getTime() && endDate.getTime() <= currentDate.getTime()) {
 				if (minEndDate == null) {
@@ -761,24 +763,27 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return null;
 		}
 		for (UserGridScheduleDto scheduleDto : scheduleList) {
+			// 排班日期 yyyy-MM-dd
+			String scheduleDate = scheduleDto.getScheduleDate();
 			// 排班开始时间 HH:mm
 			String startTime = scheduleDto.getStartTime();
 			// 排班结束时间 HH:mm
 			String endTime = scheduleDto.getEndTime();
-			if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+			if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime) || StringUtils.isBlank(scheduleDate)) {
 				continue;
 			}
 			// 排班开始日期 yyyy-MM-dd HH:mm:ss
-			Date startDate = getSpecialDateByStr(startTime, null);
+			Date startDate;
 			// 排班结束日期 yyyy-MM-dd HH:mm:ss
 			Date endDate;
 			// 如果结束日期代表第二天的时间点，则转换时需要加一天
 			if (LocalTime.parse(startTime).isAfter(LocalTime.parse(endTime))) {
-				endDate = getSpecialDateByStr(endTime, Constants.NUMBER_ONE);
-			} else {
-				endDate = getSpecialDateByStr(endTime, null);
-			}
-			// 排班开始日期前一小时
+				endDate = getSpecialDateByStr(endTime, scheduleDate, Constants.NUMBER_ONE);
+            } else {
+				endDate = getSpecialDateByStr(endTime, scheduleDate, Constants.NUMBER_ZERO);
+            }
+            startDate = getSpecialDateByStr(startTime, scheduleDate, Constants.NUMBER_ZERO);
+            // 排班开始日期前一小时
 			Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
 			if (signInTime.getTime() >= startDateBeforeOneHour.getTime() && signInTime.getTime() < endDate.getTime()) {
 				if (minEndDate == null) {
@@ -792,6 +797,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return minEndDate;
 	}
+
+
 
 	/**
 	 * 以事务的形式进行签退操作
@@ -820,18 +827,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	/**
 	 * 将排班班次开始时间或结束时间由HH:mm形式转为yyyy-MM-dd HH:mm:ss形式
 	 */
-	private Date getSpecialDateByStr(String timeStr, Integer addDay) {
+	private Date getSpecialDateByStr(String timeStr, String scheduleDate, Integer addDay) {
 		LocalTime localTime = LocalTime.parse(timeStr);
 		int hour = localTime.getHour();
 		int minute = localTime.getMinute();
-		Calendar calendar = Calendar.getInstance();
-		if (addDay != null) {
-			calendar.add(Calendar.DATE, addDay);
-		}
-		calendar.set(Calendar.HOUR_OF_DAY, hour);
-		calendar.set(Calendar.MINUTE, minute);
-		calendar.set(Calendar.SECOND, Constants.CONSTANT_NUMBER_ZERO);
-		return calendar.getTime();
+		LocalDate localDate = LocalDate.parse(scheduleDate);
+		localDate = localDate.plusDays(addDay);
+		ZoneId defaultZoneId = ZoneId.systemDefault();
+		int year = localDate.getYear();
+		Month month = localDate.getMonth();
+		int day = localDate.getDayOfMonth();
+		LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute);
+        return Date.from(localDateTime.atZone(defaultZoneId).toInstant());
 	}
 
 	@Override
