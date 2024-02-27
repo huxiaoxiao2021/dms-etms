@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
@@ -108,8 +109,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private ISortingService dmsSortingService;
-    @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
     private CycleBoxService cycleBoxService;
@@ -146,6 +145,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private WaybillQueryManager waybillQueryManager;
     @Resource
     private FuncSwitchConfigService funcSwitchConfigService;
+    @Autowired
+    BoxRelationService boxRelationService;
 
 
     /**
@@ -1394,7 +1395,26 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Override
     public InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request) {
-        return null;
+        //基础校验
+        collectLoadingBaseCheck(request);
+        //集装业务校验
+        collectLoadingBizCheck(request);
+        //执行集包
+        CollectPackageResp response = new CollectPackageResp();
+        execCollectLoading(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    private void execCollectLoading(CollectPackageReq request, CollectPackageResp response) {
+
+    }
+
+    private void collectLoadingBizCheck(CollectPackageReq request) {
+        //
+    }
+
+    private void collectLoadingBaseCheck(CollectPackageReq request) {
+        //参数校验+容器嵌套关系校验
     }
 
     private JyBizTaskCollectPackageQuery converUpdateData(List<Long> ids, UpdateMixFlowListReq request) {
@@ -1522,7 +1542,20 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Override
     public InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request) {
-        return null;
+        checkCancelCollectLoading(request);
+        checkIfAllowCancelCollectLoading(request);
+        CancelCollectPackageResp response = new CancelCollectPackageResp();
+        execCancelCollectLoading(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+    }
+
+    private void checkIfAllowCancelCollectLoading(CancelCollectPackageReq request) {
+    }
+
+    private void checkCancelCollectLoading(CancelCollectPackageReq request) {
     }
 
     public static void main(String[] args) {

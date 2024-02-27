@@ -1233,17 +1233,17 @@ public class BoxServiceImpl implements BoxService {
 
 
 	@Override
-	public List<Container> listAllDescendantsByOuterContainer(Container container) {
+	public List<Box> listAllDescendantsByParentBox(Box box) {
 		return null;
 	}
 
 	@Override
-	public List<Container> listSonContainersByOuterContainer(Container container) {
+	public List<Box> listSonBoxesByParentBox(Box box) {
 		return null;
 	}
 
 	@Override
-	public boolean saveContainerBindRelation(ContainerBindDto containerBindDto) {
+	public boolean saveBoxBindRelation(BoxBindDto containerBindDto) {
 		return false;
 	}
 }

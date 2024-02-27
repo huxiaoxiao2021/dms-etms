@@ -115,6 +115,9 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.cancelCollectPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         try {
+            if (request.getCancelBindFlag() && BusinessUtil.isBoxcode(request.getBarCode())){
+                return retJdCResponse(jyCollectPackageService.cancelCollectLoading(request));
+            }
             return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
         } catch (JyBizException e) {
             if (ObjectHelper.isNotNull(e.getCode())) {

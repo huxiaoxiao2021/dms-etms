@@ -23,6 +23,19 @@ public class CancelCollectPackageReq extends BaseReq implements Serializable {
      */
     private boolean cancelAllFlag;
 
+    /**
+     * 接触绑定标识
+     */
+    private boolean cancelBindFlag;
+
+    public boolean getCancelBindFlag(){
+        return cancelBindFlag;
+    }
+
+    public void setCancelBindFlag(boolean cancelBindFlag) {
+        this.cancelBindFlag = cancelBindFlag;
+    }
+
     public String getBarCode() {
         return barCode;
     }

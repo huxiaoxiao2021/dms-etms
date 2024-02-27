@@ -32,27 +32,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     @Resource
     private CycleBoxService cycleBoxService;
 
-    @Override
-    public InvokeResult<CollectPackageResp> collectPackage(CollectPackageReq request) {
-        if (WaybillUtil.isPackageCode(request.getBarCode())){
-            return super.collectPackage(request);
-        }
-        return collectLoading(request);
-    }
 
-
-    //集装能力
-    private InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request) {
-        //基础校验
-        collectLoadingBaseCheck(request);
-        //集包业务校验
-        collectLoadingBizCheck(request);
-        //执行集装：绑定LL和BC的关系  +    中转LL和最里层包裹的关系，匹send_d
-        CollectPackageResp response = new CollectPackageResp();
-        execCollectLoading(request, response);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
-
-    }
 
     private void execCollectLoading(CollectPackageReq request, CollectPackageResp response) {
     }
