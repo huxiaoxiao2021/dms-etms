@@ -46,6 +46,16 @@ public class JdVerifyResponse<T> implements Serializable {
      */
     private List<MsgBox> msgBoxes;
 
+
+
+    /**
+     * 个性能力标识，返货true是代办使用到了非本系统控制的特殊返回值，需要调用者前端自己感知是否需要有特殊处理逻辑。
+     * 如 ，冷链场景的下的验货扫描医药产品需要额外的医药提示音
+     * 这样可以解决两个系统code码冲突问题，通用能力返回了10001需要做A逻辑，个性能力返回了10001要做B逻辑，可以独立区分出来
+     */
+    private Boolean selfDomFlag;
+
+
     public JdVerifyResponse() {
     }
 
@@ -106,6 +116,13 @@ public class JdVerifyResponse<T> implements Serializable {
             msgBoxes = new ArrayList<MsgBox>();
         }
         msgBoxes.add(box);
+    }
+
+    public void addBox(List<MsgBox> boxs) {
+        if (this.getMsgBoxes() == null) {
+            msgBoxes = new ArrayList<MsgBox>();
+        }
+        msgBoxes.addAll(boxs);
     }
 
     public void addBox(MsgBoxTypeEnum type, Integer code, String msg) {
@@ -191,14 +208,22 @@ public class JdVerifyResponse<T> implements Serializable {
         private String msg;
 
         protected Object data;
+        /**
+         * 个性能力标识，返货true是代办使用到了非本系统控制的特殊返回值，需要调用者前端自己感知是否需要有特殊处理逻辑。
+         * 如 ，冷链场景的下的验货扫描医药产品需要额外的医药提示音
+         * 这样可以解决两个系统code码冲突问题，通用能力返回了10001需要做A逻辑，个性能力返回了10001要做B逻辑，可以独立区分出来
+         */
+        private Boolean selfDomFlag;
 
         public MsgBox() {
+            this.selfDomFlag = false;
         }
 
         public MsgBox(MsgBoxTypeEnum type, Integer code, String msg) {
             this.type = type;
             this.code = code;
             this.msg = msg;
+            this.selfDomFlag = false;
         }
 
         public MsgBoxTypeEnum getType() {
@@ -232,6 +257,14 @@ public class JdVerifyResponse<T> implements Serializable {
         public void setData(Object data) {
             this.data = data;
         }
+
+        public Boolean getSelfDomFlag() {
+            return selfDomFlag;
+        }
+
+        public void setSelfDomFlag(Boolean selfDomFlag) {
+            this.selfDomFlag = selfDomFlag;
+        }
     }
 
     public T getData() {
@@ -248,5 +281,13 @@ public class JdVerifyResponse<T> implements Serializable {
      */
     public boolean codeSuccess() {
         return this.code == CODE_SUCCESS;
+    }
+
+    public Boolean getSelfDomFlag() {
+        return selfDomFlag;
+    }
+
+    public void setSelfDomFlag(Boolean selfDomFlag) {
+        this.selfDomFlag = selfDomFlag;
     }
 }

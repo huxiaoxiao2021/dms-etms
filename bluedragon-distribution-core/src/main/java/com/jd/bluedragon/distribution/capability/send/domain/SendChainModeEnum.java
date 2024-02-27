@@ -7,7 +7,7 @@ package com.jd.bluedragon.distribution.capability.send.domain;
  * @Date: 2023/8/24
  * @Description:
  */
-public enum SendChainEnum {
+public enum SendChainModeEnum {
 
     /**
      * 默认

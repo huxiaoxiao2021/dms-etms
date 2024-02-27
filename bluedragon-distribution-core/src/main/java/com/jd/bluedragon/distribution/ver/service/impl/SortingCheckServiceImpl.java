@@ -118,6 +118,76 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse inspectionCheck(PdaOperateRequest pdaOperateRequest) {
+        return this.inspectionCheck(pdaOperateRequest, false);
+    }
+
+    /**
+     * 验货拦截链校验
+     * @param pdaOperateRequest 请求参数
+     * @param reportIntercept 是否提交拦截
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2024-01-28 19:53:11 周日
+     */
+    private SortingJsfResponse inspectionCheck(PdaOperateRequest pdaOperateRequest, boolean reportIntercept) {
+        if (pdaOperateRequest == null) {
+            return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        FilterContext filterContext = null;
+        try {
+            //初始化拦截链上下文
+            filterContext = this.initContext(pdaOperateRequest);
+            InspectionFilterChain proceedFilterChain = getInspectionFilterChain();
+            proceedFilterChain.doFilter(filterContext, proceedFilterChain);
+            filterContext.setFuncModule(HintModuleConstants.INSPECTION);
+            ForwardFilterChain forwardFilterChain = pdaOperateRequest.getJyCollectPackageFlag() ? getJyCollectPackageForwardFilterChain(): getForwardFilterChain();
+            forwardFilterChain.doFilter(filterContext, forwardFilterChain);
+
+        } catch (IllegalWayBillCodeException e) {
+            logger.error("验货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(e.getMessage());
+        } catch (Exception ex) {
+            if (ex instanceof SortingCheckException) {
+                SortingCheckException checkException = (SortingCheckException) ex;
+                response.setCode(checkException.getCode());
+                response.setMessage(checkException.getMessage());
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
+            } else {
+                logger.error("分拣验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            }
+        }
+        this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
+        return response;
+    }
+
+    /**
+     * 获取发货校验链
+     * @return
+     */
+    private InspectionFilterChain getInspectionFilterChain(){
+        return (InspectionFilterChain) beanFactory.getBean("inspectionFilterChain");
+    }
+
+    /**
+     * 验货校验
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse inspectionCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest){
+        return this.inspectionCheck(pdaOperateRequest, true);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
         return this.sortingCheck(pdaOperateRequest, false);
     }
@@ -529,12 +599,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 filterContext.setWaybillProductDtos(productAbilities.getData());
             }
         }
-        //是箱号的时候初始化运单增值服务
-        if(BusinessUtil.isBoxcode(filterContext.getBoxCode())){
-            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCache.getWaybillCode());
-            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
-                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
-            }
+        // 初始化运单增值服务
+        BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCache.getWaybillCode());
+        if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+            filterContext.setWaybillVasDtos( waybillVasInfos.getData());
         }
 
         return filterContext;
@@ -606,6 +674,15 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
         filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
+
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(pdaOperateRequest.getBoxCode());
+        if(Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) || Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+            // 如果是包裹号或运单号，初始化运单增值服务
+            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(WaybillUtil.getWaybillCode(pdaOperateRequest.getBoxCode()));
+            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
+            }
+        }
         return filterContext;
     }
 
@@ -633,6 +710,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
         filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(boardCombinationRequest.getBoxOrPackageCode());
+        if(Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) || Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+            // 如果是包裹号或运单号，初始化运单增值服务
+            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(WaybillUtil.getWaybillCode(boardCombinationRequest.getBoxOrPackageCode()));
+            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
+            }
+        }
         return filterContext;
     }
 

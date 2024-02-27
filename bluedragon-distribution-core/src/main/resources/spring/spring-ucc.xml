@@ -354,6 +354,10 @@
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
 
+		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
+		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
+		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -711,6 +715,10 @@
 				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
+				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
 			</list>
 		</property>
 	</bean>
