@@ -324,7 +324,7 @@
             and next_site_id = #{nextSiteId}
         </if>
         <if test="takeOffTimeStart != null" >
-            and take_off_time &gt;= #{takeOffTimeStart}
+            and (take_off_time &gt;= #{takeOffTimeStart} or take_off_time is null)
         </if>
         <if test="bizId != null" >
             and biz_id = #{bizId}
