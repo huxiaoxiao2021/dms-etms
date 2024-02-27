@@ -634,7 +634,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				userSignRecord.setModifyType(Constants.CONSTANT_NUMBER_TWO);
 				userSignRecordDao.deleteById(userSignRecord);
 			} else {
-				// 如果是非自有员工，需要走兜底逻辑
+				// 如果是非自有员工，需要走兜底逻辑----使用自动签退时间
 				noScheduleList.add(recordId);
 			}
 			return;
@@ -654,7 +654,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecord.setUpdateUserName(Constants.SYS_NAME);
 
 		// 开始执行签退
-		startSignOut(userSignRecord, signDateScheduleList, yesterdayScheduleList, currentDate);
+		startSignOut(userSignRecord, signDateScheduleList, yesterdayScheduleList, noScheduleList, currentDate);
 	}
 
 	private void filterScheduleListByDate(List<UserGridScheduleDto> totalList, List<UserGridScheduleDto> signDateScheduleList,
@@ -684,7 +684,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 
 	private void startSignOut(UserSignRecord userSignRecord, List<UserGridScheduleDto> signDateScheduleList,
-								 List<UserGridScheduleDto> yesterdayScheduleList, Date currentDate) {
+							  List<UserGridScheduleDto> yesterdayScheduleList, List<Long> noScheduleList, Date currentDate) {
 		// 签到时间
 		Date signInTime = userSignRecord.getSignInTime();
 		// 判断当前签到时间是否命中当天人员排班开始时间前一小时~排班结束时间（不能正好等于排班结束时间）
@@ -709,11 +709,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			signOutByTransaction(userSignRecord, minEndDate);
 			return;
 		}
-		// 留痕-设置修改类型为2-人员未排班数据作废处理
-		userSignRecord.setModifyType(Constants.CONSTANT_NUMBER_TWO);
-		// 若不存在，则认为该人员今天未排班，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
-		userSignRecordDao.deleteById(userSignRecord);
+		// 以上都不满足的情况下
+		Integer jobCode = userSignRecord.getJobCode();
+		// 如果是正式工或派遣工
+		if (JobTypeEnum.JOBTYPE1.getCode().equals(jobCode) || JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+			// 留痕-设置修改类型为2-人员未排班数据作废处理
+			userSignRecord.setModifyType(Constants.CONSTANT_NUMBER_TWO);
+			// 认为该人员今天未排班，将该签到数据作废处理；若场地补签，则按网格出勤管理进行补签，审核即可
+			userSignRecordDao.deleteById(userSignRecord);
+		} else {
+			// 如果是非自有员工，需要走兜底逻辑--使用自动签退时间
+			noScheduleList.add(userSignRecord.getId());
+		}
 	}
+
 
 	/**
 	 * 场景二：比较排班结束时间是否在签到时间和当前时间之间，如果命中多个，取最早的结束时间
