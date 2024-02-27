@@ -239,7 +239,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
         entity.setIntercept(0);
         entity.setTaskStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
 
-        this.fillNextSiteInfo(entity);
+        this.fillNextSiteInfo(entity, currSite);
         return entity;
     }
 
@@ -249,7 +249,7 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
      * 服务正常，查询数据为空，或者查询目的地基础资料找不到，视为无效数据，丢弃
      * @param entity
      */
-    private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity) {
+    private void fillNextSiteInfo(JyBizTaskSendAviationPlanEntity entity, BaseStaffSiteOrgDto currSite) {
         //测试代码
 //        entity.setNextSiteCode("010F016");
 //        entity.setNextSiteId(40240);
@@ -272,11 +272,11 @@ public class TmsAviationPlanConsumer extends MessageBaseConsumer {
             log.error("航空计划下发消息(订舱号={}）查路由服务失败:jsf入参={}", entity.getBookingCode(), JsonHelper.toJson(airlineReq));
             throw new JyBizException("航空计划下发消息查路由服务失败");
         }
-        //可能流向多个
+        //过滤同流向的目的地编码
         Set<String> nextSiteSet = new HashSet<>();
         if(invokeResult.codeSuccess() && CollectionUtils.isNotEmpty(invokeResult.getData())) {
             invokeResult.getData().forEach(po -> {
-                if(StringUtils.isNotBlank(po.getEndNodeCode())) {
+                if(StringUtils.isNotBlank(po.getEndNodeCode()) && StringUtils.isNotBlank(po.getStartNodeCode()) && currSite.getDmsSiteCode().equals(po.getStartNodeCode())) {
                     nextSiteSet.add(po.getEndNodeCode());
                 }
             });

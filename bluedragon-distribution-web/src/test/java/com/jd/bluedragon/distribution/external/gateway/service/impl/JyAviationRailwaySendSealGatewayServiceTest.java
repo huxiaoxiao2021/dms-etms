@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyAviationRailwaySendVehicleStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.ShuttleQuerySourceEnum;
@@ -611,5 +612,46 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             Object obj = aviationRailwaySendSealGatewayService.fetchToSealShuttleTaskDetail(request);
             System.out.println("succ");
         }
+    }
+
+
+
+    @Test
+    public void doSealCarWithVehicleJobTest() {
+        String json = "  {\n" +
+                "        \"sealCarDtoList\": [\n" +
+                "            {\n" +
+                "                \"batchCodes\": [\n" +
+                "                    \"65396-66316-20240118111383831\",\n" +
+                "                    \"65396-66316-20240118111384155\",\n" +
+                "                    \"65396-66316-20240118111384166\",\n" +
+                "                    \"65396-66316-20240118111383842\",\n" +
+                "                    \"65396-66316-20240118181384531\"\n" +
+                "                ],\n" +
+                "                \"palletCount\": \"1\",\n" +
+                "                \"sealCarTime\": \"2024-01-31 16:50:02\",\n" +
+                "                \"sealCarType\": 10,\n" +
+                "                \"sealCodes\": [],\n" +
+                "                \"sealSiteId\": 65396,\n" +
+                "                \"sealSiteName\": \"JD北京顺义分拣中心\",\n" +
+                "                \"sealUserCode\": \"wuyoude\",\n" +
+                "                \"sealUserName\": \"吴有德\",\n" +
+                "                \"transportCode\": \"T230924003955\",\n" +
+                "                \"vehicleNumber\": \"京F88882\",\n" +
+                "                \"volume\": 41,\n" +
+                "                \"weight\": 53\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }";
+        SealCarRequest sealCarRequest = JSONObject.parseObject(json, SealCarRequest.class);
+        for(int i = 0; i<100; i++) {
+            try{
+                sealCarRequest.setPost(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode());
+                JdCResponse res = newSealVehicleGatewayService.doSealCarWithVehicleJob(sealCarRequest);
+            }catch (Exception e) {
+                System.out.println("err:" + e.getMessage());
+            }
+        }
+        System.out.println("succ");
     }
 }

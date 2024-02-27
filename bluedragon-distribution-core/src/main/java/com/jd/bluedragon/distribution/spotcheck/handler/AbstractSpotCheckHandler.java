@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.consumable.domain.ConsumableCodeEnums;
 import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
@@ -160,7 +161,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     private boolean reformSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        SendDetail sendDetail = sendDetailService.findOneByWaybillCode(spotCheckContext.getReviewSiteCode(), spotCheckContext.getWaybillCode());
+        SendDetail param = new SendDetail();
+        param.setCreateSiteCode(spotCheckContext.getReviewSiteCode());
+        param.setPackageBarcode(spotCheckContext.getPackageCode());
+        param.setOperateTime(spotCheckContext.getOperateTime());
+        SendDetail sendDetail = sendDetailService.findOneByParams(param);
         if(sendDetail != null){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND_REFORM, sendDetail.getPackageBarcode()));
             return true;
@@ -305,6 +310,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setContrastDutyType(spotCheckContrastDetail.getDutyType());
         dto.setContrastWeight(spotCheckContrastDetail.getContrastWeight());
         dto.setContrastVolume(spotCheckContrastDetail.getContrastVolume());
+        // 计费操作人ID
+        dto.setBillOperatorId(spotCheckContrastDetail.getBillOperatorId());
+        // 计费操作人erp或pin
+        dto.setBillOperatorErp(spotCheckContrastDetail.getBillOperatorErp());
         // 通用数据
         dto.setReviewDate(System.currentTimeMillis());
         dto.setWaybillCode(spotCheckContext.getWaybillCode());
@@ -446,7 +455,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setSpotCheckSourceFrom(spotCheckDto.getSpotCheckSourceFrom());
         spotCheckContext.setSpotCheckDimensionType(spotCheckDto.getDimensionType());
         spotCheckContext.setSpotCheckHandlerType(spotCheckDto.getSpotCheckHandlerType());
-        spotCheckContext.setOperateTime(new Date());
+        spotCheckContext.setOperateTime(Objects.isNull(spotCheckDto.getOperateTime()) ? new Date() : spotCheckDto.getOperateTime());
         spotCheckContext.setWaybillCode(waybillCode);
         spotCheckContext.setPackageCode(spotCheckDto.getBarCode());
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
