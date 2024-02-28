@@ -307,7 +307,8 @@ public class WaybillStatus {
      *
      */
     public static final Integer WAYBILL_TRACK_RETURNED_PACKAGE = 21400;
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC = "安检查验退运";
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_1 = "安检查验退回";
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_2 = "安检查验转陆运";
 
 
     private Long id;

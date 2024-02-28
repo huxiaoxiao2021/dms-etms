@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsConditio
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsConditionBuilder;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.dbs.util.CollectionUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.WaybillServiceRelationDto;
 import com.jd.jim.cli.Cluster;
@@ -27,6 +26,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.enums.comboard.ComboardBarCodeTypeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

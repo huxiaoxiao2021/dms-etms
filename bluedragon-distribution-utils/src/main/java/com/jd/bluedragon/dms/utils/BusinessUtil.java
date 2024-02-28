@@ -106,6 +106,13 @@ public class BusinessUtil {
         return isMatchBoxCode(s);
     }
 
+    public static Boolean isLLBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("LL")){
+            return true;
+        }
+        return false;
+    }
+
 
     public static Boolean isWMSBoxcode(String s) {
         if (isBoxcode(s) && s.startsWith("BW")){
