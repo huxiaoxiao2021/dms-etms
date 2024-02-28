@@ -1171,7 +1171,7 @@ public class BoxServiceImpl implements BoxService {
             boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
             boxMaterialRelation.setOperatorErp(request.getOperateUserErp());
             boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
-            boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+            return boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
         } catch (Exception e) {
             result.toFail("系统异常");
             log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request), e);

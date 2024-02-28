@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,6 +145,12 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
         log.info("BoxMaterialRelationImpl.upsertBoxMaterialRelation param {}", JsonHelper.toJson(boxMaterialRelation));
         Result<Boolean> result = Result.success();
 
+        if(StringUtils.isBlank(boxMaterialRelation.getBoxCode())){
+            return result.toFail("箱号不能为空");
+        }
+        if(StringUtils.isBlank(boxMaterialRelation.getMaterialCode())){
+            return result.toFail("物资编码不能为空");
+        }
         String nxKey = CacheKeyConstants.BOX_BIND_MATERIAL_KEY + boxMaterialRelation.getBoxCode() + Constants.SEPARATOR_COLON + boxMaterialRelation.getBoxCode();
         try {
             boolean setKeySuccess = jimdbCacheService.setNx(nxKey, "lock", CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
