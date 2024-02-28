@@ -2,18 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
@@ -202,4 +191,11 @@ public interface JyExceptionGatewayService {
      * 违禁品任务处理
      */
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
+
+    /**
+     * 获取质控异常原因枚举
+     *
+     * @return
+     */
+    JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
 }

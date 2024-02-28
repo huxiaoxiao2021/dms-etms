@@ -306,4 +306,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     public JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req) {
         return jyContrabandExceptionService.processTaskOfContraband(req);
     }
+
+    @Override
+    public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
+        return jyContrabandExceptionService.getAbnormalReason();
+    }
 }
