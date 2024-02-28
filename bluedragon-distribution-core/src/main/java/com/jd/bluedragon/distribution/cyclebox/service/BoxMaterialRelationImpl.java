@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
-import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -148,8 +145,8 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
         Result<Boolean> result = Result.success();
 
         String nxKey = CacheKeyConstants.BOX_BIND_MATERIAL_KEY + boxMaterialRelation.getBoxCode() + Constants.SEPARATOR_COLON + boxMaterialRelation.getBoxCode();
-        boolean setKeySuccess = jimdbCacheService.setNx(nxKey, "lock", CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
         try {
+            boolean setKeySuccess = jimdbCacheService.setNx(nxKey, "lock", CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
             if (!setKeySuccess) {
                 if (log.isWarnEnabled()) {
                     log.warn("BoxMaterialRelationImpl.upsertBoxMaterialRelation 获得绑定Redis锁失败 param {}", JsonHelper.toJson(boxMaterialRelation));
