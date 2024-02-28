@@ -150,4 +150,9 @@ public class SendDetailServiceImpl implements SendDetailService {
         sendDatailDao.batchDelete(sendDetailList);
         return sendDatailDao.batchAdd(sendDetailList);
     }
+
+    @Override
+    public SendDetail findOneByParams(SendDetail param) {
+        return sendDatailDao.findOneByParams(param);
+    }
 }
