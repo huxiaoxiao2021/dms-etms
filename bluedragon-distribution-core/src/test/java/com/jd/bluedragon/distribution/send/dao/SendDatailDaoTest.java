@@ -5,10 +5,14 @@ import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
 
@@ -30,6 +36,16 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Test
+    public void testfind(){
+        SendDetail parameter = new SendDetail();
+        parameter.setOperateTime(DateHelper.parse("2024-09-07 17:09:09", DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        parameter.setPackageBarcode("JDVA00233457082-1-1-");
+        parameter.setCreateSiteCode(910);
+        SendDetail sendDetail = sendDatailDao.findOneByParams(parameter);
+        System.out.println(JsonHelper.toJson(sendDetail));
+    }
 
     @Test
     public void testAdd() {
