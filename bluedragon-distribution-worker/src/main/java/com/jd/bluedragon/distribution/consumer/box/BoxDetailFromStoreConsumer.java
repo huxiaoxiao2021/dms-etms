@@ -16,15 +16,12 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -107,6 +104,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseWithoutUATConsumer {
         final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = boxService.upsertBoxMaterialRelation4WmsBoxUsage(boxDetail);
         if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
             log.error("checkBoxDetailLegality BoxService.upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(boxDetail));
+            throw new RuntimeException("处理箱号绑定物资失败！");
         }
         //判断箱号状态-总体消息执行的状态-幂等防重
         if (BOX_STATUS_SEALED.equals(box.getStatus())){//TODO  用这个状态会不是对其他业务有影响，换成预留字段 或者 redis
