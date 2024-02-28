@@ -251,6 +251,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         params.setCreateSiteCode(spotCheckContext.getReviewSiteCode());
         params.setIsCancel(Constants.NUMBER_ZERO);
         params.setStatus(Constants.CONSTANT_NUMBER_ONE);
+        params.setOperateTime(spotCheckContext.getOperateTime());
         List<String> sendList = sendDetailService.queryPackageByWaybillCode(params);
         if(CollectionUtils.isEmpty(sendList)){
             return;
