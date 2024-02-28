@@ -137,7 +137,8 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
                 return result.toFail(HintService.getHint(HintCodeConstants.SEND_CODE_ILLEGAL), InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             }
-            BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+            // 2024年02月28日15:22:19 临时移除此限制，等待集约融合到分拣后在做限制 产品 马童文
+            /*BaseStaffSiteOrgDto baseSiteInfo = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
             Integer siteType = 0;
             if (null != baseSiteInfo) {
                 siteType = baseSiteInfo.getSiteType();
@@ -147,7 +148,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
                 if (siteType == Integer.parseInt(asmType) || siteType == Integer.parseInt(wmsType) || siteType == Integer.parseInt(spwmsType)) {
                     return result.toFail("禁止逆向操作！", InvokeResult.RESULT_THIRD_ERROR_CODE);
                 }
-            }
+            }*/
 
             ServiceMessage<Boolean> departureResult = departureService.checkSendStatusFromVOS(request.getBatchCode());
             if (ServiceResultEnum.WRONG_STATUS.equals(departureResult.getResult())) {//已被封车
