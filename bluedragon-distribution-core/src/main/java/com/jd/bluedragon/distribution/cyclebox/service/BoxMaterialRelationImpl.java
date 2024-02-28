@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.cyclebox.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
-import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service("boxMaterialRelationService")
@@ -30,8 +31,7 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     private BoxMaterialRelationDao boxMaterialRelationDao;
 
     @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
+    private JimDbLock jimDbLock;
 
     private static final Logger log = LoggerFactory.getLogger(BoxMaterialRelationImpl.class);
 
@@ -152,8 +152,9 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
             return result.toFail("物资编码不能为空");
         }
         String nxKey = CacheKeyConstants.BOX_BIND_MATERIAL_KEY + boxMaterialRelation.getBoxCode() + Constants.SEPARATOR_COLON + boxMaterialRelation.getBoxCode();
+        String lockVal = UUID.randomUUID().toString();
         try {
-            boolean setKeySuccess = jimdbCacheService.setNx(nxKey, "lock", CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
+            boolean setKeySuccess = jimDbLock.lock(nxKey, lockVal, CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
             if (!setKeySuccess) {
                 if (log.isWarnEnabled()) {
                     log.warn("BoxMaterialRelationImpl.upsertBoxMaterialRelation 获得绑定Redis锁失败 param {}", JsonHelper.toJson(boxMaterialRelation));
@@ -190,7 +191,7 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
             result.toFail("系统异常");
             log.error("BoxMaterialRelationImpl.upsertBoxMaterialRelation exception param {}", JsonHelper.toJson(boxMaterialRelation), e);
         } finally {
-            jimdbCacheService.del(nxKey);
+            jimDbLock.releaseLock(nxKey, lockVal);
         }
 
         return result;
