@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 
 import java.io.Serializable;
@@ -21,6 +22,8 @@ public class TransAbnormalAndUnsealRequest implements Serializable {
 
     private SealCarDto sealCarDto;
 
+    private OperatorData operatorData;
+
     public TransAbnormalDto getTransAbnormalDto() {
         return transAbnormalDto;
     }
@@ -35,5 +38,13 @@ public class TransAbnormalAndUnsealRequest implements Serializable {
 
     public void setSealCarDto(SealCarDto sealCarDto) {
         this.sealCarDto = sealCarDto;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

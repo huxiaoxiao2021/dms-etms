@@ -1152,6 +1152,7 @@ public class NewSealVehicleResource {
 
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
+            request1.setOperatorData(request.getOperatorData());
             request1.setData(Collections.singletonList(request.getSealCarDto()));
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
             if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
