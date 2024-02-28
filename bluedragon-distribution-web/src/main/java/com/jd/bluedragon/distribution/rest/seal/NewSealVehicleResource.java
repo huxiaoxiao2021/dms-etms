@@ -1012,7 +1012,7 @@ public class NewSealVehicleResource {
                 }
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -1072,7 +1072,7 @@ public class NewSealVehicleResource {
                 }
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     unSealVehicleResponse.setCode(JdResponse.CODE_OK);

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.utils.converter;
 
 import java.util.Date;
-import java.util.Objects;
 
+import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,6 +280,21 @@ public class BeanConverter {
 		mqData.setOperateSiteCode(inspection.getCreateSiteCode());
 		JyOperateFlowData data = new JyOperateFlowData();
 		data.setOperatorData(inspection.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(SealCarDto sealCarDto, OperatorData operatorData) {
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(sealCarDto.getSealCarCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.UNSEAL.getCode());
+		mqData.setOperateKey(sealCarDto.getSealCarCode());
+		mqData.setOperateTime(sealCarDto.getDesealCarTime());
+		mqData.setOperateSiteCode(sealCarDto.getDesealSiteId());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(operatorData);
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));

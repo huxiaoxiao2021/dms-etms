@@ -8,19 +8,19 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
-import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -32,13 +32,14 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
-import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsCondition;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
-import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -72,6 +73,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -193,6 +195,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     JdiQueryWSManager jdiQueryWSManager;
     @Autowired
     JyBizTaskComboardService jyBizTaskComboardService;
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     @Autowired
     @Qualifier("createTransAbnormalAndUnsealProducer")
@@ -960,7 +964,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
+	public CommonDto<String> unseal(NewSealVehicleRequest request) throws Exception{
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars = request.getData();
         long startTime=new Date().getTime();
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
@@ -974,6 +979,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = "解封车JSF接口返回为空";
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_UNSEAL_SUCCESS;
+                // 保存解封车操作流水
+                saveOperateFlow(paramList, request.getOperatorData());
                 saveDeSealData(paramList);
                 saveUnsealOrder(sealCars);
             }else{
@@ -1630,6 +1637,21 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
         }catch (Exception e){
             log.error("保存不存在的封车业务数据，封车数据：{}" , JsonHelper.toJson(sealist), e);
+        }
+    }
+
+    private void saveOperateFlow(List<SealCarDto> paramList, OperatorData operatorData) {
+        if (operatorData == null) {
+            return;
+        }
+        try {
+            for (SealCarDto sealCarDto : paramList) {
+                JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToJyOperateFlowMqData(sealCarDto, operatorData);
+                unsealFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.UNSEAL.getCode());
+                jyOperateFlowService.sendMq(unsealFlowMq);
+            }
+        } catch (Exception e){
+            log.error("发送解封车操作流水异常,解封车数据={}", JsonHelper.toJson(paramList), e);
         }
     }
 
