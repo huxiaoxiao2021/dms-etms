@@ -109,6 +109,10 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
     public boolean doBoardHandler(SendOfCAContext context) {
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
         sortingCheck.setBoard(context.getBoard());
+        //老校验忽略校验使用
+        if(context.getRequest().getValidateIgnore() != null){
+            sortingCheck.setValidateIgnore(context.getRequest().getValidateIgnore());
+        }
         //加载按板处理校验链
         SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck,Boolean.TRUE,
                 sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_BOARD));
@@ -130,6 +134,10 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      */
     private boolean packOrWaybillHandler(SendOfCAContext context, FilterChain filterChain){
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
+        //老校验忽略校验使用
+        if(context.getRequest().getValidateIgnore() != null){
+            sortingCheck.setValidateIgnore(context.getRequest().getValidateIgnore());
+        }
         // 按包裹或者运单发货分拣校验
         SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, Boolean.TRUE, filterChain);
 
