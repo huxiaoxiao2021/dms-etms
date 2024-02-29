@@ -17,6 +17,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,20 +33,34 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THI
 public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatewayService {
 
     @Autowired
+    @Qualifier("jyCollectPackageService")
     JyCollectPackageService jyCollectPackageService;
+
+    @Autowired
+    @Qualifier("jyCollectLoadingService")
+    JyCollectPackageService jyCollectLoadingService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.collectScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request) {
         try {
+            //扫描循环集包袋
             if (BusinessUtil.isCollectionBag(request.getBarCode())) {
                 BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
                 return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
-            } else if (WaybillUtil.isPackageCode(request.getBarCode())){
-                return retJdCResponse(jyCollectPackageService.collectPackage(request));
-            } else if (BusinessUtil.isBoxcode(request.getBarCode())){
+            }
+            //扫描包裹号
+            else if (WaybillUtil.isPackageCode(request.getBarCode())){
+                return BusinessUtil.isLLBoxcode(request.getBoxCode()) ?
+                        retJdCResponse(jyCollectLoadingService.collectPackage(request)):
+                        retJdCResponse(jyCollectPackageService.collectPackage(request));
+            }
+            //扫描箱号
+            else if (BusinessUtil.isBoxcode(request.getBarCode())){
                 return retJdCResponse(jyCollectPackageService.collectLoading(request));
-            } else {
+            }
+            //其他
+            else {
                 return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
             }
         } catch (JyBizException e) {

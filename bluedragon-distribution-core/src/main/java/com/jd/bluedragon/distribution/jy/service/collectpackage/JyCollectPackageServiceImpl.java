@@ -24,7 +24,9 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -54,6 +56,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -69,6 +72,7 @@ import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,6 +82,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -88,7 +93,6 @@ import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCo
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SITE_TYPE_WMS;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
@@ -364,7 +368,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }*/
     }
 
-    private void reCollectCheck(CollectPackageReq request) {
+    public void reCollectCheck(CollectPackageReq request) {
         JyCollectPackageEntity query =new JyCollectPackageEntity();
         query.setPackageCode(request.getBarCode());
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
@@ -381,7 +385,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private void flowCheck(CollectPackageReq request) {
+    public void flowCheck(CollectPackageReq request) {
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isEmpty(collectPackageTask)) {
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
@@ -399,7 +403,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }
             //获取包裹预分拣站点
             Integer yufenjian = getYufenjianByPackage(waybill);
-            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){//如果预分拣站点不匹配箱号目的地，再去判断末级分拣
+            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){ //如果预分拣站点不匹配箱号目的地，再去判断末级分拣
                 //获取包裹的末级分拣中心
                 Integer lastDmsId = getLastDmsByPackage(waybill,collectPackageTask);
                 if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
@@ -592,7 +596,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
 
-    private void execInterceptorChain(CollectPackageReq request) {
+    public void execInterceptorChain(CollectPackageReq request) {
         if (request.getForceCollectPackage() || request.getSkipInterceptChain()) {
             return;
         }
@@ -608,7 +612,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
+    public PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setBoxCode(request.getBoxCode());
         pdaOperateRequest.setBusinessType(request.getBusinessType());
@@ -627,7 +631,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return pdaOperateRequest;
     }
 
-    private void boxCheck(CollectPackageReq request) {
+    public void boxCheck(CollectPackageReq request) {
         Box box = boxService.findBoxByCode(request.getBoxCode());
         if (box == null) {
             throw new JyBizException("该箱号不存在或者已过期！");
@@ -1399,22 +1403,119 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         collectLoadingBaseCheck(request);
         //集装业务校验
         collectLoadingBizCheck(request);
-        //执行集包
+        //执行集装
         CollectPackageResp response = new CollectPackageResp();
         execCollectLoading(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
     private void execCollectLoading(CollectPackageReq request, CollectPackageResp response) {
-
+        BoxRelation boxRelation =assmbleBoxRelation(request);
+        boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
     }
 
+    private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
+        BoxRelation relation =new BoxRelation();
+        relation.setBoxCode(request.getBoxCode());
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_YES);
+
+        Date now = new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        return relation;
+    }
+
+
     private void collectLoadingBizCheck(CollectPackageReq request) {
-        //
+        //外层箱的已发货校验
+        sendCheck(request);
+        //内外箱子的流向一致性校验
+        boxflowCheck(request);
+        //外层箱子最大可装入数量校验
+        countLimitCheck(request);
+        //内层箱是否为空箱校验
+        emptyBoxCheck(request);
+    }
+
+    private void boxflowCheck(CollectPackageReq request) {
+        if (!dmsConfigManager.getPropertyConfig().getNeedCollectLoadingBoxflowCheck()){
+            return;
+        }
+        Box outBox = boxService.findBoxByCode(request.getBoxCode());
+        Box innerBox = boxService.findBoxByCode(request.getBarCode());
+        if (ObjectHelper.isNotNull(outBox)  && ObjectHelper.isNotNull(innerBox)
+                && !ObjectUtils.equals(outBox.getReceiveSiteCode(), innerBox.getReceiveSiteCode())) {
+            throw new JyBizException("箱号目的地不一致");
+        }
+    }
+
+    private void emptyBoxCheck(CollectPackageReq request) {
+        Integer count =sortingService.getSumByBoxCode(request.getBarCode());
+        if (ObjectHelper.isEmpty(count) || count <= 0){
+            throw new JyBizException("该箱子"+ request.getBarCode()+"为空箱子！");
+        }
+        //TODO 再校验一下箱子里面还有没有箱子
+    }
+
+    private void countLimitCheck(CollectPackageReq request) {
+        BoxRelation relation = new BoxRelation();
+        relation.setBoxCode(request.getBoxCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_YES);
+        Date now =new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        int existRelations = boxRelationService.countByBoxCode(relation);
+        if (dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit() > 0
+                && existRelations >= dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit()) {
+            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit());
+        }
+    }
+
+    private void sendCheck(CollectPackageReq request) {
+        if (boxService.checkBoxIsSent(request.getBoxCode(), request.getCurrentOperate().getSiteCode())) {
+            throw new JyBizException("该箱号"+ request.getBoxCode()+"已发货！");
+        }
     }
 
     private void collectLoadingBaseCheck(CollectPackageReq request) {
-        //参数校验+容器嵌套关系校验
+        if (!ObjectHelper.isNotNull(request.getBizId())) {
+            throw new JyBizException("参数错误：缺失任务bizId！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBoxCode())) {
+            throw new JyBizException("参数错误：缺失箱号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
+            throw new JyBizException("参数错误：不支持该类型箱号！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失扫描单号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBarCode())) {
+            throw new JyBizException("参数错误：请扫描箱号！");
+        }
+        String outerBoxType = request.getBoxCode().substring(0,2);
+        String innerBoxType =request.getBarCode().substring(0,2);
+
+        BoxTypeV2Enum outer =BoxTypeV2Enum.getFromCode(outerBoxType);
+        if (ObjectHelper.isEmpty(outer) || ObjectHelper.isEmpty(outer.getSupportEmbeddedTypes())){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌箱号");
+        }
+        if (!outer.getSupportEmbeddedTypes().contains(innerBoxType)){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌"+innerBoxType+"类型的箱");
+        }
     }
 
     private JyBizTaskCollectPackageQuery converUpdateData(List<Long> ids, UpdateMixFlowListReq request) {
@@ -1550,6 +1651,26 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+        BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
+        boxRelationService.releaseBoxRelation(boxRelation);
+
+    }
+
+    private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
+        BoxRelation relation =new BoxRelation();
+        relation.setBoxCode(request.getBoxCode());
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_NO);
+
+        Date now = new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        return relation;
     }
 
     private void checkIfAllowCancelCollectLoading(CancelCollectPackageReq request) {
@@ -1559,11 +1680,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     public static void main(String[] args) {
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-        baseStaffSiteOrgDto.setSiteType(901);
-        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
-            System.out.println(1);
-        }
+        Integer a =10;
+        int b =10;
+        System.out.println(a.equals(b));
     }
 
 

@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.box.constants;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 新版箱号大类枚举
@@ -16,15 +13,21 @@ public enum BoxTypeV2Enum {
     TYPE_TC("TC", "退货组"),
     TYPE_WJ("WJ", "文件"),
     TYPE_TA("TA", "特安"),
-    TYPE_LL("LL", "笼车/围板箱"),
+    TYPE_LL("LL", "笼车/围板箱", Arrays.asList("BW","TC","WJ","TA","BC")),
     TYPE_BX("BX", "正向虚拟"),
-    TYPE_WM("BW", "仓储"),
+    TYPE_WM("BW", "仓储",Arrays.asList("BC")),
     ;
 
 
     private String code;
 
     private String name;
+
+
+    /**
+     * 支持内嵌的箱号类型
+     */
+    private List<String> supportEmbeddedTypes;
 
     public static Map<String, String> ENUM_MAP;
 
@@ -35,12 +38,26 @@ public enum BoxTypeV2Enum {
         this.name = name;
     }
 
+    BoxTypeV2Enum(String code, String name,List<String> supportEmbeddedTypes) {
+        this.code = code;
+        this.name = name;
+        this.supportEmbeddedTypes =supportEmbeddedTypes;
+    }
+
     public String getCode() {
         return code;
     }
 
     public String getName() {
         return name;
+    }
+
+    public List<String> getSupportEmbeddedTypes() {
+        return supportEmbeddedTypes;
+    }
+
+    public void setSupportEmbeddedTypes(List<String> supportEmbeddedTypes) {
+        this.supportEmbeddedTypes = supportEmbeddedTypes;
     }
 
     public String toString() {

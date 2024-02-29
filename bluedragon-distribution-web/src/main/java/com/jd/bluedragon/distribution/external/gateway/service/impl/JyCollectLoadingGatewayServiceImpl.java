@@ -39,11 +39,23 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
     @Override
     public JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request) {
         checkCollectPackageReq(request);
+        //扫描AL循环物资码
         if (BusinessUtil.isLLBoxBindingCollectionBag(request.getBarCode())) {
             BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
             return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
         }
-        return retJdCResponse(jyCollectPackageService.collectPackage(request));
+        //扫描包裹号
+        else if (WaybillUtil.isPackageCode(request.getBarCode())){
+            return retJdCResponse(jyCollectPackageService.collectPackage(request));
+        }
+        //扫描箱号
+        else if (BusinessUtil.isBoxcode(request.getBarCode())){
+            return retJdCResponse(jyCollectPackageService.collectLoading(request));
+        }
+        //其他
+        else {
+            return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
+        }
     }
 
     private void checkCollectPackageReq(CollectPackageReq request) {

@@ -351,6 +351,8 @@
 		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -688,6 +690,7 @@
 				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
 			</list>
 		</property>
 	</bean>

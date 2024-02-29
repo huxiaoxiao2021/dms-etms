@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.*;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
@@ -784,7 +785,7 @@ public class BoxServiceImpl implements BoxService {
         box.setLength(11f);
         box.setWidth(12f);
         box.setHeight(13f);
-        System.out.println(com.jd.bluedragon.utils.JsonHelper.toJson(box));
+        System.out.println(box.getCode().substring(0,1));
     }
 
     @Override
@@ -1262,14 +1263,29 @@ public class BoxServiceImpl implements BoxService {
 		return boxList;
 	}
 
-	private List<Box> assembleBoxList(List<BoxRelation> data) {
-		List<Box> boxes =new ArrayList<>();
+	private List<Box> assembleBoxList(List<BoxRelation> boxRelationList) {
+		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
+		{
+			Box box =new  Box();
+			box.setCode(boxRelation.getRelationBoxCode());
+			box.setType(BoxTypeV2Enum.getFromCode(boxRelation.getRelationBoxCode().substring(0,2)).getCode());
+			return box;
+		}).collect(Collectors.toList());
 		return boxes;
 	}
 
 	@Override
-	public List<Box> listSonBoxesByParentBox(Box box) {
-		return null;
+	public List<Box> listSonBoxesByParentBox(Box parent) {
+		if (ObjectHelper.isEmpty(parent) || ObjectHelper.isEmpty(parent.getCode())) {
+			return Collections.emptyList();
+		}
+		InvokeResult<List<BoxRelation>>  rs = boxRelationService.getRelationsByBoxCode(parent.getCode());
+		if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())){
+			return Collections.emptyList();
+		}
+
+		List<Box> boxList =assembleBoxList(rs.getData());
+		return boxList;
 	}
 
 	@Override

@@ -4421,4 +4421,12 @@ public class UccPropertyConfiguration{
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
     }
+
+    private boolean needCollectLoadingBoxflowCheck;
+    public boolean getNeedCollectLoadingBoxflowCheck() {
+        return needCollectLoadingBoxflowCheck;
+    }
+    public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
+        this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
 }
