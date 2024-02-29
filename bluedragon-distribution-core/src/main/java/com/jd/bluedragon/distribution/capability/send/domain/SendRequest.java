@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 
 import java.util.Date;
 
+import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -37,6 +39,11 @@ public class SendRequest extends PackageSendRequest {
      * 是否使用自定义操作时间，使用基本类型模式不使用，不使用时操作时间为服务器时间。
      */
     private boolean useCustomOperateTime;
+
+    /**
+     * 执行老校验链中可以不在提醒的逻辑使用
+     */
+    private ValidateIgnore validateIgnore;
 
     public String getBarCode() {
         return barCode;
@@ -79,4 +86,12 @@ public class SendRequest extends PackageSendRequest {
     }
 
 
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
+    }
 }
