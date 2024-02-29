@@ -104,7 +104,7 @@ public class BoxDetailFromStoreConsumer extends MessageBaseWithoutUATConsumer {
         final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = boxService.upsertBoxMaterialRelation4WmsBoxUsage(boxDetail);
         if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
             log.error("checkBoxDetailLegality BoxService.upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(boxDetail));
-            throw new RuntimeException("处理箱号绑定物资失败！");
+            // throw new RuntimeException("处理箱号绑定物资失败！");
         }
         //判断箱号状态-总体消息执行的状态-幂等防重
         if (BOX_STATUS_SEALED.equals(box.getStatus())){//TODO  用这个状态会不是对其他业务有影响，换成预留字段 或者 redis
