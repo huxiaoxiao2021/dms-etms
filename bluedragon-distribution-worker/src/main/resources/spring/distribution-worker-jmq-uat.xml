@@ -698,5 +698,9 @@
     <jmq:consumer id="jmq.jyPickingGoodScanSplitPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
     </jmq:consumer>
+    <!--运输围栏到车包裹维度消息-->
+    <jmq:consumer id="jmq.TmsSendArriveAndBookConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="TmsSendArriveAndBookConsume"/>
+    </jmq:consumer>
 </beans>
 
