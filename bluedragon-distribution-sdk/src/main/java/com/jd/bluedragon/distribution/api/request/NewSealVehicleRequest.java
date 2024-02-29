@@ -81,6 +81,11 @@ public class NewSealVehicleRequest extends JdRequest {
 	/** 当前站点ID	 */
     private Integer dmsSiteId;
 
+	/**
+	 * 解封车业务类型
+	 */
+	private String bizType;
+
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
@@ -203,5 +208,13 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	public void setDmsSiteId(Integer dmsSiteId) {
 		this.dmsSiteId = dmsSiteId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
 	}
 }

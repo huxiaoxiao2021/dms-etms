@@ -24,6 +24,11 @@ public class TransAbnormalAndUnsealRequest implements Serializable {
 
     private OperatorData operatorData;
 
+    /**
+     * 解封车业务类型
+     */
+    private String bizType;
+
     public TransAbnormalDto getTransAbnormalDto() {
         return transAbnormalDto;
     }
@@ -46,5 +51,13 @@ public class TransAbnormalAndUnsealRequest implements Serializable {
 
     public void setOperatorData(OperatorData operatorData) {
         this.operatorData = operatorData;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }

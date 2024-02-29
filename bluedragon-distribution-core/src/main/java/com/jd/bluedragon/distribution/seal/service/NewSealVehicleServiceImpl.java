@@ -980,7 +980,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_UNSEAL_SUCCESS;
                 // 保存解封车操作流水
-                saveOperateFlow(paramList, request.getOperatorData());
+                saveOperateFlow(paramList, request);
                 saveDeSealData(paramList);
                 saveUnsealOrder(sealCars);
             }else{
@@ -1640,14 +1640,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
     }
 
-    private void saveOperateFlow(List<SealCarDto> paramList, OperatorData operatorData) {
+    private void saveOperateFlow(List<SealCarDto> paramList, NewSealVehicleRequest request) {
+        OperatorData operatorData = request.getOperatorData();
         if (operatorData == null) {
             return;
         }
         try {
             for (SealCarDto sealCarDto : paramList) {
                 JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToJyOperateFlowMqData(sealCarDto, operatorData);
-                unsealFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.UNSEAL.getCode());
+                unsealFlowMq.setOperateBizSubType(request.getBizType());
                 jyOperateFlowService.sendMq(unsealFlowMq);
             }
         } catch (Exception e){

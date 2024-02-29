@@ -1154,6 +1154,7 @@ public class NewSealVehicleResource {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setOperatorData(request.getOperatorData());
             request1.setData(Collections.singletonList(request.getSealCarDto()));
+            request1.setBizType(request.getBizType());
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
             if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
                 NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());

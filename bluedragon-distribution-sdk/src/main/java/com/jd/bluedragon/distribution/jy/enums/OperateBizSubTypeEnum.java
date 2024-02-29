@@ -14,8 +14,9 @@ public enum OperateBizSubTypeEnum {
 	SEND_CANCEL("send_d_cancel","取消发货"),
 	BOARD("board","组板"),
 	BOARD_CANCEL("board_cancel","取消组板"),
-	UNSEAL("unseal","解封车"),
-	ABNORMAL_DELIVERY("abnormal_delivery","配送异常"),
+	UNSEAL("unseal", "解封车"),
+	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),
+	ABNORMAL_DELIVERY("abnormal_delivery", "配送异常"),
     ;
 	
 	private OperateBizSubTypeEnum(String code, String name) {
