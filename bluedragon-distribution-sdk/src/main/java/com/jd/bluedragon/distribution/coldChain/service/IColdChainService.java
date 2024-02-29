@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 
+import java.util.List;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -96,4 +98,18 @@ public interface IColdChainService {
      * @return
      */
     InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo request);
+
+    /**
+     * 检查批次号是否发车
+     * @param request 发送请求
+     * @return 发送结果
+     */
+    InvokeResult<ColdSendResult> checkSendCodeStatus(SendCheckVO request);
+
+    /**
+     * 获取运输计划
+     * @param request 请求对象
+     * @return 返回运输计划结果列表
+     */
+    InvokeResult<List<TransPlanResult>> getTransPlan(SendCheckVO request);
 }
