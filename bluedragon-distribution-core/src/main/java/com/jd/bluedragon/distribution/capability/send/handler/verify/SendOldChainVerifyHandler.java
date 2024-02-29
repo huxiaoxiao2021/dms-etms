@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.slf4j.Logger;
@@ -68,7 +69,7 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      */
     @Override
     public boolean doPackHandler(SendOfCAContext context) {
-        return packOrWaybillHandler(context);
+        return packOrWaybillHandler(context,sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_PACKAGE));
     }
 
     /**
@@ -78,7 +79,7 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      */
     @Override
     public boolean doWaybillHandler(SendOfCAContext context) {
-        return packOrWaybillHandler(context);
+        return packOrWaybillHandler(context,sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_WAYBILL));
     }
 
     /**
@@ -127,10 +128,10 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      * @param context
      * @return
      */
-    private boolean packOrWaybillHandler(SendOfCAContext context){
+    private boolean packOrWaybillHandler(SendOfCAContext context, FilterChain filterChain){
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
         // 按包裹或者运单发货分拣校验
-        SortingJsfResponse response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
+        SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, Boolean.TRUE, filterChain);
 
         if (!response.getCode().equals(JdResponse.CODE_OK)) {
             //如果校验不OK
