@@ -205,6 +205,7 @@ public class BoardCombinationResource {
                     boardResponse.setBoardCode(oldBoard.getCode());
                     boardResponse.setReceiveSiteCode(oldBoard.getDestinationId());
                     boardResponse.setReceiveSiteName(oldBoard.getDestination());
+                    boardResponse.setSuccessFlag(Boolean.FALSE);
                     return result;
                 }
 

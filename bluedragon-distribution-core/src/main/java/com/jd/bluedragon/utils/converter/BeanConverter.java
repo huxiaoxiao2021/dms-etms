@@ -373,7 +373,7 @@ public class BeanConverter {
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
 		mqData.setOperateBizKey(request.getBarcode());
 		mqData.setOperateBizType(OperateBizTypeEnum.BOARD.getCode());
-		mqData.setOperateKey(request.getBarcode());
+		mqData.setOperateKey(request.getOperateKey());
 		if(request.getOperatorInfo() != null && request.getOperatorInfo().getOperateTime() != null) {
 			mqData.setOperateTime(request.getOperatorInfo().getOperateTime());
 		}else {

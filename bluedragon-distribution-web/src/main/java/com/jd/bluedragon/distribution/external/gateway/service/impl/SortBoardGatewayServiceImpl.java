@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bk.common.util.string.StringUtils;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
@@ -13,12 +14,18 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.board.domain.OperatorInfo;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
@@ -28,6 +35,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +67,9 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     private VirtualBoardService virtualBoardService;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     private static final Logger log = LoggerFactory.getLogger(SortBoardGatewayServiceImpl.class);
 
@@ -136,6 +147,17 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
             return checkResult;
         }
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
+        if (JdResponse.CODE_SUCCESS.equals(response.getCode())) {
+            BoardResponse boardResponse = response.getData();
+            if (boardResponse != null && !Boolean.FALSE.equals(boardResponse.getSuccessFlag())) {
+                // 记录组板操作流水
+                BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
+                bindBoardRequest.setOperateKey(boardResponse.getOperateKey());
+                JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+                boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
+                jyOperateFlowService.sendMq(boardCancelFlowMq);
+            }
+        }
         BoardCheckDto boardCheckDto = new BoardCheckDto();
         boardCheckDto.setBoardCode(response.getData().getBoardCode());
         boardCheckDto.setReceiveSiteCode(response.getData().getReceiveSiteCode());
@@ -149,6 +171,19 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         jdcResponse.setCode(response.getCode());
         jdcResponse.setMessage(response.getMessage());
         return jdcResponse;
+    }
+
+    private BindBoardRequest createBindBoardRequest(CombinationBoardRequest request) {
+        BindBoardRequest bindBoardRequest = new BindBoardRequest();
+        bindBoardRequest.setBarcode(request.getBoxOrPackageCode());
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
+        bindBoardRequest.setOperatorInfo(operatorInfo);
+        OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
+        com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
+        BeanUtils.copyProperties(originOperatorData, destOperatorData);
+        bindBoardRequest.setOperatorData(destOperatorData);
+        return bindBoardRequest;
     }
 
     private JdCResponse<BoardCheckDto> checkDiscarded4BoardCombine(CombinationBoardRequest request){

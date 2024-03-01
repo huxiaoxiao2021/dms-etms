@@ -12,10 +12,17 @@ public enum OperateBizSubTypeEnum {
 	SORTING_CANCEL("sorting_cancel","取消分拣"),
 	SEND("send_d","发货"),
 	SEND_CANCEL("send_d_cancel","取消发货"),
-	BOARD("board","组板"),
+
+	ADD_TO_BOARD("addToBoard","自动化组板"),
+	SORT_MACHINE_BOARD("sortMachineComBoard","自动化扫描(组板+发货)"),
+	COMBINATION_BOARD_NEW("combinationBoardNew","自动化组板(自动开板)"),
+	JY_BOARD_SCAN("comBoardScan","组板发货岗扫描(组板+发货)"),
+
 	BOARD_CANCEL("board_cancel","取消组板"),
+
 	UNSEAL("unseal", "解封车"),
 	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),
+
 	ABNORMAL_DELIVERY("abnormal_delivery", "配送异常"),
     ;
 	

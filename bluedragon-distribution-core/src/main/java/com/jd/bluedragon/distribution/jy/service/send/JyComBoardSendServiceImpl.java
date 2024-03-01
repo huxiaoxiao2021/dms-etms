@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -56,12 +57,14 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.*;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
@@ -212,6 +215,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("jyComboardTaskFirstSaveProducer")
   private DefaultJMQProducer jyComboardTaskFirstSaveProducer;
+
+  @Autowired
+  private JyOperateFlowService jyOperateFlowService;
 
   private static final Integer BOX_TYPE = 1;
 
@@ -1295,6 +1301,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
           throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
         }
+
+        // 记录组板操作流水
+        BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
+        JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+        boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
+        jyOperateFlowService.sendMq(boardCancelFlowMq);
+
         JyBizTaskComboardEntity bizTaskComboardEntity = new JyBizTaskComboardEntity();
         bizTaskComboardEntity.setId(entity.getId());
         bizTaskComboardEntity.setHaveScanCount(entity.getHaveScanCount() + request.getScanDetailCount());
@@ -1312,6 +1325,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } finally {
       jimDbLock.releaseLock(boardLockKey, request.getRequestId());
     }
+  }
+
+  private BindBoardRequest createBindBoardRequest(ComboardScanReq request) {
+    BindBoardRequest bindBoardRequest = new BindBoardRequest();
+    bindBoardRequest.setBarcode(request.getBarCode());
+    com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+    operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
+    bindBoardRequest.setOperatorInfo(operatorInfo);
+    com.jd.bluedragon.common.dto.base.request.OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
+    com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
+    org.springframework.beans.BeanUtils.copyProperties(originOperatorData, destOperatorData);
+    bindBoardRequest.setOperatorData(destOperatorData);
+    return bindBoardRequest;
   }
 
   private void asyncExecComboard(ComboardScanReq request) {
@@ -3006,7 +3032,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
-    if (com.jd.dbs.util.CollectionUtils.isEmpty(boardList)) {
+    if (CollectionUtils.isEmpty(boardList)) {
       invokeResult.setCode(RESULT_SUCCESS_CODE);
       invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
       return invokeResult;

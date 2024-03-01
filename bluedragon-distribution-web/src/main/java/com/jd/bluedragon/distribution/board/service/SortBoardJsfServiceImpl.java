@@ -117,6 +117,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             String str = com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request);
             CombinationBoardRequest c = JsonHelper.fromJson(str, CombinationBoardRequest.class);
             c.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
+            c.setBizType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
             jdcResponse = sortBoardGatewayService.combinationBoardNew(c);
         }
         return JsonHelper.fromJsonUseGson(JsonHelper.toJson(jdcResponse),new TypeToken<Response<BoardRequestDto>>(){}.getType());
@@ -226,7 +227,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
             JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
+            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.ADD_TO_BOARD.getCode());
             jyOperateFlowService.sendMq(boardCancelFlowMq);
             
             response.toSucceed();
@@ -275,6 +276,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                         JsonHelper.toJson(req));
                 return response;
             }
+
+            // 记录组板操作流水
+            request.setOperateKey(result.getData().getOperateKey());
+            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
+            jyOperateFlowService.sendMq(boardCancelFlowMq);
+
             BoardSendDto boardSendDto = new BoardSendDto();
             boardSendDto.setBoardCode(result.getData().getBoardCode());
             boardSendDto.setBoardSendEnum(result.getData().getScanDetailCount()+"");
