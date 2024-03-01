@@ -82,6 +82,15 @@ public class SendResult implements Serializable {
      */
     private Integer interceptCode;
 
+    /**
+     * 原发货校验链FilterChain返回的错误码
+     */
+    private Integer oldFilterChainCode;
+
+    /**
+     * 原发货校验链FilterChain返回的错误信息
+     */
+    private String oldFilterChainMsg;
     public void init(Integer key) {
         this.key = key;
     }
@@ -138,4 +147,19 @@ public class SendResult implements Serializable {
         this.interceptCode = interceptCode;
     }
 
+    public Integer getOldFilterChainCode() {
+        return oldFilterChainCode;
+    }
+
+    public void setOldFilterChainCode(Integer oldFilterChainCode) {
+        this.oldFilterChainCode = oldFilterChainCode;
+    }
+
+    public String getOldFilterChainMsg() {
+        return oldFilterChainMsg;
+    }
+
+    public void setOldFilterChainMsg(String oldFilterChainMsg) {
+        this.oldFilterChainMsg = oldFilterChainMsg;
+    }
 }
