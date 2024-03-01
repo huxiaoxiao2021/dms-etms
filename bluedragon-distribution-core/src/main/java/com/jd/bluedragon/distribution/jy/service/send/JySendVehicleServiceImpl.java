@@ -1846,7 +1846,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @param sendM
      * @return
      */
-    private static SendRequest getSendRequest(SendScanRequest request, SendKeyTypeEnum sendType, SendM sendM) {
+    private SendRequest getSendRequest(SendScanRequest request, SendKeyTypeEnum sendType, SendM sendM) {
         //新接口
         SendRequest sendRequest = new SendRequest();
         sendRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
@@ -1864,6 +1864,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         sendRequest.setOperatorData(sendM.getOperatorData());
         sendRequest.setIsForceSend(request.getForceSubmit());
         sendRequest.setCycleBoxCode(request.getMaterialCode());
+        if (request.getValidateIgnore() != null) {
+            sendRequest.setValidateIgnore(convertValidateIgnore(request.getValidateIgnore()));
+        }
         if (SendKeyTypeEnum.BY_WAYBILL.equals(sendType)) {
             // 按运单发货 客户端存在按包裹号传入的场景需要转换成运单
             sendRequest.setBarCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
