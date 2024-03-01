@@ -381,7 +381,8 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage(HintService.getHint(HintCodeConstants.SEND_CODE_ILLEGAL));
         }else{
-            if (forbid(result, receiveSiteCode)) return result;
+            // 2024年02月28日15:22:19 临时移除此限制，等待集约融合到分拣后在做限制 产品 马童文
+            //if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车

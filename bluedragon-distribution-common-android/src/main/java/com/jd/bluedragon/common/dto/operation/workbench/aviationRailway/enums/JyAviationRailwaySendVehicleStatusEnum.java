@@ -14,7 +14,8 @@ public enum JyAviationRailwaySendVehicleStatusEnum {
     SEAL(2,"封车列表",null,null),
     TRUNK_LINE_SEAL_N(21,"干线未封",2,"待封车"),
     TRUNK_LINE_SEAL_Y(22,"干线已封",3,"已封车"),
-    SHUTTLE_SEAL_Y(23,"摆渡已封",3,"已封车"),
+    SHUTTLE_SEAL_N(23,"摆渡未封",3,"干支已封车，摆渡未封车"),
+    SHUTTLE_SEAL_Y(24,"摆渡已封",3,"干支已封车、摆渡已封车"),
     ;
 
     private static final Map<Integer, JyAviationRailwaySendVehicleStatusEnum> codeMap;

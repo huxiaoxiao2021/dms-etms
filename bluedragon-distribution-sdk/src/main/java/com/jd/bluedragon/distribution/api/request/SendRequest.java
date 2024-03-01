@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -24,6 +26,11 @@ public class SendRequest extends PackageSendRequest {
      */
     private String opeUserErp;
 
+    /**
+     * 执行老校验链中可以不在提醒的逻辑使用
+     */
+    private ValidateIgnore validateIgnore;
+
     public String getBarCode() {
         return barCode;
     }
@@ -46,5 +53,13 @@ public class SendRequest extends PackageSendRequest {
 
     public void setOpeUserErp(String opeUserErp) {
         this.opeUserErp = opeUserErp;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }
