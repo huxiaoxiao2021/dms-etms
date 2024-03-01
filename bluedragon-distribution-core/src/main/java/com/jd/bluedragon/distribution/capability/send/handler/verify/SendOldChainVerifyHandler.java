@@ -116,6 +116,10 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
         //加载按板处理校验链
         SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck,Boolean.TRUE,
                 sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_BOARD));
+        // 存储校验链返回的code编码提供给外部调用者做特殊处理
+        context.getResponse().getData().setOldFilterChainCode(response.getCode());
+        context.getResponse().getData().setOldFilterChainMsg(response.getMessage());
+
         if (!response.getCode().equals(JdResponse.CODE_OK)) {
             if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                 context.getResponse().getData().init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), Constants.NUMBER_ZERO);
@@ -140,6 +144,9 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
         }
         // 按包裹或者运单发货分拣校验
         SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, Boolean.TRUE, filterChain);
+        // 存储校验链返回的code编码提供给外部调用者做特殊处理
+        context.getResponse().getData().setOldFilterChainCode(response.getCode());
+        context.getResponse().getData().setOldFilterChainMsg(response.getMessage());
 
         if (!response.getCode().equals(JdResponse.CODE_OK)) {
             //如果校验不OK
