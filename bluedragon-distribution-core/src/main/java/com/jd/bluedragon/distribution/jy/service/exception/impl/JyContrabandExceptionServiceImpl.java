@@ -45,6 +45,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
@@ -850,6 +851,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             throw new RuntimeException("获取运单信息失败!");
         }
         Waybill waybill = bigWaybillDto.getWaybill();
+        if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+            throw new RuntimeException("该单为保温箱运单，请正常发货流转!");
+        }
         WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
             if(!waybillFlowType.equals(HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){
