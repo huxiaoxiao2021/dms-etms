@@ -1922,6 +1922,14 @@ public class UccPropertyConfiguration{
      * 空铁提货岗提货完成时间查询范围
      */
     private Integer pickingFinishTimeRange;
+    /**
+     * 围栏到达包裹自动验货条件不符合时重试消费的最大分钟数
+     */
+    private Integer packageArriveAutoInspectionRetryMinutes;
+    /**
+     * PDA卸车扫描和自动验货互斥开关
+     */
+    private Integer pdaUnloadAndAutoInspectionRejectSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -4420,5 +4428,21 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public Integer getPackageArriveAutoInspectionRetryMinutes() {
+        return packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionRetryMinutes(Integer packageArriveAutoInspectionRetryMinutes) {
+        this.packageArriveAutoInspectionRetryMinutes = packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public Integer getPdaUnloadAndAutoInspectionRejectSwitch() {
+        return pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public void setPdaUnloadAndAutoInspectionRejectSwitch(Integer pdaUnloadAndAutoInspectionRejectSwitch) {
+        this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
     }
 }

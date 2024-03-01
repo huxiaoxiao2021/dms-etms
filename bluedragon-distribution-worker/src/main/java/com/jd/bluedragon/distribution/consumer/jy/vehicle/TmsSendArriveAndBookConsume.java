@@ -1,15 +1,19 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.PackageArriveAutoInspectionDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 运输系统-围栏到车后发送包裹到达消息
@@ -28,10 +33,12 @@ import java.util.Date;
 @Service
 public class TmsSendArriveAndBookConsume extends MessageBaseConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(TmsSealCarStatusConsumer.class);
+    private Logger logger = LoggerFactory.getLogger(TmsSendArriveAndBookConsume.class);
 
     @Autowired
     private JyTrustHandoverAutoInspectionService jyTrustHandoverAutoInspectionService;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     private void logInfo(String message, Object... objects) {
         if (logger.isInfoEnabled()) {
@@ -67,11 +74,7 @@ public class TmsSendArriveAndBookConsume extends MessageBaseConsumer {
         logInfo("运输围栏到车包裹到达消息开始消费，mqBody={}", message.getText());
         try{
             PackageArriveAutoInspectionDto packageArriveAutoInspectionDto = this.convertPackageArriveAutoInspectionDto(mqBody);
-            if(!jyTrustHandoverAutoInspectionService.packageArriveAndAutoInspection(packageArriveAutoInspectionDto)){
-                //处理失败 重试
-                logger.error("运输围栏到车包裹到达消息消费失败，内容{}",message.getText());
-                throw new JyBizException("运输围栏到车包裹到达消息消费失败,businessId=" + message.getBusinessId());
-            }
+            jyTrustHandoverAutoInspectionService.packageArriveAndAutoInspection(packageArriveAutoInspectionDto);
         }catch (Exception ex) {
             logger.error("运输围栏到车包裹到达消息消费异常，businessId={},errMsg={},content={}");
             throw new JyBizException("运输围栏到车包裹到达消息消费异常,businessId=" + message.getBusinessId());
@@ -82,7 +85,26 @@ public class TmsSendArriveAndBookConsume extends MessageBaseConsumer {
 
     private PackageArriveAutoInspectionDto convertPackageArriveAutoInspectionDto(TmsSendArriveAndBookMqBody mqBody) {
         PackageArriveAutoInspectionDto dto = new PackageArriveAutoInspectionDto();
-        //todo zcf
+        dto.setTransBookCode(mqBody.getTransBookCode());
+        dto.setPackageCode(mqBody.getPackageCode());
+        dto.setWaybillCode(StringUtils.isNotBlank(mqBody.getWaybillCode()) ? mqBody.getWaybillCode() : WaybillUtil.getWaybillCode(mqBody.getPackageCode()));
+        dto.setTransWorkCode(mqBody.getTransWorkCode());
+        dto.setTransWorkItemCode(mqBody.getTransWorkItemCode());
+        dto.setArriveSiteCode(mqBody.getEndNodeCode());
+
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getEndNodeCode());
+        if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode())) {
+            logger.error("基础资料获取围栏到车场地失败");
+            throw new JyBizException(String.format("包裹%s围栏到车场地%s基础资料获取失败", mqBody.getPackageCode(), mqBody.getEndNodeCode()));
+        }
+        if(StringUtils.isBlank(baseSite.getSiteName())) {
+            logWarn("围栏到车包裹到达场地名称为空，packageCode={},到达场地={}，基础资料返回={}", mqBody.getPackageCode(), mqBody.getEndNodeCode(), JsonHelper.toJson(baseSite));
+        }
+        dto.setArriveSiteId(baseSite.getSiteCode());
+        dto.setArriveSiteName(StringUtils.isBlank(baseSite.getSiteName()) ? StringUtils.EMPTY : baseSite.getSiteName());
+        dto.setCreateTime(mqBody.getCreateTime());
+        dto.setOperateTime(mqBody.getOperateTime());
+        dto.setFirstConsumerTime(System.currentTimeMillis());
         return dto;
     }
 
@@ -93,6 +115,34 @@ public class TmsSendArriveAndBookConsume extends MessageBaseConsumer {
      * @return
      */
     private boolean invalidDataFilter(TmsSendArriveAndBookConsume.TmsSendArriveAndBookMqBody mqBody) {
+        if(StringUtils.isBlank(mqBody.getTransBookCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，transBookCode【委托书编码:TMS系统全局唯一】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(WaybillUtil.isPackageCode(mqBody.getPackageCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，packageCode非法，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(StringUtils.isBlank(mqBody.getTransWorkCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，TransWorkCode【派车任务编码】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(StringUtils.isBlank(mqBody.getTransWorkItemCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，TransWorkItemCode【派车任务明细编码】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(StringUtils.isBlank(mqBody.getEndNodeCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，EndNodeCode【到达场地】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(Objects.isNull(mqBody.getOperateTime())) {
+            logInfo("运输围栏到车包裹到达消息过滤，OperateTime【操作时间】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(Objects.isNull(mqBody.getCreateTime())) {
+            logInfo("运输围栏到车包裹到达消息过滤，createTime【下发时间】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
         return true;
     }
 

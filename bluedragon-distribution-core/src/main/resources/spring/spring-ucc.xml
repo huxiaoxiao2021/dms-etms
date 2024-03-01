@@ -352,6 +352,10 @@
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
 
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
+
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -688,6 +692,9 @@
 				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+
 			</list>
 		</property>
 	</bean>

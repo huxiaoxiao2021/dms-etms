@@ -1006,4 +1006,9 @@
         <property name="topic" value="${jmq.topic.jy.picking.good.scan.split.package}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--  围栏到车包裹重试走自动验货逻辑  -->
+    <bean id="jyPackageArriveRetryAutoInspectionProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

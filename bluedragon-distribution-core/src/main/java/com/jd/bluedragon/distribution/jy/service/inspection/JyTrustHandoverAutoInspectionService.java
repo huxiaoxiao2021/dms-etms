@@ -12,7 +12,7 @@ public interface JyTrustHandoverAutoInspectionService {
     /**
      * 围栏到车包裹自动验货逻辑
      * @param packageArriveAutoInspectionDto
-     * @return
+     * @return true 成功  false 失败
      */
-    boolean packageArriveAndAutoInspection(PackageArriveAutoInspectionDto packageArriveAutoInspectionDto);
+    void packageArriveAndAutoInspection(PackageArriveAutoInspectionDto packageArriveAutoInspectionDto);
 }

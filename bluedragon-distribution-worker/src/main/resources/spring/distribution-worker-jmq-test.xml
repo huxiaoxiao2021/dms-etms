@@ -806,8 +806,12 @@
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
     </jmq:consumer>
     <!--运输围栏到车包裹维度消息-->
-    <jmq:consumer id="jmq.TmsSendArriveAndBookConsume" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="TmsSendArriveAndBookConsume"/>
+    <jmq:consumer id="jmq.tmsSendArriveAndBookConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="tmsSendArriveAndBookConsume"/>
+    </jmq:consumer>
+    <!--围栏到车包裹重试自动验货消息-->
+    <jmq:consumer id="jmq.jyArriveCarPackageRetryAutoInspectionConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" listener="jyArriveCarPackageRetryAutoInspectionConsume"/>
     </jmq:consumer>
 </beans>
 
