@@ -244,11 +244,6 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	 *  任务的个性化扩信息(用于展示,不参与查询 json格式)
 	 */
 	private String extendInfo;
-
-	//任务责任人 erp(外包工为身份证)
-	private String responsibleErp;
-	//任务责任人 姓名
-	private String responsibleName;
 	/**
 	 *
 	 * @param id
@@ -936,20 +931,5 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	public void setExtendInfo(String extendInfo) {
 		this.extendInfo = extendInfo;
 	}
-
-	public String getResponsibleErp() {
-		return responsibleErp;
-	}
-
-	public void setResponsibleErp(String responsibleErp) {
-		this.responsibleErp = responsibleErp;
-	}
-
-	public String getResponsibleName() {
-		return responsibleName;
-	}
-
-	public void setResponsibleName(String responsibleName) {
-		this.responsibleName = responsibleName;
-	}
+	
 }

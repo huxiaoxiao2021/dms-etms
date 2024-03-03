@@ -32,7 +32,7 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
     private WorkStationGridJsfService basicWorkStationGridJsfService;
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryByBusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(1,jKey = "WorkStationGridManagerImpl.queryByBusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
 
     public Result<WorkStationGrid> queryByBusinessKey(WorkStationGrid data) {
         Result<WorkStationGrid> result = new Result<>();

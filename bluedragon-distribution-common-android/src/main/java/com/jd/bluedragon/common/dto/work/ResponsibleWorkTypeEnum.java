@@ -19,6 +19,17 @@ public enum ResponsibleWorkTypeEnum {
         this.name = name;
     }
     
+    public static ResponsibleWorkTypeEnum getByCode(Integer code){
+        if(code == null){
+            return null;
+        }
+        for(ResponsibleWorkTypeEnum responsibleWorkTypeEnum : ResponsibleWorkTypeEnum.values()){
+            if(responsibleWorkTypeEnum.getCode().equals(code)){
+                return responsibleWorkTypeEnum;
+            }
+        }
+        return null;
+    }
 
     public Integer getCode() {
         return code;

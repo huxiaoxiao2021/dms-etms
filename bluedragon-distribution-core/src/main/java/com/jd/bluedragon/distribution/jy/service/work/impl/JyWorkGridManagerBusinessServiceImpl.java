@@ -16,13 +16,16 @@ import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.google.common.base.Objects;
 import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
+import com.jd.bluedragon.distribution.jy.service.work.*;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.distribution.workingConfig.WorkingConfigQueryService;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
+import com.jd.dms.wb.report.sdk.model.vo.working.data.SupplierVO;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
@@ -33,6 +36,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.user.JyThirdpartyUser;
 import com.jdl.basic.api.domain.user.JyTpUserScheduleQueryDto;
+import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
@@ -40,6 +44,8 @@ import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
 import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
 import com.jdl.jy.flat.dto.schedule.UserScheduleDto;
+import org.apache.avro.data.Json;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,16 +76,11 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.enums.EditTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
-import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseItemService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -184,6 +185,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	
 	@Autowired
 	private UserSignRecordService userSignRecordService;
+	
+	@Autowired
+	private WorkingConfigQueryService workingConfigQueryService;
+	
+	@Autowired
+	private JyWorkGridManagerResponsibleInfoService jyWorkGridManagerResponsibleInfoService;
     /**
      * 任务提前执行时间 （单位：秒）
      */
@@ -271,6 +278,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
+		
+		//暴力分拣任务责任人信息校验
+		result = jyWorkGridManagerResponsibleInfoService.checkResponsibleInfo(taskData, result);
+		if(result.isFail()){
+			return result;
+		}
+		
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
@@ -280,8 +294,6 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		updateTaskData.setUpdateTime(currentTime);
 		updateTaskData.setProcessEndTime(currentTime);
 		updateTaskData.setId(oldData.getId());
-//		updateTaskData.setResponsibleErp(taskData.getResponsibleErp());
-//		updateTaskData.setResponsibleName(taskData.getResponsibleName());
 		List<JyAttachmentDetailEntity> addAttachmentList = new ArrayList<>();
 		//指标改进附件
 		List<JyAttachmentDetailEntity> improveAttachmentList = new ArrayList<>();
@@ -341,8 +353,11 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyAttachmentDetailService.batchInsert(addAttachmentList);
 		jyAttachmentDetailService.batchInsert(improveAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
+		//保存任务责任人信息
+		jyWorkGridManagerResponsibleInfoService.saveTaskResponsibleInfo(taskData);
 		return result;
 	}
+	
 
 	/**
 	 * 巡检任务表增加是否匹配字段
@@ -1283,6 +1298,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("非暴力分拣任务，不用指定责任人！");
 			return result;
 		}
+
+		//任务对应网格
+		WorkGrid workGrid = getTaskWorkGrid(taskData.getTaskRefGridKey(), bizId);
+		if(workGrid == null){
+			result.toFail("获取任务网格信息失败！");
+			return result;
+		}
 		
 		//查询任务所在网格下所有工序
 		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
@@ -1300,56 +1322,164 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			return result;
 		}
 		
+		
 		//正式工
-		List<ResponsibleInfo> formalWorkerResponsibleInfo = formalWorkerResponsibleInfo(userSignRecords);
+		List<ResponsibleInfo> formalWorkerResponsibleInfo = getFormalWorkerResponsibleInfo(userSignRecords, bizId);
 		
 		//网格工序对应外包商
-		List<ResponsibleSupplier> suppliers = getWorkGridSupplier(workStationGrids, bizId);
+		ResponsibleSupplier workGridSupplier = getWorkGridSupplier(workGrid, bizId);
 		//外包工
+		List<ResponsibleInfo> outsourcingWorkerResponsibleInfo = getOutsourcingWorkerResponsibleInfo(userSignRecords,
+				taskData.getSiteCode(), bizId, workGridSupplier);
 		
-		
-		return null;
+		//临时工
+		List<ResponsibleInfo> temporaryWorkerResponsibleInfo = getTemporaryWorkerResponsibleInfo(userSignRecords, 
+				workGrid, bizId);
+
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		responsibleInfos.addAll(formalWorkerResponsibleInfo);
+		responsibleInfos.addAll(outsourcingWorkerResponsibleInfo);
+		responsibleInfos.addAll(temporaryWorkerResponsibleInfo);
+		result.setData(responsibleInfos);
+		return result;
 	}
 
-	/**
-	 * 获取网格工序绑定的外包商
-	 * @return
-	 */
-	List<ResponsibleSupplier> getWorkGridSupplier(List<WorkStationGrid> workStationGrids, String bizId){
-		List<ResponsibleSupplier> supplierList = workStationGrids.stream()
-				.filter(w -> StringUtils.isNotBlank(w.getSupplierName()) && StringUtils.isNotBlank(w.getSupplierCode()))
-				.map(w -> {ResponsibleSupplier supplier = new ResponsibleSupplier();
-					supplier.setSupplierName(w.getSupplierName());
-					supplier.setSupplierId(w.getSupplierCode());
-					return supplier;
-				}).collect(Collectors.toList());
-		
-		if(org.apache.commons.collections4.CollectionUtils.isEmpty(supplierList)){
-			logger.info("网格未绑定外包商，bizId:{}, siteCode:{}", bizId, workStationGrids.get(0).getSiteCode());
-			return supplierList;
+	@Override
+	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId) {
+		JdCResponse<List<JyWorkGridOwnerDto>> result = new JdCResponse<List<JyWorkGridOwnerDto>>();
+		result.toSucceed("查询成功！");
+		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		if(taskData == null) {
+			result.toFail("任务数据不存在！");
+			return result;
+		}
+		//非暴力分拣任务
+		if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
+			result.toFail("非暴力分拣任务，不用指定责任人！");
+			return result;
 		}
 		
-		//去重
-		List<ResponsibleSupplier> suppliers = new ArrayList<>();
-		supplierList.stream().filter(StringHelper.distinctByKey(ResponsibleSupplier::getSupplierId)).forEach(suppliers::add);
-		return suppliers;
+		
+		ViolenceSortInfoData violenceSortInfoData = taskData.getViolenceSortInfoData();
+		String gridKeys = violenceSortInfoData.getGridKeys();
+		//切判责前历史数据无网格，取任务所属网格
+		if(StringUtils.isBlank(gridKeys)){
+			gridKeys = taskData.getTaskRefGridKey();
+		}
+		String[] gridKeyArray = gridKeys.split(",");
+		
+		//摄像头最多绑3个网格 可以循环查下
+		List<JyWorkGridOwnerDto> gridOwnerDtos = new ArrayList<>();
+		for(String gridKey : gridKeyArray){
+			Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridKey);
+			if(workGridResult == null){
+				logger.info("根据gridKey获取网格信息，方法返回null,gridKey:{}", gridKey);
+				continue;
+			}
+			WorkGrid workGrid = null;
+			if((workGrid = workGridResult.getData()) == null){
+				logger.info("根据gridKey获取网格信息，未查到网格信息，网格可能已删除,gridKey:{}", gridKey);
+				continue;
+			}
+			JyWorkGridOwnerDto dto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
+			gridOwnerDtos.add(dto);
+		}
+		result.setData(gridOwnerDtos);
+		return result;
+	}
+	
+	private JyWorkGridOwnerDto getJyWorkGridOwnerDto(String erp){
+		JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
+		dto.setErp(erp);
+		Result<JyUser> userResult = jyUserManager.queryUserInfo(dto.getErp());
+		JyUser jyUser = null;
+		if(userResult != null && (jyUser = userResult.getData()) != null){
+			dto.setName(jyUser.getUserName());
+		}else{
+			dto.setName("");
+			logger.info("根据erp获取岗位信息失败");
+		}
+		return dto;
+	}
+	
+	
+
+	/**
+	 * 临时工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> getTemporaryWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords, WorkGrid workGrid,
+																	String bizId){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤临时工签到数据
+		List<BaseUserSignRecordVo> temporaryWorkerSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE4.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(temporaryWorkerSignRecords)){
+			logger.info("签到数据无临时工签到记录,bizId:{}", bizId);
+			return responsibleInfos;
+		}
+		for(BaseUserSignRecordVo vo : temporaryWorkerSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
+			responsibleInfo.setIdCard(vo.getUserCode());
+			responsibleInfo.setName(vo.getUserName());
+			JyWorkGridOwnerDto workGridOwnerDto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
+			responsibleInfo.setGridOwner(workGridOwnerDto);
+			responsibleInfos.add(responsibleInfo);
+		}
+		return responsibleInfos;
+	}
+	/**
+	 * 获取网格绑定的外包商
+	 * @return
+	 */
+	WorkGrid getTaskWorkGrid(String workGridKey, String bizId){
+		Result<WorkGrid> result = workGridManager.queryByWorkGridKey(workGridKey);
+		if(result == null){
+			logger.error("根据网格业务主键查询网格信息失败,返回值为空，workGridKey:{},bizId:{},", workGridKey, bizId);
+			return null;
+		}
+		if(result.getData() == null){
+			logger.error("根据网格业务主键未查询到网格信息，workGridKey:{},bizId:{},result.code:{}, result.messge:{}",
+					workGridKey, bizId, result.getCode(), result.getMessage());
+			return null;
+		}
+		return result.getData();
+	}
+	
+	/**
+	 * 获取网格绑定的外包商
+	 * @return
+	 */
+	ResponsibleSupplier getWorkGridSupplier(WorkGrid workGrid, String bizId){
+		if(StringUtils.isBlank(workGrid.getSupplierCode()) || StringUtils.isBlank(workGrid.getSupplierName())){
+			logger.info("网格未配置外包商，workGridKey:{},bizId:{}",
+					workGrid.getBusinessKey(), bizId);
+			return null;
+		}
+		ResponsibleSupplier supplier = new ResponsibleSupplier();
+		supplier.setSupplierName(workGrid.getSupplierName());
+		supplier.setSupplierId(workGrid.getSupplierCode());
+		return supplier;
 	}
 	/**
 	 * 正式工-责任备选人
 	 * @param userSignRecords
 	 * @return
 	 */
-	private List<ResponsibleInfo> formalWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords){
+	private List<ResponsibleInfo> getFormalWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords, String bizId){
 		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
 		//过滤正式工签到数据
 		List<BaseUserSignRecordVo> formalWorkerUserSignRecords = userSignRecords.stream()
 				.filter(u -> JOBTYPE1.getCode().equals(u.getJobCode())).collect(Collectors.toList());
 		if(CollectionUtils.isEmpty(formalWorkerUserSignRecords)){
+			logger.info("签到数据无正式工签到记录,bizId:{}", bizId);
 			return responsibleInfos;
 		}
 		for(BaseUserSignRecordVo userSignRecord : formalWorkerUserSignRecords){
 			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
-			responsibleInfo.setWorkType(userSignRecord.getJobCode());
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.FORMAL_WORKER.getCode());
 			responsibleInfo.setErp(userSignRecord.getUserCode());
 			responsibleInfo.setName(userSignRecord.getUserName());
 			responsibleInfos.add(responsibleInfo);
@@ -1361,8 +1491,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * @param userSignRecords
 	 * @return
 	 */
-	private List<ResponsibleInfo> outsourcingWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords,
-																   Integer siteCode, String bizId, List<ResponsibleSupplier> suppliers){
+	private List<ResponsibleInfo> getOutsourcingWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords,
+																   Integer siteCode, String bizId, ResponsibleSupplier workGridSupplier){
 		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
 		//过滤外包工签到数据
 		List<BaseUserSignRecordVo> outsourcingUserSignRecords = userSignRecords.stream()
@@ -1394,11 +1524,48 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		
 		for(BaseUserSignRecordVo vo : outsourcingUserSignRecords){
 			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
-			responsibleInfo.setWorkType(JOBTYPE3.getCode());
-			responsibleInfo.set
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.OUTWORKER.getCode());
+			responsibleInfo.setIdCard(vo.getUserCode());
+			responsibleInfo.setName(vo.getUserName());
+			JyThirdpartyUser jyThirdpartyUser = null;
+			//从三方储备信息获取外包商信息
+			if(userCodeToUser != null && (jyThirdpartyUser = userCodeToUser.get(vo.getUserCode())) != null && 
+			StringUtils.isNotBlank(jyThirdpartyUser.getCompanyId()) && StringUtils.isNotBlank(jyThirdpartyUser.getCompanyName())){
+				ResponsibleSupplier supplier = new ResponsibleSupplier();
+				supplier.setSupplierId(jyThirdpartyUser.getCompanyId());
+				supplier.setSupplierName(jyThirdpartyUser.getCompanyName());
+				responsibleInfo.setSupplier(supplier);
+			}else {
+				//无三方储备信息 取网格外包商家信息
+				responsibleInfo.setSupplier(workGridSupplier);
+			}
+			responsibleInfos.add(responsibleInfo);
+		}
+		//外包计提场地外包商
+		
+		
+		//外包计提配置的外包商
+		List<SupplierVO> supplierVOs = workingConfigQueryService.querySupplierBySiteCode(siteCode);
+		List<ResponsibleSupplier> supplierList = new ArrayList<>();
+		if(!CollectionUtils.isEmpty(supplierVOs)){
+			for(SupplierVO supplierVO : supplierVOs){
+				ResponsibleSupplier supplier = new ResponsibleSupplier();
+				supplier.setSupplierId(supplierVO.getSupplierCode());
+				supplier.setSupplierName(supplierVO.getSupplierName());
+				supplierList.add(supplier);
+			}
 		}
 		
-		
+		//无三方储备和网格外包商的，设置无场地外包计提配置的外包商
+		for(ResponsibleInfo responsibleInfo : responsibleInfos){
+			if(responsibleInfo.getSupplier() == null){
+				responsibleInfo.setSupplierList(supplierList);
+			}
+		}
+		//无外包商信息的删除
+		Boolean removed = responsibleInfos.removeIf(r -> r.getSupplier() == null && CollectionUtils.isEmpty(r.getSupplierList()));
+		logger.info("部分外包无外包商，bizId:{},删除结果removed:{}", bizId, removed);
+		return responsibleInfos;
 		
 	}
 

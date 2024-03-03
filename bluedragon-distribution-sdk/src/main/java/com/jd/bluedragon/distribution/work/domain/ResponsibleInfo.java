@@ -1,6 +1,4 @@
-package com.jd.bluedragon.common.dto.work;
-
-import javafx.util.Pair;
+package com.jd.bluedragon.distribution.work.domain;
 
 import java.io.Serializable;
 import java.util.List;
@@ -38,7 +36,9 @@ public class ResponsibleInfo implements Serializable {
      * 网格组长
      * @return
      */
-    private JyWorkGridOwnerDto gridOwner;
+    private String gridOwnerErp;
+    
+    private String gridOwnerName;
     
     public Integer getWorkType() {
         return workType;
@@ -72,6 +72,22 @@ public class ResponsibleInfo implements Serializable {
         this.erp = erp;
     }
 
+    public String getGridOwnerErp() {
+        return gridOwnerErp;
+    }
+
+    public void setGridOwnerErp(String gridOwnerErp) {
+        this.gridOwnerErp = gridOwnerErp;
+    }
+
+    public String getGridOwnerName() {
+        return gridOwnerName;
+    }
+
+    public void setGridOwnerName(String gridOwnerName) {
+        this.gridOwnerName = gridOwnerName;
+    }
+
     public ResponsibleSupplier getSupplier() {
         return supplier;
     }
@@ -86,13 +102,5 @@ public class ResponsibleInfo implements Serializable {
 
     public void setSupplierList(List<ResponsibleSupplier> supplierList) {
         this.supplierList = supplierList;
-    }
-
-    public JyWorkGridOwnerDto getGridOwner() {
-        return gridOwner;
-    }
-
-    public void setGridOwner(JyWorkGridOwnerDto gridOwner) {
-        this.gridOwner = gridOwner;
     }
 }

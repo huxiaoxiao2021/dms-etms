@@ -1,0 +1,15 @@
+package com.jd.bluedragon.distribution.jy.service.work;
+
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
+import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo;
+
+public interface JyWorkGridManagerResponsibleInfoService {
+    int add(JyWorkGridManagerResponsibleInfo responsibleInfo);
+
+    JyWorkGridManagerResponsibleInfo queryByBizId(String bizId);
+
+    void saveTaskResponsibleInfo(JyWorkGridManagerData taskData);
+
+    JdCResponse<Boolean> checkResponsibleInfo(JyWorkGridManagerData taskData, JdCResponse<Boolean> result);
+}

@@ -206,6 +206,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		taskCaseQuery.setTaskCode(taskData.getTaskCode());
 		List<JyWorkGridManagerCaseData> caseList = jyWorkGridManagerCaseService.loadCaseListForTaskData(taskCaseQuery);
 		taskData.setCaseList(caseList);
+		
 		//数据转化 JyWorkGridManagerData 转化为 WorkGridManagerReportVo
 		WorkGridManagerReportVo workGridManagerReportVo = covertWorkGridManagerReportVo(taskData);
 		result.setData(workGridManagerReportVo);
