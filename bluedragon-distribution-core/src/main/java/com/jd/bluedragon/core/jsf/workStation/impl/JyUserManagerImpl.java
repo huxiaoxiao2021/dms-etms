@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.framework.utils.JsonUtils;
 import com.jdl.basic.api.domain.user.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -89,11 +89,11 @@ public class JyUserManagerImpl implements JyUserManager {
 		try {
 			com.jd.dms.java.utils.sdk.base.Result<List<JyThirdpartyUser>> jyThirdpartyUsers = userJsfService.batchQueryJyThirdpartyUser(dtos);
 			if(jyThirdpartyUsers == null){
-				log.info("批量查询三方储备人员信息返回值为null,dtos:{}", JsonHelper.toJson(dtos));
+				log.info("批量查询三方储备人员信息返回值为null,dtos:{}", JsonUtils.beanToJson(dtos));
 				return result;
 			}
 			if(CollectionUtils.isEmpty(jyThirdpartyUsers.getData())){
-				log.info("批量查询三方储备人员信息-未查到三方储备信息,dtos:{}", JsonHelper.toJson(dtos));
+				log.info("批量查询三方储备人员信息-未查到三方储备信息,dtos:{}", JsonUtils.beanToJson(dtos));
 			}
 			return result.setData(jyThirdpartyUsers.getData());
 		}catch (Exception e){
