@@ -1566,8 +1566,8 @@
     <jsf:consumer id="outSourceProvisionQueryApi"
                   interface="com.jd.dms.wb.report.sdk.api.outsource.OutSourceProvisionQueryApi"
                   alias="${jsf.alias.outSource}"
-                  timeout="${jsf.timeout.default}"
-                  retries="${jsf.retries.default}"
+                  timeout="${jsf.timeout.outSource}"
+                  retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
