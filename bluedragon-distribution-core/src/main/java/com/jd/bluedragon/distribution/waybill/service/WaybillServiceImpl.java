@@ -1604,6 +1604,11 @@ public class WaybillServiceImpl implements WaybillService {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
                 return result;
             }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
+                return result;
+            }
 
             //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
             if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
@@ -1763,6 +1768,11 @@ public class WaybillServiceImpl implements WaybillService {
             InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill, userInfo);
             if (!invokeResult.codeSuccess()) {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
+                return result;
+            }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
                 return result;
             }
 

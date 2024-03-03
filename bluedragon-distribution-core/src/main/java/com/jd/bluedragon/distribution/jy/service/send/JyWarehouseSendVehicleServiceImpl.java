@@ -113,7 +113,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     /**
      * 混扫任务默认流向数量
      */
-    public static final Integer MIX_SCAN_TASK_DEFAULT_FLOW_NUM = 10;
+    public static final Integer MIX_SCAN_TASK_DEFAULT_FLOW_NUM = 25;
 
     public static final String OPERATE_SOURCE_PDA = "pdaScan";
     public static final String OPERATE_SOURCE_MQ = "allSelectMqSplit";
