@@ -341,8 +341,10 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 			info.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
 			info.setIdCard("11000000000000000" + i);
 			info.setName("王五" + i);
-			info.setGridOwnerErp("zuzhang" + i);
-			info.setGridOwnerName("组长" + i);
+			JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
+			info.setGridOwner(dto);
+			dto.setErp("zuzhang" + i);
+			dto.setName("组长" + i);
 			responsibleInfos.add(info);
 
 		}
