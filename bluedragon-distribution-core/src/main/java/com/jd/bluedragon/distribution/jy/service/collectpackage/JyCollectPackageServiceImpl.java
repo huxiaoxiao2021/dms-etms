@@ -265,7 +265,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request 集包请求对象
      */
     private void saveJyCollectPackageScanRecord(CollectPackageReq request) {
-        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, request.getForceCollectPackage()?true:false);
+        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, request.getForceCollectPackage());
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
     }
 
@@ -821,7 +821,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 if (CollectionUtils.isEmpty(flowDtoList)) {
                     flowDtoList = new ArrayList<>();
                     // 添加建箱目的地流向
-                    CollectPackageFlowDto flowDto = taskMap.get(entity.getCollectPackageBizId());;
+                    CollectPackageFlowDto flowDto = taskMap.get(entity.getCollectPackageBizId());
                     flowDtoList.add(flowDto);
                     flowMap.put(entity.getCollectPackageBizId(), flowDtoList);
                 }
@@ -892,6 +892,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
+        // 查询箱子是否已经被放入LL箱子中
+        BoxRelation boxRelation = getBoxRelation(task);
+        InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
+        taskDto.setHasBoundBoxFlag(boxRelationRes != null && !CollectionUtils.isEmpty(boxRelationRes.getData()));
+
         // 查询集包袋号
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
 
@@ -914,6 +919,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
         resp.setCollectPackageTaskDto(taskDto);
         return result;
+    }
+
+    private static BoxRelation getBoxRelation(JyBizTaskCollectPackageEntity task) {
+        BoxRelation boxRelation = new BoxRelation();
+        boxRelation.setRelationBoxCode(task.getBoxCode());
+        boxRelation.setCreateSiteCode(task.getStartSiteId());
+        return boxRelation;
     }
 
     private JyBizTaskCollectPackageEntity getTaskDetailByReq(TaskDetailReq request) {
