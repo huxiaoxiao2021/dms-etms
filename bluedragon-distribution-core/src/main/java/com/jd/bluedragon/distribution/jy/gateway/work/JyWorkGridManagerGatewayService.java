@@ -69,5 +69,8 @@ public interface JyWorkGridManagerGatewayService {
 	 * @return
 	 */
 	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId);
-	
+
+	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId);
+
+	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwnersMock(String bizId);
 }

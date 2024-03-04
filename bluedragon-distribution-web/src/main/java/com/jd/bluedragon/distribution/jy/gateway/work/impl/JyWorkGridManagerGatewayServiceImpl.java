@@ -356,5 +356,23 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
 		return jyWorkGridManagerBusinessService.queryResponsibleInfos(bizId);
 	}
+	@Override
+	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId){
+		return jyWorkGridManagerBusinessService.queryWorkGridOwners(bizId);
+	}
 
+	@Override
+	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwnersMock(String bizId){
+		JdCResponse<List<JyWorkGridOwnerDto>> response = new JdCResponse<>();
+		response.toSucceed();
+		List<JyWorkGridOwnerDto> dtos = new ArrayList<>();
+		response.setData(dtos);
+		for(int i=1;i<=3;i++){
+			JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
+			dto.setErp("zuzhang" + i);
+			dto.setErp("网格组长" + i);
+			dtos.add(dto);
+		}
+		return response;
+	}
 }
