@@ -1,11 +1,17 @@
 package com.jd.bluedragon.distribution.jy;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
 import com.jd.bluedragon.distribution.box.domain.GenerateBoxReq;
 import com.jd.bluedragon.distribution.box.domain.GenerateBoxResp;
 import com.jd.bluedragon.distribution.box.domain.StoreInfo;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
 import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -31,6 +37,8 @@ public class TpCollectPackageGatewayServiceTest {
     private TpCollectPackageGatewayService tpCollectPackageGatewayService;
     @Autowired
     DeliveryService deliveryService;
+    @Autowired
+    JyCollectPackageGatewayService jyCollectPackageGatewayService;
 
 
 
@@ -87,6 +95,51 @@ public class TpCollectPackageGatewayServiceTest {
 
         System.out.println(JsonHelper.toJson(sendDetailList));
     }
+
+    @Test
+    public void collectLoading() throws Exception {
+
+        CollectPackageReq collectPackageReq =new CollectPackageReq();
+        collectPackageReq.setBizId("JCP24030400000001");
+        collectPackageReq.setBoxCode("LL1001240304250000100109");
+        collectPackageReq.setBarCode("BC1001240304240000100210");
+
+        CurrentOperate currentOperate =new CurrentOperate();
+        currentOperate.setSiteCode(910);
+        currentOperate.setSiteName("马驹桥分拣中心");
+
+        User user =new User();
+        user.setUserErp("wuyoude");
+        user.setUserName("吴有德");
+
+        collectPackageReq.setCurrentOperate(currentOperate);
+        collectPackageReq.setUser(user);
+
+
+
+        JdCResponse<CollectPackageResp> resp = jyCollectPackageGatewayService.collectScan(collectPackageReq);
+
+        System.out.println(JsonHelper.toJson(resp));
+    }
+
+    @Test
+    public void cancelCollectLoading() throws Exception {
+
+        List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox("BW1004240123290000100109");
+
+        System.out.println(JsonHelper.toJson(sendDetailList));
+    }
+
+    @Test
+    public void cc() throws Exception {
+
+        List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox("BW1004240123290000100109");
+
+        System.out.println(JsonHelper.toJson(sendDetailList));
+    }
+
+
+
 
 
 }

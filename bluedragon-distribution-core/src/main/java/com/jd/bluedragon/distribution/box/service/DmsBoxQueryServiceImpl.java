@@ -114,4 +114,9 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     public Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq) {
         return boxService.getBoxTypeList(boxTypeReq);
     }
+
+    @Override
+    public Result<List<BoxDto>> listDescendantBoxes(BoxDto boxQueryDto) {
+        return null;
+    }
 }
