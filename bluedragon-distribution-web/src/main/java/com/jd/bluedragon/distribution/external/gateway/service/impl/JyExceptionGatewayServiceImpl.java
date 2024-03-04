@@ -308,6 +308,11 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
         return jyContrabandExceptionService.processTaskOfContraband(req);
     }
 
+    @Override
+    public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
+        return jyContrabandExceptionService.getAbnormalReason();
+    }
+
     /**
      * 获取拦截任务明细
      * @param req 请求入参

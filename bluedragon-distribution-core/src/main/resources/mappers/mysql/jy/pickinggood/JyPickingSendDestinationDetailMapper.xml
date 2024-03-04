@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendDestinationDetailDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="create_site_id" property="createSiteId" jdbcType="BIGINT" />
+    <result column="next_site_id" property="nextSiteId" jdbcType="BIGINT" />
+    <result column="send_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="seal_flag" property="sealFlag" jdbcType="TINYINT" />
+    <result column="first_scan_time" property="firstScanTime" jdbcType="TIMESTAMP" />
+    <result column="complete_time" property="completeTime" jdbcType="TIMESTAMP" />
+    <result column="task_type" property="taskType" jdbcType="TINYINT" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, create_site_id, next_site_id, send_code, status, seal_flag, first_scan_time, 
+    complete_time, task_type, create_user_erp, create_user_name, update_user_erp, update_user_name,
+    create_time, update_time, yn, ts
+  </sql>
+
+
+    <select id="fetchLatestNoCompleteBatchCode" resultType="String" parameterType="JyPickingSendDestinationDetailEntity" >
+      select send_code
+      from jy_picking_send_destination_detail
+      where yn = 1
+        and create_site_id = #{createSiteId}
+        and next_site_id = #{nextSiteId}
+        and status = 1
+        and task_type = #{taskType}
+      order by create_time desc limit 1
+    </select>
+
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity" >
+      insert into jy_picking_send_destination_detail
+      <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          id,
+        </if>
+        <if test="createSiteId != null" >
+          create_site_id,
+        </if>
+        <if test="nextSiteId != null" >
+          next_site_id,
+        </if>
+        <if test="sendCode != null" >
+          send_code,
+        </if>
+        <if test="status != null" >
+          status,
+        </if>
+        <if test="sealFlag != null" >
+          seal_flag,
+        </if>
+        <if test="firstScanTime != null" >
+          first_scan_time,
+        </if>
+        <if test="completeTime != null" >
+          complete_time,
+        </if>
+        <if test="taskType != null" >
+          task_type,
+        </if>
+        <if test="createUserErp != null" >
+          create_user_erp,
+        </if>
+        <if test="createUserName != null" >
+          create_user_name,
+        </if>
+        <if test="updateUserErp != null" >
+          update_user_erp,
+        </if>
+        <if test="updateUserName != null" >
+          update_user_name,
+        </if>
+        <if test="createTime != null" >
+          create_time,
+        </if>
+        <if test="updateTime != null" >
+          update_time,
+        </if>
+        yn
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null" >
+          #{id},
+        </if>
+        <if test="createSiteId != null" >
+          #{createSiteId},
+        </if>
+        <if test="nextSiteId != null" >
+          #{nextSiteId},
+        </if>
+        <if test="sendCode != null" >
+          #{sendCode},
+        </if>
+        <if test="status != null" >
+          #{status},
+        </if>
+        <if test="sealFlag != null" >
+          #{sealFlag},
+        </if>
+        <if test="firstScanTime != null" >
+          #{firstScanTime},
+        </if>
+        <if test="completeTime != null" >
+          #{completeTime},
+        </if>
+        <if test="taskType != null" >
+          #{taskType},
+        </if>
+        <if test="createUserErp != null" >
+          #{createUserErp},
+        </if>
+        <if test="createUserName != null" >
+          #{createUserName},
+        </if>
+        <if test="updateUserErp != null" >
+          #{updateUserErp},
+        </if>
+        <if test="updateUserName != null" >
+          #{updateUserName},
+        </if>
+        <if test="createTime != null" >
+          #{createTime},
+        </if>
+        <if test="updateTime != null" >
+          #{updateTime},
+        </if>
+        1
+      </trim>
+    </insert>
+
+  <update id="finishSendTask" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity">
+    update  jy_picking_send_destination_detail
+    set     status = #{status},
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName},
+            update_time = #{updateTime},
+            complete_time = #{completeTime}
+    where   yn = 1
+    and     status = 1
+    and     send_code = #{sendCode}
+    and     task_type = #{taskType}
+  </update>
+
+  <select id="getSendDetailBySiteId" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List"/>
+    from    jy_picking_send_destination_detail
+    where   yn = 1
+    <!-- todo  -->
+    and     create_site_id = #{createSiteId}
+    and     next_site_id = #{nextSiteId}
+    and     task_type = #{taskType}
+    and     status = #{status}
+  </select>
+</mapper>

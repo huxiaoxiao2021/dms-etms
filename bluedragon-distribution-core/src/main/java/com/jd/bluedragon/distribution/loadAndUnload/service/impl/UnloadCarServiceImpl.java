@@ -3788,9 +3788,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             BasicVehicleDto basicVehicleDto = basicQueryWSManager.getVehicleByVehicleNumber(unloadCar.getVehicleNumber());
             if(basicVehicleDto != null && basicVehicleDto.getVehicleType() != null) {
                 Integer vehicleType = basicVehicleDto.getVehicleType();
-                //todo zcf 线路类型待定
+                //todo  线路类型待定
                 Integer lineType = 123;
-                //todo zcf 车型+运输方式+线路类型 调用路由jsf接口获取时效   待定
+                //todo  车型+运输方式+线路类型 调用路由jsf接口获取时效   待定
                 duration = 0;
             }
         }

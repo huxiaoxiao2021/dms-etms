@@ -487,4 +487,11 @@ public interface WaybillSignConstants {
 
 	char CHAR_5_5 = '5'; //异常即报废
 
+
+	/**
+	 * 24-个性化运单
+	 */
+	int POSITION_24 = 24;
+	char CHAR_24_G = 'G';
+
 }
