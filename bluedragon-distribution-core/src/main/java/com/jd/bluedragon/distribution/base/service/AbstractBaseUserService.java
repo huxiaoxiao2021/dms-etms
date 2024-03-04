@@ -5,6 +5,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -31,6 +33,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.position.PositionData;
+import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
+import com.jdl.basic.common.utils.Result;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
@@ -101,6 +107,10 @@ public abstract class AbstractBaseUserService implements LoginService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private PositionManager positionManager;
+    @Resource
+    private TenantManager tenantManager;
 
     @Autowired
     private FuncUsageConfigService funcUsageConfigService;
@@ -117,7 +127,7 @@ public abstract class AbstractBaseUserService implements LoginService {
         request.setLoginVersion((byte)1);
         response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
         if (response.getCode().equals(JdResponse.CODE_OK)) {
-            this.bindSite2LoginUser(response);
+            this.bindSite2LoginUser(response,request);
         }
         String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
         if(runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
@@ -176,7 +186,7 @@ public abstract class AbstractBaseUserService implements LoginService {
      *
      * @param response
      */
-    private void bindSite2LoginUser(LoginUserResponse response) {
+    private void bindSite2LoginUser(LoginUserResponse response,LoginRequest request) {
         response.setDmsId(response.getSiteCode());
         response.setDmsName(response.getSiteName());
         // 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
@@ -324,9 +334,30 @@ public abstract class AbstractBaseUserService implements LoginService {
             // 省区
             response.setProvinceAgencyCode(loginResult.getProvinceAgencyCode());
             response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
+            //租户编码
+            JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(getQuerySiteCode(request.getPositionCode(),response.getSiteCode()));
+            if(tenant != null){
+                response.setTenantCode(tenant.getBelongTenantCode());
+            }
             // 返回结果
             return response;
         }
+    }
+    /**
+     * 获取查询站点代码
+     * 场地码不为空，就按场地码所属场地；为空就按人员所属场地
+     * @param positionCode 职位代码
+     * @param erpSiteCode ERP站点代码
+     * @return Integer 返回站点代码
+     */
+    private Integer getQuerySiteCode(String positionCode,Integer erpSiteCode){
+        if(StringUtils.isNotBlank(positionCode)){
+            Result<PositionData> apiResult = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+            if(apiResult != null && apiResult.isSuccess() && apiResult.getData() != null && apiResult.getData().getSiteCode() != null){
+                return apiResult.getData().getSiteCode();
+            }
+        }
+        return erpSiteCode;
     }
 
     /**

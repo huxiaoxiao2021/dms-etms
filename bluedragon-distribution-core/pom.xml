@@ -248,7 +248,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.6-SNAPSHOT</version>
+			<version>1.5.7-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -1812,7 +1812,8 @@
 		<dependency>
 			<groupId>com.jd.wl</groupId>
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
-			<version>1.0.7-pda-SNAPSHOT</version>
+			<version>1.4.3-SNAPSHOT</version>
+			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.aspectj</groupId>
@@ -2735,6 +2736,12 @@
 		<dependency>
 			<groupId>vd-service-sdk</groupId>
 			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
+
+		<!--拣运租户组件-->
+		<dependency>
+			<groupId>com.jdl.sorting.tech</groupId>
+			<artifactId>tenant-jsf-filter-sdk</artifactId>
 		</dependency>
     </dependencies>
 

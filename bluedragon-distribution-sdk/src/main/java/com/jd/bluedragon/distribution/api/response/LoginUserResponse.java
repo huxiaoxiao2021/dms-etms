@@ -119,6 +119,13 @@ public class LoginUserResponse extends JdResponse {
 	private String provinceAgencyCode;
 	private String provinceAgencyName;
 	/**
+	 * 租户编码
+	 */
+	private String tenantCode;
+
+	//====================================属性分割线
+
+	/**
 	 * @return the dmsSiteCode
 	 */
 	public Integer getDmsSiteCode() {
@@ -369,6 +376,14 @@ public class LoginUserResponse extends JdResponse {
 
 	public void setProvinceAgencyName(String provinceAgencyName) {
 		this.provinceAgencyName = provinceAgencyName;
+	}
+
+	public String getTenantCode() {
+		return tenantCode;
+	}
+
+	public void setTenantCode(String tenantCode) {
+		this.tenantCode = tenantCode;
 	}
 
 	public BaseResponse toOldLoginResponse() {

@@ -540,4 +540,8 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public int batchDelete(List<SendDetail> sendDetailList) {
         return this.getSqlSession().update(namespace + ".batchDelete", sendDetailList);
     }
+
+    public SendDetail findOneByParams(SendDetail param) {
+        return this.getSqlSession().selectOne(namespace + ".findOneByParams", param);
+    }
 }
