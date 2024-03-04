@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
  * @Description
  */
 @Service
-public class JyArriveCarPackageRetryAutoInspectionConsume extends MessageBaseConsumer {
+public class JyArriveCarPackageRetryAutoInspectionConsumer extends MessageBaseConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(JyArriveCarPackageRetryAutoInspectionConsume.class);
+    private Logger logger = LoggerFactory.getLogger(JyArriveCarPackageRetryAutoInspectionConsumer.class);
 
     @Autowired
     private JyTrustHandoverAutoInspectionService jyTrustHandoverAutoInspectionService;

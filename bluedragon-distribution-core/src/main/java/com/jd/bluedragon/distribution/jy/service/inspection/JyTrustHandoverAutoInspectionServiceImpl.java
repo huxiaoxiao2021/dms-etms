@@ -6,21 +6,31 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.PackageArriveAutoInspectionDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.RecycleMaterialAutoInspectionBoxDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.RecycleMaterialAutoInspectionDto;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author zhengchengfa
@@ -51,6 +59,15 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     private DefaultJMQProducer jyPackageArriveRetryAutoInspectionProducer;
     @Autowired
     private InspectionService inspectionService;
+    @Autowired
+    private BoxMaterialRelationService boxMaterialRelationService;
+    @Autowired
+    private BoxService boxService;
+    @Autowired
+    @Qualifier(value = "jyRecycleMaterialAutoInspectionBoxProducer")
+    private DefaultJMQProducer jyRecycleMaterialAutoInspectionBoxProducer;
+    @Autowired
+    private DeliveryService deliveryService;
 
 
     private void logInfo(String message, Object... objects) {
@@ -139,7 +156,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
         jyPackageArriveRetryAutoInspectionProducer.sendOnFailPersistent(paramDto.getPackageCode(), JsonHelper.toJson(paramDto));
     }
 
-    //卸车任务打标：自动验货
+    //到车自动验货时给卸车任务打标：自动验货
     private void markTaskAutoInspection(JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity) {
         if(Constants.NUMBER_ONE.equals(taskUnloadVehicleEntity.getAutoInspectionFlag())) {
             return;
@@ -167,5 +184,93 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
                 logger.error("再次插入卸车验货任务异常. {}", JsonHelper.toJson(inspectionVO), e);
             }
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.recycleMaterialEnterSiteAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public void recycleMaterialEnterSiteAutoInspection(RecycleMaterialAutoInspectionDto param) {
+        String boxCode = this.getBoxCodeByMaterialCode(param.getMaterialCode());
+        if(StringUtils.isBlank(boxCode)) {
+            logWarn("循环物资进场自动验货，根据物资编码查询箱号为空，不处理：param={}", JsonHelper.toJson(param));
+            return;
+        }
+        Set<String> boxCodeSet = this.getGenealogyAllBoxCode(boxCode);
+
+        logInfo("物资编码{}内涉及箱号集合为{}", param.getMaterialCode(), JsonHelper.toJson(boxCodeSet));
+        this.sendRecycleMaterialPackageAutoInspectionMq(param, boxCodeSet);
+    }
+
+    //循环物资进场触发箱维度自动验货
+    private void sendRecycleMaterialPackageAutoInspectionMq(RecycleMaterialAutoInspectionDto inspectionDto, Set<String> boxCodeSet) {
+        List<Message> messageList = new ArrayList<>();
+        boxCodeSet.forEach(boxCode -> {
+            RecycleMaterialAutoInspectionBoxDto dto = new RecycleMaterialAutoInspectionBoxDto();
+            dto.setBoxCode(boxCode);
+            dto.setMaterialCode(inspectionDto.getMaterialCode());
+            dto.setOperateSiteId(inspectionDto.getOperateSiteId());
+            dto.setOperateSiteName(inspectionDto.getOperateSiteName());
+            dto.setOperateTime(inspectionDto.getOperateTime());
+            dto.setSendTime(System.currentTimeMillis());
+            String msgText = JsonHelper.toJson(dto);
+            logInfo("循环物资进场地自动验货：箱维度消息发布, msg={}", msgText);
+            messageList.add(new Message(jyRecycleMaterialAutoInspectionBoxProducer.getTopic(),msgText, boxCode));
+        });
+        jyRecycleMaterialAutoInspectionBoxProducer.batchSendOnFailPersistent(messageList);
+    }
+
+    //获取箱号及所有后代箱号
+    private Set<String> getGenealogyAllBoxCode(String boxCode) {
+        Set<String> boxCodeSet = new HashSet<>();
+        boxCodeSet.add(boxCode);
+
+        Box box = new Box();
+        box.setCode(boxCode);
+        List<Box> boxList = boxService.listAllDescendantsByParentBox(box);
+        boxList.forEach(boxTemp -> {
+            if(StringUtils.isNotBlank(boxTemp.getCode())) {
+                boxCodeSet.add(boxTemp.getCode());
+            }
+        });
+        return boxCodeSet;
+    }
+
+    //获取物资编码关联的箱号
+    private String getBoxCodeByMaterialCode(String materialCode) {
+        BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByMaterialCode(materialCode);
+        if(!Objects.isNull(boxMaterialRelation) && StringUtils.isNotBlank(boxMaterialRelation.getBoxCode())) {
+            return boxMaterialRelation.getBoxCode();
+        }
+        return null;
+    }
+
+
+    @Override
+    @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.packageInRecycleMaterialBoxAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public void packageInRecycleMaterialBoxAutoInspection(RecycleMaterialAutoInspectionBoxDto param) {
+        List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox(param.getBoxCode());
+        if(CollectionUtils.isEmpty(sendDetailList)) {
+            logWarn("箱内包裹自动验货，根据箱号查询箱内包裹为空，param={}", JsonHelper.toJson(param));
+            return;
+        }
+        logInfo("packageInRecycleMaterialBoxAutoInspection:箱{}内包裹数量{}个", param.getBoxCode(), sendDetailList.size());
+        List<InspectionVO> inspectionVOList = new ArrayList<>();
+        sendDetailList.forEach(sendDetail -> {
+            if(StringUtils.isNotBlank(sendDetail.getPackageBarcode())) {
+                InspectionVO inspectionVO = new InspectionVO();
+                inspectionVO.setBarCodes(Collections.singletonList(sendDetail.getPackageBarcode()));
+                inspectionVO.setSiteCode(param.getOperateSiteId());
+                inspectionVO.setSiteName(param.getOperateSiteName());
+                inspectionVO.setUserCode(-1);
+                inspectionVO.setUserName(StringUtil.EMPTY);
+                inspectionVO.setOperateTime(DateHelper.formatDateTime(new Date(param.getOperateTime())));
+                inspectionVO.setOperatorData(this.getOperatorData(OperatorTypeEnum.MATERIAL.getCode(), param.getMaterialCode()));
+                inspectionVOList.add(inspectionVO);
+            }
+        });
+
+        inspectionVOList.forEach(vo -> {
+            this.addInspectionTask(vo, InspectionBizSourceEnum.ELECTRONIC_GATEWAY);
+        });
+
     }
 }

@@ -1929,7 +1929,7 @@ public class UccPropertyConfiguration{
     /**
      * PDA卸车扫描和自动验货互斥开关
      */
-    private Integer pdaUnloadAndAutoInspectionRejectSwitch;
+    private Boolean pdaUnloadAndAutoInspectionRejectSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -4438,11 +4438,11 @@ public class UccPropertyConfiguration{
         this.packageArriveAutoInspectionRetryMinutes = packageArriveAutoInspectionRetryMinutes;
     }
 
-    public Integer getPdaUnloadAndAutoInspectionRejectSwitch() {
+    public Boolean getPdaUnloadAndAutoInspectionRejectSwitch() {
         return pdaUnloadAndAutoInspectionRejectSwitch;
     }
 
-    public void setPdaUnloadAndAutoInspectionRejectSwitch(Integer pdaUnloadAndAutoInspectionRejectSwitch) {
+    public void setPdaUnloadAndAutoInspectionRejectSwitch(Boolean pdaUnloadAndAutoInspectionRejectSwitch) {
         this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
     }
 }

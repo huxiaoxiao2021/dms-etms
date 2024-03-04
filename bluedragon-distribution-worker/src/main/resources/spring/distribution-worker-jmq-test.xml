@@ -806,12 +806,20 @@
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
     </jmq:consumer>
     <!--运输围栏到车包裹维度消息-->
-    <jmq:consumer id="jmq.tmsSendArriveAndBookConsume" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="tmsSendArriveAndBookConsume"/>
+    <jmq:consumer id="jmq.tmsSendArriveAndBookConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="tmsSendArriveAndBookConsumer"/>
     </jmq:consumer>
     <!--围栏到车包裹重试自动验货消息-->
-    <jmq:consumer id="jmq.jyArriveCarPackageRetryAutoInspectionConsume" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" listener="jyArriveCarPackageRetryAutoInspectionConsume"/>
+    <jmq:consumer id="jmq.jyArriveCarPackageRetryAutoInspectionConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" listener="jyArriveCarPackageRetryAutoInspectionConsumer"/>
+    </jmq:consumer>
+    <!--循环物资操作记录-->
+    <jmq:consumer id="jmq.recycleMaterialOperateRecordConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.recycleMaterialOperateRecord}" listener="recycleMaterialOperateRecordConsumer"/>
+    </jmq:consumer>
+    <!--  循环物资进场自动验货箱维度消费  -->
+    <jmq:consumer id="jmq.jyRecycleMaterialAutoInspectionBoxConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionBox}" listener="jyRecycleMaterialAutoInspectionBoxConsumer"/>
     </jmq:consumer>
 </beans>
 
