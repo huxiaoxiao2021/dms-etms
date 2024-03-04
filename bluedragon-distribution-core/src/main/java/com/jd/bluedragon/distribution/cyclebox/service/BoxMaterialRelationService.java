@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.cyclebox.service;
 
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -66,4 +67,12 @@ public interface BoxMaterialRelationService {
      * @return
      */
     List<BoxMaterialRelation> getDataByBoxCodeList(List<String> boxCodeList);
+
+    /**
+     * @param boxMaterialRelation 绑定关系入参
+     * @return 绑定结果包装类
+     * @author fanggang7
+     * @time 2024-02-23 17:35:49 周五
+     */
+    Result<Boolean> upsertBoxMaterialRelationBind(BoxMaterialRelation boxMaterialRelation);
 }

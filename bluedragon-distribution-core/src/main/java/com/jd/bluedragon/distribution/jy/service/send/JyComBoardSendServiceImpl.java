@@ -3006,7 +3006,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
 
-    if (com.jd.dbs.util.CollectionUtils.isEmpty(boardList)) {
+    if (CollectionUtils.isEmpty(boardList)) {
       invokeResult.setCode(RESULT_SUCCESS_CODE);
       invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
       return invokeResult;

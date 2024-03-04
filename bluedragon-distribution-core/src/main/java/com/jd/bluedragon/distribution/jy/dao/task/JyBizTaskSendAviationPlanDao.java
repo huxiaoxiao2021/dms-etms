@@ -97,10 +97,9 @@ public class JyBizTaskSendAviationPlanDao extends BaseDao<JyBizTaskSendAviationP
     public List<JyBizTaskSendAviationPlanEntity> pageQueryRecommendTaskByNextSiteId(JyBizTaskSendAviationPlanQueryCondition condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".pageQueryRecommendTaskByNextSiteId", condition);
     }
-//
-//    JyNizTaskSendAviationPlanEntity selectByPrimaryKey(Long id);
-//
-//    int updateByPrimaryKeySelective(JyNizTaskSendAviationPlanEntity record);
-//
-//    int updateByPrimaryKey(JyNizTaskSendAviationPlanEntity record);
+
+    public int batchUpdateShuttleSealFlag(JyBizTaskSendAviationPlanQueryCondition condition) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateShuttleSealFlag", condition);
+    }
+
 }

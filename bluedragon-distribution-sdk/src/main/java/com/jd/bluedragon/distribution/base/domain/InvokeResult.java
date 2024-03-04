@@ -342,6 +342,10 @@ public class InvokeResult<T> implements Serializable {
     public static final String AVRA_SEND_TASK_FINISHED_MESSAGE = "发货任务已完成！";
 
     public static final String SEND_CHECK_OPERATOR_MESSAGE = "未获取到操作人信息，请重新登录!";
+
+    public static final Integer WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE = 3078;
+    public static final String WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE = "分拣上报成功，质控系统提交失败！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

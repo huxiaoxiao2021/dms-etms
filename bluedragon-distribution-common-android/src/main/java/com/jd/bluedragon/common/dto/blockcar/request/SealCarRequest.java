@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.blockcar.request;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
  * @author jiaowenqiang
  * @date 2019/6/25
  */
-public class SealCarRequest implements Serializable {
+public class SealCarRequest extends BaseReq implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<SealCarDto> sealCarDtoList;

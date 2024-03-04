@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
@@ -33,6 +34,8 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.*;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -150,6 +153,9 @@ public class BoxServiceImpl implements BoxService {
     private Map<String,String> sortingBoxSubTypeMap;
     @Resource(name="siteBoxSubTypeMap")
     private Map<String,String> siteBoxSubTypeMap;
+
+    @Autowired
+    private BoxMaterialRelationService boxMaterialRelationService;
 
 	@Autowired
 	BoxRelationService boxRelationService;
@@ -785,7 +791,7 @@ public class BoxServiceImpl implements BoxService {
         box.setLength(11f);
         box.setWidth(12f);
         box.setHeight(13f);
-        System.out.println(box.getCode().substring(0,1));
+        System.out.println(com.jd.bluedragon.utils.JsonHelper.toJson(box));
     }
 
     @Override
@@ -1149,6 +1155,34 @@ public class BoxServiceImpl implements BoxService {
 		}
 		return response;
 	}
+
+    /**
+     * 更新箱号绑定物资关系
+     * @param request 请求入参
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-02-24 13:00:58 周六
+     */
+    public Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request) {
+        Result<Boolean> result = Result.success();
+        try {
+            if(StringUtils.isBlank(request.getMaterialCode())){
+                return result;
+            }
+            // 增加保存箱号绑定物资
+            final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
+            boxMaterialRelation.setBoxCode(request.getBoxCode());
+            boxMaterialRelation.setMaterialCode(request.getMaterialCode());
+            boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
+            boxMaterialRelation.setOperatorErp(request.getOperateUserErp());
+            boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
+            return boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+        } catch (Exception e) {
+            result.toFail("系统异常");
+            log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request), e);
+        }
+        return result;
+    }
 
 	/**
 	 * 校验箱号信息是否能更新
