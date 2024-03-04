@@ -122,6 +122,10 @@ public class LoginUserResponse extends JdResponse {
 	 * 租户编码
 	 */
 	private String tenantCode;
+	/**
+	 * 业务条线
+	 */
+	private String businessLineCode;
 
 	//====================================属性分割线
 
@@ -386,6 +390,14 @@ public class LoginUserResponse extends JdResponse {
 		this.tenantCode = tenantCode;
 	}
 
+	public String getBusinessLineCode() {
+		return businessLineCode;
+	}
+
+	public void setBusinessLineCode(String businessLineCode) {
+		this.businessLineCode = businessLineCode;
+	}
+
 	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
@@ -432,6 +444,10 @@ public class LoginUserResponse extends JdResponse {
 				", siteSortType=" + siteSortType +
 				", siteSortSubType=" + siteSortSubType +
 				", siteSortThirdType=" + siteSortThirdType +
-				'}';
+				", provinceAgencyCode='" + provinceAgencyCode + '\'' +
+				", provinceAgencyName='" + provinceAgencyName + '\'' +
+				", tenantCode='" + tenantCode + '\'' +
+				", businessLineCode='" + businessLineCode + '\'' +
+				"} " + super.toString();
 	}
 }
