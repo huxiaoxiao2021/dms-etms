@@ -370,7 +370,7 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		for(int i=1;i<=3;i++){
 			JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
 			dto.setErp("zuzhang" + i);
-			dto.setErp("网格组长" + i);
+			dto.setName("网格组长" + i);
 			dtos.add(dto);
 		}
 		return response;
