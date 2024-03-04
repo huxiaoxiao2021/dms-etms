@@ -1744,18 +1744,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
                 log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
                 SendRequest sendRequest = getSendRequest(request, sendType, sendM);
-                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+                JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
                 result.setMsgBoxes(response.getMsgBoxes());
                 //返回错误信息
-                if(!result.codeSuccess()){
-                    //集包袋场景需要返回特殊自定义编码前端感知做特殊弹框处理逻辑使用
-                    if(SendResult.CODE_CYCLE_BOX_BIND.equals(result.getCode())){
-                        result.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                        return result;
-                    }
-                    return result;
+                if(!response.codeSuccess() || CollectionUtils.isNotEmpty(response.getMsgBoxes())){
+                    return dealSendFail(result,response,request,sendM,sendFindDestInfoDto);
                 }
             }else{
                 //此部分待切换新服务后全部删除
@@ -1874,6 +1869,50 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendRequest.setBarCode(sendM.getBoxCode());
         }
         return sendRequest;
+    }
+
+    /**
+     * 兼容处理原异常返回场景，没办法只能这么多入参了，前端交互用法太复杂了
+     * @param result
+     * @param response
+     * @param request
+     * @param sendM
+     * @param sendFindDestInfoDto
+     * @return
+     */
+    private JdVerifyResponse<SendScanResponse> dealSendFail(JdVerifyResponse<SendScanResponse> result
+                ,JdVerifyResponse<SendResult> response,SendScanRequest request,SendM sendM,
+                SendFindDestInfoDto sendFindDestInfoDto){
+        //兼容历史逻辑 集包袋场景需要返回特殊自定义编码前端感知做特殊弹框处理逻辑使用
+        if(SendResult.CODE_CYCLE_BOX_BIND.equals(result.getCode())){
+            result.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
+            return result;
+        }
+        //兼容历史逻辑 路由错发不在提醒场景特殊处理返回值
+        if(response.getData() != null &&
+                SortingResponse.CODE_CROUTER_ERROR.equals(response.getData().getOldFilterChainCode())){
+            result.setMsgBoxes(new ArrayList<>());
+            final JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox(MsgBoxTypeEnum.CONFIRM,
+                    response.getData().getOldFilterChainCode(), response.getData().getOldFilterChainMsg());
+            final RouterValidateData routerValidateData = new RouterValidateData();
+            routerValidateData.setRouterNextSiteId(sendFindDestInfoDto.getRouterNextSiteId());
+            msgBox.setData(routerValidateData);
+            result.addBox(msgBox);
+        }
+        //兼容历史逻辑 原发货校验链FilterChain失败 强制拦截 时记录拦截数据 和 bizError场景
+        if (response.getData().getOldFilterChainCode() != null &&
+                !response.getData().getOldFilterChainCode().equals(JdResponse.CODE_OK)) {
+            result.toBizError();
+            if (!JdResponse.CODE_SERVICE_ERROR.equals(response.getData().getOldFilterChainCode())
+                    && response.getData().getOldFilterChainCode() < SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
+                // 原发货校验链FilterChain强拦截时保存拦截记录
+                JySendEntity sendEntity = this.createJySendRecord(request, sendM.getReceiveSiteCode(), sendM.getSendCode(), request.getBarCode());
+                sendEntity.setForceSendFlag(Constants.YN_NO);
+                sendEntity.setInterceptFlag(Constants.YN_YES);
+                jySendService.save(sendEntity);
+            }
+        }
+        return result;
     }
 
     public List<JyBizTaskSendVehicleDetailEntity> getSendVehicleDetail(JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity) {
