@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.board;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
 import com.jd.bluedragon.core.base.BoardCommonManager;
@@ -32,6 +33,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -605,6 +607,10 @@ public class BoardCombinationResource {
         if (param.getFlowDisaccord() != null) {
             boardCombinationRequest.setFlowDisaccord(param.getFlowDisaccord());
         }
+        OperatorData originOperatorData = param.getCurrentOperate().getOperatorData();
+        com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
+        BeanUtils.copyProperties(originOperatorData, destOperatorData);
+        boardCombinationRequest.setOperatorData(destOperatorData);
         return boardCombinationRequest;
 
     }

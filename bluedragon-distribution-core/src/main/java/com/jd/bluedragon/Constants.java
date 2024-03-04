@@ -2425,4 +2425,10 @@ public class Constants {
     public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
 
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
+
 }

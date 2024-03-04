@@ -22,6 +22,7 @@ public class ComboardTaskDto {
   private String barCode;
   private Integer userCode;
   private Date operateTime;
+  private Long operateFlowId;
   /**
    *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
    * 操作者类型编码

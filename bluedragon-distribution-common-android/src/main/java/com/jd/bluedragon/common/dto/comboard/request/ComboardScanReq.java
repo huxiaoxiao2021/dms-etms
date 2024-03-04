@@ -83,6 +83,16 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     private boolean needIntercept;
 
+    /**
+     * com_board_box表业务主键
+     */
+    private String operateKey;
+
+    /**
+     * 操作流水表主键
+     */
+    private Long operateFlowId;
+
     public boolean getNeedSkipWeakIntercept() {
         return needSkipWeakIntercept;
     }
@@ -233,5 +243,21 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setNeedIntercept(boolean needIntercept) {
         this.needIntercept = needIntercept;
+    }
+
+    public String getOperateKey() {
+        return operateKey;
+    }
+
+    public void setOperateKey(String operateKey) {
+        this.operateKey = operateKey;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
     }
 }

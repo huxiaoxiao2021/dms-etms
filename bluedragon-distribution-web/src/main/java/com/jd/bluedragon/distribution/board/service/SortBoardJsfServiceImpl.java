@@ -43,11 +43,13 @@ import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.converter.BeanConverter;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardBoxResult;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -102,6 +104,9 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.combinationBoardNew", mState = JProEnum.TP)
@@ -205,12 +210,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.addToBoard", mState = JProEnum.TP)
     public Response<BoardSendDto> addToBoard(BindBoardRequest request) {
         Response<BoardSendDto> response = new Response<>();
         try {
             //调板服务组板
             AddBoardBox addBoardBox = initAddBoardBox(request);
-            com.jd.transboard.api.dto.Response<Integer>  bindResult = groupBoardService.addBoxToBoard(addBoardBox);
+            com.jd.transboard.api.dto.Response<BoardBoxResult>  bindResult = groupBoardService.addBoxToBoardReturnId(addBoardBox);
             log.info("分拣机组板调参数:{}，返回值:{}", JsonHelper.toJson(request), JsonHelper.toJson(bindResult));
             if(bindResult.getCode() != 200){
                 response.toFail(MessageFormat.format("调板服务组板接口失败code:{0}，message:{1}", bindResult.getCode(),
@@ -220,16 +226,26 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
+            BoardBoxResult boardBoxResult = bindResult.getData();
+            if (boardBoxResult != null) {
+                // 设置业务主键ID
+                request.setOperateKey(String.valueOf(boardBoxResult.getId()));
+            }
+
+            // 记录组板操作流水
+            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.ADD_TO_BOARD.getCode());
+            // 提前生成操作流水表业务主键
+            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+            boardFlowMq.setId(id);
+            jyOperateFlowService.sendMq(boardFlowMq);
+
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
-            
+            operatorInfo.setOperateFlowId(id);
             virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo,request.getOperatorData(), request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
-            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.ADD_TO_BOARD.getCode());
-            jyOperateFlowService.sendMq(boardCancelFlowMq);
-            
             response.toSucceed();
             return response;
         }catch (Exception e){
@@ -241,6 +257,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.calcBoard", mState = JProEnum.TP)
     public Response<List<String>> calcBoard(AutoBoardCompleteRequest request) {
         Response<List<String>> response = new Response<List<String>>();
         BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
@@ -263,6 +280,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.sortMachineComboard", mState = JProEnum.TP)
     public Response<BoardSendDto> sortMachineComboard(BindBoardRequest request) {
         Response<BoardSendDto> response = new Response<>();
         try {
@@ -278,10 +296,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             }
 
             // 记录组板操作流水
-            request.setOperateKey(result.getData().getOperateKey());
-            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
-            jyOperateFlowService.sendMq(boardCancelFlowMq);
+            request.setOperateKey(req.getOperateKey());
+            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
+            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
+            // 提前生成操作流水表业务主键
+            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+            boardFlowMq.setId(id);
+            jyOperateFlowService.sendMq(boardFlowMq);
 
             BoardSendDto boardSendDto = new BoardSendDto();
             boardSendDto.setBoardCode(result.getData().getBoardCode());
@@ -348,6 +369,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.cancelSortMachineComboard", mState = JProEnum.TP)
     public Response<Void> cancelSortMachineComboard(BindBoardRequest request) {
         Response<Void> response = new Response<>();
         try {

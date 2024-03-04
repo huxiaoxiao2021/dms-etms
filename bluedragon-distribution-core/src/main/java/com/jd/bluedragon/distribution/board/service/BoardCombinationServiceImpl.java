@@ -22,10 +22,14 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -49,7 +53,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -67,6 +73,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -151,6 +158,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private VirtualBoardService virtualBoardService;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
 
 
@@ -598,15 +611,19 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     boardCode = request.getBoardCode();
                 }
                 //确定转移,调用TC的板号转移接口
-                Response<String> boardMoveResponse = boardMove(request);
+                Response<BoardBoxResult> boardMoveResponse = boardMoveReturnId(request);
                 if(boardMoveResponse == null){
                     boardResponse.assembleStatusInfo(JdResponse.CODE_FAIL, "组板转移服务异常!");
                     return JdResponse.CODE_FAIL;
                 }
-
+                BoardBoxResult boardBoxResult = boardMoveResponse.getData();
+                String oldBoardCode = null;
+                if (boardBoxResult != null) {
+                    oldBoardCode = boardBoxResult.getOldBoardCode();
+                }
                 if (boardMoveResponse.getCode() != 200) {
                     //重新组板失败
-                    logInfo = "组板转移失败,原板号：" + boardMoveResponse.getData() + ",新板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                    logInfo = "组板转移失败,原板号：" + oldBoardCode + ",新板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                             ",站点：" + request.getSiteCode() + ".失败原因:" + boardMoveResponse.getMesseage();
                     log.warn(logInfo);
                     boardResponse.assembleStatusInfo(boardMoveResponse.getCode(), boardMoveResponse.getMesseage());
@@ -614,14 +631,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     return JdResponse.CODE_FAIL;
                 }
 
-                logInfo = "组板转移成功.原板号:" + boardMoveResponse.getData() + ",新板号:" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                logInfo = "组板转移成功.原板号:" + oldBoardCode + ",新板号:" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",站点：" + request.getSiteCode();
                 log.debug(logInfo);
                 // 保存任务和组板关系
                 combinationBoardRequest.setBoardCode(boardCode);
                 taskBoardService.saveTaskBoard(combinationBoardRequest);
                 //原板号缓存-1
-                redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
+                redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + oldBoardCode);
                 //缓存+1
                 redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
                 addSystemLog(request, logInfo);
@@ -631,7 +648,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //调用TC接口将组板数据推送给TC
-        Response<Integer> tcResponse = null;
+        Response<BoardBoxResult> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
             if (StringUtils.isBlank(request.getBoardCode())) {
@@ -657,7 +674,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             if(addBoardBox.getBizSource() == null){
                 addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             }
-            tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
+            tcResponse = groupBoardService.addBoxToBoardReturnId(addBoardBox);
         } catch (Exception e) {
             Profiler.functionError(info);
             throw e;
@@ -676,6 +693,19 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             return JdResponse.CODE_FAIL;
         }
 
+        // 记录组板操作流水
+        BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
+        BoardBoxResult boardBoxResult = tcResponse.getData();
+        if (boardBoxResult != null) {
+            bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
+        }
+        JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+        boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
+        // 提前生成操作流水表业务主键
+        Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+        boardFlowMq.setId(id);
+        jyOperateFlowService.sendMq(boardFlowMq);
+
         logInfo = "组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         //组板成功
         log.debug(logInfo);
@@ -693,9 +723,20 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addOperationLog(request, OperationLog.BOARD_COMBINATITON, "BoardCombinationServiceImpl#sendBoardBindings");
 
         //发送全称跟踪
+        request.setOperateFlowId(id);
         sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
         return JdResponse.CODE_SUCCESS;
+    }
+
+    private BindBoardRequest createBindBoardRequest(BoardCombinationRequest request) {
+        BindBoardRequest bindBoardRequest = new BindBoardRequest();
+        bindBoardRequest.setBarcode(request.getBoxOrPackageCode());
+        com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+        operatorInfo.setSiteCode(request.getSiteCode());
+        bindBoardRequest.setOperatorInfo(operatorInfo);
+        bindBoardRequest.setOperatorData(request.getOperatorData());
+        return bindBoardRequest;
     }
 
     private Integer createNewBoard(BoardCombinationRequest request, BoardResponse boardResponse,
@@ -1255,7 +1296,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
             tWaybillStatus.setRemark("已取消组板，板号" + request.getBoardCode());
         }
-
+        tWaybillStatus.setOperateFlowId(request.getOperateFlowId());
         return tWaybillStatus;
     }
 
@@ -1341,6 +1382,51 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             //组板的全称跟踪 -- 新板号
             request.setBoardCode(boardNew);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+        }
+        return tcResponse;
+    }
+
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardMoveReturnId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    private Response<BoardBoxResult> boardMoveReturnId(BoardCombinationRequest request) {
+        MoveBoxRequest moveBoxRequest = new MoveBoxRequest();
+        //新板标
+        moveBoxRequest.setBoardCode(request.getBoardCode());
+        moveBoxRequest.setBoxCode(request.getBoxOrPackageCode());
+        moveBoxRequest.setSiteCode(request.getSiteCode());
+        String operatorErp = request.getUserErp();
+        if (StringUtils.isBlank(operatorErp)) {
+            operatorErp = request.getUserCode() + "";
+        }
+        moveBoxRequest.setOperatorErp(operatorErp);
+        moveBoxRequest.setOperatorName(request.getUserName());
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.moveBoxToNewBoardReturnId.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        Response<BoardBoxResult> tcResponse = groupBoardService.moveBoxToNewBoardReturnId(moveBoxRequest);
+        Profiler.registerInfoEnd(info);
+        //组新板成功
+        if (tcResponse != null && tcResponse.getCode() == 200) {
+            BoardBoxResult boardBoxResult = tcResponse.getData();
+            String boardOld = boardBoxResult.getOldBoardCode();
+            String boardNew = request.getBoardCode();
+            //取消组板的全称跟踪 -- 旧板号
+            request.setBoardCode(boardOld);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+
+            //组板的全称跟踪 -- 新板号
+            request.setBoardCode(boardNew);
+
+            // 记录组板操作流水
+            BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
+            bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
+            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
+            // 提前生成操作流水表业务主键
+            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+            boardFlowMq.setId(id);
+            jyOperateFlowService.sendMq(boardFlowMq);
+            // 发送全程跟踪
+            request.setOperateFlowId(id);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
         }
         return tcResponse;
