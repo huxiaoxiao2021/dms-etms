@@ -1,9 +1,7 @@
 package com.jd.bluedragon.core.jsf.workStation.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridScheduleManager;
-import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.schedule.WorkGridSchedule;
@@ -11,22 +9,11 @@ import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
 import com.jdl.basic.api.service.schedule.WorkGridScheduleJsfService;
 import com.jdl.jy.flat.api.schedule.ScheduleJSFService;
 import com.jdl.jy.flat.base.ServiceResult;
-import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
-import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
-import com.jdl.basic.api.domain.user.JyUserDto;
-import com.jdl.basic.api.domain.user.JyUserQueryDto;
-import com.jdl.basic.api.service.schedule.WorkGridScheduleJsfService;
-import com.jdl.basic.api.service.user.UserJsfService;
-import com.jdl.jy.flat.api.schedule.ScheduleJSFService;
-import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,6 +78,7 @@ public class WorkGridScheduleManagerImpl implements WorkGridScheduleManager {
         return result;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "WorkGridScheduleManagerImpl.getUserScheduleByCondition", mState={JProEnum.TP,JProEnum.FunctionError})
     @Override
     public List<UserGridScheduleDto> getUserScheduleByCondition(UserGridScheduleQueryDto queryDto) {
         ServiceResult<List<UserGridScheduleDto>> result = scheduleJSFService.listScheduleByUserUniqueCodeAndDate(queryDto);

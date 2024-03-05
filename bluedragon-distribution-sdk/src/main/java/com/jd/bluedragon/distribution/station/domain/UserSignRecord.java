@@ -228,7 +228,7 @@ public class UserSignRecord implements Serializable {
 	 * 枢纽名称
 	 */
 	private String areaHubName;
-	
+
 	private String refWorkGridKey;
 
 	/**
@@ -245,6 +245,11 @@ public class UserSignRecord implements Serializable {
 	 * 班次时间
 	 */
 	private String waveTime;
+
+	/**
+	 * 修改类型:0-默认,1-系统修改未人工签退,2-人员未排班数据作废处理
+	 */
+	private Integer modifyType;
 
 	public String getIdCard() {
 		return idCard;
@@ -896,5 +901,13 @@ public class UserSignRecord implements Serializable {
 
 	public void setWaveTime(String waveTime) {
 		this.waveTime = waveTime;
+	}
+
+	public Integer getModifyType() {
+		return modifyType;
+	}
+
+	public void setModifyType(Integer modifyType) {
+		this.modifyType = modifyType;
 	}
 }
