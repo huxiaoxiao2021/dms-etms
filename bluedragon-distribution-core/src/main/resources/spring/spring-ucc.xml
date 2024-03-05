@@ -345,6 +345,7 @@
 		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
+		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -676,6 +677,7 @@
 				<value>uccPropertyConfiguration.allowEntryHours</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 			</list>
 		</property>
 	</bean>

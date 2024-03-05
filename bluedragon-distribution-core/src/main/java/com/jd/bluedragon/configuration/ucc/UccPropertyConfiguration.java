@@ -1965,6 +1965,12 @@ public class UccPropertyConfiguration{
     private String teanSiteIdWhiteListStr4InterceptFilter;
     private List<Integer> teanSiteIdWhiteList4InterceptFilter = new ArrayList<>();
 
+    /**
+     * 特安作业区拦截链启用场地名单
+     */
+    private String teanSiteIdEnableListStr4InterceptFilter;
+    private List<Integer> teanSiteIdEnableList4InterceptFilter = new ArrayList<>();
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4404,5 +4410,33 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.teanSiteIdWhiteList4InterceptFilter.contains(siteCode);
+    }
+
+    public String getTeanSiteIdEnableListStr4InterceptFilter() {
+        return teanSiteIdEnableListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdEnableListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdEnableList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdEnableList4InterceptFilter() {
+        return teanSiteIdEnableList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableList4InterceptFilter() {
+        this.teanSiteIdEnableList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdEnableListStr4InterceptFilter)){
+            this.teanSiteIdEnableList4InterceptFilter = Arrays.stream(teanSiteIdEnableListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdEnable4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdEnableListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
     }
 }
