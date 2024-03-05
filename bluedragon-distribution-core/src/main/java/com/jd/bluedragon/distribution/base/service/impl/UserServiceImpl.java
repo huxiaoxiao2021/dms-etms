@@ -2,12 +2,8 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.sysConfig.request.FuncUsageConfigRequestDto;
-import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.FuncUsageProcessDto;
-import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -702,12 +698,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
                     log.info("version compare: old:{}, newest:{}, result:{}", request.getVersionCode(), dmsClientConfigInfo.getVersionCode(), needUpgrade);
                 }
 
-                setUpgradeResponse(response, dmsClientConfigInfo, needUpgrade);
+                setUpgradeResponse(response, dmsClientConfigInfo, needUpgrade, clientVersion.getForceUpdate());
             }
         }
     }
 
-    private void setUpgradeResponse(AppUpgradeResponse response, DmsClientConfigInfo dmsClientConfigInfo, boolean needUpgrade) {
+    private void setUpgradeResponse(AppUpgradeResponse response, DmsClientConfigInfo dmsClientConfigInfo, boolean needUpgrade, Boolean forceUpdate) {
         if (needUpgrade) {
             response.setNeedUpdate(true);
         }
@@ -721,6 +717,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         response.setFileItemsCheckCode(dmsClientConfigInfo.getFileItemsCheckCode());
         response.setRunningMode(dmsClientConfigInfo.getRunningMode());
         response.setVersionCode(dmsClientConfigInfo.getVersionCode());
+		response.setForceUpdate(forceUpdate);
     }
 
     private DmsClientVersionRequest assembleVersionRequest(AppUpgradeRequest request) {

@@ -31,6 +31,12 @@ public class AppUpgradeResponse implements Serializable {
     private String fileItemsCheckCode;
 
     private String runningMode;
+    /**
+     * 强制更新
+     * 0-否
+     * 1-是
+     */
+    private Boolean forceUpdate;
 
     public Boolean getNeedUpdate() {
         return needUpdate;
@@ -110,5 +116,13 @@ public class AppUpgradeResponse implements Serializable {
 
     public void setRunningMode(String runningMode) {
         this.runningMode = runningMode;
+    }
+
+    public Boolean getForceUpdate() {
+        return forceUpdate;
+    }
+
+    public void setForceUpdate(Boolean forceUpdate) {
+        this.forceUpdate = forceUpdate;
     }
 }
