@@ -486,7 +486,6 @@ public interface WaybillSignConstants {
 	int POSITION_34 = 34;
 	char CHAR_34_0 = '0';
 
-
 	/**
 	 * 19
 	 */

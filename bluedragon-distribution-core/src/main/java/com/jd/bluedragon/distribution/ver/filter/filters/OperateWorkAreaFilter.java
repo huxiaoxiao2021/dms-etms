@@ -46,8 +46,9 @@ public class OperateWorkAreaFilter implements Filter {
 
         final PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
 
-        // 增加场地白名单，白名单中的场地不需要校验特安作业区
-        if (!dmsConfigManager.getPropertyConfig().isTeanSiteIdWhite4InterceptFilter(pdaOperateRequest.getCreateSiteCode())) {
+        // 如果不在白名单内，且是启用名单，则进行校验
+        if (!dmsConfigManager.getPropertyConfig().isTeanSiteIdWhite4InterceptFilter(pdaOperateRequest.getCreateSiteCode())
+            && dmsConfigManager.getPropertyConfig().isTeanSiteIdEnable4InterceptFilter(pdaOperateRequest.getCreateSiteCode())) {
             // 检查运单是否为特安运单，如果是特安运单需校验网格
             final Result<Boolean> checkWaybillVasResult = waybillCommonService.checkWaybillVas(filterContext.getWaybillCode(), WaybillVasEnum.WAYBILL_VAS_SPECIAL_SAFETY, filterContext.getWaybillVasDtos());
             if(!checkWaybillVasResult.isSuccess()){
