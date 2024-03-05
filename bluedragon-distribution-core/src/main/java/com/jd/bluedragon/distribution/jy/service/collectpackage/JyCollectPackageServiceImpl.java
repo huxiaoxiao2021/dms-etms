@@ -892,10 +892,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
-        // 查询箱子是否已经被放入LL箱子中
-        BoxRelation boxRelation = getBoxRelation(task);
-        InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
-        taskDto.setHasBoundBoxFlag(boxRelationRes != null && !CollectionUtils.isEmpty(boxRelationRes.getData()));
+
+        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+            // 查询箱子是否已经被放入LL箱子中
+            BoxRelation boxRelation = getBoxRelation(task);
+            InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
+            taskDto.setHasBoundBoxFlag(boxRelationRes != null && !CollectionUtils.isEmpty(boxRelationRes.getData()));
+        }
 
         // 查询集包袋号
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
