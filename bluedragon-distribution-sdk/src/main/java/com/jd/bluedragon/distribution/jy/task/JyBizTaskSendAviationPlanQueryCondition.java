@@ -35,6 +35,10 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
      */
     private Integer takeOffTimeOrderDesc;
 
+    //按状态卡时间组合使用
+    private Date toSendTakeOffTimeStart;
+    private Date sendingTakeOffTimeStart;
+
     public List<Integer> getNextSiteIdList() {
         return nextSiteIdList;
     }
@@ -113,5 +117,21 @@ public class JyBizTaskSendAviationPlanQueryCondition extends JyBizTaskSendAviati
 
     public void setTakeOffTimeOrderDesc(Integer takeOffTimeOrderDesc) {
         this.takeOffTimeOrderDesc = takeOffTimeOrderDesc;
+    }
+
+    public Date getToSendTakeOffTimeStart() {
+        return toSendTakeOffTimeStart;
+    }
+
+    public void setToSendTakeOffTimeStart(Date toSendTakeOffTimeStart) {
+        this.toSendTakeOffTimeStart = toSendTakeOffTimeStart;
+    }
+
+    public Date getSendingTakeOffTimeStart() {
+        return sendingTakeOffTimeStart;
+    }
+
+    public void setSendingTakeOffTimeStart(Date sendingTakeOffTimeStart) {
+        this.sendingTakeOffTimeStart = sendingTakeOffTimeStart;
     }
 }

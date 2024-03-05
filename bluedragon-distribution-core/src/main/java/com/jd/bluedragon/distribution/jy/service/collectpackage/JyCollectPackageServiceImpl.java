@@ -1667,9 +1667,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
         BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
-        InvokeResult invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
+        InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
         log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
-
+        if (ObjectHelper.isNotNull(invokeResult) && !invokeResult.codeSuccess()){
+            throw new JyBizException("取消装笼失败！");
+        }
     }
 
     private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {

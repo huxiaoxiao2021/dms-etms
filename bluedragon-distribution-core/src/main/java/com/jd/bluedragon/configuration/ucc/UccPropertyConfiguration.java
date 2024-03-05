@@ -1381,7 +1381,10 @@ public class UccPropertyConfiguration{
      * 传站拦截-- 大区黑名单
      */
     private String czOrgForbiddenList;
-
+    /**
+     * 旧版集包功能下线- 场地白名单
+     */
+    private String collectPackageSitePermitList;
 
     /**
      * 旧版集包功能下线- 场地黑名单
@@ -1392,6 +1395,27 @@ public class UccPropertyConfiguration{
      * 旧版集包功能下线-- 大区黑名单
      */
     private String collectPackageOrgForbiddenList;
+
+    /**
+     * 根据箱号类型下线旧版集包功能 白名单-配置的箱号类型 跳过校验
+     */
+    private String skipOffLineCheckByBoxTypeList;
+
+
+    public String getCollectPackageSitePermitList(){
+        return collectPackageSitePermitList;
+    }
+    public void setCollectPackageSitePermitList(String collectPackageSitePermitList) {
+        this.collectPackageSitePermitList = collectPackageSitePermitList;
+    }
+
+    public String getSkipOffLineCheckByBoxTypeList(){
+        return skipOffLineCheckByBoxTypeList;
+    }
+
+    public void setSkipOffLineCheckByBoxTypeList(String skipOffLineCheckByBoxTypeList) {
+        this.skipOffLineCheckByBoxTypeList = skipOffLineCheckByBoxTypeList;
+    }
 
     public String getCollectPackageSiteForbiddenList() {
         return collectPackageSiteForbiddenList;

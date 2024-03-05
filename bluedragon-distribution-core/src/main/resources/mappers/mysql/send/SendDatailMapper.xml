@@ -1143,6 +1143,22 @@
 		ORDER BY operate_time DESC limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<select id="findOneByParams" resultMap="SendDetail">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM send_d
+		WHERE yn = 1
+		AND sendd_status = 1
+		AND is_cancel = 0
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="packageBarcode != null">
+			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+		</if>
+		<if test="operateTime != null">
+			AND operate_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+		</if>
+		limit 1
+	</select>
 
 	<select id="queryWaybillCountBySendCode" parameterType="SendDetail" resultType="com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO">
 
@@ -1186,6 +1202,7 @@
 		and is_cancel = #{isCancel}
 		and sendd_status = #{status}
 		and yn = 1
+		and operate_time <![CDATA[<=]]> str_to_date(date_format(#{operateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 	</select>
     
     <select id="queryWaybillNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
