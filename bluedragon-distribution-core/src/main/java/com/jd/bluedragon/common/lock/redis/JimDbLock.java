@@ -39,6 +39,31 @@ public class JimDbLock {
     }
   }
 
+
+
+  public boolean tryReentrantLock(String key, String value, long expire, TimeUnit timeUnit) {
+    if (StringUtils.isEmpty(key) || StringUtils.isEmpty(value) || expire <= 0 || Objects.isNull(timeUnit)) {
+      log.info("参数错误，获取锁失败 key:{}", key);
+      return false;
+    }
+
+    if (redisClient.exists(key) && value.equals(redisClient.get(key))) {
+      // 如果是当前线程持有锁，则直接返回成功（可重入）
+      return true;
+    }
+
+    try {
+      boolean result = redisClient.set(key, value, expire, timeUnit, false);
+      return result;
+    } catch (Exception e) {
+      if (redisClient.exists(key) && value.equals(redisClient.get(key))) {
+        return true;
+      }
+      log.error("tryLock error and key is {}, value is {}, timeUnit is {}, expireTime is {}", new Object[]{key, value, timeUnit, expire, e});
+      return false;
+    }
+  }
+
   public boolean lock(String key, String value, long expire, TimeUnit timeUnit) {
     Long startMillis = System.currentTimeMillis();
     boolean isLock;
@@ -55,6 +80,33 @@ public class JimDbLock {
     } while (!isLock && startMillis + BIZ_TIMEOUT > System.currentTimeMillis());
     return isLock;
   }
+
+
+  /**
+   * 可重入锁
+   * @param key
+   * @param value
+   * @param expire
+   * @param timeUnit
+   * @return
+   */
+  public boolean reentrantLock(String key, String value, long expire, TimeUnit timeUnit) {
+    Long startMillis = System.currentTimeMillis();
+    boolean isLock;
+    int tryCount = 0;
+
+    do {
+      if (tryCount++ > 0) {
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+      }
+      isLock = tryReentrantLock(key, value, expire, timeUnit);
+    } while (!isLock && startMillis + BIZ_TIMEOUT > System.currentTimeMillis());
+    return isLock;
+  }
+
 
   /**
    * 释放锁操作

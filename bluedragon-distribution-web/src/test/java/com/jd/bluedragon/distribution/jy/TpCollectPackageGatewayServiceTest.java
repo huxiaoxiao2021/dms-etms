@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.jy;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.CancelCollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CancelCollectPackageResp;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
+import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.distribution.box.domain.GenerateBoxReq;
 import com.jd.bluedragon.distribution.box.domain.GenerateBoxResp;
 import com.jd.bluedragon.distribution.box.domain.StoreInfo;
@@ -14,6 +17,7 @@ import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
+import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -41,6 +45,9 @@ public class TpCollectPackageGatewayServiceTest {
     DeliveryService deliveryService;
     @Autowired
     JyCollectPackageGatewayService jyCollectPackageGatewayService;
+    @Autowired
+    JyComboardGatewayService jyComboardGatewayService;
+
 
 
 
@@ -102,13 +109,13 @@ public class TpCollectPackageGatewayServiceTest {
     public void collectLoading() throws Exception {
 
         CollectPackageReq collectPackageReq =new CollectPackageReq();
-        collectPackageReq.setBizId("JCP24030400000001");
-        collectPackageReq.setBoxCode("LL1001240304250000100109");
-        collectPackageReq.setBarCode("BC1001240304240000100210");
+        collectPackageReq.setBizId("JCP24030500000001");
+        collectPackageReq.setBoxCode("LL1001240305290000100109");
+        collectPackageReq.setBarCode("BC1001240305250000100109");
 
         CurrentOperate currentOperate =new CurrentOperate();
-        currentOperate.setSiteCode(910);
-        currentOperate.setSiteName("马驹桥分拣中心");
+        currentOperate.setSiteCode(40240);
+        currentOperate.setSiteName("通武分拣中心");
 
         User user =new User();
         user.setUserErp("wuyoude");
@@ -151,11 +158,27 @@ public class TpCollectPackageGatewayServiceTest {
     }
 
     @Test
-    public void cc() throws Exception {
-
-        List<SendDetail> sendDetailList = deliveryService.getCancelSendByBox("BW1004240123290000100109");
-
-        System.out.println(JsonHelper.toJson(sendDetailList));
+    public void comboardScan() throws Exception {
+        ComboardScanReq scanReq =new ComboardScanReq();
+        scanReq.setTemplateCode("CTT22120500000007");
+        scanReq.setGroupCode("G00000047004");
+        scanReq.setBarCode("LL1001240305290000100109");
+        scanReq.setScanType(0);
+        scanReq.setEndSiteId(38);
+        scanReq.setSupportMutilSendFlow(true);
+        //scanReq.setNeedSkipSendFlowCheck(true);
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        operate.setOperateTime(new Date());
+        scanReq.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        user.setUserCode(123456);
+        scanReq.setUser(user);
+        JdVerifyResponse<ComboardScanResp> re = jyComboardGatewayService.comboardScan(scanReq);
+        System.out.println(JsonHelper.toJson(re));
     }
 
 
