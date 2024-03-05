@@ -2,13 +2,7 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import com.jdl.basic.api.domain.schedule.WorkGridSchedule;
 import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
-import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
-import com.jdl.basic.api.domain.user.JyUserDto;
-import com.jdl.basic.api.domain.user.JyUserQueryDto;
-import com.jdl.jy.flat.dto.schedule.UserGridScheduleDto;
-import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
+import com.jdl.jy.flat.dto.schedule.*;
 
 import java.util.List;
 
