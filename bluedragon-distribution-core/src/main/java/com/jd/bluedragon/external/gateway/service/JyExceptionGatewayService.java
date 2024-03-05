@@ -192,6 +192,13 @@ public interface JyExceptionGatewayService {
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 
     /**
+     * 获取质控异常原因枚举
+     *
+     * @return
+     */
+    JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
+
+    /**
      * 获取拦截任务明细
      * @author fanggang7
      * @time 2024-01-17 18:39:37 周三

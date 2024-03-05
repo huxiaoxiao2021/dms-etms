@@ -147,6 +147,12 @@ public class CacheKeyConstants {
      */
     public static final String BOX_BIND_NX_KEY = DMS_CACHE_PREFIX + "fileBox.bind:";
 
+    /**
+     * 箱号绑定物资关系锁
+     */
+    public static final String BOX_BIND_MATERIAL_KEY = DMS_CACHE_PREFIX + "box.bind.material:";
+    public static final int BOX_BIND_MATERIAL_LOCK_TIME = 10;
+
     // ------------------------ S 通知相关
     /**
      * 全局最新通知数据缓存
@@ -416,4 +422,9 @@ public class CacheKeyConstants {
      * 违禁品上报并发key
      */
     public static final String CONTRABAND_LOCK_KEY = "DMS.EXCEPTION.CONTRABAND.UPLOAD:%s";
+
+    /**
+     * 空铁提货岗添加流向
+     */
+    public static final String CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW = JY_CACHE_PREFIX + "AIR_RAIL_ADD_SEND_FLOW:%s";
 }

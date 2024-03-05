@@ -343,6 +343,16 @@
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
+		<!-- 空铁提货岗 -->
+		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
+		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:3}"/>
+		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:1}"/>
+		<property name="sendFlowLimit" value="${sendFlowLimit:15}"/>
+		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
+		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
+		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
+		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
@@ -675,6 +685,15 @@
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
 				<value>uccPropertyConfiguration.allowEntryHours</value>
+				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>
+				<value>uccPropertyConfiguration.sendFlowLimit</value>
+				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
+				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>

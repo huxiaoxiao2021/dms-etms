@@ -422,6 +422,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private boolean checkYufenjianIfMatchDestination(Integer yufenjian, CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
+        if (BusinessUtil.isReverse(request.getBusinessType()) && MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())
+                && !yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
+            throw new JyBizException("逆向退仓/备件库：包裹预分拣站点与箱号目的地不一致，禁止集包！");
+        }
         //预分拣==箱号目的地
         if (yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
             request.setEndSiteId(collectPackageTask.getEndSiteId());
@@ -604,7 +608,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setBoxCode(request.getBoxCode());
-        pdaOperateRequest.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
+        pdaOperateRequest.setBusinessType(request.getBusinessType());
         pdaOperateRequest.setIsGather(0);
         //TODO
         //pdaOperateRequest.setOperateType(request.getOperateType());
@@ -645,6 +649,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         request.setBoxReceiveId(Long.valueOf(box.getReceiveSiteCode()));
         request.setBoxReceiveName(box.getReceiveSiteName());
+        request.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
+        if (ObjectHelper.isNotNull(request.getBoxReceiveId())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getBoxReceiveId().intValue());
+            log.info("查询箱号:{} 目的地站点信息:{}",request.getBoxCode(),JsonHelper.toJson(baseStaffSiteOrgDto));
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+                request.setBusinessType(DmsConstants.BUSSINESS_TYPE_REVERSE);
+            }
+        }
     }
 
     private void collectPackageBaseCheck(CollectPackageReq request) {

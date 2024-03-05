@@ -97,7 +97,6 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         }
         BoxMaterialRelation boxMaterialRelation = boxMaterialRelationService.getDataByBoxCode(boxCode);
         if (boxMaterialRelation == null){
-            result.parameterError("未查询到绑定信息");
             return result;
         }
         BoxMaterialRelationDto dto = new BoxMaterialRelationDto();

@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPa
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -471,6 +472,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
                 String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+                if (BusinessHelper.isBwxWaybill(waybillSign)) {
+                    return result.toFail("该单为保温箱运单，请正常发货流转!");
+                }
                 // 报废运单标识
                 boolean scrapWaybillFlag = isScrapWaybill(waybillSign);
                 //冷链专送 且 异常单处理方式 = 异常即报废也可以执行弃件

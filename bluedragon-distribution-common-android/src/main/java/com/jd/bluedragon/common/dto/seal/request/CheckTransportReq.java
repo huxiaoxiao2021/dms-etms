@@ -18,6 +18,13 @@ public class CheckTransportReq extends BaseReq implements Serializable {
      */
     private String vehicleNumber;
 
+    /**
+     * 中转属性开关
+     * true: 开启中转属性确认校验
+     * false: 不校验中转属性逻辑
+     */
+    private Boolean temporaryTransferSwitch;
+
     public String getTransportCode() {
         return transportCode;
     }
@@ -40,5 +47,13 @@ public class CheckTransportReq extends BaseReq implements Serializable {
 
     public void setEndSiteId(Integer endSiteId) {
         this.endSiteId = endSiteId;
+    }
+
+    public Boolean getTemporaryTransferSwitch() {
+        return temporaryTransferSwitch;
+    }
+
+    public void setTemporaryTransferSwitch(Boolean temporaryTransferSwitch) {
+        this.temporaryTransferSwitch = temporaryTransferSwitch;
     }
 }

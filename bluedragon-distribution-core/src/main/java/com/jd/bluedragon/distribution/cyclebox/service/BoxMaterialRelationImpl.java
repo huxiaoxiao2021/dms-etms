@@ -1,13 +1,27 @@
 package com.jd.bluedragon.distribution.cyclebox.service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service("boxMaterialRelationService")
 public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
@@ -15,6 +29,11 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     @Autowired
     @Qualifier("boxMaterialRelationDao")
     private BoxMaterialRelationDao boxMaterialRelationDao;
+
+    @Autowired
+    private JimDbLock jimDbLock;
+
+    private static final Logger log = LoggerFactory.getLogger(BoxMaterialRelationImpl.class);
 
     /**
      * 新增
@@ -114,5 +133,67 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
         return boxMaterialRelationDao.getDataByBoxCodeList(boxCodeList);
     }
 
+    /**
+     * @param boxMaterialRelation 绑定关系入参
+     * @return 绑定结果包装类
+     * @author fanggang7
+     * @time 2024-02-23 17:35:49 周五
+     */
+    @Override
+    @Transactional(value = "business_support", propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    public Result<Boolean> upsertBoxMaterialRelationBind(BoxMaterialRelation boxMaterialRelation) {
+        log.info("BoxMaterialRelationImpl.upsertBoxMaterialRelation param {}", JsonHelper.toJson(boxMaterialRelation));
+        Result<Boolean> result = Result.success();
 
+        if(StringUtils.isBlank(boxMaterialRelation.getBoxCode())){
+            return result.toFail("箱号不能为空");
+        }
+        if(StringUtils.isBlank(boxMaterialRelation.getMaterialCode())){
+            return result.toFail("物资编码不能为空");
+        }
+        String nxKey = CacheKeyConstants.BOX_BIND_MATERIAL_KEY + boxMaterialRelation.getBoxCode() + Constants.SEPARATOR_COLON + boxMaterialRelation.getBoxCode();
+        String lockVal = UUID.randomUUID().toString();
+        try {
+            boolean setKeySuccess = jimDbLock.lock(nxKey, lockVal, CacheKeyConstants.BOX_BIND_MATERIAL_LOCK_TIME, TimeUnit.SECONDS);
+            if (!setKeySuccess) {
+                if (log.isWarnEnabled()) {
+                    log.warn("BoxMaterialRelationImpl.upsertBoxMaterialRelation 获得绑定Redis锁失败 param {}", JsonHelper.toJson(boxMaterialRelation));
+                }
+                result.toFail("箱号绑定物资获取锁失败，请稍后重试");
+            }
+
+            final BoxMaterialRelation boxMaterialRelationExist = boxMaterialRelationDao.getDataByBoxCode(boxMaterialRelation.getBoxCode());
+            boolean needInsertFlag = false;
+            // 如果已存在，则判断是否是相同物资
+            if (boxMaterialRelationExist != null) {
+                // 如果相同，则不做处理
+                if(Objects.equals(boxMaterialRelationExist.getBindFlag(), BoxMaterialBindFlagEnum.BIND.getCode())
+                        && Objects.equals(boxMaterialRelationExist.getSiteCode(), boxMaterialRelation.getSiteCode())
+                        && Objects.equals(boxMaterialRelationExist.getMaterialCode(), boxMaterialRelation.getMaterialCode())){
+                    return result;
+                } else {
+                    needInsertFlag = true;
+                    // 解绑箱号原绑定关系
+                    BoxMaterialRelation boxMaterialRelationUnbind = new BoxMaterialRelation();
+                    boxMaterialRelationUnbind.setBoxCode(boxMaterialRelationExist.getBoxCode());
+                    boxMaterialRelationUnbind.setBindFlag(BoxMaterialBindFlagEnum.UNBIND.getCode());
+                    boxMaterialRelationDao.update(boxMaterialRelationUnbind);
+                }
+            } else {
+                needInsertFlag = true;
+            }
+
+            // 新增绑定关系
+            if(needInsertFlag){
+                boxMaterialRelationDao.add(boxMaterialRelation);
+            }
+        } catch (Exception e) {
+            result.toFail("系统异常");
+            log.error("BoxMaterialRelationImpl.upsertBoxMaterialRelation exception param {}", JsonHelper.toJson(boxMaterialRelation), e);
+        } finally {
+            jimDbLock.releaseLock(nxKey, lockVal);
+        }
+
+        return result;
+    }
 }

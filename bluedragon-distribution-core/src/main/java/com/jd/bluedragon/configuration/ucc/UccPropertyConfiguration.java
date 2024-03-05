@@ -1382,7 +1382,10 @@ public class UccPropertyConfiguration{
      * 传站拦截-- 大区黑名单
      */
     private String czOrgForbiddenList;
-
+    /**
+     * 旧版集包功能下线- 场地白名单
+     */
+    private String collectPackageSitePermitList;
 
     /**
      * 旧版集包功能下线- 场地黑名单
@@ -1393,6 +1396,27 @@ public class UccPropertyConfiguration{
      * 旧版集包功能下线-- 大区黑名单
      */
     private String collectPackageOrgForbiddenList;
+
+    /**
+     * 根据箱号类型下线旧版集包功能 白名单-配置的箱号类型 跳过校验
+     */
+    private String skipOffLineCheckByBoxTypeList;
+
+
+    public String getCollectPackageSitePermitList(){
+        return collectPackageSitePermitList;
+    }
+    public void setCollectPackageSitePermitList(String collectPackageSitePermitList) {
+        this.collectPackageSitePermitList = collectPackageSitePermitList;
+    }
+
+    public String getSkipOffLineCheckByBoxTypeList(){
+        return skipOffLineCheckByBoxTypeList;
+    }
+
+    public void setSkipOffLineCheckByBoxTypeList(String skipOffLineCheckByBoxTypeList) {
+        this.skipOffLineCheckByBoxTypeList = skipOffLineCheckByBoxTypeList;
+    }
 
     public String getCollectPackageSiteForbiddenList() {
         return collectPackageSiteForbiddenList;
@@ -1894,6 +1918,91 @@ public class UccPropertyConfiguration{
     private boolean collectPackageTaskRefreshSwitch;
 
     private long jyCollectPackageInterceptBitCode;
+    /**
+     * 空铁提货岗任务查询时间范围
+     */
+    private Integer jyBizTaskPickingGoodTimeRange;
+
+    /**
+     * 提货任务待提件数为0的查询时间范围
+     */
+    private Integer pickingGoodTaskWaitScanEq0TimeRange;
+    /**
+     * 自建提货任务自动完成时间
+     */
+    private Integer pickingGoodTaskManualTimeRange;
+    /**
+     * 空铁提货岗流向最大数限制
+     */
+    private Integer sendFlowLimit;
+    /**
+     * 空铁提货岗计划到达时间查询范围
+     */
+    private Integer pickingPlanArriveTimeRange;
+    /**
+     * 空铁提货岗实际到达时间查询范围
+     */
+    private Integer pickingRealArriveTimeRange;
+    /**
+     * 空铁提货岗提货完成时间查询范围
+     */
+    private Integer pickingFinishTimeRange;
+
+    public Integer getPickingPlanArriveTimeRange() {
+        return pickingPlanArriveTimeRange;
+    }
+
+    public void setPickingPlanArriveTimeRange(Integer pickingPlanArriveTimeRange) {
+        this.pickingPlanArriveTimeRange = pickingPlanArriveTimeRange;
+    }
+
+    public Integer getPickingRealArriveTimeRange() {
+        return pickingRealArriveTimeRange;
+    }
+
+    public void setPickingRealArriveTimeRange(Integer pickingRealArriveTimeRange) {
+        this.pickingRealArriveTimeRange = pickingRealArriveTimeRange;
+    }
+
+    public Integer getPickingFinishTimeRange() {
+        return pickingFinishTimeRange;
+    }
+
+    public void setPickingFinishTimeRange(Integer pickingFinishTimeRange) {
+        this.pickingFinishTimeRange = pickingFinishTimeRange;
+    }
+
+    public Integer getSendFlowLimit() {
+        return sendFlowLimit;
+    }
+
+    public void setSendFlowLimit(Integer sendFlowLimit) {
+        this.sendFlowLimit = sendFlowLimit;
+    }
+
+    public Integer getPickingGoodTaskWaitScanEq0TimeRange() {
+        return pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public void setPickingGoodTaskWaitScanEq0TimeRange(Integer pickingGoodTaskWaitScanEq0TimeRange) {
+        this.pickingGoodTaskWaitScanEq0TimeRange = pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public Integer getPickingGoodTaskManualTimeRange() {
+        return pickingGoodTaskManualTimeRange;
+    }
+
+    public void setPickingGoodTaskManualTimeRange(Integer pickingGoodTaskManualTimeRange) {
+        this.pickingGoodTaskManualTimeRange = pickingGoodTaskManualTimeRange;
+    }
+
+    public Integer getJyBizTaskPickingGoodTimeRange() {
+        return jyBizTaskPickingGoodTimeRange;
+    }
+
+    public void setJyBizTaskPickingGoodTimeRange(Integer jyBizTaskPickingGoodTimeRange) {
+        this.jyBizTaskPickingGoodTimeRange = jyBizTaskPickingGoodTimeRange;
+    }
 
     /**
      * 存储仓打包明细 单个箱子的上限
