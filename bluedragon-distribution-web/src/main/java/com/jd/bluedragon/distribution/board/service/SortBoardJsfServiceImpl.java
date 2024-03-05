@@ -294,16 +294,6 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                         JsonHelper.toJson(req));
                 return response;
             }
-
-            // 记录组板操作流水
-            request.setOperateKey(req.getOperateKey());
-            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
-            // 提前生成操作流水表业务主键
-            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-            boardFlowMq.setId(id);
-            jyOperateFlowService.sendMq(boardFlowMq);
-
             BoardSendDto boardSendDto = new BoardSendDto();
             boardSendDto.setBoardCode(result.getData().getBoardCode());
             boardSendDto.setBoardSendEnum(result.getData().getScanDetailCount()+"");

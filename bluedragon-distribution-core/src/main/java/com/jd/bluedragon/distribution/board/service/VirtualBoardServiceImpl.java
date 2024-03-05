@@ -717,7 +717,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
                 waybillStatus.setRemark("已取消组板，板号" + boardCode);
             }
-
+            waybillStatus.setOperateFlowId(operatorInfo.getOperateFlowId());
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 

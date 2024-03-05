@@ -5,8 +5,10 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 
 import java.io.Serializable;
 
+/**
+ * 视频追溯-操作流水与全程跟踪通用实体
+ */
 public class DmsOperateTrack implements Serializable {
-
 
     private static final long serialVersionUID = 5029681388784883608L;
 
