@@ -645,7 +645,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 签到日期
 		Date signDate = userSignRecord.getSignDate();
 		// 签到日期前一天
-		String yesterday = DateHelper.formatDate(DateUtils.addDays(signDate, Constants.NEGATIVE_NUMBER_ONE));
+		String yesterday = DateHelper.formatDate(DateUtils.addDays(signDate, Constants.SIGN_BEFORE_ONE_DAY));
 
 		// 查询指定网格下指定人员指定日期的排班记录
 		List<UserGridScheduleDto> totalScheduleList = findScheduleListByCondition(yesterday, userSignRecord, result.getData());
@@ -817,7 +817,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             }
             startDate = getSpecialDateByStr(startTime, scheduleDate, Constants.NUMBER_ZERO);
             // 排班开始日期前一小时
-			Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.NEGATIVE_NUMBER_ONE);
+			Date startDateBeforeOneHour = DateHelper.addHours(startDate, Constants.SCHEDULE_BEFORE_ONE_HOUR);
 			if (signInTime.getTime() >= startDateBeforeOneHour.getTime() && signInTime.getTime() < endDate.getTime()) {
 				if (minEndDate == null) {
 					minEndDate = endDate;

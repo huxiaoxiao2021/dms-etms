@@ -2428,5 +2428,15 @@ public class Constants {
      */
     public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
 
+    /**
+     * 排班开始日期前1小时
+     * */
+    public static final Integer SCHEDULE_BEFORE_ONE_HOUR = -1;
+
+    /**
+     * 签到开始日期前1天
+     * */
+    public static final Integer SIGN_BEFORE_ONE_DAY = -1;
+
 
 }
