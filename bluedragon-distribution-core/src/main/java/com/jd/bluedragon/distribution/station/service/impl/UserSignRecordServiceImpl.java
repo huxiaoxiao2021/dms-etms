@@ -147,9 +147,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Autowired
 	private SysConfigService sysConfigService;
 
-	@Autowired
-	private WorkGridScheduleManager workGridScheduleManager;
-
 	/**
 	 * 签到作废-小时数限制
 	 */
