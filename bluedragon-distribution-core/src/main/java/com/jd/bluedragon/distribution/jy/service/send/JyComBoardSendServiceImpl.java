@@ -1253,21 +1253,29 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       jyComboardService.save(comboardEntity);
 
       // 记录组板操作流水
-      BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
-      JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-      boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
-      // 提前生成操作流水表业务主键
-      Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-      boardFlowMq.setId(id);
-      jyOperateFlowService.sendMq(boardFlowMq);
+      sendOperateFlowData(request);
 
       // 发送组板全程跟踪
-      request.setOperateFlowId(id);
       sendComboardWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
     } finally {
       jimDbLock.releaseLock(boardLockKey, request.getRequestId());
     }
+  }
+
+  private void sendOperateFlowData(ComboardScanReq request) {
+    BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
+    try {
+        JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+        boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORT_MACHINE_BOARD.getCode());
+        // 提前生成操作流水表业务主键
+        Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+        boardFlowMq.setId(id);
+        jyOperateFlowService.sendMq(boardFlowMq);
+        request.setOperateFlowId(id);
+      } catch (Exception e) {
+        log.error("发送操作流水消息异常{}", JsonHelper.toJson(request));
+      }
   }
 
   private void pushDelayDeleteBoardMQ(JyBizTaskComboardEntity record) {
