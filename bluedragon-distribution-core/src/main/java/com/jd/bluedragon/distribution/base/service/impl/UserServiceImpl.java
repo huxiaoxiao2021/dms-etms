@@ -718,6 +718,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         response.setRunningMode(dmsClientConfigInfo.getRunningMode());
         response.setVersionCode(dmsClientConfigInfo.getVersionCode());
 		response.setForceUpdate(forceUpdate);
+		response.setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
     }
 
     private DmsClientVersionRequest assembleVersionRequest(AppUpgradeRequest request) {

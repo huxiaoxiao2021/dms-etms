@@ -1620,6 +1620,11 @@ public class UccPropertyConfiguration{
      */
     private Boolean automaticWeightVolumeUpperCheckSwitch;
 
+    /**
+     * PDA静默下载开关
+     */
+    private Boolean pdaSilentUpdateSwitch;
+
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
     }
@@ -4444,5 +4449,13 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public Boolean getPdaSilentUpdateSwitch() {
+        return pdaSilentUpdateSwitch;
+    }
+
+    public void setPdaSilentUpdateSwitch(Boolean pdaSilentUpdateSwitch) {
+        this.pdaSilentUpdateSwitch = pdaSilentUpdateSwitch;
     }
 }

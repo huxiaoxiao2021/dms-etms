@@ -38,6 +38,13 @@ public class AppUpgradeResponse implements Serializable {
      */
     private Boolean forceUpdate;
 
+    /**
+     * 静默下载
+     * 0-否
+     * 1-是
+     */
+    private Boolean silentUpdate;
+
     public Boolean getNeedUpdate() {
         return needUpdate;
     }
@@ -124,5 +131,13 @@ public class AppUpgradeResponse implements Serializable {
 
     public void setForceUpdate(Boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
+    }
+
+    public Boolean getSilentUpdate() {
+        return silentUpdate;
+    }
+
+    public void setSilentUpdate(Boolean silentUpdate) {
+        this.silentUpdate = silentUpdate;
     }
 }
