@@ -1312,6 +1312,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now) {
+    log.info("execComboardOnce barCode:{}",request.getBarCode());
     AddBoardBox addBoardBox = assembleComboardParam(request);
     Response<Integer> comboardResp = groupBoardManager.addBoxToBoardV2(addBoardBox);
     if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
@@ -1328,6 +1329,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     jyComboardService.save(comboardEntity);
     //发送组板全程跟踪
     sendComboardWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+    log.info("execComboardOnce success barCode:{}",request.getBarCode());
   }
 
   private void asyncExecComboard(ComboardScanReq request) {
