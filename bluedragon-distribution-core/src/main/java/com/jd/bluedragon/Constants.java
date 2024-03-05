@@ -2423,5 +2423,10 @@ public class Constants {
      */
     public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
 
+    /**
+     *  配置信息-基于排班自动签退试用场地列表
+     */
+    public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
+
 
 }

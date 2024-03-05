@@ -559,6 +559,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         int updateRows = 0;
         log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
+
+			// 查询新逻辑试用场地列表
+			List<String> siteCodeList = sysConfigService.getStringListConfig(Constants.AUTO_SIGN_OUT_SCHEDULE_SITE);
+
             do {
                 toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(allSpecialJobCodeList,jobCodeHoursList,signInTimeStart,signInTimeEnd, 100);
 
@@ -568,11 +572,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateData.setUpdateTime(now);
                     updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_TIME_OUT);
                     updateData.setUpdateUserName(updateData.getUpdateUser());
+
 					// 未排班的非自有员工签到记录主键列表,用来兜底
 					List<Long> noScheduleList = new ArrayList<>();
 					// 查询排班计划执行自动签退
 					for (Long id : toSignOutPks) {
-						handleAutoSignOut(id, now, noScheduleList);
+						autoSignOutNew(id, siteCodeList, now, noScheduleList);
 					}
 					if (CollectionUtils.isNotEmpty(noScheduleList)) {
 						userSignRecordDao.signOutById(updateData, noScheduleList);
@@ -599,13 +604,32 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         return result;
     }
 
-	private void handleAutoSignOut(Long recordId, Date currentDate, List<Long> noScheduleList) {
-		// 根据签到记录主键查询签到记录详情
-		UserSignRecord userSignRecord = userSignRecordDao.queryByIdForFlow(recordId);
-		if (userSignRecord == null) {
-			log.warn("handleAutoSignOut|根据主键未查询到签到记录详情:id={}", recordId);
-			return;
+	private void autoSignOutNew(Long recordId, List<String> siteCodeList, Date currentDate, List<Long> noScheduleList) {
+		try {
+			// 根据签到记录主键查询签到记录详情
+			UserSignRecord userSignRecord = userSignRecordDao.queryByIdForFlow(recordId);
+			if (userSignRecord == null) {
+				log.warn("autoSignOutNew|根据主键未查询到签到记录详情:id={}", recordId);
+				return;
+			}
+			// 签到人场地
+			Integer siteCode = userSignRecord.getSiteCode();
+			// 如果签到人场地在新逻辑试用场地中或者开启全国
+			if (siteCodeList.contains(String.valueOf(siteCode)) || siteCodeList.contains(String.valueOf(Constants.NUMBER_ZERO))) {
+				// 走新逻辑-基于排班自动签退
+				handleAutoSignOut(userSignRecord, currentDate, noScheduleList);
+			} else {
+				// 如果不在,则走原有逻辑
+				noScheduleList.add(recordId);
+			}
+		} catch (Exception e) {
+			log.error("autoSignOutNew|自动签退新逻辑出现异常:id={}", recordId, e);
 		}
+	}
+
+	private void handleAutoSignOut(UserSignRecord userSignRecord, Date currentDate, List<Long> noScheduleList) {
+		// 主键
+		Long recordId = userSignRecord.getId();
 		// 员工ERP|拼音|身份证号
 		String idCard = userSignRecord.getIdCard();
 		// 工种
