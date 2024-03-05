@@ -1292,22 +1292,28 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
         execComboardOnce(request, entity, now);
 
-        if (BusinessUtil.isLLBoxcode(request.getBarCode())) {
-          Box query =new Box();
-          query.setCode(request.getBarCode());
-          List<Box> boxList =boxService.listSonBoxesByParentBox(query);
-          if (!CollectionUtils.isEmpty(boxList)){
-            for (Box box:boxList){
-              request.setBarCode(box.getCode());
-              execComboardOnce(request, entity, now);
-            }
-          }
-        }
+        checkIfNeedExecComboardInner(request, entity, now);
       } else {
         throw new JyBizException("已到上限，需要换新板");
       }
     } finally {
       jimDbLock.releaseLock(boardLockKey, request.getRequestId());
+    }
+  }
+
+  private void checkIfNeedExecComboardInner(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now) {
+    if (BusinessUtil.isLLBoxcode(request.getBarCode())) {
+      String outBox = request.getBarCode();
+      Box query =new Box();
+      query.setCode(request.getBarCode());
+      List<Box> boxList =boxService.listSonBoxesByParentBox(query);
+      if (!CollectionUtils.isEmpty(boxList)){
+        for (Box box:boxList){
+          request.setBarCode(box.getCode());
+          execComboardOnce(request, entity, now);
+        }
+      }
+      request.setBarCode(outBox);
     }
   }
 
