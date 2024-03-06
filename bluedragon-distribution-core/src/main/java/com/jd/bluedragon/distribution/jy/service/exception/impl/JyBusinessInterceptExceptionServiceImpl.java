@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDet
 import com.jd.bluedragon.distribution.jy.exception.query.PackageWithInterceptTypeLastHandleSiteQuery;
 import com.jd.bluedragon.distribution.jy.service.exception.JyBusinessInterceptExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.businessIntercept.dto.BusinessInterceptDisposeContext;
 import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.businessIntercept.helper.JyExceptionBusinessInterceptTaskConstants;
 import com.jd.dms.java.utils.sdk.base.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -165,19 +164,6 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
         return result;
     }
 
-    /**
-     * 获取bizId
-     *
-     * @param businessInterceptReport 拦截记录
-     * @return bizId结果包装
-     * @author fanggang7
-     * @time 2024-01-21 20:21:11 周日
-     */
-    @Override
-    public String getBizId(BusinessInterceptReport businessInterceptReport) {
-        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkStationGridKey());
-    }
-
     private String getInterceptDetailKvKeyword(String packageCode, Integer interceptType){
         return String.format(JyExceptionBusinessInterceptTaskConstants.PACKAGE_CODE_ASSOCIATE_SITE_KEY, packageCode, interceptType);
     }
@@ -203,18 +189,5 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
             log.error("querySiteLastHandleRecord exception {}", JsonHelper.toJson(query), e);
         }
         return result;
-    }
-
-    /**
-     * 执行处理拦截
-     *
-     * @param businessInterceptDisposeContext 处理拦截的依赖数据
-     * @return 处理结果
-     * @author fanggang7
-     * @time 2024-01-21 20:19:14 周日
-     */
-    @Override
-    public Result<Boolean> doDmsBusinessInterceptDispose(BusinessInterceptDisposeContext businessInterceptDisposeContext) {
-        return null;
     }
 }

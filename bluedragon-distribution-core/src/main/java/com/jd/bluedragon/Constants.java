@@ -1656,7 +1656,7 @@ public class Constants {
     /**
      * 常量值：-1
      * */
-    public static final Integer  NEGATIVE_NUMBER_ONE = -1;
+    public static final Integer NEGATIVE_NUMBER_ONE = -1;
     /**
      * 常量值：2
      * */
@@ -2479,6 +2479,13 @@ public class Constants {
     public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
 
     /**
+     * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
+     */
+    public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
+
+    public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+    /**
      *  配置信息-基于排班自动签退试用场地列表
      */
     public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
@@ -2492,14 +2499,5 @@ public class Constants {
      * 签到开始日期前1天
      * */
     public static final Integer SIGN_BEFORE_ONE_DAY = -1;
-
-
-
-    /**
-     * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
-     */
-    public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
-
-    public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
 
 }

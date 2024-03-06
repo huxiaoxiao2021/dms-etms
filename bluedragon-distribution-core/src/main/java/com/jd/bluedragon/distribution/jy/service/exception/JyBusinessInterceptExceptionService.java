@@ -35,28 +35,10 @@ public interface JyBusinessInterceptExceptionService {
     Result<Boolean> consumeDmsBusinessInterceptDispose(BusinessInterceptDisposeRecord businessInterceptDisposeRecord);
 
     /**
-     * 获取bizId
-     * @param businessInterceptReport 拦截记录
-     * @return bizId结果包装
-     * @author fanggang7
-     * @time 2024-01-21 20:21:11 周日
-     */
-    String getBizId(BusinessInterceptReport businessInterceptReport);
-
-    /**
      * 根据包裹和拦截类型查询上次处理过的场地异常任务处理记录
      * @param query 查询入参
      * @return 结果列表
      */
     Result<List<JyBizTaskExceptionEntity>> queryPackageWithInterceptTypeLastHandleSiteRecord(PackageWithInterceptTypeLastHandleSiteQuery query);
-
-    /**
-     * 执行处理拦截
-     * @param businessInterceptDisposeContext 处理拦截的依赖数据
-     * @return 处理结果
-     * @author fanggang7
-     * @time 2024-01-21 20:19:14 周日
-     */
-    Result<Boolean> doDmsBusinessInterceptDispose(BusinessInterceptDisposeContext businessInterceptDisposeContext);
 
 }

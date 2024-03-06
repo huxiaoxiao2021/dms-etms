@@ -231,10 +231,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
 
-    private String getExceptionTaskCacheKey(String bizId){
-        return String.format(JyCacheKeyConstants.JY_EXCEPTION_TASK_CACHE_PRE_KEY, bizId);
-    }
-
     /**
      * 通用异常上报入口-扫描
      *
@@ -861,17 +857,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     /**
-     * 破损列表数据处理
-     */
-    private void dealInterceptTaskList(ExpTaskDto dto, JyBizTaskExceptionEntity entity) {
-        // todo
-        //处理中的拦截任务
-        if((Objects.equals(JyExpStatusEnum.PROCESSING.getCode(), entity.getStatus()))){
-        }else {
-        }
-    }
-
-    /**
      * 根据bizId 批量查询生鲜数据
      * @param taskList
      * @return
@@ -906,7 +891,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     /**
-     * 根据bizId 批量查询破损数据
+     * 根据bizId 批量查询拦截明细数据
      * @param taskList
      * @param status
      * @return
@@ -1027,7 +1012,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             taskDto = getTaskDto(jyBizTaskExceptionExist);
         } catch (Exception e) {
             logger.error("receive exception {}", JsonHelper.toJson(req), e);
-            throw new RuntimeException(e);
+            return JdCResponse.fail("系统异常");
         }
         return JdCResponse.ok(taskDto);
     }
@@ -1599,7 +1584,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         jyBizTaskExceptionDao.updateByBizId(conditon);
         recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE,conditon);
-        //发送修改状态消息 todo
+        //发送修改状态消息
         sendScheduleTaskStatusMsg(bizTaskException.getBizId(), operateErp, JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
     }
 
@@ -1899,9 +1884,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if(BusinessUtil.isSanWuCode(barCode)){
             return JyBizTaskExceptionTypeEnum.SANWU.name() + "_" + barCode;
         }else {
-            if(Objects.equals(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode(), "")){
-                return "";
-            }
             boolean bizIdSwith = dmsConfigManager.getPropertyConfig().isJyExceptionCreateBizIdSwitch();
             if(bizIdSwith){
                 String bizid = JyBizTaskExceptionTypeEnum.SCRAPPED.name() + "_" + barCode;
@@ -2097,8 +2079,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             String bizId = this.getBizId(businessInterceptReport);
 
-            final Date currentDate = new Date();
-
             boolean needInsertNewTask = false;
 
             // 如果已有任务
@@ -2251,11 +2231,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         taskEntity.setSource(JyExpSourceEnum.OPERATE_INTERCEPT.getCode());
         taskEntity.setBarCode(businessInterceptReport.getPackageCode());
         taskEntity.setTags(JyBizTaskExceptionTagEnum.INTERCEPT.getCode());
-        // taskEntity.setSiteCode(businessInterceptReport.getSiteCode().longValue());
-        // taskEntity.setSiteName(businessInterceptReport.getSiteName());
+        taskEntity.setSiteCode(businessInterceptReport.getSiteCode().longValue());
+        taskEntity.setSiteName(businessInterceptReport.getSiteName());
 
-        taskEntity.setSiteCode(new Long(workStationGrid.getSiteCode()));
-        taskEntity.setSiteName(workStationGrid.getSiteName());
         taskEntity.setFloor(workStationGrid.getFloor());
         taskEntity.setAreaCode(workStationGrid.getAreaCode());
         taskEntity.setAreaName(workStationGrid.getAreaName());
@@ -2431,7 +2409,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetail.setUpdateUserCode(jyExceptionInterceptDetail.getDisposeUserCode());
         jyExceptionInterceptDetail.setUpdateUserName(jyExceptionInterceptDetail.getDisposeUserName());
         jyExceptionInterceptDetail.setUpdateTime(currentDate);
-        // fixme 如果是0重量拦截，则记录重量体积
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
         // 3.3 插入流水记录
@@ -2481,7 +2458,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             final JyExceptionInterceptDetail jyExceptionInterceptDetail = detailResult.getData();
             final JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto = new JyExceptionInterceptDetailDto();
-            // this.mockJyExceptionInterceptDetailDto(jyExceptionInterceptDetailDto);
             this.assembleJyExceptionInterceptDetailDto(jyExceptionInterceptDetailDto, jyBizTaskExceptionExist, jyExceptionInterceptDetail);
             result.setData(jyExceptionInterceptDetailDto);
         } catch (Exception e) {
@@ -2542,22 +2518,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private boolean isBiggerThanZero(BigDecimal val){
         return val != null && BigDecimal.ZERO.compareTo(val) < 0;
-    }
-
-    private void mockJyExceptionInterceptDetailDto(JyExceptionInterceptDetailDto jyExceptionInterceptDetailDto) {
-        jyExceptionInterceptDetailDto.setBizId("intercept_JDVC00095910458-1-1-_910_10004");
-        jyExceptionInterceptDetailDto.setCreateUserId(12423);
-        jyExceptionInterceptDetailDto.setCreateUserErp("wuyoude");
-        jyExceptionInterceptDetailDto.setCreateUserName("吴有德");
-        jyExceptionInterceptDetailDto.setTaskType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
-        jyExceptionInterceptDetailDto.setTaskTypeName(JyBizTaskExceptionTypeEnum.INTERCEPT.getName());
-        jyExceptionInterceptDetailDto.setInterceptType(BusinessInterceptTypeEnum.CANCEL.getCode());
-        jyExceptionInterceptDetailDto.setInterceptTypeName(BusinessInterceptTypeEnum.CANCEL.getName());
-        jyExceptionInterceptDetailDto.setDisposeNodeName(new ArrayList<>(Arrays.asList(BusinessInterceptDisposeNodeEnum.EXCHANGE_WAYBILL.getName(), BusinessInterceptDisposeNodeEnum.REJECT_RECEIVE.getName())));
-        jyExceptionInterceptDetailDto.setInputLength(new BigDecimal("234.10"));
-        jyExceptionInterceptDetailDto.setInputWidth(new BigDecimal("334.10"));
-        jyExceptionInterceptDetailDto.setInputHeight(new BigDecimal("434.10"));
-        jyExceptionInterceptDetailDto.setInputWeight(new BigDecimal("2.20"));
     }
 
     private Result<Void> checkParam4ExpTaskCommonReq(ExpTaskCommonReq req){
@@ -2638,8 +2598,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             // 3. 执行逻辑
             final Date currentDate = new Date();
             // 3.1. 将处理状态改为【继续处理】
-            final String exceptionTaskCacheKey = this.getExceptionTaskCacheKey(req.getBizId());
-            // redisClient.set(exceptionTaskCacheKey, cacheObj.toJSONString());
             JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
@@ -2667,7 +2625,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     return result.toFail("任务处理失败，该异常拦截任务需要执行换单，但换单失败，失败原因: " + exchangeNewWaybillResult.getMessage());
                 }
             }
-            // todo 增加同运单其他任务都完结
             // 3.2 状态置为处理中
             if (!Objects.equals(BusinessInterceptTypeEnum.ZERO_WEIGHT.getCode(), jyExceptionInterceptDetailExist.getInterceptType())) {
                 JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
@@ -2758,9 +2715,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             // 3. 执行逻辑
             final Date currentDate = new Date();
-            // 3.1. 将处理状态改为【继续处理】
-            final String exceptionTaskCacheKey = this.getExceptionTaskCacheKey(req.getBizId());
-            // redisClient.set(exceptionTaskCacheKey, cacheObj.toJSONString());
             JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
             jyExceptionInterceptDetail.setBizId(req.getBizId());
             jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
