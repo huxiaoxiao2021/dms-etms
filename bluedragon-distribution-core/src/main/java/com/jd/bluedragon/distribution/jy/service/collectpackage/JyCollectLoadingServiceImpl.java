@@ -97,45 +97,4 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         pdaOperateRequest.setJyCollectPackageFlag(false);
         return pdaOperateRequest;
     }
-
-    private void execCollectLoading(CollectPackageReq request, CollectPackageResp response) {
-    }
-
-    private void collectLoadingBizCheck(CollectPackageReq request) {
-        collectPackageBizCheck(request);
-        cycleBagBindCheck(request);
-    }
-
-    private void cycleBagBindCheck(CollectPackageReq request) {
-        // 不是BC类型的不拦截
-        if (!BusinessHelper.isBCBoxType(request.getBoxType())) {
-            return;
-        }
-        // 开关关闭不拦截
-        if (!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), request.getCurrentOperate().getSiteCode())) {
-            return;
-        }
-        String materialCode = cycleBoxService.getBoxMaterialRelation(request.getBarCode());
-        if (StringUtils.isEmpty(materialCode)) {
-            throw new JyBizException(request.getBarCode()+"未绑定循环集包袋，请先绑定！");
-        }
-    }
-
-    private void collectLoadingBaseCheck(CollectPackageReq request) {
-        if (!ObjectHelper.isNotNull(request.getBizId())) {
-            throw new JyBizException("参数错误：缺失任务bizId！");
-        }
-        if (!ObjectHelper.isNotNull(request.getBoxCode())) {
-            throw new JyBizException("参数错误：缺失箱号！");
-        }
-        if (!BusinessUtil.isLLBoxcode(request.getBoxCode())) {
-            throw new JyBizException("参数错误：不支持该类型箱号,请扫描笼车/围板箱对应的箱号！");
-        }
-        if (!ObjectHelper.isNotNull(request.getBarCode())) {
-            throw new JyBizException("参数错误：缺失包裹号！");
-        }
-        if (!(BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode()))) {
-            throw new JyBizException("参数错误：扫描单号类型错误，请扫描XX！");//TODO 待产品确认
-        }
-    }
 }

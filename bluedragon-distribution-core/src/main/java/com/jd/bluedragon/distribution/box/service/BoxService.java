@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.Container;
 import com.jd.bluedragon.distribution.box.domain.BoxBindDto;
 import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;

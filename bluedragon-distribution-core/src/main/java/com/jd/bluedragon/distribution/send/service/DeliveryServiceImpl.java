@@ -2634,6 +2634,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (CollectionUtils.isEmpty(needSendBox)) {
             return result;
         }
+
         // 批量处理新发货逻辑
         long startTime = System.currentTimeMillis();
         for (SendM domain : needSendBox) {

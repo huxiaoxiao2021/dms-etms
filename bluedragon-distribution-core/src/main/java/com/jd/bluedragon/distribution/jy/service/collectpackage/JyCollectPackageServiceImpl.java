@@ -56,7 +56,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -82,7 +81,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -1699,9 +1697,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     public static void main(String[] args) {
-        Integer a =10;
-        int b =10;
-        System.out.println(a.equals(b));
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setSiteType(901);
+        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+            System.out.println(1);
+        }
     }
 
 

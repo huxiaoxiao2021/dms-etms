@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.box.domain;
 
-import lombok.Getter;
 
 import java.util.Date;
 import java.util.List;
@@ -161,8 +160,11 @@ public class Box {
 	 */
 	private String materialCode;
 
-	@Getter
 	private List<Box> children;
+
+	public List<Box> getChildren(){
+		return children;
+	}
 
 	public void setChildren(List<Box> children) {
 		this.children = children;

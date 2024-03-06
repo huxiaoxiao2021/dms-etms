@@ -24,7 +24,7 @@ public class CancelCollectPackageReq extends BaseReq implements Serializable {
     private boolean cancelAllFlag;
 
     /**
-     * 接触绑定标识
+     * 解除绑定标识
      */
     private boolean cancelBindFlag;
 
