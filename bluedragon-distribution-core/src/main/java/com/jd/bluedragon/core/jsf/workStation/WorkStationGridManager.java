@@ -29,6 +29,11 @@ public interface WorkStationGridManager {
     Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
 
     /**
+     * 根据业务主键查询WorkStationGrid,不关联查询WorkStation，带缓存，轻量级
+     */
+    Result<WorkStationGrid> queryWorkStationGridByBusinessKeyWithCache(String businessKey);
+
+    /**
      * 分页查询
      * @param workStationGridQuery 查询入参
      * @return 分页结果
