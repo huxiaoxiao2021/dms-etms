@@ -447,6 +447,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+    @Autowired
+    private SortingService sortingService;
 
     /**
      * 自动过期时间 30分钟
@@ -1048,6 +1050,18 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     }
 
     private boolean checkBoxIfEmpty(SendM domain) {
+        //箱内没有包裹 && 箱内没有箱子
+        Integer count =sortingService.getSumByBoxCode(domain.getBoxCode());
+        if (ObjectHelper.isEmpty(count) || count <= 0 ){
+            log.info("{}箱内没有包裹",domain.getBoxCode());
+            BoxRelation boxRelation =new BoxRelation();
+            boxRelation.setBoxCode(domain.getBoxCode());
+            int boxCount =boxRelationService.countByBoxCode(boxRelation);
+            if (boxCount <= 0){
+                log.info("{}箱内没有包裹 && 箱内没有箱子",domain.getBoxCode());
+                return true;
+            }
+        }
         return false;
     }
 

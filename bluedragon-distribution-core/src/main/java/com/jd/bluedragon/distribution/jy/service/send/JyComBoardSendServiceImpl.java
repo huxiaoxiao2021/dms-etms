@@ -1292,7 +1292,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
         execComboardOnce(request, entity, now);
 
-        checkIfNeedExecComboardInner(request, entity, now);
+        checkIfNeedExecComboardInner(request, entity, now);//改成异步的
       } else {
         throw new JyBizException("已到上限，需要换新板");
       }
