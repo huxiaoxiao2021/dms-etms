@@ -169,6 +169,18 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request) {
+        //基础校验
+        collectBoxBaseCheck(request);
+        //集装业务校验
+        collectBoxBizCheck(request);
+        //执行集装
+        CollectPackageResp response = new CollectPackageResp();
+        execCollectBox(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
     /**
      * 执行集包操作
      * @param request 集包请求对象
@@ -1410,19 +1422,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
-    @Override
-    public InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request) {
-        //基础校验
-        collectLoadingBaseCheck(request);
-        //集装业务校验
-        collectLoadingBizCheck(request);
-        //执行集装
-        CollectPackageResp response = new CollectPackageResp();
-        execCollectLoading(request, response);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
-    }
-
-    private void execCollectLoading(CollectPackageReq request, CollectPackageResp response) {
+    private void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
     }
@@ -1445,7 +1445,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
 
-    private void collectLoadingBizCheck(CollectPackageReq request) {
+    private void collectBoxBizCheck(CollectPackageReq request) {
         //外层箱的已发货校验
         sendCheck(request);
         //内外箱子的流向一致性校验
@@ -1503,7 +1503,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private void collectLoadingBaseCheck(CollectPackageReq request) {
+    private void collectBoxBaseCheck(CollectPackageReq request) {
         if (!ObjectHelper.isNotNull(request.getBizId())) {
             throw new JyBizException("参数错误：缺失任务bizId！");
         }
