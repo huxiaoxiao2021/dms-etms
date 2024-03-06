@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 
 /**
  * @Author: chenyaguo@jd.com
@@ -113,6 +114,7 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
         deputyConf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
         deputyConf.setEndSiteId(collectBoxFlowDirectionConf.getEndSiteId());
         deputyConf.setEndSiteName(collectBoxFlowDirectionConf.getEndSiteName());
+        deputyConf.setSupportDeputyReceiveSite(INTEGER_ONE);
         deputyPager.setSearchVo(deputyConf);
         return deputyPager;
     }

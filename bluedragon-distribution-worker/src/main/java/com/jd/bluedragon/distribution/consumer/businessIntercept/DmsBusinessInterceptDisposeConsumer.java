@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.businessIntercept;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.jy.service.exception.JyBusinessInterceptExceptionService;

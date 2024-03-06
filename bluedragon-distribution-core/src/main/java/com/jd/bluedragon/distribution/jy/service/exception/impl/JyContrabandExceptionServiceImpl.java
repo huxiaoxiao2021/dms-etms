@@ -90,6 +90,8 @@ import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandI
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE;
+import static com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum.CONTRABAND_GOODS;
+import static com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum.AIR_TO_ROAD_CODE;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
@@ -319,6 +321,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             dto.setSiteName(siteOrgDto.getSiteName());
             dto.setAreaId(siteOrgDto.getOrgId());
         }
+        dto.setTransformType(AIR_TO_ROAD_CODE.getFxmId());
+        dto.setAbnormalType(CONTRABAND_GOODS.getFxmId());
         dto.setFirstLevelCode(request.getFirstReasonLevelCode());
         dto.setFirstLevelName(request.getFirstReasonLevelName());
         dto.setSecondLevelCode(request.getSecondReasonLevelCode());
