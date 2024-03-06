@@ -1378,8 +1378,8 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
             }
         } catch (Exception e) {
             log.error("InspectionServiceImpl_checkBeforeInspection {}", JsonHelper.toJson(request));
-            response.toError("系统异常");
-            return response;
+            // response.toError("系统异常");
+            // return response;
         }
 
         JdCResponse<InspectionCheckResultDto> hintCheckResult = hintCheck(hintCheckRequest);
