@@ -84,13 +84,18 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.packageArriveAndAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void packageArriveAndAutoInspection(PackageArriveAutoInspectionDto paramDto) {
+        if(!this.isExecutable(paramDto.getFirstConsumerTime(), paramDto.getRetryIntervalMinutes())) {
+            logInfo("围栏到车包裹自动验货重试，未到执行时间，继续放入重试队列，paramDto={}", JsonHelper.toJson(paramDto));
+            this.sendRetryPackageArriveAutoInspectionMQ(paramDto, false);
+            return;
+        }
         JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.findByTransWorkItemCode(paramDto.getTransWorkItemCode());
         if(Objects.isNull(taskUnloadVehicleEntity)) {
-            if(this.retryIsExpire(paramDto.getFirstConsumerTime())) {
+            if(this.retryIsExpire(paramDto.getFirstConsumerTime(), 1)) {
                 logWarn("围栏到车包裹未找到卸车任务, 重试过期不再重试等待,数据丢弃，paramDto={}", JsonHelper.toJson(paramDto));
             }else {
                 logWarn("围栏到车包裹未找到卸车任务，无法确认是否非逐单卸做自动验货，重试等待，paramDto={}", JsonHelper.toJson(paramDto));
-                this.sendRetryPackageArriveAutoInspectionMQ(paramDto);
+                this.sendRetryPackageArriveAutoInspectionMQ(paramDto, true);
             }
             return;
         }
@@ -100,9 +105,9 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
             return;
         }
         if(StringUtils.isBlank(taskUnloadVehicleEntity.getTagsSign())) {
-            if(!this.retryIsExpire(paramDto.getFirstConsumerTime())) {
+            if(!this.retryIsExpire(paramDto.getFirstConsumerTime(), 0)) {
                 logWarn("围栏到车包裹非逐单卸未打标，无法确认是否自动验货，重试等待，paramDto={}", JsonHelper.toJson(paramDto));
-                this.sendRetryPackageArriveAutoInspectionMQ(paramDto);
+                this.sendRetryPackageArriveAutoInspectionMQ(paramDto, true);
                 return ;
             }
             logWarn("围栏到车包裹非逐单卸未打标, 重试已超期，不再等待是否逐单卸标识，直接触发自动验货，paramDto={}", JsonHelper.toJson(paramDto));
@@ -117,6 +122,15 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
         //自动验货执行
         InspectionVO vo = this.convertArriveCarAutoInspectionVO(paramDto);
         this.addInspectionTask(vo, InspectionBizSourceEnum.ELECTRONIC_FENCE);
+    }
+
+    //是否可执行  true可执行
+    private boolean isExecutable(Long firstConsumerTime, Integer retryIntervalMinutes) {
+        if(Objects.isNull(firstConsumerTime) || Objects.isNull(retryIntervalMinutes)) {
+            return true;
+        }
+        Long executableTime = firstConsumerTime + retryIntervalMinutes * 60l * 1000l;
+        return NumberHelper.gt(System.currentTimeMillis(), executableTime);
     }
 
     //围栏到车自动验货task对象组装
@@ -141,19 +155,38 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     }
 
     //到车自动验货重试是否过期
-    private boolean retryIsExpire(Long firstConsumerTime) {
+    private boolean retryIsExpire(Long firstConsumerTime, Integer node) {
         if(Objects.isNull(firstConsumerTime)) {
             return false;
         }
         //
-        Long expireTime = firstConsumerTime + 60l * 1000l * dmsConfigManager.getUccPropertyConfiguration().getPackageArriveAutoInspectionRetryMinutes();
+        Long expireTime = 0l;
+        if(Constants.NUMBER_ONE.equals(node)) {
+            expireTime = firstConsumerTime + 60l * 1000l * dmsConfigManager.getUccPropertyConfiguration().getPackageArriveAutoInspectionNullTaskRetryMinutes();
+        }else {
+            expireTime = firstConsumerTime + 60l * 1000l * dmsConfigManager.getUccPropertyConfiguration().getPackageArriveAutoInspectionRetryMinutes();
+        }
         return NumberHelper.gt(System.currentTimeMillis(), expireTime);
     }
 
     //发送围栏到车包裹重试等待自动验货mq
-    private void sendRetryPackageArriveAutoInspectionMQ(PackageArriveAutoInspectionDto paramDto) {
+    private void sendRetryPackageArriveAutoInspectionMQ(PackageArriveAutoInspectionDto paramDto, Boolean setRetryIntervalTimeFlag) {
+        if(Boolean.TRUE.equals(setRetryIntervalTimeFlag)) {
+            this.setRetryIntervalTime(paramDto);
+        }
         logInfo("围栏到车包裹自动验货前置条件不符合，进入重试队列，发送重试消息{}", JsonHelper.toJson(paramDto));
         jyPackageArriveRetryAutoInspectionProducer.sendOnFailPersistent(paramDto.getPackageCode(), JsonHelper.toJson(paramDto));
+    }
+
+    private void setRetryIntervalTime(PackageArriveAutoInspectionDto paramDto) {
+        if(Objects.isNull(paramDto)) {
+            return;
+        }
+        Integer intervalMinutes = 2;
+        paramDto.setRetryIntervalMinutes(NumberHelper.gt0(paramDto.getRetryIntervalMinutes())
+                ? paramDto.getRetryIntervalMinutes() + intervalMinutes
+                : intervalMinutes);
+        return;
     }
 
     //到车自动验货时给卸车任务打标：自动验货
@@ -196,6 +229,8 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
         }
         Set<String> boxCodeSet = this.getGenealogyAllBoxCode(boxCode);
 
+        //需求：监听循环物资供应商的信息获取物资编码，再找到循环物资关联的箱号，针对箱内每一个包裹记录验货节点，验货类型为电子网关验货，操作人id传-1，场地传网关对应的场地
+        //todo 注意：此处场景要求按箱内包裹做自动验货，并非做自动收箱逻辑
         logInfo("物资编码{}内涉及箱号集合为{}", param.getMaterialCode(), JsonHelper.toJson(boxCodeSet));
         this.sendRecycleMaterialPackageAutoInspectionMq(param, boxCodeSet);
     }

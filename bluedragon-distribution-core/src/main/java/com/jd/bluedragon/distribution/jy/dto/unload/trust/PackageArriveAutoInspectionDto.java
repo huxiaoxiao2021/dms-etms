@@ -8,7 +8,7 @@ import java.util.Date;
  * @Date 2024/2/29 21:39
  * @Description
  */
-public class PackageArriveAutoInspectionDto implements Serializable {
+public class PackageArriveAutoInspectionDto extends MqRetryBaseDto implements Serializable {
     static final long serialVersionUID = 1L;
 
     private String packageCode;
@@ -27,10 +27,7 @@ public class PackageArriveAutoInspectionDto implements Serializable {
     private Date operateTime;
     //消息发送时间
     private Date createTime;
-    /**
-     *  首次消费时间: 重试队列字段
-     */
-    private Long firstConsumerTime;
+
 
 
     public String getPackageCode() {
@@ -113,11 +110,4 @@ public class PackageArriveAutoInspectionDto implements Serializable {
         this.createTime = createTime;
     }
 
-    public Long getFirstConsumerTime() {
-        return firstConsumerTime;
-    }
-
-    public void setFirstConsumerTime(Long firstConsumerTime) {
-        this.firstConsumerTime = firstConsumerTime;
-    }
 }

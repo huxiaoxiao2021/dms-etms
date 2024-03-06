@@ -1926,6 +1926,7 @@ public class UccPropertyConfiguration{
      * 围栏到达包裹自动验货条件不符合时重试消费的最大分钟数
      */
     private Integer packageArriveAutoInspectionRetryMinutes;
+    private Integer packageArriveAutoInspectionNullTaskRetryMinutes;
     /**
      * PDA卸车扫描和自动验货互斥开关
      */
@@ -4444,5 +4445,13 @@ public class UccPropertyConfiguration{
 
     public void setPdaUnloadAndAutoInspectionRejectSwitch(Boolean pdaUnloadAndAutoInspectionRejectSwitch) {
         this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public Integer getPackageArriveAutoInspectionNullTaskRetryMinutes() {
+        return packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
+        this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
     }
 }

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.trust.PackageArriveAutoInspe
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.TmsSendArriveAndBookMqBody;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -140,6 +141,11 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
         }
         if(Objects.isNull(mqBody.getCreateTime())) {
             logInfo("运输围栏到车包裹到达消息过滤，createTime【下发时间】为空，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getEndNodeCode());
+        if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteCode())) {
+            logInfo("运输围栏到车包裹到达消息过滤，到达场地{}基础资料不存在或者非分拣中心，mqBody={},site={}", mqBody.getEndNodeCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
             return false;
         }
         return true;

@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.consumer.jy.material;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.dto.material.MaterialOperateNodeV2Enum;
 import com.jd.bluedragon.distribution.jy.dto.material.RecycleMaterialOperateRecordDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.RecycleMaterialAutoInspectionDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -76,7 +78,7 @@ public class RecycleMaterialOperateRecordConsume extends MessageBaseConsumer {
         }
         logInfo("物资循环实操监听开始消费，mqBody={}", message.getText());
         try{
-            if(TYPE_IN.equals(mqBody.getOperateType())) {
+            if(TYPE_IN.equals(mqBody.getOperateType()) && MaterialOperateNodeV2Enum.AUTO_SCAN.getCode().equals(mqBody.getOperateNodeCode())) {
                 this.recycleMaterialEnterSiteHandler(mqBody);
             }
 
@@ -134,6 +136,12 @@ public class RecycleMaterialOperateRecordConsume extends MessageBaseConsumer {
         }else if(!NumberHelper.isNumber(mqBody.getOperateSiteId())) {
             logInfo("循环物资操作监听，operateSiteId[操作场地]非法，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
+        }else {
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(mqBody.getOperateSiteId()));
+            if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteCode())) {
+                logInfo("循环物资操作监听，，到达场地{}基础资料不存在或者非分拣中心，无效数据剔除，mqBody={},baseSite={}", mqBody.getOperateSiteId(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
+                return false;
+            }
         }
         if(Objects.isNull(mqBody.getOperateTime())) {
             logInfo("循环物资操作监听，operateTime[操作时间]为空，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
@@ -141,6 +149,10 @@ public class RecycleMaterialOperateRecordConsume extends MessageBaseConsumer {
         }
         if(Objects.isNull(mqBody.getSendTime())) {
             logInfo("循环物资操作监听，sendTime[系统实际发消息时间]为空，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
+            return false;
+        }
+        if(Objects.isNull(mqBody.getOperateNodeCode())) {
+            logInfo("循环物资操作监听，operateNodeCode[操作节点]为空，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
         }
         if(Constants.SYS_CODE_DMS.equals(mqBody.getBizSource())) {
