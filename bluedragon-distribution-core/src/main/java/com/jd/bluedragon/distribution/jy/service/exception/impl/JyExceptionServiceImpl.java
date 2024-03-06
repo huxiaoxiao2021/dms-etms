@@ -231,10 +231,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
 
-    private String getExceptionTaskCacheKey(String bizId){
-        return String.format(JyCacheKeyConstants.JY_EXCEPTION_TASK_CACHE_PRE_KEY, bizId);
-    }
-
     /**
      * 通用异常上报入口-扫描
      *
