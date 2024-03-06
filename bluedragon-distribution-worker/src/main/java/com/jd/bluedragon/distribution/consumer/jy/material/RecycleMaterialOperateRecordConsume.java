@@ -131,7 +131,7 @@ public class RecycleMaterialOperateRecordConsume extends MessageBaseConsumer {
         if(StringUtils.isBlank(mqBody.getOperateSiteId())) {
             logInfo("循环物资操作监听，operateSiteId[操作场地]为空，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
-        }else if(NumberHelper.isNumber(mqBody.getOperateSiteId())) {
+        }else if(!NumberHelper.isNumber(mqBody.getOperateSiteId())) {
             logInfo("循环物资操作监听，operateSiteId[操作场地]非法，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
         }
