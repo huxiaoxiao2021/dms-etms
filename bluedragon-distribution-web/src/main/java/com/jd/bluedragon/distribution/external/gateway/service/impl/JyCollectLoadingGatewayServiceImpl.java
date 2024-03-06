@@ -50,7 +50,7 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
         }
         //扫描箱号
         else if (BusinessUtil.isBoxcode(request.getBarCode())){
-            return retJdCResponse(jyCollectPackageService.collectLoading(request));
+            return retJdCResponse(jyCollectPackageService.collectBox(request));
         }
         //其他
         else {

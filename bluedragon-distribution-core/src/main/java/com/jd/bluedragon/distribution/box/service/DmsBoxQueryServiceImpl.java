@@ -117,6 +117,7 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.listDescendantBoxes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Result<List<BoxDto>> listDescendantBoxes(BoxDto boxQueryDto) {
         log.info("listDescendantBoxes request:{}", JsonHelper.toJson(boxQueryDto));
         Box box =new Box();

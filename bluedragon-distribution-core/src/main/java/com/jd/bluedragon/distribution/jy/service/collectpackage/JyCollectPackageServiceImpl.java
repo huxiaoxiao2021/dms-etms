@@ -1411,7 +1411,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
-    public InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request) {
+    public InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request) {
         //基础校验
         collectLoadingBaseCheck(request);
         //集装业务校验

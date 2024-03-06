@@ -12,11 +12,11 @@ public interface JyCollectPackageService {
     InvokeResult<CollectPackageResp>  collectPackage(CollectPackageReq request);
 
     /**
-     * 集装：往箱子里装箱
+     * 集箱：往箱子里装箱
      * @param request
      * @return
      */
-    InvokeResult<CollectPackageResp> collectLoading(CollectPackageReq request);
+    InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request);
 
     /**
      * 查询集包任务列表

@@ -9,14 +9,13 @@ import java.util.*;
  */
 public enum BoxTypeV2Enum {
 
-    TYPE_BC("BC", "同城"),
-    TYPE_TC("TC", "退货组"),
-    TYPE_WJ("WJ", "文件"),
-    TYPE_TA("TA", "特安"),
+    TYPE_BC("BC", "同城", Collections.<String>emptyList()),
+    TYPE_TC("TC", "退货组", Collections.<String>emptyList()),
+    TYPE_WJ("WJ", "文件", Collections.<String>emptyList()),
+    TYPE_TA("TA", "特安", Collections.<String>emptyList()),
     TYPE_LL("LL", "笼车/围板箱", Arrays.asList("BW","TC","WJ","TA","BC")),
-    TYPE_BX("BX", "正向虚拟"),
-    TYPE_WM("BW", "仓储",Arrays.asList("BC")),
-    ;
+    TYPE_BX("BX", "正向虚拟", Collections.<String>emptyList()),
+    TYPE_WM("BW", "仓储", Arrays.asList("BC"));
 
 
     private String code;
@@ -33,10 +32,6 @@ public enum BoxTypeV2Enum {
 
     public static List<String> ENUM_LIST;
 
-    BoxTypeV2Enum(String code, String name) {
-        this.code = code;
-        this.name = name;
-    }
 
     BoxTypeV2Enum(String code, String name,List<String> supportEmbeddedTypes) {
         this.code = code;

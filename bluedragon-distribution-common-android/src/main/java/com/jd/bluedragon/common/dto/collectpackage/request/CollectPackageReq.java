@@ -69,6 +69,8 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
 
     private Integer businessType;
 
+    private String  boxType;
+
     public Integer getBusinessType() {
         return businessType;
     }
@@ -76,8 +78,6 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
     public void setBusinessType(Integer businessType) {
         this.businessType = businessType;
     }
-
-    private String  boxType;
 
     public String getBoxType(){
         return boxType;
