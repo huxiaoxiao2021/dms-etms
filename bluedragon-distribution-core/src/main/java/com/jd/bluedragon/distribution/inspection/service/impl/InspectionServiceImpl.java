@@ -1373,7 +1373,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
                 final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
                 if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
-                    response.addWarningBox(interceptResult.getCode(), interceptResult.getMessage());
+                    response.addPromptBox(interceptResult.getCode(), interceptResult.getMessage());
                 }
             }
         } catch (Exception e) {
