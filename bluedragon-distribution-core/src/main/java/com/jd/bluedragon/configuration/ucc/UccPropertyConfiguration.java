@@ -1922,6 +1922,15 @@ public class UccPropertyConfiguration{
      * 空铁提货岗提货完成时间查询范围
      */
     private Integer pickingFinishTimeRange;
+    /**
+     * 围栏到达包裹自动验货条件不符合时重试消费的最大分钟数
+     */
+    private Integer packageArriveAutoInspectionRetryMinutes;
+    private Integer packageArriveAutoInspectionNullTaskRetryMinutes;
+    /**
+     * PDA卸车扫描和自动验货互斥开关
+     */
+    private Boolean pdaUnloadAndAutoInspectionRejectSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -4428,5 +4437,29 @@ public class UccPropertyConfiguration{
     }
     public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
         this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
+
+    public Integer getPackageArriveAutoInspectionRetryMinutes() {
+        return packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionRetryMinutes(Integer packageArriveAutoInspectionRetryMinutes) {
+        this.packageArriveAutoInspectionRetryMinutes = packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public Boolean getPdaUnloadAndAutoInspectionRejectSwitch() {
+        return pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public void setPdaUnloadAndAutoInspectionRejectSwitch(Boolean pdaUnloadAndAutoInspectionRejectSwitch) {
+        this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public Integer getPackageArriveAutoInspectionNullTaskRetryMinutes() {
+        return packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
+        this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
     }
 }

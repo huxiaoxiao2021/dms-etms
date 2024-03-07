@@ -561,6 +561,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (taskUnloadVehicle == null) {
             result.toCustomError(InvokeResult.CODE_HINT, "卸车任务不存在，请刷新卸车任务列表后再扫描！");
             return result;
+        }else {
+            if(Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfiguration().getPdaUnloadAndAutoInspectionRejectSwitch())) {
+                // 判断是否触发围栏到车自动验货，如果已经开启则不能手动验
+                if(Boolean.TRUE.equals(request.getRejectAutoInspectionSwitch()) && Constants.NUMBER_ONE.equals(taskUnloadVehicle.getAutoInspectionFlag())) {
+                    result.toCustomError(InvokeResult.CODE_HINT, "该任务包裹已围栏到车自动验货，无需手动验货");
+                    return result;
+                }
+            }
         }
 
         // 卸车扫描前置校验

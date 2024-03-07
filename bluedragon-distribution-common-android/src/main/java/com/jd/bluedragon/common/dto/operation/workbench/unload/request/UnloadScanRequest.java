@@ -54,6 +54,13 @@ public class UnloadScanRequest implements Serializable {
      */
     private String groupCode;
 
+    /**
+     * 人工验货和自动验货的互斥开关
+     * true： 需要做互斥
+     * false: 不关注互斥
+     */
+    private Boolean rejectAutoInspectionSwitch;
+
     public User getUser() {
         return user;
     }
@@ -124,5 +131,13 @@ public class UnloadScanRequest implements Serializable {
 
     public void setGroupCode(String groupCode) {
         this.groupCode = groupCode;
+    }
+
+    public Boolean getRejectAutoInspectionSwitch() {
+        return rejectAutoInspectionSwitch;
+    }
+
+    public void setRejectAutoInspectionSwitch(Boolean rejectAutoInspectionSwitch) {
+        this.rejectAutoInspectionSwitch = rejectAutoInspectionSwitch;
     }
 }

@@ -219,6 +219,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 是否只装不卸，需要操作无货上封签
      */
     private Integer onlyUnloadNoLoad;
+    /**
+     * 自动验货标识： 1-标识进行自动验货；0-标识未做自动验货（默认）
+     */
+    private Integer autoInspectionFlag;
+    /**
+     * 自动验货触发标识
+     */
+    private Date autoInspectionStartTime;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -612,5 +620,21 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public void setOnlyUnloadNoLoad(Integer onlyUnloadNoLoad) {
         this.onlyUnloadNoLoad = onlyUnloadNoLoad;
+    }
+
+    public Integer getAutoInspectionFlag() {
+        return autoInspectionFlag;
+    }
+
+    public void setAutoInspectionFlag(Integer autoInspectionFlag) {
+        this.autoInspectionFlag = autoInspectionFlag;
+    }
+
+    public Date getAutoInspectionStartTime() {
+        return autoInspectionStartTime;
+    }
+
+    public void setAutoInspectionStartTime(Date autoInspectionStartTime) {
+        this.autoInspectionStartTime = autoInspectionStartTime;
     }
 }
