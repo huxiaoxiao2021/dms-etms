@@ -971,7 +971,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             // 校验操作人的岗位 与 任务被分配岗位是否匹配
             String gridRid = getGridRid(position);
-            String bizId = getBizId(req.getBarCode(), position.getSiteCode());
+            String bizId = getBizId(WaybillUtil.getWaybillCode(req.getBarCode().toUpperCase()), position.getSiteCode());
             JyBizTaskExceptionEntity jyBizTaskExceptionExist = jyBizTaskExceptionDao.findByBizId(bizId);
             if (jyBizTaskExceptionExist == null) {
                 // 如果为空，则进一步按条件查询
