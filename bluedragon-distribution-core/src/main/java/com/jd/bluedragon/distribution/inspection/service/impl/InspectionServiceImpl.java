@@ -1396,9 +1396,6 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
             if (StringUtils.isNotBlank(hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage())) {
                 response.addWarningBox(0, hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage());
             }
-
-            // 拦截校验
-            checkWaybillCancel(request, response);
         }
 
         return response;

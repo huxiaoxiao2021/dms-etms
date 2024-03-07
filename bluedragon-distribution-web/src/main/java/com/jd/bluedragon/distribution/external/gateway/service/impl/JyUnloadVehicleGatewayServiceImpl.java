@@ -173,12 +173,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
 
-        // 扫描前校验拦截结果
-        if (!checkBarInterceptResult(response, request)) {
-            // 失败直接返回
-            return response;
-        }
-
         final JdVerifyResponse<Integer> scanResponse = unloadVehicleService.unloadScan(request);
         if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
             if(response.getMsgBoxes() == null){
