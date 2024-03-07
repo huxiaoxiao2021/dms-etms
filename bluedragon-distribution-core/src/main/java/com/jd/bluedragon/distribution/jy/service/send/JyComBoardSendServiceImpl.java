@@ -195,6 +195,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Qualifier("waybillComboardProducer")
   private DefaultJMQProducer waybillComboardProducer;
 
+  @Autowired
+  @Qualifier("bigBoxComboardProducer")
+  private DefaultJMQProducer bigBoxComboardProducer;
+
 
   @Autowired
   @Qualifier("cancelComboardSendProducer")
@@ -1318,16 +1322,24 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       query.setCode(request.getBarCode());
       List<Box> boxList =boxService.listSonBoxesByParentBox(query);
       if (!CollectionUtils.isEmpty(boxList)){
+        request.setOperateTime(now);
         for (Box box:boxList){
           request.setBarCode(box.getCode());
           execComboardOnce(request, entity, now, false);
+          productComboardMsg(request);
         }
       }
       request.setBarCode(outBox);
     }
   }
 
-  private void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now ,boolean outContainerFlag) {
+  private void productComboardMsg(ComboardScanReq request) {
+    bigBoxComboardProducer.sendOnFailPersistent(request.getBarCode(),JsonHelper.toJson(request));
+    log.info("大箱拆分小箱任务成功生成");
+  }
+
+  @Override
+  public void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now ,boolean outContainerFlag) {
     log.info("execComboardOnce boardCode:{},barCode:{}",request.getBoardCode(),request.getBarCode());
     AddBoardBox addBoardBox = assembleComboardParam(request);
     Response<Integer> comboardResp = groupBoardManager.addBoxToBoardV2(addBoardBox);
