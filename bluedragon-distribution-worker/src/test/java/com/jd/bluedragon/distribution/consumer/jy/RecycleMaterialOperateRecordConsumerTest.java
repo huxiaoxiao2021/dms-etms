@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.distribution.consumer.jy.material.JyRecycleMaterialAutoInspectionBoxConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.material.RecycleMaterialOperateRecordConsume;
+import com.jd.bluedragon.distribution.consumer.jy.material.RecycleMaterialOperateRecordConsumer;
 import com.jd.bluedragon.distribution.jy.dto.material.RecycleMaterialOperateRecordDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -13,10 +13,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
-public class RecycleMaterialOperateRecordConsumeTest {
+public class RecycleMaterialOperateRecordConsumerTest {
 
     @Autowired
-    private RecycleMaterialOperateRecordConsume recycleMaterialOperateRecordConsume;
+    private RecycleMaterialOperateRecordConsumer recycleMaterialOperateRecordConsumer;
 
     @Autowired
     private JyRecycleMaterialAutoInspectionBoxConsumer jyRecycleMaterialAutoInspectionBoxConsumer;
@@ -38,7 +38,7 @@ public class RecycleMaterialOperateRecordConsumeTest {
                 Message message = new Message();
                 message.setText(JsonHelper.toJson(body));
                 message.setBusinessId(body.getMaterialCode());
-                recycleMaterialOperateRecordConsume.consume(message);
+                recycleMaterialOperateRecordConsumer.consume(message);
                  System.out.println("success");
             }catch (Exception e) {
                 System.out.println(e.getMessage());

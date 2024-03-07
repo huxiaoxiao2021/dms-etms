@@ -32,9 +32,9 @@ import java.util.Objects;
  * @Description
  */
 @Service
-public class RecycleMaterialOperateRecordConsume extends MessageBaseConsumer {
+public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(RecycleMaterialOperateRecordConsume.class);
+    private Logger logger = LoggerFactory.getLogger(RecycleMaterialOperateRecordConsumer.class);
 
     private static final Integer TYPE_IN = 1;
     private static final Integer TYPE_OUT = 2;
