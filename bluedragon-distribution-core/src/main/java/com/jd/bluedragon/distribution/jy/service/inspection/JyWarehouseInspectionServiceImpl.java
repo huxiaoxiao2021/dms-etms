@@ -499,13 +499,13 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @return
      */
     private boolean checkBeforeScan(JdVerifyResponse<Integer> result, InspectionScanRequest request) {
-        if(!checkBarInterceptResult(result, request)){
-            return false;
-        }
-
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
             result.toFail("单号已扫描！");
+            return false;
+        }
+
+        if(!checkBarInterceptResult(result, request)){
             return false;
         }
 
