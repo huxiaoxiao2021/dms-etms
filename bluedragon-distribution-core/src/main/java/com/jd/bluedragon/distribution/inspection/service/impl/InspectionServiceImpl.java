@@ -1378,7 +1378,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                         response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
                         return response;
                     } else {
-                        response.addWarningBox(interceptResult.getCode(), interceptResult.getMessage());
+                        response.addPromptBox(interceptResult.getCode(), interceptResult.getMessage());
                     }
                 }
             }
