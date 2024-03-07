@@ -1425,6 +1425,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (ObjectHelper.isNotNull(collectPackageTask)){
+            checkIfNeedUpdateStatus(request,collectPackageTask);
+        }
+
     }
 
     private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
