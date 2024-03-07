@@ -244,4 +244,6 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
+
+    int updateOfBusinessInfoById(JyBizTaskUnloadVehicleEntity entity);
 }

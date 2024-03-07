@@ -164,7 +164,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     public JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request) {
         JdVerifyResponse<Integer> response = new JdVerifyResponse<>();
         response.toSuccess();
-
+        this.fillUnloadField(request);
         if (!checkBeforeScan(response, request)) {
             return response;
         }
@@ -201,6 +201,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.toFail(scanResponse.getMessage());
             return response;
         }
+    }
+
+    private void fillUnloadField(UnloadScanRequest request) {
+        if(Objects.isNull(request)) {
+            return;
+        }
+
+        request.setRejectAutoInspectionSwitch(true);
     }
 
     /**

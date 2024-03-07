@@ -354,6 +354,9 @@
 		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 
 
 	</bean>
@@ -695,6 +698,9 @@
 				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
 				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 			</list>
 		</property>
 	</bean>
