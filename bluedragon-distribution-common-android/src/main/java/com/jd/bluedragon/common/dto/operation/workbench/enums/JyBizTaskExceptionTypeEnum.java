@@ -11,7 +11,7 @@ public enum JyBizTaskExceptionTypeEnum {
     SANWU(0, "三无"),
     SCRAPPED(1, "报废"),
     DAMAGE(2, "破损"),
-
+    INTERCEPT(3, "拦截"),
 
     ;
 

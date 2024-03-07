@@ -1,9 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request;
 
-import com.jd.bluedragon.common.dto.base.request.BaseReq;
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.JyBaseReq;
-import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
 
