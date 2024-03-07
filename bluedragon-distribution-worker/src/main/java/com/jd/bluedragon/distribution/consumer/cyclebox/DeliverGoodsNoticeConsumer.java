@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.cyclebox;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.TimeUtils;
 import com.jd.jmq.common.message.Message;
@@ -64,28 +66,71 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) {
         log.info("DeliverGoodsNoticeConsumer start...");
-        deliverGoodsNoticeConsumerMessage(message);
-        miniStoreDeliverGoodsConsumerMessage(message);
-    }
-
-    void deliverGoodsNoticeConsumerMessage(Message message){
         if (!JsonHelper.isJsonString(message.getText())) {
             log.warn("[DeliverGoodsNoticeConsumer消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
+        deliverGoodsNoticeConsumerMessage(context);
+        miniStoreDeliverGoodsConsumerMessage(context);
+    }
+
+    void deliverGoodsNoticeConsumerMessage(BoxMaterialRelationMQ context){
         if (StringUtils.isBlank(context.getBoxCode()) || !BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isBlank(context.getSiteCode())){
             return;
         }
         try {
-            String materialCode=cycleBoxService.getBoxMaterialRelation(context.getBoxCode());
-            if (StringUtils.isBlank(materialCode)){
+            this.sendBoxMaterial(context);
+            this.sendBoxNestMaterial(context, 1);
+        }catch (Exception e) {
+            log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , JsonHelper.toJson(context), e);
+            throw new RuntimeException(e.getMessage() + "，MQ message body:" + JsonHelper.toJson(context), e);
+        }
+    }
+
+    void sendBoxNestMaterial(BoxMaterialRelationMQ context, Integer level) {
+        if(level >= Constants.BOX_NESTED_MAX_DEPTH){
+            return;
+        }
+        try {
+            Box boxNestParam = new Box();
+            boxNestParam.setCode(context.getBoxCode());
+            final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+            if (CollectionUtils.isEmpty(boxNestList)) {
+                return;
+            }
+            for (Box box : boxNestList) {
+                String materialCode = cycleBoxService.getBoxMaterialRelation(box.getCode());
+                if (StringUtils.isBlank(materialCode)){
+                    continue;
+                }
+                final BoxMaterialRelationMQ boxMaterialRelationMQ = new BoxMaterialRelationMQ();
+                BeanCopyUtil.copy(context, boxMaterialRelationMQ);
+                boxMaterialRelationMQ.setBoxCode(box.getCode());
+                boxMaterialRelationMQ.setMaterialCode(materialCode);
+                this.sendBoxMaterial(boxMaterialRelationMQ);
+
+                // 如果有嵌套子级
+                if (CollectionUtils.isNotEmpty(box.getChildren())) {
+                    sendBoxNestMaterial(boxMaterialRelationMQ, level++);
+                }
+            }
+        } catch (Exception e) {
+            log.error("[DeliverGoodsNoticeConsumer] sendBoxNestMaterial 消费异常，MQ message body:{}" , JsonHelper.toJson(context), e);
+            throw new RuntimeException(e.getMessage() + "，MQ message body:" + JsonHelper.toJson(context), e);
+        }
+    }
+
+    void sendBoxMaterial(BoxMaterialRelationMQ context) {
+        try {
+            String materialCode = cycleBoxService.getBoxMaterialRelation(context.getBoxCode());
+            if (StringUtils.isBlank(materialCode)) {
                 return;
             }
             context.setMaterialCode(materialCode);
 
-            List<String>waybillCodeList = new ArrayList<>();
-            List<String>packageCodeList = new ArrayList<>();
+            List<String> waybillCodeList = new ArrayList<>();
+            List<String> packageCodeList = new ArrayList<>();
 
             Sorting sorting = new Sorting();
             sorting.setBoxCode(context.getBoxCode());
@@ -114,17 +159,13 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             context.setOperatorTime(new Date());
 
             cycleMaterialSendMQ.send(context.getMaterialCode(), JsonHelper.toJson(context));
-        }catch (Exception e) {
-            log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , message.getText(), e);
-            throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
+        } catch (Exception e) {
+            log.error("[DeliverGoodsNoticeConsumer] sendBoxMaterial 消费异常，MQ message body:{}" , JsonHelper.toJson(context), e);
+            throw new RuntimeException(e.getMessage() + "，MQ message body:" + JsonHelper.toJson(context), e);
         }
     }
-    void miniStoreDeliverGoodsConsumerMessage(Message message){
-        if (!JsonHelper.isJsonString(message.getText())) {
-            log.warn("[miniStoreDeliverGoodsConsumerMessage]MQ-消息体非JSON格式，内容为【{}】", message.getText());
-            return;
-        }
-        BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
+
+    void miniStoreDeliverGoodsConsumerMessage(BoxMaterialRelationMQ context){
         if (StringUtils.isBlank(context.getBoxCode()) || !BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isBlank(context.getSiteCode())){
             log.info("移动微仓发货推送节点消息异常：箱号为空！");
             return;
