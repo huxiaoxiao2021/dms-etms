@@ -17,17 +17,16 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
@@ -46,16 +45,13 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -73,7 +69,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -161,9 +156,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
-
-    @Autowired
-    private SequenceGenAdaptor sequenceGenAdaptor;
 
 
 
@@ -694,17 +686,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         // 记录组板操作流水
-        BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
-        BoardBoxResult boardBoxResult = tcResponse.getData();
-        if (boardBoxResult != null) {
-            bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
-        }
-        JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-        boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
-        // 提前生成操作流水表业务主键
-        Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-        boardFlowMq.setId(id);
-        jyOperateFlowService.sendMq(boardFlowMq);
+        jyOperateFlowService.sendBoardOperateFlowData(request, tcResponse.getData(), OperateBizSubTypeEnum.getEnum(request.getBizType()));
 
         logInfo = "组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         //组板成功
@@ -723,20 +705,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addOperationLog(request, OperationLog.BOARD_COMBINATITON, "BoardCombinationServiceImpl#sendBoardBindings");
 
         //发送全称跟踪
-        request.setOperateFlowId(id);
         sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
         return JdResponse.CODE_SUCCESS;
-    }
-
-    private BindBoardRequest createBindBoardRequest(BoardCombinationRequest request) {
-        BindBoardRequest bindBoardRequest = new BindBoardRequest();
-        bindBoardRequest.setBarcode(request.getBoxOrPackageCode());
-        com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
-        operatorInfo.setSiteCode(request.getSiteCode());
-        bindBoardRequest.setOperatorInfo(operatorInfo);
-        bindBoardRequest.setOperatorData(request.getOperatorData());
-        return bindBoardRequest;
     }
 
     private Integer createNewBoard(BoardCombinationRequest request, BoardResponse boardResponse,
@@ -1417,16 +1388,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             request.setBoardCode(boardNew);
 
             // 记录组板操作流水
-            BindBoardRequest bindBoardRequest = createBindBoardRequest(request);
-            bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
-            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
-            // 提前生成操作流水表业务主键
-            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-            boardFlowMq.setId(id);
-            jyOperateFlowService.sendMq(boardFlowMq);
+            jyOperateFlowService.sendBoardOperateFlowData(request, tcResponse.getData(), OperateBizSubTypeEnum.getEnum(request.getBizType()));
             // 发送全程跟踪
-            request.setOperateFlowId(id);
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
         }
         return tcResponse;

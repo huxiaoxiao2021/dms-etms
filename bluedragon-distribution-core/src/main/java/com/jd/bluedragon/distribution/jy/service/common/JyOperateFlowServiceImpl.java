@@ -1,8 +1,25 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
+import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
+import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.utils.converter.BeanConverter;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import com.jd.jmq.common.message.Message;
+import com.jd.jsf.gd.util.StringUtils;
+import com.jd.transboard.api.dto.BoardBoxResult;
+import com.jd.transboard.api.dto.BoxDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,17 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
-import com.jd.jmq.common.message.Message;
-import com.jd.jsf.gd.util.StringUtils;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 拣运-附件接口实现类
@@ -42,6 +52,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     
     @Autowired
     DmsConfigManager dmsConfigManager;
+
+	@Autowired
+	private SequenceGenAdaptor sequenceGenAdaptor;
     
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.insert", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -78,5 +91,119 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			return mqDataList.size();
 		}
 		return 0;
-	}    
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendBoardOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public <T> void sendBoardOperateFlowData(T t, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
+		BindBoardRequest bindBoardRequest;
+		try {
+			if ( t instanceof BindBoardRequest) {
+				bindBoardRequest = (BindBoardRequest) t;
+				Long operateFlowId = sendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+				bindBoardRequest.setOperateFlowId(operateFlowId);
+			} else if (t instanceof ComboardScanReq) {
+				ComboardScanReq comboardScanReq = (ComboardScanReq) t;
+				// 参数转换
+				bindBoardRequest = createBindBoardRequest(comboardScanReq);
+				Long operateFlowId = sendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+				comboardScanReq.setOperateFlowId(operateFlowId);
+			} else if (t instanceof BoardCombinationRequest) {
+				BoardCombinationRequest boardCombinationRequest = (BoardCombinationRequest) t;
+				// 参数转换
+				bindBoardRequest = createBindBoardRequest(boardCombinationRequest);
+				Long operateFlowId = sendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+				boardCombinationRequest.setOperateFlowId(operateFlowId);
+			} else if (t instanceof ComboardTaskDto) {
+				ComboardTaskDto comboardTaskDto = (ComboardTaskDto) t;
+				// 参数转换
+				bindBoardRequest = createBindBoardRequest(comboardTaskDto);
+				// <包裹号, 操作流水表主键>
+				Map<String, Long> map = batchSendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+				comboardTaskDto.setOperateFlowMap(map);
+			}
+		} catch (Exception e) {
+			logger.error("发送组板操作流水消息出现异常:request={}", JsonHelper.toJson(t), e);
+		}
+	}
+
+	private Long sendBoardCore(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			if (bindBoardRequest == null) {
+				return null;
+			}
+			if (boardBoxResult != null && boardBoxResult.getId() != null) {
+				bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
+			}
+			// 组装操作流水实体
+			JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+			// 业务子类型
+			boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			boardFlowMq.setId(operateFlowId);
+			sendMq(boardFlowMq);
+			return operateFlowId;
+		} catch (Exception e) {
+			logger.error("发送组板操作流水消息核心逻辑出现异常:request={},boardBoxResult={},subTypeEnum={}",
+					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
+		}
+		return null;
+	}
+
+
+	private BindBoardRequest createBindBoardRequest(ComboardScanReq request) {
+		BindBoardRequest bindBoardRequest = new BindBoardRequest();
+		bindBoardRequest.setBarcode(request.getBarCode());
+		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
+		bindBoardRequest.setOperatorInfo(operatorInfo);
+		com.jd.bluedragon.common.dto.base.request.OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
+		com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
+		org.springframework.beans.BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		bindBoardRequest.setOperatorData(destOperatorData);
+		return bindBoardRequest;
+	}
+
+	private BindBoardRequest createBindBoardRequest(BoardCombinationRequest request) {
+		BindBoardRequest bindBoardRequest = new BindBoardRequest();
+		bindBoardRequest.setBarcode(request.getBoxOrPackageCode());
+		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		operatorInfo.setSiteCode(request.getSiteCode());
+		bindBoardRequest.setOperatorInfo(operatorInfo);
+		bindBoardRequest.setOperatorData(request.getOperatorData());
+		return bindBoardRequest;
+	}
+
+	private BindBoardRequest createBindBoardRequest(ComboardTaskDto request) {
+		BindBoardRequest bindBoardRequest = new BindBoardRequest();
+		bindBoardRequest.setBarcode(request.getBarCode());
+		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		operatorInfo.setSiteCode(request.getStartSiteId());
+		bindBoardRequest.setOperatorInfo(operatorInfo);
+		bindBoardRequest.setOperatorData(request.getOperatorData());
+		return bindBoardRequest;
+	}
+
+	private Map<String, Long> batchSendBoardCore(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
+		Map<String, Long> map = new HashMap<>();
+		try {
+			if (boardBoxResult != null) {
+				List<BoxDto> boxList = boardBoxResult.getBoxList();
+				if (CollectionUtils.isNotEmpty(boxList)) {
+					for (BoxDto boxDto : boxList) {
+						bindBoardRequest.setBarcode(boxDto.getBoxCode());
+						bindBoardRequest.setOperateKey(String.valueOf(boxDto.getId()));
+						Long operateFlowId = sendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+						map.put(boxDto.getBoxCode(), operateFlowId);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("批量发送组板操作流水消息出现异常:request={},boardBoxResult={},subTypeEnum={}",
+					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
+		}
+		return map;
+	}
+
 }

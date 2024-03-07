@@ -41,6 +41,11 @@ public class BindBoardRequest implements Serializable {
      */
     private String operateKey;
 
+    /**
+     * 操作流水表业务主键
+     */
+    private Long operateFlowId;
+
 
     public boolean getCancelLast() {
         return cancelLast;
@@ -111,5 +116,13 @@ public class BindBoardRequest implements Serializable {
 
     public void setOperateKey(String operateKey) {
         this.operateKey = operateKey;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
     }
 }

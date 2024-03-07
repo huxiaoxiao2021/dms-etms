@@ -1,18 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.jy.comboard;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
-import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
@@ -20,24 +15,19 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.converter.BeanConverter;
-import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.jmq.common.message.Message;
 import com.jd.transboard.api.dto.AddBoardBoxes;
 import com.jd.transboard.api.dto.BoardBoxResult;
-import com.jd.transboard.api.dto.BoxDto;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,9 +49,6 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
 
     @Autowired
     GroupBoardManager groupBoardManager;
-
-    @Autowired
-    private SequenceGenAdaptor sequenceGenAdaptor;
 
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
@@ -109,55 +96,23 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
             return;
         }
         // 记录组板操作流水
-        BindBoardRequest bindBoardRequest = createBindBoardRequest(dto);
-        JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-        boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.JY_BOARD_SCAN.getCode());
-        BoardBoxResult boardBoxResult = response.getData();
-        // <包裹号,包裹组板详细信息>
-        Map<String, BoxDto> map = transferListToMap(boardBoxResult);
+        jyOperateFlowService.sendBoardOperateFlowData(dto, response.getData(), OperateBizSubTypeEnum.JY_BOARD_WAYBILL_SCAN);
+        // <包裹号, 操作流水表主键>
+        Map<String, Long> map = dto.getOperateFlowMap();
 
         for (String packageCode : packageList) {
-            BoxDto boxDto = map.get(packageCode);
             // 操作流水表业务主键
-            Long id = null;
-            if (boxDto != null) {
-                id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-                sendFlowMq(boardFlowMq, boxDto, id);
-            }
+            Long operateFlowId = map.get(packageCode);
             dto.setBarCode(packageCode);
-            dto.setOperateFlowId(id);
+            dto.setOperateFlowId(operateFlowId);
             // 发送全程跟踪
             sendComboardWaybillTrace(dto);
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
     }
-
-    private void sendFlowMq(JyOperateFlowMqData boardFlowMq, BoxDto boxDto, Long id) {
-        boardFlowMq.setId(id);
-        // 板箱关系表主键
-        boardFlowMq.setOperateKey(String.valueOf(boxDto.getId()));
-        // 包裹号
-        boardFlowMq.setOperateBizKey(boxDto.getBoxCode());
-        // 发送操作流水消息
-        jyOperateFlowService.sendMq(boardFlowMq);
-    }
-
-    private Map<String, BoxDto> transferListToMap(BoardBoxResult boardBoxResult) {
-        Map<String, BoxDto> map = new HashMap<>();
-        if (boardBoxResult != null) {
-            List<BoxDto> boxList = boardBoxResult.getBoxList();
-            if (CollectionUtils.isNotEmpty(boxList)) {
-                for (BoxDto boxDto : boxList) {
-                    map.put(boxDto.getBoxCode(), boxDto);
-                }
-            }
-        }
-        return map;
-    }
-
     private void sendComboardWaybillTrace(ComboardTaskDto dto) {
         OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
-        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo, dto.getOperatorData(), dto.getBoardCode(),
+        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
                 dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, BizSourceEnum.PDA.getValue());
     }
 
@@ -181,16 +136,6 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
         } else {
             return ComboardBarCodeTypeEnum.BOX.getCode();
         }
-    }
-
-    private BindBoardRequest createBindBoardRequest(ComboardTaskDto request) {
-        BindBoardRequest bindBoardRequest = new BindBoardRequest();
-        bindBoardRequest.setBarcode(request.getBarCode());
-        com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
-        operatorInfo.setSiteCode(request.getStartSiteId());
-        bindBoardRequest.setOperatorInfo(operatorInfo);
-        bindBoardRequest.setOperatorData(request.getOperatorData());
-        return bindBoardRequest;
     }
 
 }

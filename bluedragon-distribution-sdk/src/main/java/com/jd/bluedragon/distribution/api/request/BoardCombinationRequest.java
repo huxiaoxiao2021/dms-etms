@@ -61,6 +61,10 @@ public class BoardCombinationRequest extends JdRequest {
      * 操作流水表业务主键
      */
     private Long operateFlowId;
+    /**
+     * 业务类型
+     */
+    private String bizType;
 	
     
     public String getBoardCode() {
@@ -173,5 +177,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setOperateFlowId(Long operateFlowId) {
         this.operateFlowId = operateFlowId;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }

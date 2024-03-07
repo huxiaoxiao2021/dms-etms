@@ -7,12 +7,12 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
@@ -27,10 +27,10 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.BoardStatus;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -611,6 +611,11 @@ public class BoardCombinationResource {
         com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
         BeanUtils.copyProperties(originOperatorData, destOperatorData);
         boardCombinationRequest.setOperatorData(destOperatorData);
+        if (StringUtils.isNotBlank(param.getBizType())) {
+            boardCombinationRequest.setBizType(param.getBizType());
+        } else {
+            boardCombinationRequest.setBizType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
+        }
         return boardCombinationRequest;
 
     }

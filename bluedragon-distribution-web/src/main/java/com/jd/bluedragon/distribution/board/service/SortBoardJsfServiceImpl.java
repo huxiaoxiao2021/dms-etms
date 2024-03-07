@@ -16,16 +16,12 @@ import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
-import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
-import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
@@ -43,7 +39,6 @@ import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.converter.BeanConverter;
-import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -105,9 +100,6 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
 
-    @Autowired
-    private SequenceGenAdaptor sequenceGenAdaptor;
-
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.combinationBoardNew", mState = JProEnum.TP)
     public Response<BoardRequestDto> combinationBoardNew(Request request) {
@@ -122,7 +114,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             String str = com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request);
             CombinationBoardRequest c = JsonHelper.fromJson(str, CombinationBoardRequest.class);
             c.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
-            c.setBizType(OperateBizSubTypeEnum.COMBINATION_BOARD_NEW.getCode());
+            c.setBizType(OperateBizSubTypeEnum.SORT_COMBINATION_BOARD_NEW.getCode());
             jdcResponse = sortBoardGatewayService.combinationBoardNew(c);
         }
         return JsonHelper.fromJsonUseGson(JsonHelper.toJson(jdcResponse),new TypeToken<Response<BoardRequestDto>>(){}.getType());
@@ -226,26 +218,16 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
-            BoardBoxResult boardBoxResult = bindResult.getData();
-            if (boardBoxResult != null) {
-                // 设置业务主键ID
-                request.setOperateKey(String.valueOf(boardBoxResult.getId()));
-            }
-
             // 记录组板操作流水
-            JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.ADD_TO_BOARD.getCode());
-            // 提前生成操作流水表业务主键
-            Long id = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-            boardFlowMq.setId(id);
-            jyOperateFlowService.sendMq(boardFlowMq);
+            jyOperateFlowService.sendBoardOperateFlowData(request, bindResult.getData(), OperateBizSubTypeEnum.SORT_ADD_TO_BOARD);
 
-            //发送全程跟踪
+            // 发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
-            operatorInfo.setOperateFlowId(id);
+            operatorInfo.setOperateFlowId(request.getOperateFlowId());
             virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo,request.getOperatorData(), request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
+
             response.toSucceed();
             return response;
         }catch (Exception e){

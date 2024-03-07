@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.transboard.api.dto.BoardBoxResult;
 
 /**
  * service接口
@@ -32,4 +34,12 @@ public interface JyOperateFlowService {
      * @return
      */
     int sendMqList(List<JyOperateFlowMqData> jyOperateFlow);
+
+
+    /**
+     * 发送组板操作流水
+     */
+    <T> void sendBoardOperateFlowData(T t, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum);
+
+
 }
