@@ -145,7 +145,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             }
 
             if (CollectionUtils.isEmpty(list)) {
-                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}", message.getText());
+                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}", JsonHelper.toJson(context));
                 return;
             }
             Set<String> waybillCodeSet = new HashSet<>();
