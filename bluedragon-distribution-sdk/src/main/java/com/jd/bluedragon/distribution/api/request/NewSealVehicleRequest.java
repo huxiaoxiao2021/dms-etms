@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 
 import java.util.List;
@@ -85,6 +86,11 @@ public class NewSealVehicleRequest extends JdRequest {
 	 * 解封车业务类型
 	 */
 	private String bizType;
+
+	/**
+	 * 操作信息对象
+	 */
+	private OperatorData operatorData;
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -216,5 +222,13 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	public void setBizType(String bizType) {
 		this.bizType = bizType;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.api;
 
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
-
 public class JdRequest extends JdObject {
     
     private static final long serialVersionUID = 2620618235126101016L;
@@ -31,11 +29,6 @@ public class JdRequest extends JdObject {
     
     /** PDA操作时间 */
     private String operateTime;
-
-    /**
-     * 操作信息对象
-     */
-    private OperatorData operatorData;
     
     public String getKey() {
 		return key;
@@ -99,14 +92,6 @@ public class JdRequest extends JdObject {
     
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
-    }
-
-    public OperatorData getOperatorData() {
-        return operatorData;
-    }
-
-    public void setOperatorData(OperatorData operatorData) {
-        this.operatorData = operatorData;
     }
 
     @Override
