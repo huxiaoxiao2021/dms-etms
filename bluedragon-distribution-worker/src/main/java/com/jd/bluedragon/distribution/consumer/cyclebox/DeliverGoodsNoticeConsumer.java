@@ -5,7 +5,10 @@ import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
@@ -62,6 +65,9 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BoxService boxService;
+
+    @Autowired
+    private BoxRelationService boxRelationService;
 
     @Override
     public void consume(Message message) {
@@ -144,19 +150,34 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
                 }
             }
 
-            if (CollectionUtils.isEmpty(list)) {
-                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}", JsonHelper.toJson(context));
-                return;
+            if (CollectionUtils.isNotEmpty(list)) {
+                // 常规箱内有包裹
+                Set<String> waybillCodeSet = new HashSet<>();
+                for (Sorting sort : list) {
+                    waybillCodeSet.add(sort.getWaybillCode());
+                    packageCodeList.add(sort.getPackageCode());
+                }
+                waybillCodeList = new ArrayList<>(waybillCodeSet);
+                context.setWaybillCode(waybillCodeList);
+                context.setPackageCode(packageCodeList);
+            } else {
+                // 箱内无包裹，查看是否为箱套箱，按物资和箱发送消息
+                final InvokeResult<List<BoxRelation>> boxRelationResult = boxRelationService.getRelationsByBoxCode(context.getBoxCode());
+                if (!boxRelationResult.codeSuccess()) {
+                    throw new RuntimeException("查询箱号绑定关系失败");
+                }
+                if (CollectionUtils.isEmpty(boxRelationResult.getData())) {
+                    log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据，且不是嵌套箱：{}", JsonHelper.toJson(context));
+                    return;
+                }
+                context.setBoxHasChildBox(true);
             }
-            Set<String> waybillCodeSet = new HashSet<>();
-            for (Sorting sort : list) {
-                waybillCodeSet.add(sort.getWaybillCode());
-                packageCodeList.add(sort.getPackageCode());
+            if (context.getOperatorTime() != null) {
+                log.warn("context.getOperatorTime is null {}", JsonHelper.toJson(context));
+                context.setOperatorTime(new Date());
+            } else {
+                context.setOperatorTime(context.getOperatorTime());
             }
-            waybillCodeList = new ArrayList<>(waybillCodeSet);
-            context.setWaybillCode(waybillCodeList);
-            context.setPackageCode(packageCodeList);
-            context.setOperatorTime(new Date());
 
             cycleMaterialSendMQ.send(context.getMaterialCode(), JsonHelper.toJson(context));
         } catch (Exception e) {
