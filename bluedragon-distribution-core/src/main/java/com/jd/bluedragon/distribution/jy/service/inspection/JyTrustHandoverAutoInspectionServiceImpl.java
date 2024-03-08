@@ -167,7 +167,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
         inspectionVO.setSiteCode(paramDto.getArriveSiteId());
         inspectionVO.setSiteName(paramDto.getArriveSiteName());
         inspectionVO.setUserCode(-1);
-        inspectionVO.setUserName(StringUtil.EMPTY);
+        inspectionVO.setUserName("-1");
         inspectionVO.setOperateTime(DateHelper.formatDateTime(paramDto.getOperateTime()));
         inspectionVO.setOperatorData(this.getOperatorData(OperatorTypeEnum.VEHICLE.getCode(), paramDto.getTransWorkItemCode()));
         return inspectionVO;
@@ -388,7 +388,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
             inspectionVO.setSiteCode(param.getOperateSiteId());
             inspectionVO.setSiteName(param.getOperateSiteName());
             inspectionVO.setUserCode(-1);
-            inspectionVO.setUserName(StringUtil.EMPTY);
+            inspectionVO.setUserName("-1");
             inspectionVO.setOperateTime(DateHelper.formatDateTime(new Date(param.getOperateTime())));
             inspectionVO.setOperatorData(this.getOperatorData(OperatorTypeEnum.MATERIAL.getCode(), param.getMaterialCode()));
             this.addInspectionTask(inspectionVO, InspectionBizSourceEnum.ELECTRONIC_GATEWAY);
