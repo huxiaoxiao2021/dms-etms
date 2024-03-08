@@ -12,12 +12,14 @@ import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * 定责系统下发暴力分拣消息
  * https://joyspace.jd.com/pages/Y5IcP5IB1iq3NK1Kj1ye
  */
 @Slf4j
+@Service("violentSortingConsumer")
 public class ViolentSortingFixDutyConsumer extends MessageBaseConsumer {
     @Autowired
     private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
