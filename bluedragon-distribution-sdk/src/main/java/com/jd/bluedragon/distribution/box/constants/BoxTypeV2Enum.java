@@ -15,7 +15,7 @@ public enum BoxTypeV2Enum {
     TYPE_TA("TA", "特安", Collections.<String>emptyList()),
     TYPE_LL("LL", "笼车/围板箱", Arrays.asList("BW","TC","WJ","TA","BC")),
     TYPE_BX("BX", "正向虚拟", Collections.<String>emptyList()),
-    TYPE_WM("BW", "仓储", Arrays.asList("BC"));
+    TYPE_WM("BW", "仓储", Collections.<String>emptyList());
 
 
     private String code;
