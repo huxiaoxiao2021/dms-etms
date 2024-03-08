@@ -7,9 +7,16 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 public interface JyCollectPackageService {
 
     /**
-     * 集包
+     * 集包：往箱子里装包裹
      */
     InvokeResult<CollectPackageResp>  collectPackage(CollectPackageReq request);
+
+    /**
+     * 集箱：往箱子里装箱
+     * @param request
+     * @return
+     */
+    InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request);
 
     /**
      * 查询集包任务列表
@@ -42,11 +49,19 @@ public interface JyCollectPackageService {
     InvokeResult bindCollectBag(BindCollectBagReq request);
 
     /**
-     *  取消集包
+     *  取消集包：把包裹从箱子里取出
      * @param request
      * @return
      */
     InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request);
+
+    /**
+     *  取消集装：把箱子从外层箱子中取出
+     * @param request
+     * @return
+     */
+    InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request);
+
 
 
     /**

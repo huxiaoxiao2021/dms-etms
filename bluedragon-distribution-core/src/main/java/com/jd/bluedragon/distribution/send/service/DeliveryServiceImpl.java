@@ -450,6 +450,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+    @Autowired
+    private SortingService sortingService;
 
     /**
      * 自动过期时间 30分钟
@@ -1014,6 +1016,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         log.info("[一车一单发货]packageSend-箱号/包裹号:{},批次号：{},操作站点：{},是否强制操作：{}"
                 ,domain.getBoxCode(),domain.getSendCode(),domain.getCreateSiteCode(),isForceSend);
+        if (BusinessUtil.isBoxcode(domain.getBoxCode()) && checkBoxIfEmpty(domain)){
+            return new SendResult(SendResult.CODE_SENDED,"空箱号禁止按箱发货！");
+        }
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
         if (!isForceSend) {
             // 发货验证
@@ -1045,6 +1050,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         return sendResult;
 
+    }
+
+    private boolean checkBoxIfEmpty(SendM domain) {
+        //箱内没有包裹 && 箱内没有箱子
+        Integer count =sortingService.getSumByBoxCode(domain.getBoxCode());
+        if (ObjectHelper.isEmpty(count) || count <= 0 ){
+            log.info("{}箱内没有包裹",domain.getBoxCode());
+            BoxRelation boxRelation =new BoxRelation();
+            boxRelation.setBoxCode(domain.getBoxCode());
+            int boxCount =boxRelationService.countByBoxCode(boxRelation);
+            if (boxCount <= 0){
+                log.info("{}箱内没有包裹 && 箱内没有箱子",domain.getBoxCode());
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -2651,7 +2672,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         // 批量处理新发货逻辑
         long startTime = System.currentTimeMillis();
         for (SendM domain : needSendBox) {
-            result = this.doPackageSend(bizSource, domain);
+            result = packageSend(bizSource, domain,true, false);
         }
         long endTime = System.currentTimeMillis();
 

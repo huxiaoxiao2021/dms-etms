@@ -7,6 +7,16 @@ public class CollectPackageResp implements Serializable {
 
     private Long endSiteId;
 
+    private int materialType;
+
+    public int getMaterialType() {
+        return materialType;
+    }
+
+    public void setMaterialType(int materialType) {
+        this.materialType = materialType;
+    }
+
     public Long getEndSiteId() {
         return endSiteId;
     }

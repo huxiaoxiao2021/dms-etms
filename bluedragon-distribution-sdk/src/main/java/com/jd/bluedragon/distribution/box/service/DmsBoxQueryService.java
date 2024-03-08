@@ -46,4 +46,12 @@ public interface DmsBoxQueryService {
      */
     Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
 
+
+    /**
+     * 查询某个箱子的后代嵌套箱号
+     * @param boxQueryDto
+     * @return
+     */
+    Result<List<BoxDto>> listDescendantBoxes(BoxDto boxQueryDto);
+
 }

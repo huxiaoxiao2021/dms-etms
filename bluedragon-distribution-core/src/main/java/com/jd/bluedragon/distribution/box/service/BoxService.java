@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxBindDto;
 import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
@@ -130,4 +131,22 @@ public interface BoxService {
      * @time 2023-10-24 14:14:24 周二
      */
     Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
+
+
+    /**
+     * 存储箱号绑定关系
+     * @param containerBindDto
+     * @return
+     */
+    boolean saveBoxBindRelation(BoxBindDto containerBindDto);
+
+    /**
+     * 获取某个箱号的所有后代箱号
+     */
+    List<Box> listAllDescendantsByParentBox(Box box);
+
+    /**
+     * 获取子代箱号
+     */
+    List<Box> listSonBoxesByParentBox(Box box);
 }
