@@ -1016,4 +1016,9 @@
         <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionBox}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--  循环物资进场自动验货包裹维度数据  -->
+    <bean id="jyRecycleMaterialAutoInspectionPackageProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

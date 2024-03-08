@@ -74,7 +74,7 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
         logInfo("运输围栏到车包裹到达消息开始消费，mqBody={}", message.getText());
         try{
             PackageArriveAutoInspectionDto packageArriveAutoInspectionDto = this.convertPackageArriveAutoInspectionDto(mqBody);
-            jyTrustHandoverAutoInspectionService.packageArriveAndAutoInspection(packageArriveAutoInspectionDto);
+            jyTrustHandoverAutoInspectionService.packageArriveCarAutoInspection(packageArriveAutoInspectionDto);
         }catch (Exception ex) {
             logger.error("运输围栏到车包裹到达消息消费异常，businessId={},errMsg={},content={}");
             throw new JyBizException("运输围栏到车包裹到达消息消费异常,businessId=" + message.getBusinessId());
