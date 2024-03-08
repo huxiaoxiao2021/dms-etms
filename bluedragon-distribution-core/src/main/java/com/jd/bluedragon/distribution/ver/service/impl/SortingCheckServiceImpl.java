@@ -140,11 +140,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         try {
             //初始化拦截链上下文
             filterContext = this.initContext(pdaOperateRequest);
-            InspectionFilterChain proceedFilterChain = getInspectionFilterChain();
-            proceedFilterChain.doFilter(filterContext, proceedFilterChain);
             filterContext.setFuncModule(HintModuleConstants.INSPECTION);
-            ForwardFilterChain forwardFilterChain = pdaOperateRequest.getJyCollectPackageFlag() ? getJyCollectPackageForwardFilterChain(): getForwardFilterChain();
-            forwardFilterChain.doFilter(filterContext, forwardFilterChain);
+            InspectionFilterChain inspectionFilterChain = getInspectionFilterChain();
+            inspectionFilterChain.doFilter(filterContext, inspectionFilterChain);
 
         } catch (IllegalWayBillCodeException e) {
             logger.error("验货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
