@@ -19,6 +19,19 @@ public interface JyCollectPackageService {
     InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request);
 
     /**
+     * 集包：往箱子里装包裹 自动化
+     * @param request
+     * @return
+     */
+    InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request);
+    /**
+     * 集箱：往箱子里装箱 自动化
+     * @param request
+     * @return
+     */
+    InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request);
+
+    /**
      * 查询集包任务列表
      * @param request
      * @return

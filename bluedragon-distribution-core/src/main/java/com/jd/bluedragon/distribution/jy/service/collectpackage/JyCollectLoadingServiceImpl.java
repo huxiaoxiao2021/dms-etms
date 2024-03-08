@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
@@ -96,5 +97,51 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setJyCollectPackageFlag(false);
         return pdaOperateRequest;
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request) {
+        //基础校验
+        collectBoxMachineCheck(request);
+        //执行集装
+        CollectPackageResp response = new CollectPackageResp();
+        execCollectBox(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    private void collectBoxMachineCheck(CollectPackageReq request) {
+
+        if (!ObjectHelper.isNotNull(request.getBoxCode())) {
+            throw new JyBizException("参数错误：缺失箱号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
+            throw new JyBizException("参数错误：不支持该类型箱号！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失扫描单号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBarCode())) {
+            throw new JyBizException("参数错误：请扫描箱号！");
+        }
+        String outerBoxType = request.getBoxCode().substring(0,2);
+        String innerBoxType =request.getBarCode().substring(0,2);
+
+        BoxTypeV2Enum outer =BoxTypeV2Enum.getFromCode(outerBoxType);
+        if (ObjectHelper.isEmpty(outer) || ObjectHelper.isEmpty(outer.getSupportEmbeddedTypes())){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌箱号");
+        }
+        if (!outer.getSupportEmbeddedTypes().contains(innerBoxType)){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌"+innerBoxType+"类型的箱");
+        }
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
+        //基础校验
+        collectBoxMachineCheck(request);
+        //执行集包
+        CollectPackageResp response = new CollectPackageResp();
+        execCollectPackage(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 }
