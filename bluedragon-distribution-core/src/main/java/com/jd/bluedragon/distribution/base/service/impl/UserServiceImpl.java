@@ -471,6 +471,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 					showRemindTransJobFlag = funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_SHOW_REMIND_BUTTON.getCode(), siteId, userErp);
 				}
 				result.getData().getBusinessConfigInfo().setShowRemindTransJobFlag(showRemindTransJobFlag);
+
+				// 是否静默升级
+				result.getData().getBusinessConfigInfo().setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
 			}
 		}
 		return result;
@@ -718,7 +721,6 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         response.setRunningMode(dmsClientConfigInfo.getRunningMode());
         response.setVersionCode(dmsClientConfigInfo.getVersionCode());
 		response.setForceUpdate(forceUpdate);
-		response.setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
     }
 
     private DmsClientVersionRequest assembleVersionRequest(AppUpgradeRequest request) {
