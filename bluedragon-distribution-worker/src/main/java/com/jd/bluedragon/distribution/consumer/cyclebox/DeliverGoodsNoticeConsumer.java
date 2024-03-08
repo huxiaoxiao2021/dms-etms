@@ -153,13 +153,13 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             if (CollectionUtils.isNotEmpty(list)) {
                 // 常规箱内有包裹
                 Set<String> waybillCodeSet = new HashSet<>();
+                Set<String> packageCodeSet = new HashSet<>();
                 for (Sorting sort : list) {
                     waybillCodeSet.add(sort.getWaybillCode());
-                    packageCodeList.add(sort.getPackageCode());
+                    packageCodeSet.add(sort.getPackageCode());
                 }
                 waybillCodeList = new ArrayList<>(waybillCodeSet);
-                context.setWaybillCode(waybillCodeList);
-                context.setPackageCode(packageCodeList);
+                packageCodeList = new ArrayList<>(packageCodeSet);
             } else {
                 // 箱内无包裹，查看是否为箱套箱，按物资和箱发送消息
                 final InvokeResult<List<BoxRelation>> boxRelationResult = boxRelationService.getRelationsByBoxCode(context.getBoxCode());
@@ -178,6 +178,8 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             } else {
                 context.setOperatorTime(context.getOperatorTime());
             }
+            context.setWaybillCode(waybillCodeList);
+            context.setPackageCode(packageCodeList);
 
             cycleMaterialSendMQ.send(context.getMaterialCode(), JsonHelper.toJson(context));
         } catch (Exception e) {
