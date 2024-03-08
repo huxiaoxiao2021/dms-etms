@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * https://joyspace.jd.com/pages/Y5IcP5IB1iq3NK1Kj1ye
  */
 @Slf4j
-@Service("violentSortingConsumer")
+@Service("violentSortingFixDutyConsumer")
 public class ViolentSortingFixDutyConsumer extends MessageBaseConsumer {
     @Autowired
     private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
