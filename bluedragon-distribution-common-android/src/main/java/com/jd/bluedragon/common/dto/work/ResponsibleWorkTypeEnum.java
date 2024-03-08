@@ -30,6 +30,14 @@ public enum ResponsibleWorkTypeEnum {
         }
         return null;
     }
+    
+    public static String getNameByCode(Integer code){
+        ResponsibleWorkTypeEnum responsibleWorkTypeEnum = getByCode(code);
+        if(responsibleWorkTypeEnum == null){
+            return "未知";
+        }
+        return responsibleWorkTypeEnum.getName();
+    }
 
     public Integer getCode() {
         return code;

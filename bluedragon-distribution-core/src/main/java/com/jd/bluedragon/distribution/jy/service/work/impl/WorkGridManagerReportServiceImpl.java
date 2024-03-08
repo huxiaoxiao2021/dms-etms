@@ -3,20 +3,21 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.AttachmentDetailData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCaseItemData;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
+import com.jd.bluedragon.common.dto.work.ResponsibleWorkTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerCaseQuery;
+import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
+import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerResponsibleInfoService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
+import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.work.domain.*;
 import com.jd.bluedragon.utils.BaseContants;
-import com.jd.bluedragon.utils.BeanHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,12 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
+
+import static com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum.COMPLETE;
+import static com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum.OVER_TIME;
+import static com.jd.bluedragon.distribution.work.constant.ResponsibleTypeEnum.WORK_GRID_OWNER;
+import static com.jd.bluedragon.distribution.work.constant.ResponsibleTypeEnum.WORK_GRID_SIGN;
+import static com.jd.bluedragon.distribution.work.constant.ResponsibleTypeEnum.SUPPLIER;
 
 /**
  * @ClassName: JyBizTaskWorkGridManagerServiceImpl
@@ -64,6 +71,9 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 	@Autowired
 	@Qualifier("jyWorkGridManagerCaseService")
 	private JyWorkGridManagerCaseService jyWorkGridManagerCaseService;
+	
+	@Autowired
+	private JyWorkGridManagerResponsibleInfoService jyWorkGridManagerResponsibleInfoService;
 
 	private Result<Boolean> checkAndInitQuery(WorkGridManagerReportQuery query) {
 		Result<Boolean> result = Result.success();
@@ -206,7 +216,6 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		taskCaseQuery.setTaskCode(taskData.getTaskCode());
 		List<JyWorkGridManagerCaseData> caseList = jyWorkGridManagerCaseService.loadCaseListForTaskData(taskCaseQuery);
 		taskData.setCaseList(caseList);
-		
 		//数据转化 JyWorkGridManagerData 转化为 WorkGridManagerReportVo
 		WorkGridManagerReportVo workGridManagerReportVo = covertWorkGridManagerReportVo(taskData);
 		result.setData(workGridManagerReportVo);
@@ -234,6 +243,50 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 		if(taskData.getViolenceSortInfoData() != null){
 			workGridManagerReportVo.setViolenceSortInfoData(new ViolenceSortInfoData());
 			BeanUtils.copyProperties(taskData.getViolenceSortInfoData(), workGridManagerReportVo.getViolenceSortInfoData());
+		}
+		//已完成或超时
+		if(COMPLETE.getCode().equals(taskData.getStatus()) || OVER_TIME.getCode().equals(taskData.getStatus())){
+			JyWorkGridManagerResponsibleInfo responsibleInfo = jyWorkGridManagerResponsibleInfoService.queryByBizId(taskData.getBizId());
+			if(responsibleInfo != null){
+				ResponsibleInfoVO responsibleInfoVO = new ResponsibleInfoVO();
+				String workTypeName = ResponsibleWorkTypeEnum.getNameByCode(responsibleInfo.getWorkType());
+				responsibleInfoVO.setWorkTypeName(workTypeName);
+				ResponsibleWorkTypeEnum workTaskTypeEnum = ResponsibleWorkTypeEnum.getByCode(responsibleInfo.getWorkType());
+				switch (workTaskTypeEnum){
+					//正式工
+					case FORMAL_WORKER:
+						String responsibleTypeName;
+						//正式打卡员工
+						if(StringUtils.isNotBlank(responsibleInfo.getErp())){
+							responsibleTypeName = WORK_GRID_SIGN.getName();
+							//责任人编码
+							responsibleInfoVO.setResponsibleName(responsibleInfo.getName());
+							//
+							responsibleInfoVO.setResponsibleCode(responsibleInfo.getErp());
+						}else { // 网格组长
+							responsibleTypeName = WORK_GRID_OWNER.getName();
+							// 责任人编码
+							responsibleInfoVO.setResponsibleCode(responsibleInfo.getGridOwnerErp());
+						}
+						//责任人类型
+						responsibleInfoVO.setResponsibleTypeName(responsibleTypeName);
+						break;
+						
+					case OUTWORKER://外包工
+						responsibleInfoVO.setResponsibleTypeName(SUPPLIER.getName());
+						responsibleInfoVO.setResponsibleName(responsibleInfo.getSupplierName());
+						responsibleInfoVO.setResponsibleCode(responsibleInfo.getSupplierId());
+						responsibleInfoVO.setIdCard(responsibleInfo.getIdCard());
+						responsibleInfoVO.setOuterName(responsibleInfo.getName());
+					case TEMPORARY_WORKERS: //临时工
+						responsibleInfoVO.setResponsibleTypeName(WORK_GRID_OWNER.getName());
+						responsibleInfoVO.setResponsibleCode(responsibleInfo.getGridOwnerErp());
+						responsibleInfoVO.setIdCard(responsibleInfo.getIdCard());
+						
+				}
+				workGridManagerReportVo.setResponsibleInfo(responsibleInfoVO);
+				
+			}
 		}
 		
 		List<JyWorkGridManagerCaseDataVO> jyWorkGridManagerCaseDataVOList = new ArrayList<JyWorkGridManagerCaseDataVO>();

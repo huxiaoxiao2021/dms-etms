@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.jd.bluedragon.common.dto.work.*;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
@@ -20,7 +21,6 @@ import com.jd.bluedragon.distribution.jy.service.work.*;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.workingConfig.WorkingConfigQueryService;
@@ -44,7 +44,6 @@ import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
 import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
 import com.jdl.jy.flat.dto.schedule.UserScheduleDto;
-import org.apache.avro.data.Json;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
@@ -224,6 +223,10 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
     private static final String UMP_KEY_PREFIX = "dmsWeb.beans.jyWorkGridManagerBusinessService.";
 
+	@Autowired
+	@Qualifier("violentSortingResponsibleInfoProducer")
+	private DefaultJMQProducer violentSortingResponsibleInfoProducer;
+
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "submitData",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdCResponse<Boolean> submitData(JyWorkGridManagerTaskEditRequest request) {
@@ -355,6 +358,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
 		//保存任务责任人信息
 		jyWorkGridManagerResponsibleInfoService.saveTaskResponsibleInfo(taskData);
+		//暴力分拣任务 发送责任人信息
+		jyWorkGridManagerResponsibleInfoService.sendViolentSortingResponsibleInfo(oldData, taskData.getResponsibleInfo());
 		return result;
 	}
 	
@@ -1120,8 +1125,15 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
 		closeData.setData(data);
 		jyBizTaskWorkGridManagerService.autoCloseTask(closeData);
+		//保存任务责任信息
+		List<JyWorkGridManagerData>  jyWorkGridManagerData = jyWorkGridManagerResponsibleInfoService.workGridManagerExpiredSaveResponsibleInfo(taskData.getBizIdList());
+		//超时暴力分拣发送jmq 给判责系统
+		if(!CollectionUtils.isEmpty(jyWorkGridManagerData)){
+			jyWorkGridManagerResponsibleInfoService.workGridManagerExpiredSendMq(jyWorkGridManagerData);
+		}
 		return true;
 	}
+	
 	void addWorkGridManagerScanTask(TaskWorkGridManagerScanData taskData){
 		//新增|修改任务-修改执行时间
 		Task tTask = new Task();

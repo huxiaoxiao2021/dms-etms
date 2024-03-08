@@ -1571,4 +1571,14 @@
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    
+    <!--摄像头配置查询 -->
+    <jsf:consumer id="videoTraceCameraJsfService"
+                  interface="com.jdl.basic.api.service.videoTraceCamera.VideoTraceCameraJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.timeout.default}"
+                  retries="${jsf.retries.default}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>

@@ -28,6 +28,8 @@ public class ViolenceSortInfoData implements Serializable {
      * @return
      */
     private String gridKeys;
+    //暴力分拣id
+    private Long id;
 
     public String getTitle() {
         return title;
@@ -75,5 +77,13 @@ public class ViolenceSortInfoData implements Serializable {
 
     public void setGridKeys(String gridKeys) {
         this.gridKeys = gridKeys;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

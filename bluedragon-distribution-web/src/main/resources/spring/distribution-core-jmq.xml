@@ -979,4 +979,10 @@
         <property name="topic" value="${jmq.topic.evaluate.load.info.to.qc}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--暴力分拣定责信息回传判责系统 -->
+    <bean id="violentSortingResponsibleInfoProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.violent.sorting.responsible.info}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

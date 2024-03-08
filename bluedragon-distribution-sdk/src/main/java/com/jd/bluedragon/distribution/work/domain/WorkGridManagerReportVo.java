@@ -241,7 +241,7 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 */
 	private ViolenceSortInfoData violenceSortInfoData;
 
-	private ResponsibleInfo responsibleInfo;
+	private ResponsibleInfoVO responsibleInfo;
 	
 	public Long getId() {
 		return id;
@@ -562,11 +562,11 @@ public class WorkGridManagerReportVo  implements Serializable {
 		this.violenceSortInfoData = violenceSortInfoData;
 	}
 
-	public ResponsibleInfo getResponsibleInfo() {
+	public ResponsibleInfoVO getResponsibleInfo() {
 		return responsibleInfo;
 	}
 
-	public void setResponsibleInfo(ResponsibleInfo responsibleInfo) {
+	public void setResponsibleInfo(ResponsibleInfoVO responsibleInfo) {
 		this.responsibleInfo = responsibleInfo;
 	}
 }
