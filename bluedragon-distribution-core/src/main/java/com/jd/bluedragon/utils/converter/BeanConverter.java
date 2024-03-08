@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils.converter;
 
 import java.util.Date;
 
+import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,6 +287,31 @@ public class BeanConverter {
 		}
 		return mqData;
 	}
+
+	/**
+	 * 对象转换为数据库实体
+	 * @param jyOperateFlow
+	 * @return
+	 */
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(Receive receive) {
+		if (receive == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(receive.getBoxCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.INSPECTION.getCode());
+		mqData.setOperateKey(StringHelper.getStringValue(receive.getReceiveId()));
+		mqData.setOperateTime(receive.getUpdateTime());
+		mqData.setOperateSiteCode(receive.getCreateSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(receive.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
+
 	public static JyOperateFlowMqData convertToJyOperateFlowMqData(SealCarDto sealCarDto, OperatorData operatorData) {
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
 		mqData.setOperateBizKey(sealCarDto.getSealCarCode());

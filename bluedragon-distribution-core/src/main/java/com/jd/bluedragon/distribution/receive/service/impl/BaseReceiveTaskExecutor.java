@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.MiniStoreSortingProcessEvent;
@@ -140,6 +141,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	@Qualifier("miniStoreSortProcessProducer")
 	private DefaultJMQProducer miniStoreSortProcessProducer;
 
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
+
 	/**
 	 * 收货
 	 * 
@@ -150,6 +154,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录
 		saveReceive(taskContext);
+		// 记录收货操作流水
+		jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody());
 		// 必须有封车号，才更新封车表
 		updateSealVehicle(taskContext);
 		// 解封箱
@@ -263,6 +269,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		cenConfirm.setOperateTime(receive.getCreateTime());
 		cenConfirm.setOperateUser(receive.getCreateUser());
 		cenConfirm.setOperateUserCode(receive.getCreateUserCode());
+		cenConfirm.setOperatorData(receive.getOperatorData());
+		cenConfirm.setOperateFlowId(receive.getOperateFlowId());
 		return cenConfirm;
 	}
 
@@ -468,7 +476,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
 				sendTrack(taskContext,cenConfirm);
-
 				cenConfirmList.add(cenConfirm);
 			}
 		}

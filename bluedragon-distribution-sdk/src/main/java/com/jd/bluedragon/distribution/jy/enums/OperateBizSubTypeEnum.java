@@ -7,7 +7,10 @@ package com.jd.bluedragon.distribution.jy.enums;
  * @Date 2022/1/4 16:49
  **/
 public enum OperateBizSubTypeEnum {
+
 	INSPECTION("inspection","验货"),
+	RECEIVE("receive","收货"),
+
 	SORTING("sorting","分拣"),
 	SORTING_CANCEL("sorting_cancel","取消分拣"),
 	SEND("send_d","发货"),

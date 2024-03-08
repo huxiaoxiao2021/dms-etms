@@ -15,8 +15,10 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -50,6 +52,9 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
 
     @Autowired
     private CenConfirmService cenConfirmService;
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
     @Override
     protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
@@ -169,6 +174,8 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
             if (BusinessHelper.checkIntNumRange(packages.size())) {
                 for (DeliveryPackageD pack : packages) {
                     request.setPackageBarcode(pack.getPackageBarcode());
+                    // 透传操作流水表主键
+                    setOperateFlowId(request);
                     inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
                 }
             }
@@ -177,6 +184,8 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
                     && !WaybillUtil.isSurfaceCode(request.getPackageBarcode())) {
                 request.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
             }
+            // 透传操作流水表主键
+            setOperateFlowId(request);
             inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
         }
         Collections.sort(inspectionList);
@@ -186,6 +195,14 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
         }
     }
 
+    private void setOperateFlowId(InspectionRequest request) {
+        try {
+            // 生成操作流水表主键
+            request.setOperateFlowId(sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW));
+        } catch (Exception e) {
+            LOGGER.error("验货任务通用设置操作流水表主键出现异常:request={}", JsonHelper.toJson(request), e);
+        }
+    }
 
     protected void builderCenConfirmList(InspectionTaskExecuteContext context){
         List<CenConfirm> cenList=new ArrayList<CenConfirm>(context.getInspectionList().size());

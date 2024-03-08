@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.jmq.common.message.Message;
@@ -94,7 +95,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	}
 
 	@Override
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendBoardOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendBoardOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public <T> void sendBoardOperateFlowData(T t, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
 		BindBoardRequest bindBoardRequest;
 		try {
@@ -124,6 +125,24 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			}
 		} catch (Exception e) {
 			logger.error("发送组板操作流水消息出现异常:request={}", JsonHelper.toJson(t), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendReceiveOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendReceiveOperateFlowData(Receive receive) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(receive);
+			// 业务子类型
+			boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.RECEIVE.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			boardFlowMq.setId(operateFlowId);
+			sendMq(boardFlowMq);
+			receive.setOperateFlowId(operateFlowId);
+		} catch (Exception e) {
+			logger.error("发送收货操作流水消息出现异常:request={}", JsonHelper.toJson(receive), e);
 		}
 	}
 

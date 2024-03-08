@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.waybill.domain;
 
 
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
 
 import java.io.Serializable;
 
@@ -18,9 +19,14 @@ public class DmsOperateTrack implements Serializable {
     private Long operateFlowId;
 
     /**
-     * 全程跟踪详细内容
+     * 全程跟踪详细内容--组板
      */
     private BdTraceDto bdTraceDto;
+
+    /**
+     * 全程跟踪详细内容--验货
+     */
+    private WaybillSyncParameter waybillSyncParameter;
 
     public Long getOperateFlowId() {
         return operateFlowId;
@@ -36,5 +42,13 @@ public class DmsOperateTrack implements Serializable {
 
     public void setBdTraceDto(BdTraceDto bdTraceDto) {
         this.bdTraceDto = bdTraceDto;
+    }
+
+    public WaybillSyncParameter getWaybillSyncParameter() {
+        return waybillSyncParameter;
+    }
+
+    public void setWaybillSyncParameter(WaybillSyncParameter waybillSyncParameter) {
+        this.waybillSyncParameter = waybillSyncParameter;
     }
 }

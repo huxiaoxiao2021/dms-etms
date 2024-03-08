@@ -376,6 +376,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
+			// 发送分拣操作轨迹
+			sendOperateTrackSceneTwo(param, waybillStatus.getOperateFlowId());
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
@@ -1026,12 +1028,31 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	}
 
 	private void sendOperateTrack(BdTraceDto bdTraceDto, Long operateFlowId) {
-		DmsOperateTrack dmsOperateTrack = new DmsOperateTrack();
-		// 操作流水表主键
-		dmsOperateTrack.setOperateFlowId(operateFlowId);
-		// 全程跟踪详细信息
-		dmsOperateTrack.setBdTraceDto(bdTraceDto);
-		dmsOperateTrackProducer.sendOnFailPersistent(bdTraceDto.getPackageBarCode(), JsonHelper.toJson(dmsOperateTrack));
+		try {
+			DmsOperateTrack dmsOperateTrack = new DmsOperateTrack();
+			// 操作流水表主键
+			dmsOperateTrack.setOperateFlowId(operateFlowId);
+			// 全程跟踪详细信息
+			dmsOperateTrack.setBdTraceDto(bdTraceDto);
+			dmsOperateTrackProducer.sendOnFailPersistent(bdTraceDto.getPackageBarCode(), JsonHelper.toJson(dmsOperateTrack));
+		} catch (Exception e) {
+			log.error("sendOperateTrack|发送分拣操作轨迹出现异常:bdTraceDto={},operateFlowId={}",
+					JsonHelper.toJson(bdTraceDto), operateFlowId);
+		}
+	}
+
+	private void sendOperateTrackSceneTwo(WaybillSyncParameter waybillSyncParameter, Long operateFlowId) {
+		try {
+			DmsOperateTrack dmsOperateTrack = new DmsOperateTrack();
+			// 操作流水表主键
+			dmsOperateTrack.setOperateFlowId(operateFlowId);
+			// 全程跟踪详细信息
+			dmsOperateTrack.setWaybillSyncParameter(waybillSyncParameter);
+			dmsOperateTrackProducer.sendOnFailPersistent(waybillSyncParameter.getOperatorCode(), JsonHelper.toJson(dmsOperateTrack));
+		} catch (Exception e) {
+			log.error("sendOperateTrackSceneTwo|发送分拣操作轨迹场景二出现异常:waybillSyncParameter={},operateFlowId={}",
+					JsonHelper.toJson(waybillSyncParameter), operateFlowId);
+		}
 	}
 
 	private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {

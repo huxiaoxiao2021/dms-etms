@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 public class ReceiveRequest extends JdRequest{
 	private static final long serialVersionUID = 8200718370214764985L;
@@ -26,6 +27,10 @@ public class ReceiveRequest extends JdRequest{
      */
 	@Deprecated
     private String departureCarId;
+	/**
+	 * 操作数据
+	 */
+	private OperatorData operatorData;
     
     public String getQueueNo() {
 		return queueNo;
@@ -89,5 +94,13 @@ public class ReceiveRequest extends JdRequest{
 
 	public void setDepartureCarId(String departureCarId) {
 		this.departureCarId = departureCarId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

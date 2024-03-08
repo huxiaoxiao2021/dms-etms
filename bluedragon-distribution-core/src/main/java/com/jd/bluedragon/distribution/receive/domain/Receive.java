@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.receive.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -55,6 +57,16 @@ public class Receive implements Serializable{
     /*没有调用的地方*/
     @Deprecated
     private String departureCarId;
+
+	/**
+	 * 操作数据
+	 */
+	private OperatorData operatorData;
+
+	/**
+	 * 操作流水表主键
+	 */
+	private Long operateFlowId;
 
 	public String getQueueNo() {
 		return queueNo;
@@ -231,4 +243,21 @@ public class Receive implements Serializable{
     public void setDepartureCarId(String departureCarId) {
         this.departureCarId = departureCarId;
     }
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
+
+	public Long getOperateFlowId() {
+		return operateFlowId;
+	}
+
+	public void setOperateFlowId(Long operateFlowId) {
+		this.operateFlowId = operateFlowId;
+	}
+
 }

@@ -329,6 +329,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		receive.setCreateSiteName(receiveRequest.getSiteName());
 		receive.setTurnoverBoxCode(receiveRequest.getTurnoverBoxCode());
 		receive.setQueueNo(receiveRequest.getQueueNo());
+		receive.setOperatorData(receiveRequest.getOperatorData());
 
 		return receive;
 	}
