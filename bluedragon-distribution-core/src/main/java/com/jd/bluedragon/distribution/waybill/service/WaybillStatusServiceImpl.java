@@ -377,7 +377,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 			// 发送分拣操作轨迹
-			sendOperateTrackSceneTwo(param, waybillStatus.getOperateFlowId());
+			sendOperateTrack(waybillStatus);
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
@@ -1022,22 +1022,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			toWaybillStatus(tWaybillStatus, bdTraceDto);
 			bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 			// 发送分拣操作轨迹
-			sendOperateTrack(bdTraceDto, tWaybillStatus.getOperateFlowId());
+			sendOperateTrack(tWaybillStatus);
 			waybillQueryManager.sendBdTrace(bdTraceDto);
 		}
 	}
 
-	private void sendOperateTrack(BdTraceDto bdTraceDto, Long operateFlowId) {
+	private void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
-			DmsOperateTrack dmsOperateTrack = new DmsOperateTrack();
-			// 操作流水表主键
-			dmsOperateTrack.setOperateFlowId(operateFlowId);
-			// 全程跟踪详细信息
-			dmsOperateTrack.setBdTraceDto(bdTraceDto);
-			dmsOperateTrackProducer.sendOnFailPersistent(bdTraceDto.getPackageBarCode(), JsonHelper.toJson(dmsOperateTrack));
+			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
-			log.error("sendOperateTrack|发送分拣操作轨迹出现异常:bdTraceDto={},operateFlowId={}",
-					JsonHelper.toJson(bdTraceDto), operateFlowId);
+			log.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		}
 	}
 
