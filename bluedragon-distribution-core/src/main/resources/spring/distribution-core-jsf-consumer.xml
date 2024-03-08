@@ -1576,8 +1576,8 @@
     <jsf:consumer id="videoTraceCameraJsfService"
                   interface="com.jdl.basic.api.service.videoTraceCamera.VideoTraceCameraJsfService"
                   alias="${jsf.alias.jy_basic}"
-                  timeout="${jsf.timeout.default}"
-                  retries="${jsf.retries.default}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
