@@ -18,6 +18,12 @@ public class MqRetryBaseDto implements Serializable {
      * 异常重试间隔分钟数：firstConsumerTime + retryIntervalMinutes 分钟后可再次重试
      */
     private Integer retryIntervalMinutes;
+    /**
+     * 重试标识：区分是原始消息还是重试消息
+     * 原始消息：false
+     * 重试消息：true
+     */
+    private Boolean retryFlag;
 
 
     public Long getFirstConsumerTime() {
@@ -34,5 +40,13 @@ public class MqRetryBaseDto implements Serializable {
 
     public void setRetryIntervalMinutes(Integer retryIntervalMinutes) {
         this.retryIntervalMinutes = retryIntervalMinutes;
+    }
+
+    public Boolean getRetryFlag() {
+        return retryFlag;
+    }
+
+    public void setRetryFlag(Boolean retryFlag) {
+        this.retryFlag = retryFlag;
     }
 }

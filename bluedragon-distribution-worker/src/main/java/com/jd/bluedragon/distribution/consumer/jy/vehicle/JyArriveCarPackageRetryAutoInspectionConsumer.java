@@ -56,7 +56,7 @@ public class JyArriveCarPackageRetryAutoInspectionConsumer extends MessageBaseCo
 
         logInfo("围栏到车包裹重试自动验货消息开始消费，mqBody={}", message.getText());
         try{
-            jyTrustHandoverAutoInspectionService.packageArriveAndAutoInspection(mqBody);
+            jyTrustHandoverAutoInspectionService.packageArriveCarAutoInspection(mqBody);
         }catch (Exception ex) {
             logger.error("围栏到车包裹重试自动验货消息消费异常，businessId={},errMsg={},content={}");
             throw new JyBizException("围栏到车包裹重试自动验货消息消费异常,businessId=" + message.getBusinessId());

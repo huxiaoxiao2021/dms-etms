@@ -55,10 +55,10 @@ public class JyRecycleMaterialAutoInspectionBoxConsumer extends MessageBaseConsu
 
         logInfo("物资循环进场自动验货箱维度处理开始消费，mqBody={}", message.getText());
         try{
-            jyTrustHandoverAutoInspectionService.packageInRecycleMaterialBoxAutoInspection(mqBody);
+            jyTrustHandoverAutoInspectionService.recycleMaterialBoxAutoInspection(mqBody);
         }catch (Exception ex) {
             logger.error("物资循环进场自动验货箱维度处理消费异常，businessId={},errMsg={},content={}");
-            throw new JyBizException("物资循环实操监听消息消费异常,businessId=" + message.getBusinessId());
+            throw new JyBizException("物资循环进场自动验货箱维度处理消费异常,businessId=" + message.getBusinessId());
         }
         logInfo("物资循环进场自动验货箱维度处理消息消费成功，内容{}", message.getText());
 
