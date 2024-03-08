@@ -42,7 +42,7 @@ public class JyTaskSendDetailFirstSendConsumer extends MessageBaseConsumer {
                 log.warn("JyTaskSendDetailFirstSendConsumer:消息体[{}]转换实体失败或没有合法的业务数据", message.getText());
                 return;
             }
-            final Result<Boolean> result = jySendVehicleService.handleOnlyLoadAttr(jyTaskSendDetailFirstSendDto);
+            final Result<Boolean> result = jySendVehicleService.handleTaskSendFirstScan(jyTaskSendDetailFirstSendDto);
             if(!result.isSuccess()){
                 log.error("JyTaskSendDetailFirstSendConsumer exception {} {}", message.getText(), JsonHelper.toJson(result));
                 throw new Exception();

@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
@@ -60,6 +62,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -611,13 +614,21 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         //pdaOperateRequest.setOperateType(request.getOperateType());
         pdaOperateRequest.setPackageCode(request.getBarCode());
         pdaOperateRequest.setReceiveSiteCode(request.getEndSiteId().intValue());
-        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
-        pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        final CurrentOperate currentOperate = request.getCurrentOperate();
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
+        pdaOperateRequest.setOperateTime(DateUtil.format(currentOperate.getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
         pdaOperateRequest.setJyCollectPackageFlag(true);
+        final OperatorData operatorData = currentOperate.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+        }
         return pdaOperateRequest;
     }
 
