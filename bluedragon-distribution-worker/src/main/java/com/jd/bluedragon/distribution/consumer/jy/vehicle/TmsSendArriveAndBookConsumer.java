@@ -144,7 +144,7 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
             return false;
         }
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(mqBody.getEndNodeCode());
-        if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteCode())) {
+        if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteType())) {
             logInfo("运输围栏到车包裹到达消息过滤，到达场地{}基础资料不存在或者非分拣中心，mqBody={},site={}", mqBody.getEndNodeCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
             return false;
         }

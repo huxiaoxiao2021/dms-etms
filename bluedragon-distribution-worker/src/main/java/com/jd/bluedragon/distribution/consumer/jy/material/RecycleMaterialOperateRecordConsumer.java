@@ -138,7 +138,7 @@ public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
             return false;
         }else {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(mqBody.getOperateSiteId()));
-            if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteCode())) {
+            if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteType())) {
                 logInfo("循环物资操作监听，，到达场地{}基础资料不存在或者非分拣中心，无效数据剔除，mqBody={},baseSite={}", mqBody.getOperateSiteId(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
                 return false;
             }
