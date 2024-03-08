@@ -2425,4 +2425,21 @@ public class Constants {
     public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
 
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+    /**
+     * 评价申诉权限 0 关闭
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_0 = 0;
+    /**
+     * 评价申诉权限 1 开启
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_1 = 1;
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_ID = "id";
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_OPINION = "opinion";
 }

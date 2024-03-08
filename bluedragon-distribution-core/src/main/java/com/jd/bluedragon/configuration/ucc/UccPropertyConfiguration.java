@@ -2053,6 +2053,32 @@ public class UccPropertyConfiguration{
      */
     private Integer allowEntryHours;
 
+    /**
+     * 场地的评价和申诉权限，自动关闭天数
+     */
+    private Integer evaluateAppealCloseDay;
+
+    /**
+     * 申诉记录的超时审核小时数
+     */
+    private Integer checkOvertimeHour;
+
+    public Integer getCheckOvertimeHour() {
+        return checkOvertimeHour;
+    }
+
+    public void setCheckOvertimeHour(Integer checkOvertimeHour) {
+        this.checkOvertimeHour = checkOvertimeHour;
+    }
+
+    public Integer getEvaluateAppealCloseDay() {
+        return evaluateAppealCloseDay;
+    }
+
+    public void setEvaluateAppealCloseDay(Integer evaluateAppealCloseDay) {
+        this.evaluateAppealCloseDay = evaluateAppealCloseDay;
+    }
+
     public Integer getAllowEntryHours() {
         return allowEntryHours;
     }

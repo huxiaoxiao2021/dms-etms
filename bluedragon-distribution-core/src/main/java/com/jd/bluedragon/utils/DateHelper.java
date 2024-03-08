@@ -12,6 +12,8 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -835,5 +837,20 @@ public class DateHelper {
 			afterTime = DateHelper.add(time,Calendar.SECOND , delaySeconds);
 		}
 		return afterTime;
-    }   
+    }
+
+
+    /**
+     * 判断给定日期是否早于指定天数前
+     * @param givenDate 给定日期
+     * @param days 指定天数
+     * @return 如果给定日期早于指定天数前返回true，否则返回false
+     */
+    public static boolean isDateMoreThanDaysAgo(Date givenDate, int days) {
+        Calendar sevenDaysAgo = Calendar.getInstance();
+        sevenDaysAgo.add(Calendar.DAY_OF_MONTH, -7);
+        Calendar givenDateCal = Calendar.getInstance();
+        givenDateCal.setTime(givenDate);
+        return givenDateCal.before(sevenDaysAgo);
+    }
 }

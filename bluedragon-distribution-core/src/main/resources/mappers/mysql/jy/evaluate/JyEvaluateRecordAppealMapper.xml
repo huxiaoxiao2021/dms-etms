@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordAppealDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity"
+               id="jyEvaluateRecordAppealMap">
+        <result property="id" column="id"/>
+        <result property="targetBizId" column="target_biz_id"/>
+        <result property="sourceBizId" column="source_biz_id"/>
+        <result property="targetSiteCode" column="target_site_code"/>
+        <result property="sourceSiteCode" column="source_site_code"/>
+        <result property="appealStatus" column="appeal_status"/>
+        <result property="reasons" column="reasons"/>
+        <result property="dimensionCode" column="dimension_code"/>
+        <result property="appealResult" column="appeal_result"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="ts" column="ts"/>
+        <result property="yn" column="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, target_biz_id, source_biz_id, target_site_code, source_site_code, appeal_status, reasons, dimension_code,
+        appeal_result,
+        create_user_erp,
+        create_user_name, update_user_erp, update_user_name, create_time, update_time, ts, yn
+    </sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity">
+        INSERT INTO jy_evaluate_record_appeal (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="targetBizId != null">
+                target_biz_id,
+            </if>
+            <if test="sourceBizId != null">
+                source_biz_id,
+            </if>
+            <if test="appealStatus != null">
+                appeal_status,
+            </if>
+            <if test="reasons != null">
+                reasons,
+            </if>
+            <if test="dimensionCode != null">
+                dimension_code,
+            </if>
+            <if test="appealResult != null">
+                appeal_result,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+            <if test="yn != null">
+                yn
+            </if>
+        </trim>
+        ) VALUES (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="targetBizId != null">
+                #{targetBizId},
+            </if>
+            <if test="sourceBizId != null">
+                #{sourceBizId},
+            </if>
+            <if test="appealStatus != null">
+                #{appealStatus},
+            </if>
+            <if test="reasons != null">
+                #{reasons},
+            </if>
+            <if test="dimensionCode != null">
+                #{dimensionCode},
+            </if>
+            <if test="appealResult != null">
+                #{appealResult},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+            <if test="yn != null">
+                #{yn}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity">
+        UPDATE jy_evaluate_record_appeal
+        <set>
+            <if test="id != null">
+                id = #{id} ,
+            </if>
+            <if test="targetBizId != null">
+                target_biz_id = #{targetBizId} ,
+            </if>
+            <if test="sourceBizId != null">
+                source_biz_id = #{sourceBizId} ,
+            </if>
+            <if test="appealStatus != null">
+                appeal_status = #{appealStatus} ,
+            </if>
+            <if test="reasons != null">
+                reasons = #{reasons} ,
+            </if>
+            <if test="dimensionCode != null">
+                dimension_code = #{dimensionCode} ,
+            </if>
+            <if test="appealResult != null">
+                appeal_result = #{appealResult} ,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp} ,
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime} ,
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+            <if test="ts != null">
+                ts = #{ts} ,
+            </if>
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity">
+        update upee_product
+        <set>
+            yn = 0,
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <sql id="condition_sql">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="targetBizId != null">
+            and target_biz_id = #{targetBizId}
+        </if>
+        <if test="sourceBizId != null">
+            and source_biz_id = #{sourceBizId}
+        </if>
+        <if test="appealStatus != null">
+            and appeal_status = #{appealStatus}
+        </if>
+        <if test="reasons != null">
+            and reasons = #{reasons}
+        </if>
+        <if test="dimensionCode != null">
+            and dimension_code = #{dimensionCode}
+        </if>
+        <if test="appealResult != null">
+            and appeal_result = #{appealResult}
+        </if>
+        <if test="createUserErp != null">
+            and create_user_erp = #{createUserErp}
+        </if>
+        <if test="createUserName != null">
+            and create_user_name = #{createUserName}
+        </if>
+        <if test="updateUserErp != null">
+            and update_user_erp = #{updateUserErp}
+        </if>
+        <if test="updateUserName != null">
+            and update_user_name = #{updateUserName}
+        </if>
+        <if test="createTime != null">
+            and create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+            and update_time = #{updateTime}
+        </if>
+        <if test="ts != null">
+            and ts = #{ts}
+        </if>
+        <if test="yn != null">
+            and yn = #{yn}
+        </if>
+    </sql>
+
+    <select id="queryListByCondition" parameterType="list" resultMap="jyEvaluateRecordAppealMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_evaluate_record_appeal
+        where yn =1
+        <if test="conditions!=null and conditions.size() >0">
+            AND (target_biz_id, source_biz_id)  in
+            <foreach item="item" collection="list" open="(" separator="),(" close=")">
+                #{item.targetBizId}, #{item.sourceBizId}
+            </foreach>
+        </if>
+    </select>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into jy_evaluate_record_appeal (target_biz_id, source_biz_id, target_site_code, source_site_code,
+        appeal_status,
+        reasons, dimension_code,
+        appeal_result, create_user_erp,
+        create_user_name, update_user_erp, update_user_name, create_time, update_time, ts, yn)  VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.targetBizId,jdbcType=VARCHAR},
+            #{item.sourceBizId,jdbcType=VARCHAR},
+            #{item.targetSiteCode,jdbcType=INTEGER},
+            #{item.sourceSiteCode,jdbcType=INTEGER},
+            #{item.appealStatus,jdbcType=INTEGER},
+            #{item.reasons,jdbcType=VARCHAR},
+            #{item.dimensionCode,jdbcType=INTEGER},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.updateUserErp,jdbcType=VARCHAR},
+            #{item.updateUserName,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            1,
+            now(3))
+        </foreach>
+    </insert>
+
+    <select id="queryDetailByCondition" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto" resultMap="jyEvaluateRecordAppealMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_evaluate_record_appeal
+        where yn =1
+        <if test="targetBizId != null and targetBizId != ''">
+            and target_biz_id = #{targetBizId}
+        </if>
+        <if test="sourceBizId != null and sourceBizId != ''">
+            and source_biz_id = #{sourceBizId}
+        </if>
+    </select>
+
+    <select id="queryByIdList" parameterType="java.util.List"  resultMap="jyEvaluateRecordAppealMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM jy_evaluate_record_appeal
+        WHERE yn = 1 and id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="batchUpdateStatusByIds" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto">
+        update jy_evaluate_record_appeal
+        <if test="appealStatus != null">
+            appeal_status = #{appealStatus} ,
+        </if>
+        <if test="appealResult != null">
+            appeal_result = #{appealResult} ,
+        </if>
+        update_user_erp = #{updateUserErp},
+        update_user_name = #{updateUserName},
+        update_time = now()
+        where id in
+        <foreach item="item" index="index" collection="idList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="getAppealRejectCount" parameterType="Long"  resultType="java.lang.Integer">
+        SELECT count(id)
+        FROM jy_evaluate_record_appeal
+        WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result = 2
+    </select>
+</mapper>
