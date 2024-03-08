@@ -596,6 +596,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
     	inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
     	inspection.setOperatorId(operatorData.getMachineCode());
     	inspection.setOperatorData(operatorData);
+		inspection.setOperateFlowId(requestBean.getOperateFlowId());
 		return inspection;
 	}
 

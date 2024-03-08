@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils.converter;
 
 import java.util.Date;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
@@ -423,6 +424,9 @@ public class BeanConverter {
 		JyOperateFlowDto dto = new JyOperateFlowDto();
 		try {
 			org.apache.commons.beanutils.BeanUtils.copyProperties(dto , jyOperateFlow);
+			if (Constants.LONG_ZERO.equals(dto.getId())) {
+				dto.setId(null);
+			}
 		}catch (Exception e) {
 			log.error("BeanConverter.convertToJyOperateFlowDto error!", e);
 		}
