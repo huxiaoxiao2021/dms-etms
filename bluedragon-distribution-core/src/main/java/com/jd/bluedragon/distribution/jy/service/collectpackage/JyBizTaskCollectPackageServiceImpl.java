@@ -71,26 +71,31 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
     private BoxLimitConfigManager boxLimitConfigManager;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.findByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskCollectPackageEntity findByBizId(String bizId) {
         return jyBizTaskCollectPackageDao.findByBizId(bizId);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.findByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JyBizTaskCollectPackageEntity findByBoxCode(String boxCode) {
         return jyBizTaskCollectPackageDao.findByBoxCode(boxCode);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.save", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean save(JyBizTaskCollectPackageEntity record) {
         return jyBizTaskCollectPackageDao.insertSelective(record) > 0;
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.pageQueryTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyBizTaskCollectPackageEntity> pageQueryTask(JyBizTaskCollectPackageQuery query) {
         return jyBizTaskCollectPackageDao.pageQueryTask(query);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.queryTaskStatusCount", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<CollectPackStatusCount> queryTaskStatusCount(JyBizTaskCollectPackageQuery query) {
         List<CollectPackStatusCount> statusCounts = jyBizTaskCollectPackageDao.queryTaskStatusCount(query);
         if (statusCounts == null) {
@@ -116,16 +121,19 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.updateById", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean updateById(JyBizTaskCollectPackageEntity entity) {
         return jyBizTaskCollectPackageDao.updateByPrimaryKeySelective(entity) > 0;
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.updateStatusByIds", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean updateStatusByIds(JyBizTaskCollectPackageQuery query) {
         return jyBizTaskCollectPackageDao.updateStatusByIds(query) > 0;
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyBizTaskCollectPackageServiceImpl.findByBizIds", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<JyBizTaskCollectPackageEntity> findByBizIds(List<String> bizIds) {
         return jyBizTaskCollectPackageDao.findByBizIds(bizIds);
     }
