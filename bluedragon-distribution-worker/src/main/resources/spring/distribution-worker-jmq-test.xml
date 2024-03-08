@@ -852,5 +852,10 @@
     <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
     </jmq:consumer>
+
+    <!-- 组板 组大箱时拆分成小箱进行组板  -->
+    <jmq:consumer id="jmq.BoxComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.comboard.split.box}" listener="boxComboardConsumer"/>
+    </jmq:consumer>
 </beans>
 

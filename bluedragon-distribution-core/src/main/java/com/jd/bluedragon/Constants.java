@@ -2500,4 +2500,10 @@ public class Constants {
      * */
     public static final Integer SIGN_BEFORE_ONE_DAY = -1;
 
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
 }

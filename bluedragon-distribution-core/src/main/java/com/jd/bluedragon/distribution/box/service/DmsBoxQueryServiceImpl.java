@@ -5,19 +5,19 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
-import com.jd.bluedragon.distribution.api.request.box.CreateBoxReq;
 import com.jd.bluedragon.distribution.api.response.box.BoxDto;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
-import com.jd.bluedragon.distribution.api.response.box.CreateBoxInfo;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.annotation.CacheMethod;
 import com.jd.dms.java.utils.sdk.base.Result;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
+
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ import java.util.Objects;
  * @date : 2020/7/2
  */
 @Service("dmsBoxQueryService")
+@Slf4j
 public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
 
     @Autowired
@@ -113,5 +114,21 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     @Override
     public Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq) {
         return boxService.getBoxTypeList(boxTypeReq);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.listDescendantBoxes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public Result<List<BoxDto>> listDescendantBoxes(BoxDto boxQueryDto) {
+        log.info("listDescendantBoxes request:{}", JsonHelper.toJson(boxQueryDto));
+        Box box =new Box();
+        box.setCode(boxQueryDto.getCode());
+        List<Box> boxList= boxService.listAllDescendantsByParentBox(box);
+        log.info("listDescendantBoxes listAllDescendantsByParentBox result:{}", JsonHelper.toJson(boxList));
+        if (CollectionUtils.isNotEmpty(boxList)){
+            List<BoxDto> boxDtoList = com.jd.bluedragon.utils.BeanUtils.copy(boxList,BoxDto.class);
+            log.info("listDescendantBoxes listAllDescendantsByParentBox conver result:{}", JsonHelper.toJson(boxDtoList));
+            return Result.success(boxDtoList);
+        }
+        return Result.success();
     }
 }

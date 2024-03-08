@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
+import com.jd.bluedragon.external.gateway.service.JyCollectLoadingGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -23,51 +23,51 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THIRD_ERROR_CODE;
 
 @Slf4j
 @UnifiedExceptionProcess
 @Service
-public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatewayService {
-
-    @Autowired
-    @Qualifier("jyCollectPackageService")
-    JyCollectPackageService jyCollectPackageService;
+public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatewayService {
 
     @Autowired
     @Qualifier("jyCollectLoadingService")
-    JyCollectPackageService jyCollectLoadingService;
+    JyCollectPackageService jyCollectPackageService;
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.collectScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request) {
-        try {
-            //扫描循环集包袋
-            if (BusinessUtil.isCollectionBag(request.getBarCode())) {
-                BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
-                return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
-            }
-            //扫描包裹号
-            else if (WaybillUtil.isPackageCode(request.getBarCode())){
-                return BusinessUtil.isLLBoxcode(request.getBoxCode()) ?
-                        retJdCResponse(jyCollectLoadingService.collectPackage(request)):
-                        retJdCResponse(jyCollectPackageService.collectPackage(request));
-            }
-            //扫描箱号
-            else if (BusinessUtil.isBoxcode(request.getBarCode())){
-                return retJdCResponse(jyCollectPackageService.collectBox(request));
-            }
-            //其他
-            else {
-                return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
-            }
-        } catch (JyBizException e) {
-            if (ObjectHelper.isNotNull(e.getCode())) {
-                return new JdCResponse(e.getCode(), e.getMessage());
-            }
-            return new JdCResponse(CODE_ERROR, e.getMessage());
+        checkCollectPackageReq(request);
+        //扫描AL循环物资码
+        if (BusinessUtil.isLLBoxBindingCollectionBag(request.getBarCode())) {
+            BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
+            return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
+        }
+        //扫描包裹号
+        else if (WaybillUtil.isPackageCode(request.getBarCode())){
+            return retJdCResponse(jyCollectPackageService.collectPackage(request));
+        }
+        //扫描箱号
+        else if (BusinessUtil.isBoxcode(request.getBarCode())){
+            return retJdCResponse(jyCollectPackageService.collectBox(request));
+        }
+        //其他
+        else {
+            return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
+        }
+    }
+
+    private void checkCollectPackageReq(CollectPackageReq request) {
+        if (ObjectHelper.isEmpty(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失扫描单号！");
+        }
+        //只支持扫描包裹、箱号（特定箱号）、集包袋（LL对应）
+        if (!
+                (WaybillUtil.isPackageCode(request.getBarCode())
+                        || BusinessUtil.isBoxcode(request.getBarCode())
+                        || BusinessUtil.isLLBoxBindingCollectionBag(request.getBarCode()))){
+            throw new JyBizException("参数错误：不支持该类型扫描单号，请扫描包裹号、箱号、笼车/围板箱对应的循环物资编号！");
         }
     }
 
@@ -122,17 +122,14 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     }
 
     @Override
-    public JdCResponse<BindCollectBagResp> bindCollectBag(BindCollectBagReq request) {
-        return null;
+    public JdCResponse bindCollectBag(BindCollectBagReq request) {
+        return retJdCResponse(jyCollectPackageService.bindCollectBag(request));
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.cancelCollectPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         try {
-            if (request.getCancelBindFlag() && BusinessUtil.isBoxcode(request.getBarCode())){
-                return retJdCResponse(jyCollectPackageService.cancelCollectLoading(request));
-            }
             return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
         } catch (JyBizException e) {
             if (ObjectHelper.isNotNull(e.getCode())) {

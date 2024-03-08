@@ -4649,4 +4649,12 @@ public class UccPropertyConfiguration{
         }
         return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
     }
+
+    private boolean needCollectLoadingBoxflowCheck;
+    public boolean getNeedCollectLoadingBoxflowCheck() {
+        return needCollectLoadingBoxflowCheck;
+    }
+    public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
+        this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
 }
