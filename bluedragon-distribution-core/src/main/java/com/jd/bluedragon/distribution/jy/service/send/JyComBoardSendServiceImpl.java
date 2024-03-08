@@ -680,7 +680,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询多个流向下n天内未封车的板数量
     BoardCountReq boardCountReq = new BoardCountReq();
-    boardCountReq.setTemplateCode(request.getTemplateCode());
     Date queryTime = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -dmsConfigManager.getPropertyConfig().getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(queryTime);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
