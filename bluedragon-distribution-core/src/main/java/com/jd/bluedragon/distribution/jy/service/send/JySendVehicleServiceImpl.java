@@ -4825,6 +4825,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if(Objects.equals(taskSendVehicle.getManualCreatedFlag(), Constants.YN_YES)){
                 return result;
             }
+            // 无派车单号和车牌号时不处理此属性
+            if(StringUtils.isBlank(taskSendVehicle.getTransWorkCode()) || StringUtils.isBlank(taskSendVehicle.getVehicleNumber())){
+                return result;
+            }
             final StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
             stopoverQueryDto.setSiteCode(taskSendVehicleDetail.getStartSiteId() != null ? taskSendVehicleDetail.getStartSiteId().intValue() : 0);
             stopoverQueryDto.setTransWorkCode(taskSendVehicle.getTransWorkCode());
