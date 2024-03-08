@@ -94,7 +94,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.packageArriveCarAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void packageArriveCarAutoInspection(PackageArriveAutoInspectionDto paramDto) {
-        if(cacheService.lockPackageArriveCarAutoInspection(paramDto.getArriveSiteId(), paramDto.getPackageCode(), paramDto.getOperateTime().getTime())) {
+        if(!cacheService.lockPackageArriveCarAutoInspection(paramDto.getArriveSiteId(), paramDto.getPackageCode(), paramDto.getOperateTime().getTime())) {
             logWarn("围栏到车包裹自动验货重复消息正在处理，当前消息丢弃, paramDto={}", JsonHelper.toJson(paramDto));
             return;
         }else if(cacheService.existCachePackageArriveCarAutoInspection(paramDto.getArriveSiteId(), paramDto.getPackageCode(), paramDto.getOperateTime().getTime())) {
@@ -253,7 +253,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.recycleMaterialEnterSiteAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void recycleMaterialEnterSiteAutoInspection(RecycleMaterialAutoInspectionDto param) {
-        if(cacheService.lockRecycleMaterialEnterSite(param.getOperateSiteId(), param.getMaterialCode(), param.getOperateTime())) {
+        if(!cacheService.lockRecycleMaterialEnterSite(param.getOperateSiteId(), param.getMaterialCode(), param.getOperateTime())) {
             logWarn("循环物资进场存在相同消息正在处理，当前消息丢弃, paramDto={}", JsonHelper.toJson(param));
             return;
         }else if(cacheService.existCacheRecycleMaterialEnterSite(param.getOperateSiteId(), param.getMaterialCode(), param.getOperateTime())) {
@@ -330,7 +330,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.recycleMaterialBoxAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void recycleMaterialBoxAutoInspection(RecycleMaterialAutoInspectionBoxDto param) {
-        if(cacheService.lockRecycleMaterialEnterSiteBoxInspection(param.getOperateSiteId(), param.getBoxCode(), param.getOperateTime())) {
+        if(!cacheService.lockRecycleMaterialEnterSiteBoxInspection(param.getOperateSiteId(), param.getBoxCode(), param.getOperateTime())) {
             logWarn("循环物资进场关联箱号验货存在相同消息正在处理，当前消息丢弃, paramDto={}", JsonHelper.toJson(param));
             return;
         }else if(cacheService.existCacheRecycleMaterialEnterSiteBoxInspection(param.getOperateSiteId(), param.getBoxCode(), param.getOperateTime())) {
@@ -375,7 +375,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.recycleMaterialPackageAutoInspection",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void recycleMaterialPackageAutoInspection(RecycleMaterialAutoInspectionPackageDto param) {
-        if(cacheService.lockRecycleMaterialEnterSitePackageInspection(param.getOperateSiteId(), param.getPackageCode(), param.getOperateTime())) {
+        if(!cacheService.lockRecycleMaterialEnterSitePackageInspection(param.getOperateSiteId(), param.getPackageCode(), param.getOperateTime())) {
             logWarn("循环物资进场关联箱内包裹验货存在相同消息正在处理，当前消息丢弃, paramDto={}", JsonHelper.toJson(param));
             return;
         }else if(cacheService.existCacheRecycleMaterialEnterSitePackageInspection(param.getOperateSiteId(), param.getPackageCode(), param.getOperateTime())) {
