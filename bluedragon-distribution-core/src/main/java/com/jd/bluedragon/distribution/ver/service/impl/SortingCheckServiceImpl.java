@@ -596,12 +596,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 filterContext.setWaybillProductDtos(productAbilities.getData());
             }
         }
-        //是箱号的时候初始化运单增值服务
-        if(BusinessUtil.isBoxcode(filterContext.getBoxCode())){
-            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCache.getWaybillCode());
-            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
-                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
-            }
+        // 初始化运单增值服务
+        BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCache.getWaybillCode());
+        if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+            filterContext.setWaybillVasDtos( waybillVasInfos.getData());
         }
 
         return filterContext;
@@ -673,6 +671,15 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
         filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
+
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(pdaOperateRequest.getBoxCode());
+        if(Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) || Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+            // 如果是包裹号或运单号，初始化运单增值服务
+            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(WaybillUtil.getWaybillCode(pdaOperateRequest.getBoxCode()));
+            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
+            }
+        }
         return filterContext;
     }
 
@@ -700,6 +707,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
         filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(boardCombinationRequest.getBoxOrPackageCode());
+        if(Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE) || Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE)){
+            // 如果是包裹号或运单号，初始化运单增值服务
+            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(WaybillUtil.getWaybillCode(boardCombinationRequest.getBoxOrPackageCode()));
+            if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
+                filterContext.setWaybillVasDtos( waybillVasInfos.getData());
+            }
+        }
         return filterContext;
     }
 
