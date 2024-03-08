@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils.converter;
 import java.util.Date;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
@@ -12,12 +13,6 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
-import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -120,6 +115,24 @@ public class BeanConverter {
 		}
 		return operatorData;
 	}
+	public static OperatorData convertToOperatorDataForReceive(ReceiveRequest requestBean) {
+		if(requestBean.getOperatorData() != null) {
+			return requestBean.getOperatorData();
+		}
+		OperatorData operatorData = null;
+		if(StringUtils.isNotBlank(requestBean.getOperatorDataJson())) {
+			operatorData = JsonHelper.fromJson(requestBean.getOperatorDataJson(), OperatorData.class);
+		}
+		if(operatorData == null) {
+			operatorData = new OperatorData();
+			operatorData.setOperatorId(requestBean.getOperatorId());
+			operatorData.setOperatorTypeCode(requestBean.getOperatorTypeCode());
+		}
+		return operatorData;
+	}
+
+
+
 	public static OperatorData convertToOperatorDataForAuto(InspectionRequest requestBean) {
 		if(requestBean.getOperatorData() != null) {
 			return requestBean.getOperatorData();
@@ -128,7 +141,7 @@ public class BeanConverter {
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(requestBean.getMachineCode());
 		return operatorData;
-	}	
+	}
 	public static OperatorData convertToOperatorData(InspectionAS inspectionAs) {
 		if(inspectionAs.getOperatorData() != null) {
 			return inspectionAs.getOperatorData();

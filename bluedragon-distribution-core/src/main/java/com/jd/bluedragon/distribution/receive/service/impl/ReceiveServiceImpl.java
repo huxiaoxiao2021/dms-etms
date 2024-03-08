@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
 import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
@@ -36,6 +37,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -329,7 +331,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 		receive.setCreateSiteName(receiveRequest.getSiteName());
 		receive.setTurnoverBoxCode(receiveRequest.getTurnoverBoxCode());
 		receive.setQueueNo(receiveRequest.getQueueNo());
-		receive.setOperatorData(receiveRequest.getOperatorData());
+		OperatorData operatorData = BeanConverter.convertToOperatorDataForReceive(receiveRequest);
+		receive.setOperatorData(operatorData);
 
 		return receive;
 	}
