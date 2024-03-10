@@ -8,23 +8,28 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.Dimens
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.AssignResponsibilityDto;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateImgTypeEnum;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.ImgInfo;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateDimensionEntity;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD;
 
 @Service("jyEvaluateService")
+@Slf4j
 public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JyEvaluateServiceImpl.class);
@@ -97,6 +103,9 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     @Autowired
     @Qualifier("evaluateInfoToQcProducer")
     private DefaultJMQProducer evaluateInfoToQcProducer;
+
+    @Autowired
+    private JyEvaluateAppealPermissionsDao jyEvaluateAppealPermissionsDao;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.dimensionOptions", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -160,6 +169,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
+            // 判断场地使用具有评价权限
+            checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
@@ -175,6 +186,81 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         } finally {
             unLock(request.getSourceBizId());
         }
+    }
+
+    /**
+     * 检查站点是否可以进行评价
+     * @param request 评价对象
+     */
+    private void checkSiteCanEvaluate(EvaluateTargetReq request) {
+        // 如果是满意评价，不做控制
+        if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
+            return;
+        }
+        // 查询评价的来源场地
+        JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
+        int sideCode = unloadVehicle.getEndSiteId().intValue();
+        log.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 判断站点是否有评价权限，站点：{}", sideCode);
+        // 获取场地是否有评价权限记录
+        JyEvaluateAppealPermissionsEntity permissions =
+            jyEvaluateAppealPermissionsDao.queryByCondition(sideCode);
+        if (log.isInfoEnabled()){
+            log.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 站点：{}，权限对象：{}", sideCode, JsonHelper.toJson(permissions));
+        }
+
+        // 判断场地评价权限是否关闭
+        if (Objects.nonNull(permissions) && Objects.equals(permissions.getEvaluate(),
+            Constants.EVALUATE_APPEAL_PERMISSIONS_0)) {
+            // 场地评价已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行评价
+            Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
+            if (DateHelper.isDateMoreThanDaysAgo(permissions.getAppealClosureDate(), closeDay)) {
+                throw new JyBizException("当前场地评价权限已经被关闭！");
+            } else {
+                // 超过7天，开启场地评价权限
+                JyEvaluateAppealPermissionsEntity entity =
+                    buildJyEvaluateAppealPermissionsEntity(request, permissions);
+                jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
+            }
+        }
+        // 场地评价和申诉权限记录为空，初始化记录，默认评价和申诉开启
+        if (Objects.nonNull(permissions)) {
+            JyEvaluateAppealPermissionsEntity entity = buildEntity(request, sideCode);
+            jyEvaluateAppealPermissionsDao.insert(entity);
+        }
+    }
+
+    /**
+     * 构建JyEvaluateAppealPermissionsEntity对象
+     * @param request 评价目标请求
+     * @param permissions 评价申诉权限实体
+     * @return 返回构建的JyEvaluateAppealPermissionsEntity对象
+     */
+    private JyEvaluateAppealPermissionsEntity buildJyEvaluateAppealPermissionsEntity(EvaluateTargetReq request,
+        JyEvaluateAppealPermissionsEntity permissions) {
+        JyEvaluateAppealPermissionsEntity entity = new JyEvaluateAppealPermissionsEntity();
+        entity.setId(permissions.getId());
+        entity.setEvaluate(Constants.EVALUATE_APPEAL_PERMISSIONS_1);
+        entity.setUpdateUserErp(request.getUser().getUserErp());
+        entity.setUpdateUserName(request.getUser().getUserName());
+        entity.setUpdateTime(new Date());
+        return entity;
+    }
+
+    /**
+     * 构建评价申诉权限实体
+     * @param request 评价目标请求
+     * @param siteCode 站点代码
+     * @return entity 返回构建的实体
+     */
+    private JyEvaluateAppealPermissionsEntity buildEntity(EvaluateTargetReq request, int siteCode) {
+        JyEvaluateAppealPermissionsEntity entity = new JyEvaluateAppealPermissionsEntity();
+        entity.setSiteCode((long)siteCode);
+        entity.setAppeal(Constants.EVALUATE_APPEAL_PERMISSIONS_1);
+        entity.setEvaluate(Constants.EVALUATE_APPEAL_PERMISSIONS_1);
+        entity.setUpdateUserErp(request.getUser().getUserErp());
+        entity.setUpdateUserName(request.getUser().getUserName());
+        entity.setCreateTime(new Date());
+        return entity;
     }
 
     @Override

@@ -283,7 +283,31 @@
             <if test="updateUserName != null">
                 update_user_name = #{updateUserName} ,
             </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
 
+    <update id="updateEvaluateStatusById"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        update jy_evaluate_appeal_permissions
+        <set>
+            <if test="evaluate != null">
+                appeal = #{evaluate} ,
+            </if>
+            <if test="evaluateClosureDate != null or evaluateClosureDate == null">
+                evaluate_closure_date = #{evaluateClosureDate} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
             <if test="updateTime != null">
                 update_time = #{updateTime} ,
             </if>

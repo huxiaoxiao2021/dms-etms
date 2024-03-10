@@ -333,4 +333,10 @@
         FROM jy_evaluate_record_appeal
         WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result = 2
     </select>
+
+    <select id="getCheckAppealCount" parameterType="Long"  resultType="java.lang.Integer">
+        SELECT count(id)
+        FROM jy_evaluate_record_appeal
+        WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result in (1 , 2)
+    </select>
 </mapper>

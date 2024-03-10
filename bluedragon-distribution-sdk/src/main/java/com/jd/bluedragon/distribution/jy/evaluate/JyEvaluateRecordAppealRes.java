@@ -31,6 +31,24 @@ public class JyEvaluateRecordAppealRes implements Serializable {
      */
     private List<AppealDimensionReq> dimensionList;
 
+    /**
+     * 被评价目标业务主键
+     */
+    private String targetBizId;
+    /**
+     * 评价来源业务主键
+     */
+    private String sourceBizId;
+
+    /**
+     * 被评价目标场地编码（装车场地编码）
+     */
+    private Long targetSiteCode;
+    /**
+     * 评价来源场地编码
+     */
+    private Long sourceSiteCode;
+
     public List<Map<String, Integer>> getAppealList() {
         return appealList;
     }
@@ -61,5 +79,37 @@ public class JyEvaluateRecordAppealRes implements Serializable {
 
     public void setDimensionList(List<AppealDimensionReq> dimensionList) {
         this.dimensionList = dimensionList;
+    }
+
+    public String getTargetBizId() {
+        return targetBizId;
+    }
+
+    public void setTargetBizId(String targetBizId) {
+        this.targetBizId = targetBizId;
+    }
+
+    public String getSourceBizId() {
+        return sourceBizId;
+    }
+
+    public void setSourceBizId(String sourceBizId) {
+        this.sourceBizId = sourceBizId;
+    }
+
+    public Long getTargetSiteCode() {
+        return targetSiteCode;
+    }
+
+    public void setTargetSiteCode(Long targetSiteCode) {
+        this.targetSiteCode = targetSiteCode;
+    }
+
+    public Long getSourceSiteCode() {
+        return sourceSiteCode;
+    }
+
+    public void setSourceSiteCode(Long sourceSiteCode) {
+        this.sourceSiteCode = sourceSiteCode;
     }
 }

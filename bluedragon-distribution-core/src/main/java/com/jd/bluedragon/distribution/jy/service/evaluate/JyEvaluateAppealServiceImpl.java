@@ -3,23 +3,28 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateDimensionReq;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordAppealDao;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealResultStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealStatusEnum;
 import com.jd.bluedragon.distribution.jy.evaluate.*;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +53,15 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @Autowired
     private DmsConfigManager dmsConfigManager;
 
+    @Autowired
+    @Qualifier("evaluateTargetInitProducer")
+    private DefaultJMQProducer evaluateTargetInitProducer;
+
+    /**
+     * 装车评价初始化消息业务key
+     */
+    private static final String EVALUATE_INIT_BUSINESS_KEY = "INIT";
+
     /**
      * 根据条件获取评价记录申诉列表
      *
@@ -65,9 +79,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         try {
             list = jyEvaluateRecordAppealDao.queryListByCondition(conditions);
         } catch (Exception e) {
-            log.error("JyEvaluateAppealServiceImpl.getListByCondition 根据条件查询数据异常,入参:{}", conditions, e);
-            response.toError();
-            response.setMessage("根据条件查询装车评价申诉列表失败！");
+            log.error("JyEvaluateAppealServiceImpl.getListByCondition 根据条件查询数据异常,入参:{}", JsonHelper.toJson(conditions), e);
+            response.toError("根据条件查询装车评价申诉列表失败！");
         }
         response.setData(list);
         return response;
@@ -81,8 +94,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         if (CollectionUtils.isEmpty(entityList)) {
-            response.toError();
-            response.setMessage("待添加的数据为空！");
+            response.toError("待添加的数据为空！");
             response.setData(Boolean.FALSE);
             return response;
         }
@@ -100,8 +112,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             response.setData(Boolean.TRUE);
         } catch (Exception e) {
             log.error("JyEvaluateAppealServiceImpl.batchAddJyEvaluateRecordAppeal 批量插入装车评价申诉数据异常", e);
-            response.toError();
-            response.setMessage("批量插入装车评价申诉数据异常！");
+            response.toError("批量插入装车评价申诉数据异常！");
             response.setData(Boolean.FALSE);
         }
         response.setData(Boolean.TRUE);
@@ -116,7 +127,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      * @return 返回布尔值的响应
      */
     private Response<Boolean> checkAppeal(List<JyEvaluateRecordAppealDto> entityList, Response<Boolean> response) {
-        // 判断场地是否有申诉权限
+        // 获取场地是否有申诉权限
         JyEvaluateAppealPermissionsEntity permissions =
             jyEvaluateAppealPermissionsDao.queryByCondition(entityList.get(0).getSiteCode());
         // 判断场地申诉权限是否关闭
@@ -125,8 +136,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 场地申诉已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行申诉
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
             if (DateHelper.isDateMoreThanDaysAgo(permissions.getAppealClosureDate(), closeDay)) {
-                response.toError();
-                response.setMessage("当前场地申诉已经被关闭！");
+                response.toError("当前场地申诉已经被关闭！");
                 response.setData(Boolean.FALSE);
                 return response;
             } else {
@@ -190,8 +200,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             entities = jyAttachmentDetailService.queryDataListByCondition(query);
         } catch (Exception e) {
             log.error("JyEvaluateAppealServiceImpl.getDetailByCondition 根据条件查询数据异常,入参:{}", condition, e);
-            response.toError();
-            response.setMessage("根据条件查询装车评价申诉详情失败");
+            response.toError("根据条件查询装车评价申诉详情失败");
         }
         ArrayList<JyEvaluateRecordAppealDto> jyEvaluateRecordAppealDtos = getJyEvaluateRecordAppealDtos(list, entities);
         response.setData(jyEvaluateRecordAppealDtos);
@@ -199,27 +208,22 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     }
 
     @Override
-    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealService.checkAppeal", mState = {
         JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Response<Boolean> checkAppeal(JyEvaluateRecordAppealRes res) {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
 
         if (res == null || res.getAppealList().isEmpty()) {
-            response.toError();
-            response.setMessage("待审核的数据为空！");
+            response.toError("待审核的数据为空！");
             response.setData(Boolean.FALSE);
             return response;
         }
 
-        List<Long> idList = res.getAppealList().stream()
-            .map(map -> Long.valueOf(map.get(Constants.APPEAL_MAP_KEY_ID)))
-            .collect(Collectors.toList());
+        List<Long> idList = getIdList(res);
 
-        Map<Long, Integer> idMap = res.getAppealList().stream()
-            .collect(Collectors.toMap(map -> Long.valueOf(map.get(Constants.APPEAL_MAP_KEY_ID)),
-                map -> map.get(Constants.APPEAL_MAP_KEY_OPINION)));
+        Map<Long, Integer> idMap = getIdMap(res);
 
         List<JyEvaluateRecordAppealEntity> dbList = jyEvaluateRecordAppealDao.queryByIdList(idList);
         if (dbList.isEmpty()) {
@@ -237,6 +241,166 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         JyEvaluateRecordAppealUpdateDto updateRejectDto = createUpdateDto(EvaluateAppealStatusEnum.REVIEWED,
             EvaluateAppealResultStatusEnum.REJECT, res);
 
+        // 按审核结果，构建需要更新的数据新集合
+        getUpdatedDataList(dbList, updateDto, idMap, updatePassDto, updateRejectDto);
+        try {
+            // 进行数据库数据更新
+            dbUpdate(updateDto, updatePassDto, updateRejectDto);
+            // 统计审核次数和审核驳回次数，更新场地权限
+            updateSiteEvaluateAndAppeal(res);
+            // 审核通过的数据，同步到es
+            esDataUpdate(res);
+        } catch (Exception e) {
+            response.toError("装车评价申诉审核异常！");
+            response.setData(Boolean.FALSE);
+            log.error("JyEvaluateAppealServiceImpl.checkAppeal 装车评价申诉审核异常,入参:{}", JsonHelper.toJson(res), e);
+        }
+        response.setData(Boolean.TRUE);
+        return response;
+    }
+
+    /**
+     * 更新站点评价和申诉权限
+     * @param res 评估记录申诉响应
+     */
+    private void updateSiteEvaluateAndAppeal(JyEvaluateRecordAppealRes res) {
+        // 统计场地审核次数>3,下游乱评价，关闭下游未来7天的评价权限
+        Integer checkAppealCount = jyEvaluateRecordAppealDao.getCheckAppealCount(res.getTargetSiteCode());
+        if (Objects.nonNull(checkAppealCount) && checkAppealCount > Constants.APPEAL_COUNT_NUM){
+            JyEvaluateAppealPermissionsEntity permissions =
+                jyEvaluateAppealPermissionsDao.queryByCondition(res.getSourceSiteCode().intValue());
+
+            // 场地评价和申诉权限记录为空，初始化记录，默认评价和申诉开启
+            if (Objects.nonNull(permissions)) {
+                JyEvaluateAppealPermissionsEntity entity = buildPermissionsEntity(res);
+                jyEvaluateAppealPermissionsDao.insert(entity);
+            }else {
+                // 关闭场地评价权限
+                JyEvaluateAppealPermissionsEntity entity =
+                    buildUpdatePermissionsEvaluateEntity(permissions, res);
+                jyEvaluateAppealPermissionsDao.updateEvaluateStatusById(entity);
+            }
+        }
+        // 统计场地审核中驳回次数>3,申诉人乱申诉，关闭上游游未来7天的申诉权限
+        Integer appealRejectCount = jyEvaluateRecordAppealDao.getAppealRejectCount(res.getTargetSiteCode());
+        if (Objects.nonNull(appealRejectCount) && appealRejectCount > Constants.APPEAL_COUNT_NUM){
+            JyEvaluateAppealPermissionsEntity permissions =
+                jyEvaluateAppealPermissionsDao.queryByCondition(res.getTargetSiteCode().intValue());
+            // 场地评价和申诉权限记录为空，初始化记录，默认评价和申诉开启
+            if (Objects.nonNull(permissions)) {
+                JyEvaluateAppealPermissionsEntity entity = buildPermissionsEntity(res);
+                jyEvaluateAppealPermissionsDao.insert(entity);
+            }else {
+                // 关闭场地申诉权限
+                JyEvaluateAppealPermissionsEntity entity =
+                    buildUpdatePermissionsEntity(permissions, res);
+                jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
+            }
+        }
+
+    }
+
+    public JyEvaluateAppealPermissionsEntity buildUpdatePermissionsEntity(JyEvaluateAppealPermissionsEntity permissions, JyEvaluateRecordAppealRes res) {
+        JyEvaluateAppealPermissionsEntity entity = new JyEvaluateAppealPermissionsEntity();
+        entity.setId(permissions.getId());
+        entity.setAppeal(Constants.EVALUATE_APPEAL_PERMISSIONS_0);
+        entity.setAppealClosureDate(new Date());
+        entity.setUpdateUserErp(res.getUpdateUserErp());
+        entity.setUpdateUserName(res.getUpdateUserName());
+        entity.setUpdateTime(new Date());
+        return entity;
+    }
+
+    public JyEvaluateAppealPermissionsEntity buildUpdatePermissionsEvaluateEntity(JyEvaluateAppealPermissionsEntity permissions, JyEvaluateRecordAppealRes res) {
+        JyEvaluateAppealPermissionsEntity entity = new JyEvaluateAppealPermissionsEntity();
+        entity.setId(permissions.getId());
+        entity.setEvaluate(Constants.EVALUATE_APPEAL_PERMISSIONS_0);
+        entity.setEvaluateClosureDate(new Date());
+        entity.setUpdateUserErp(res.getUpdateUserErp());
+        entity.setUpdateUserName(res.getUpdateUserName());
+        entity.setUpdateTime(new Date());
+        return entity;
+    }
+
+    private JyEvaluateAppealPermissionsEntity buildPermissionsEntity(JyEvaluateRecordAppealRes res) {
+        JyEvaluateAppealPermissionsEntity entity = new JyEvaluateAppealPermissionsEntity();
+        entity.setSiteCode(res.getSourceSiteCode());
+        entity.setAppeal(Constants.EVALUATE_APPEAL_PERMISSIONS_1);
+        entity.setEvaluate(Constants.EVALUATE_APPEAL_PERMISSIONS_1);
+        entity.setCreateUserErp(res.getUpdateUserErp());
+        entity.setCreateUserName(res.getUpdateUserName());
+        entity.setCreateTime(new Date());
+        return entity;
+    }
+
+    /**
+     * 更新ES数据
+     * @param res 评价记录申诉响应对象
+     */
+    private void esDataUpdate(JyEvaluateRecordAppealRes res) {
+        // 如果dimensionList为空，说明全部满意报表加工MQ实体
+        EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
+        // 操作时间
+        targetInitDto.setOperateTime(System.currentTimeMillis());
+        // 操作人erp
+        targetInitDto.setOperateUserErp(res.getUpdateUserErp());
+        // 操作人姓名
+        targetInitDto.setOperateUserName(res.getUpdateUserName());
+        // 评价来源bizId
+        targetInitDto.setSourceBizId(res.getSourceBizId());
+        // 本次新增评价明细
+        List<EvaluateDimensionReq> evaluateDimensionReqs = convertEvaluateDimensionList(res.getDimensionList());
+        targetInitDto.setDimensionList(evaluateDimensionReqs);
+        String businessId = res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY
+            + Constants.UNDER_LINE + targetInitDto.getOperateTime();
+        evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
+    }
+
+    /**
+     * 将申诉维度列表转换为评价维度列表
+     * @param appealDimensionReqList 申诉维度列表
+     * @return evaluateDimensionReqs 评价维度列表
+     * @throws NullPointerException 如果appealDimensionReqList为空时
+     */
+    private  List<EvaluateDimensionReq> convertEvaluateDimensionList(List<AppealDimensionReq> appealDimensionReqList){
+        ArrayList<EvaluateDimensionReq> evaluateDimensionReqs = new ArrayList<>();
+        for (AppealDimensionReq req : appealDimensionReqList) {
+            EvaluateDimensionReq evaluateDimensionReq = new EvaluateDimensionReq();
+            evaluateDimensionReq.setDimensionCode(req.getDimensionCode());
+            evaluateDimensionReq.setImgUrlList(req.getImgUrlList());
+            evaluateDimensionReq.setRemark(req.getReasons());
+            evaluateDimensionReqs.add(evaluateDimensionReq);
+        }
+
+        return evaluateDimensionReqs;
+    }
+
+
+    /**
+     * 更新数据库中的评估记录申诉信息
+     * @param updateDto 要更新的申诉信息DTO
+     * @param updatePassDto 要更新的通过申诉信息DTO
+     * @param updateRejectDto 要更新的拒绝申诉信息DTO
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealServiceImpl.dbUpdate", mState = {JProEnum.TP, JProEnum.FunctionError})
+    private void dbUpdate(JyEvaluateRecordAppealUpdateDto updateDto, JyEvaluateRecordAppealUpdateDto updatePassDto,
+        JyEvaluateRecordAppealUpdateDto updateRejectDto) {
+        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateDto);
+        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updatePassDto);
+        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateRejectDto);
+    }
+
+    /**
+     * 获取更新后的数据列表
+     * @param dbList 数据库数据列表
+     * @param updateDto 更新DTO
+     * @param idMap ID映射表
+     * @param updatePassDto 通过更新DTO
+     * @param updateRejectDto 拒绝更新DTO
+     */
+    private void getUpdatedDataList(List<JyEvaluateRecordAppealEntity> dbList, JyEvaluateRecordAppealUpdateDto updateDto,
+        Map<Long, Integer> idMap, JyEvaluateRecordAppealUpdateDto updatePassDto,
+        JyEvaluateRecordAppealUpdateDto updateRejectDto) {
         // 获取配置的审核超时小时数
         Integer checkOvertimeHour = dmsConfigManager.getPropertyConfig().getCheckOvertimeHour();
         for (JyEvaluateRecordAppealEntity entity : dbList) {
@@ -255,11 +419,20 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                 }
             }
         }
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateDto);
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updatePassDto);
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateRejectDto);
-        // todo 通过的数据，同步到es
-        return response;
+    }
+
+    private static Map<Long, Integer> getIdMap(JyEvaluateRecordAppealRes res) {
+        Map<Long, Integer> idMap = res.getAppealList().stream()
+            .collect(Collectors.toMap(map -> Long.valueOf(map.get(Constants.APPEAL_MAP_KEY_ID)),
+                map -> map.get(Constants.APPEAL_MAP_KEY_OPINION)));
+        return idMap;
+    }
+
+    private static List<Long> getIdList(JyEvaluateRecordAppealRes res) {
+        List<Long> idList = res.getAppealList().stream()
+            .map(map -> Long.valueOf(map.get(Constants.APPEAL_MAP_KEY_ID)))
+            .collect(Collectors.toList());
+        return idList;
     }
 
     /**
@@ -285,8 +458,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         Response<Integer> response = new Response<>();
         response.toSucceed();
         if (Objects.isNull(loadSiteCode)){
-            response.toError();
-            response.setMessage("待审核的数据为空！");
+            response.toError("待审核的数据为空！");
             return response;
         }
 
@@ -295,8 +467,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             integer = jyEvaluateRecordAppealDao.getAppealRejectCount(loadSiteCode);
         } catch (Exception e) {
             log.error("JyEvaluateAppealServiceImpl.getAppealRejectCount 根据场地编码查询驳回申诉条数异常,入参:{}", loadSiteCode, e);
-            response.toError();
-            response.setMessage("根据场地编码查询驳回申诉条数异常！");
+            response.toError("根据场地编码查询驳回申诉条数异常！");
         }
         response.setData(integer);
         return response;

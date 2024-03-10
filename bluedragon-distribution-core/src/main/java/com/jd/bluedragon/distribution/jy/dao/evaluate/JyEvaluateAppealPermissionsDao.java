@@ -19,11 +19,25 @@ public class JyEvaluateAppealPermissionsDao extends BaseDao<JyEvaluateAppealPerm
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByCondition", siteCode);
     }
 
+    /**
+     * 更新申诉状态通过ID
+     * @param entity 评价申诉权限实体
+     * @return 更新影响的行数
+     */
     public int updateAppealStatusById(JyEvaluateAppealPermissionsEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateAppealStatusById", entity);
     }
 
     public int insert(JyEvaluateAppealPermissionsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    /**
+     * 通过ID更新评价状态
+     * @param entity 评价申诉权限实体
+     * @return 更新的行数
+     */
+    public int updateEvaluateStatusById(JyEvaluateAppealPermissionsEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateEvaluateStatusById", entity);
     }
 }

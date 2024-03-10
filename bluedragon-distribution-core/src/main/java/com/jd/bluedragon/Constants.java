@@ -2442,4 +2442,8 @@ public class Constants {
      * 装车评价申诉集合key
      */
     public static final String APPEAL_MAP_KEY_OPINION = "opinion";
+    /**
+     * 审核记录统计数
+     */
+    public static final Integer APPEAL_COUNT_NUM = 3;
 }
