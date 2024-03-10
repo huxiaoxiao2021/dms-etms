@@ -32,4 +32,13 @@ public enum EvaluateAppealResultStatusEnum {
     public void setName(String name) {
         this.name = name;
     }
+
+    public static String getNameByCode(Integer code) {
+        for (EvaluateAppealResultStatusEnum e : values()) {
+            if (e.code.equals(code)) {
+                return e.getName();
+            }
+        }
+        throw new IllegalArgumentException("Invalid code: " + code);
+    }
 }
