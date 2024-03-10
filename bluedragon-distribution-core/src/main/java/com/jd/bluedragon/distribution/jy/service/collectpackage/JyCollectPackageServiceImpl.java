@@ -1660,15 +1660,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
-    public InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request) {
-        checkCancelCollectLoading(request);
-        checkIfAllowCancelCollectLoading(request);
+    public InvokeResult<CancelCollectPackageResp> cancelCollectBox(CancelCollectPackageReq request) {
+        checkCancelCollectBox(request);
+        checkIfAllowCancelCollectBox(request);
         CancelCollectPackageResp response = new CancelCollectPackageResp();
-        execCancelCollectLoading(request, response);
+        execCancelCollectBox(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
-    private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+    private void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
         BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
         InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
         log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
@@ -1679,7 +1679,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
-        relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
         relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         relation.setCreateUserErp(request.getUser().getUserErp());
@@ -1694,11 +1693,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return relation;
     }
 
-    private void checkIfAllowCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkIfAllowCancelCollectBox(CancelCollectPackageReq request) {
+        //校验一下箱号是否已经发货
 
     }
 
-    private void checkCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkCancelCollectBox(CancelCollectPackageReq request) {
+        if (ObjectHelper.isEmpty(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失取消箱号！");
+        }
     }
 
     public static void main(String[] args) {

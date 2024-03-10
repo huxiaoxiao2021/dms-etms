@@ -3235,6 +3235,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 Profiler.registerInfoEnd(callerInfo);
+                checkIfNeedCancelInnerBoxes(tSendM);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
                 callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boardCode",Constants.SYSTEM_CODE_WEB,false,true);
@@ -3380,6 +3381,24 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    private void checkIfNeedCancelInnerBoxes(SendM sendM) {
+        try {
+            if (BusinessUtil.isLLBoxcode(sendM.getBoxCode())){
+                Box query =new Box();
+                query.setCode(sendM.getBoxCode());
+                List<Box> boxes =boxService.listAllDescendantsByParentBox(query);
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(boxes)){
+                    for (Box box:boxes){
+                        sendM.setBoxCode(box.getCode());
+                        dellCancelDeliveryMessage(sendM, true);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("取消大箱拆分小箱发货异常:{}",sendM.getBoxCode(),e);
+        }
     }
 
     /**
