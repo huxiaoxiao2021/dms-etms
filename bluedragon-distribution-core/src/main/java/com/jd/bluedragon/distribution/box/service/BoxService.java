@@ -149,4 +149,13 @@ public interface BoxService {
      * 获取子代箱号
      */
     List<Box> listSonBoxesByParentBox(Box box);
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    List<Box> listAllParentBox(Box box);
 }
