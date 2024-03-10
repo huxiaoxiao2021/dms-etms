@@ -128,6 +128,19 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         }
         return result;
     }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryBusinessKeyByRefWorkGridKeys",
+            mState={JProEnum.TP,JProEnum.FunctionError})
+    @Override
+    public List<String> queryBusinessKeyByRefWorkGridKeys(List<String> refWorkGridKeys) {
+        try {
+            log.info("根据网格refWorkGridKeys获取工序主键 param:{}", String.join(",", refWorkGridKeys));
+            return basicWorkStationGridJsfService.queryBusinessKeyByRefWorkGridKeys(refWorkGridKeys);
+        } catch (Exception e) {
+            log.error("根据网格refWorkGridKeys获取工序主键 {}",  e.getMessage(),e);
+        }
+        return null;
+    }
     
     
 }

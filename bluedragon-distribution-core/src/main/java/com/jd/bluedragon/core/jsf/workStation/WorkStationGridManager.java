@@ -59,4 +59,6 @@ public interface WorkStationGridManager {
 	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
     
     List<WorkStationGrid> queryListForWorkGridVo(WorkStationGridQuery workStationGridQuery);
+    
+    List<String> queryBusinessKeyByRefWorkGridKeys(List<String> refWorkGridKeys);
 }

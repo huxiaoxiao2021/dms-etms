@@ -44,6 +44,7 @@ import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
 import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
 import com.jdl.jy.flat.dto.schedule.UserScheduleDto;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
@@ -1302,11 +1303,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		result.toSucceed("查询成功！");
 		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
 		if(taskData == null) {
-			result.toFail("任务数据不存在！");
+			logger.warn("查询责任选择信息,任务信息不存在，bizId:{}", bizId);
+			result.toFail("任务信息不存在！");
 			return result;
 		}
 		//非暴力分拣任务
 		if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
+			logger.warn("非暴力分拣任务，不用指定责任人，bizId:{}", bizId);
 			result.toFail("非暴力分拣任务，不用指定责任人！");
 			return result;
 		}
@@ -1314,26 +1317,29 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		//任务对应网格
 		WorkGrid workGrid = getTaskWorkGrid(taskData.getTaskRefGridKey(), bizId);
 		if(workGrid == null){
+			logger.warn("查询责任选择信息，获取任务网格信息失败，bizId:{}", bizId);
+			result.toFail("获取任务网格信息失败！");
+			return result;
+		}
+		String gridKeys = taskData.getViolenceSortInfoData().getGridKeys();
+		if(StringUtils.isBlank(gridKeys) || ArrayUtils.isEmpty(gridKeys.split(","))){
 			result.toFail("获取任务网格信息失败！");
 			return result;
 		}
 		
 		//查询任务所在网格下所有工序
-		WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
-		workStationGridQuery.setRefWorkGridKey(taskData.getTaskRefGridKey());
-		List<WorkStationGrid> workStationGrids = workStationGridManager.queryListForWorkGridVo(workStationGridQuery);
+		List<String> refWorkGridKeys = new ArrayList<>(Arrays.asList(gridKeys.split(",")));
+		List<String> workStationGrids = workStationGridManager.queryBusinessKeyByRefWorkGridKeys(refWorkGridKeys);
 		if(CollectionUtils.isEmpty(workStationGrids)){
-			result.toFail("网格无效或网格下无工序，不用指定责任人！");
+			result.toFail("网格无效或网格下无工序,请先配置");
 			return result;
 		}
 		
-		List<String> refWorkKeys = workStationGrids.stream().map(WorkStationGrid::getBusinessKey).collect(Collectors.toList());
-		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(refWorkKeys, taskData.getProcessBeginTime());
+		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(workStationGrids, taskData.getProcessBeginTime());
 		if(CollectionUtils.isEmpty(userSignRecords)){
 			result.toFail("该任务所在网格无签到数据！");
 			return result;
 		}
-		
 		
 		//正式工
 		List<ResponsibleInfo> formalWorkerResponsibleInfo = getFormalWorkerResponsibleInfo(userSignRecords, bizId);
@@ -1614,7 +1620,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	 * @return
 	 */
 	private int getSignDateStartOffset(){
-		int hours = 8;
+		int hours = 18;
 		SysConfig signDateStartOffsetConfig = sysConfigService.findConfigContentByConfigName(SIGN_DATE_START_OFFSET);
 		if(signDateStartOffsetConfig != null && org.apache.commons.lang3.StringUtils.isNumeric(signDateStartOffsetConfig.getConfigContent())){
 			hours = Integer.parseInt(signDateStartOffsetConfig.getConfigContent());

@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.work.VideoTraceCameraJsfManager;
@@ -37,6 +38,7 @@ import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
 import com.jdl.basic.common.utils.DateUtil;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +52,12 @@ import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
 import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
 import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.jsf.gd.util.StringUtils;
 import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.common.utils.Result;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 
 import static com.jd.bluedragon.Constants.DATE_TIME_FORMAT;
+import static com.jd.bluedragon.common.dto.work.ResponsibleWorkTypeEnum.FORMAL_WORKER;
 
 
 /**
@@ -112,6 +114,9 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	@Autowired
 	@Qualifier("violentSortingResponsibleInfoProducer")
 	private DefaultJMQProducer violentSortingResponsibleInfoProducer;
+	
+	@Autowired
+	private HrUserManager hrUserManager;
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -547,23 +552,24 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			SysConfig positonNamesConfig = sysConfigService.findConfigContentByConfigName(EXP_INSPECTION_TASK_POSITION_NAMES_CONF_KEY);
 			if(positonNamesConfig == null || StringUtils.isBlank(positonNamesConfig.getConfigContent())){
 				logger.error("{}未查到岗位名称配置", infoPrefix);
-				notFoundViolentSortingResponsibleInfo(violentSortingDto);
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			
 			//根据摄像绑定获取网格
 			List<String> workGridKeys = getWorkGridKeys(violentSortingDto, infoPrefix);
 			if(CollectionUtils.isEmpty(workGridKeys)){
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			
-			//主网格
+			//网格信息
 			String gridBusinessKey = workGridKeys.get(0);
 			Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
 			WorkGrid workGrid;
 			if(workGridResult == null || (workGrid = workGridResult.getData()) == null){
 				logger.error("{}未查到网格信息，gridBusinessKey:{}", infoPrefix, gridBusinessKey);
-				notFoundViolentSortingResponsibleInfo(violentSortingDto);
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			
@@ -572,7 +578,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 			if(siteInfo == null) {
 				logger.error("{}场地在青龙基础资料不存在！siteCode:{},gridBusinessKey:{}",infoPrefix,siteCode, gridBusinessKey);
-				notFoundViolentSortingResponsibleInfo(violentSortingDto);
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			
@@ -580,7 +586,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			Result<List<WorkGridManagerTask>> taskResult = workGridManagerTaskJsfManager.queryByBizType(WorkGridManagerTaskBizType.EXP_INSPECT.getCode());
 			if(taskResult == null || CollectionUtils.isEmpty(taskResult.getData())){
 				logger.info("{}根据类型未查询管理任务定义,gridBusinessKey:{}", infoPrefix, gridBusinessKey);
-				notFoundViolentSortingResponsibleInfo(violentSortingDto);
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			List<String> taskCodeList = taskResult.getData().stream().map(WorkGridManagerTask::getTaskCode).collect(Collectors.toList());
@@ -596,7 +602,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			JyUserDto jyUserDto = getViolentSortingJyUserDto(positonNames, siteInfo, taskCode,
 					infoPrefix, curDate, preFinishTime);
 			if(jyUserDto == null){
-				notFoundViolentSortingResponsibleInfo(violentSortingDto);
+				notFoundViolentSortingResponsibleInfo(violentSortingDto, infoPrefix);
 				return;
 			}
 			
@@ -718,15 +724,30 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	}
 
 	/**
-	 * 暴力分拣任务无法定责
+	 * 缺少配置无法生成任务，默认责任人为场地负责人，无场地负责人回传无法定责
 	 */
-	private void notFoundViolentSortingResponsibleInfo(ViolentSortingMessageDTO violentSortingDto){
+	private void notFoundViolentSortingResponsibleInfo(ViolentSortingMessageDTO violentSortingDto, String infoPrefix){
+		Integer siteCode = violentSortingDto.getSiteCode();
+		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 		ViolentSortingResponsibleInfoDTO dto = new ViolentSortingResponsibleInfoDTO();
 		dto.setId(violentSortingDto.getId());
 		dto.setSiteCode(violentSortingDto.getSiteCode());
-		dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
 		dto.setProcessInstanceId(violentSortingDto.getProcessInstanceId());
 		String key = String.valueOf(violentSortingDto.getId());
+		//未查到场地信息 上报未找到责任人
+		String superiorErp;
+		if(siteInfo == null){
+			logger.error("{}场地在青龙基础资料不存在或查询失败，siteCode:{}",infoPrefix,siteCode);
+			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
+		}else if((superiorErp = hrUserManager.getSuperiorErpByOrganizationCode(siteInfo.getOrganizationCode())) == null){
+			logger.error("{}场地在机构负责人查询失败，或不存在，siteCode:{}",infoPrefix,siteCode);
+			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
+		}else {
+			dto.setStatus(ViolentSortingResponsibleStatusEnum.DETERMINED.getCode());
+			dto.setResponsibleCode(superiorErp);
+			dto.setResponsibleType(FORMAL_WORKER.getCode());
+			dto.setAdvanceErp(superiorErp);
+		}
 		try {
 			violentSortingResponsibleInfoProducer.send(key, JsonHelper.toJson(dto));
 		} catch (JMQException e) {
