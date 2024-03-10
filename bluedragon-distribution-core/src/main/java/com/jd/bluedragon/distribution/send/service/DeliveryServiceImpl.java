@@ -449,6 +449,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private DefaultJMQProducer cycleMaterialSendMQ;
     @Autowired
     private SortingService sortingService;
+    @Autowired
+    @Qualifier("bigBoxCancelSendProducer")
+    private DefaultJMQProducer bigBoxCancelSendProducer;
 
     /**
      * 自动过期时间 30分钟
@@ -3392,12 +3395,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(boxes)){
                     for (Box box:boxes){
                         sendM.setBoxCode(box.getCode());
-                        dellCancelDeliveryMessage(sendM, true);
+                        bigBoxCancelSendProducer.sendOnFailPersistent(sendM.getBoxCode(),JsonHelper.toJson(sendM));
+                        log.info("取消大箱拆分小箱发送消息成功,{}",JsonHelper.toJson(sendM));
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("取消大箱拆分小箱发货异常:{}",sendM.getBoxCode(),e);
+            log.error("取消大箱拆分小箱取消发货异常:{}",sendM.getBoxCode(),e);
         }
     }
 
