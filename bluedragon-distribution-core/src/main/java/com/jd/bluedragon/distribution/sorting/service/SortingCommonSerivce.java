@@ -252,20 +252,9 @@ public abstract class SortingCommonSerivce {
             pushCycleMaterialMessage(sorting);
             // 写包裹和箱号关系
             this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
-            //发送操作流水mq
-            sendSortingFlowMq(sorting);
         }
 
     }
-    /**
-     * 发送操作流水mq
-     * @param sorting
-     */
-	private void sendSortingFlowMq(SortingVO sorting) {
-	    JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
-	    sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
-		jyOperateFlowService.sendMq(sortingFlowMq);
-	}
     private void pushCycleMaterialMessage(SortingVO sorting) {
         BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
         mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());

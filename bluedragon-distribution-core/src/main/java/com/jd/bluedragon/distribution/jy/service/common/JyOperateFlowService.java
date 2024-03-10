@@ -6,6 +6,9 @@ import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.transboard.api.dto.BoardBoxResult;
 
 /**
@@ -36,6 +39,10 @@ public interface JyOperateFlowService {
      */
     int sendMqList(List<JyOperateFlowMqData> jyOperateFlow);
 
+    /**
+     * 发送分拣操作轨迹
+     */
+    void sendOperateTrack(WaybillStatus waybillStatus);
 
     /**
      * 发送组板操作流水
@@ -46,6 +53,16 @@ public interface JyOperateFlowService {
      * 发送收货操作流水
      */
     void sendReceiveOperateFlowData(Receive receive);
+
+    /**
+     * 发送分拣操作流水
+     */
+    void sendSoringOperateFlowData(Sorting sorting, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
+     * 发送发货操作流水
+     */
+    void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
 
 
 }

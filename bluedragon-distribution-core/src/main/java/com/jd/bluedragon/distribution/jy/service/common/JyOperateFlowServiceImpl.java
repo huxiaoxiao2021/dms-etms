@@ -13,6 +13,9 @@ import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.jmq.common.message.Message;
@@ -56,6 +59,10 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 
 	@Autowired
 	private SequenceGenAdaptor sequenceGenAdaptor;
+
+	@Autowired
+	@Qualifier("dmsOperateTrackProducer")
+	private DefaultJMQProducer dmsOperateTrackProducer;
     
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.insert", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -92,6 +99,16 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			return mqDataList.size();
 		}
 		return 0;
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendOperateTrack", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendOperateTrack(WaybillStatus waybillStatus) {
+		try {
+			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
+		} catch (Exception e) {
+			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
+		}
 	}
 
 	@Override
@@ -143,6 +160,42 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			receive.setOperateFlowId(operateFlowId);
 		} catch (Exception e) {
 			logger.error("发送收货操作流水消息出现异常:request={}", JsonHelper.toJson(receive), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendSoringOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendSoringOperateFlowData(Sorting sorting, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
+			// 业务子类型
+			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			sortingCancelFlowMq.setId(operateFlowId);
+			sendMq(sortingCancelFlowMq);
+			waybillStatus.setOperateFlowId(operateFlowId);
+		} catch (Exception e) {
+			logger.error("发送分拣操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendDeliveryOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sendDetail);
+			// 业务子类型
+			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			sortingCancelFlowMq.setId(operateFlowId);
+			sendMq(sortingCancelFlowMq);
+			waybillStatus.setOperateFlowId(operateFlowId);
+		} catch (Exception e) {
+			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
 		}
 	}
 
