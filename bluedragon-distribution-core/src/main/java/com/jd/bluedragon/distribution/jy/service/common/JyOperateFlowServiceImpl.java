@@ -106,6 +106,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	public void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
 			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
+			logger.info("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		}
