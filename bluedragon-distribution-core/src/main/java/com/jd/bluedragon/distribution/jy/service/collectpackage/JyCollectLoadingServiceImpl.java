@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.BindCollectBagReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -31,8 +34,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
@@ -157,7 +163,14 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         collectPackageBaseCheck(request);
         //执行集包
         CollectPackageResp response = new CollectPackageResp();
-        execCollectPackage(request, response);
+        execCollectPackageForMachine(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    protected void execCollectPackageForMachine(CollectPackageReq request, CollectPackageResp response) {
+        //执行集包
+        TaskRequest taskRequest = assembleTaskRequest(request);
+        taskService.add(taskRequest);
+        response.setEndSiteId(request.getEndSiteId());
     }
 }

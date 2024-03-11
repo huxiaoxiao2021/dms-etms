@@ -109,7 +109,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private TaskService taskService;
+    protected TaskService taskService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
@@ -332,7 +332,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return jyCollectPackageEntity;
     }
 
-    private TaskRequest assembleTaskRequest(CollectPackageReq request) {
+    protected TaskRequest assembleTaskRequest(CollectPackageReq request) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
