@@ -109,7 +109,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private TaskService taskService;
+    protected TaskService taskService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
@@ -181,12 +181,22 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request) {
+        return null;
+    }
+
     /**
      * 执行集包操作
      * @param request 集包请求对象
      * @param response 集包响应对象
      */
-    private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -322,7 +332,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return jyCollectPackageEntity;
     }
 
-    private TaskRequest assembleTaskRequest(CollectPackageReq request) {
+    protected TaskRequest assembleTaskRequest(CollectPackageReq request) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1422,7 +1432,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
-    private void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
