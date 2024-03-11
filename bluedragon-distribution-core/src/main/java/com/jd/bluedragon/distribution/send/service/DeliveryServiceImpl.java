@@ -3234,6 +3234,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
+                // 如果sendM为空，则判断是否为嵌套箱
+                if (CollectionUtils.isEmpty(sendMList)) {
+                    Box boxNestParam = new Box();
+                    boxNestParam.setCode(tSendM.getBoxCode());
+                    final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+                    if (CollectionUtils.isNotEmpty(boxNestList)) {
+                        this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, new ArrayList<>());
+                    }
+                }
+
                 Profiler.registerInfoEnd(callerInfo);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
