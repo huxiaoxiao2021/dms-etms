@@ -162,6 +162,8 @@ public class Box {
 
 	private List<Box> children;
 
+	private List<Box> parent;
+
 	public List<Box> getChildren(){
 		return children;
 	}
@@ -475,5 +477,13 @@ public class Box {
 
     public void setBoxSource(String boxSource) {
         this.boxSource = boxSource;
+    }
+
+    public List<Box> getParent() {
+        return parent;
+    }
+
+    public void setParent(List<Box> parent) {
+        this.parent = parent;
     }
 }
