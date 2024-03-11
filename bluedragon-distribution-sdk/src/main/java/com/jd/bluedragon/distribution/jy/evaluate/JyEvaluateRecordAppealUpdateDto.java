@@ -14,6 +14,10 @@ public class JyEvaluateRecordAppealUpdateDto extends JyEvaluateRecordAppealEntit
      * id集合
      */
     private List<Long> idList;
+    /**
+     * 不满意code集合
+     */
+    private List<Integer> dimensionCodeList;
 
     public List<Long> getIdList() {
         return idList;
@@ -21,5 +25,13 @@ public class JyEvaluateRecordAppealUpdateDto extends JyEvaluateRecordAppealEntit
 
     public void setIdList(List<Long> idList) {
         this.idList = idList;
+    }
+
+    public List<Integer> getDimensionCodeList() {
+        return dimensionCodeList;
+    }
+
+    public void setDimensionCodeList(List<Integer> dimensionCodeList) {
+        this.dimensionCodeList = dimensionCodeList;
     }
 }

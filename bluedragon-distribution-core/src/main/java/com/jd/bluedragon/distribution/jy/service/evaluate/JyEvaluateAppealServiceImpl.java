@@ -249,7 +249,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 统计审核次数和审核驳回次数，更新场地权限
             updateSiteEvaluateAndAppeal(res);
             // 审核通过的数据，同步到es
-            esDataUpdate(res);
+            esDataUpdate(res, updatePassDto);
         } catch (Exception e) {
             response.toError("装车评价申诉审核异常！");
             response.setData(Boolean.FALSE);
@@ -337,7 +337,14 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      * 更新ES数据
      * @param res 评价记录申诉响应对象
      */
-    private void esDataUpdate(JyEvaluateRecordAppealRes res) {
+    private void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
+        // 过滤出全部的历史不满意项中，没有进行申或者申诉驳回的数据
+        ArrayList<AppealDimensionReq> reqArrayList = new ArrayList<>();
+        for (AppealDimensionReq req : res.getDimensionList()) {
+            if (!updatePassDto.getDimensionCodeList().contains(req.getDimensionCode())){
+                reqArrayList.add(req);
+            }
+        }
         // 如果dimensionList为空，说明全部满意报表加工MQ实体
         EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
         // 操作时间
@@ -349,7 +356,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         // 评价来源bizId
         targetInitDto.setSourceBizId(res.getSourceBizId());
         // 本次新增评价明细
-        List<EvaluateDimensionReq> evaluateDimensionReqs = convertEvaluateDimensionList(res.getDimensionList());
+        List<EvaluateDimensionReq> evaluateDimensionReqs = convertEvaluateDimensionList(reqArrayList);
         targetInitDto.setDimensionList(evaluateDimensionReqs);
         String businessId = res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY
             + Constants.UNDER_LINE + targetInitDto.getOperateTime();
@@ -408,13 +415,16 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 当前时间超过配置的审核超时小时数，不能进行审核，申诉数据更新为 超时未审核
             if (hours > checkOvertimeHour) {
                 updateDto.getIdList().add(entity.getId());
+                updateDto.getDimensionCodeList().add(entity.getDimensionCode());
             } else {
                 Integer opinion = idMap.get(entity.getId());
                 if (opinion != null) {
                     if (opinion.equals(Constants.CONSTANT_NUMBER_ONE)) {
                         updatePassDto.getIdList().add(entity.getId());
+                        updatePassDto.getDimensionCodeList().add(entity.getDimensionCode());
                     } else if (opinion.equals(Constants.CONSTANT_NUMBER_TWO)) {
                         updateRejectDto.getIdList().add(entity.getId());
+                        updateRejectDto.getDimensionCodeList().add(entity.getDimensionCode());
                     }
                 }
             }
@@ -450,6 +460,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         updateDto.setUpdateUserErp(res.getUpdateUserErp());
         updateDto.setUpdateUserName(res.getUpdateUserName());
         updateDto.setIdList(new ArrayList<>());
+        updateDto.setDimensionCodeList(new ArrayList<>());
         return updateDto;
     }
 
