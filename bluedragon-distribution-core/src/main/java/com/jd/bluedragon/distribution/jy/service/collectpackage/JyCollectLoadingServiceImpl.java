@@ -120,7 +120,9 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         if (!ObjectHelper.isNotNull(request.getBarCode())) {
             throw new JyBizException("参数错误：缺失扫描单号！");
         }
-
+        if (!BusinessUtil.isBoxcode(request.getBarCode())) {
+            throw new JyBizException("参数错误：请扫描箱号！");
+        }
         String outerBoxType = request.getBoxCode().substring(0,2);
         String innerBoxType =request.getBarCode().substring(0,2);
 
@@ -133,10 +135,26 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         }
     }
 
+    private void collectPackageBaseCheck(CollectPackageReq request) {
+
+        if (!ObjectHelper.isNotNull(request.getBoxCode())) {
+            throw new JyBizException("参数错误：缺失箱号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
+            throw new JyBizException("参数错误：不支持该类型箱号！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失包裹号！");
+        }
+        if (!WaybillUtil.isPackageCode(request.getBarCode())) {
+            throw new JyBizException("参数错误：包裹号类型错误，请扫描正确的包裹号码！");
+        }
+    }
+
     @Override
     public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
         //基础校验
-        collectBoxMachineCheck(request);
+        collectPackageBaseCheck(request);
         //执行集包
         CollectPackageResp response = new CollectPackageResp();
         execCollectPackage(request, response);
