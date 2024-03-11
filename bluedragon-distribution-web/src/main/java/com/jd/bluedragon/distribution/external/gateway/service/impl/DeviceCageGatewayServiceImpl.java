@@ -100,6 +100,11 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             return jdCResponse;
         }
 
+        if(!response.getData()){
+            jdCResponse.toFail(response.getMessage());
+            return jdCResponse;
+        }
+
         jdCResponse.setData(response.getData());
         return jdCResponse;
     }
