@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <!-- 拦截相关配置 -->
+    <bean id="businessInterceptConfig" class="com.jd.bluedragon.distribution.businessIntercept.config.BusinessInterceptConfig">
+        <!-- 拦截类型 -->
+        <property name="interceptTypeNodeConfig">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="10001" value="取消拦截"/>
+                <entry key="10002" value="0重量拦截"/>
+                <entry key="10003" value="白条强制拦截"/>
+                <entry key="10004" value="恶意订单"/>
+                <entry key="10005" value="拒收订单"/>
+                <entry key="10006" value="病单"/>
+                <entry key="10007" value="改址"/>
+                <entry key="10008" value="京喜整包未称"/>
+                <entry key="10009" value="京喜空包拦截"/>
+            </map>
+        </property>
+        <!-- 处理类型 -->
+        <property name="disposeNodeConfig">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="-10001" value="撤销取消拦截"/>
+                <entry key="-10002" value="撤销0重量拦截"/>
+                <entry key="-10003" value="撤销白条强制拦截"/>
+                <entry key="-10004" value="撤销恶意订单"/>
+                <entry key="-10005" value="撤销拒收订单"/>
+                <entry key="-10006" value="撤销病单"/>
+                <entry key="-10007" value="撤销改址"/>
+                <entry key="-10008" value="撤销京喜整包未称"/>
+                <entry key="-10009" value="撤销京喜空包拦截"/>
+                <entry key="10001" value="换单打印"/>
+                <entry key="10002" value="补称重"/>
+                <entry key="10003" value="补打"/>
+                <entry key="10004" value="拆包"/>
+                <entry key="10005" value="逆向发货"/>
+            </map>
+        </property>
+        <!-- 拦截后处理节点与拦截类型对应关系 -->
+        <property name="interceptTypeAssocDisposeNodeConfig">
+            <util:map>
+                <entry key="10001">
+                    <util:list>
+                        <value>-10001</value>
+                        <value>10001</value>
+                        <value>10005</value>
+                    </util:list>
+                </entry>
+                <entry key="10002">
+                    <util:list>
+                        <value>-10002</value>
+                        <value>10002</value>
+                    </util:list>
+                </entry>
+                <entry key="10003">
+                    <util:list>
+                        <value>-10003</value>
+                        <value>10001</value>
+                    </util:list>
+                </entry>
+                <entry key="10004">
+                    <util:list>
+                        <value>-10004</value>
+                        <value>10001</value>
+                    </util:list>
+                </entry>
+                <entry key="10005">
+                    <util:list>
+                        <value>-10005</value>
+                        <value>10001</value>
+                    </util:list>
+                </entry>
+                <entry key="10006">
+                    <util:list>
+                        <value>-10006</value>
+                        <value>10001</value>
+                    </util:list>
+                </entry>
+                <entry key="10007">
+                    <util:list>
+                        <value>-10007</value>
+                        <value>10003</value>
+                    </util:list>
+                </entry>
+                <entry key="10008">
+                    <util:list>
+                        <value>-10008</value>
+                        <value>10001</value>
+                    </util:list>
+                </entry>
+            </util:map>
+        </property>
+
+        <property name="recallDisposeNodeList">
+            <util:list>
+                <value>-10001</value>
+                <value>-10002</value>
+                <value>-10003</value>
+                <value>-10004</value>
+                <value>-10005</value>
+                <value>-10006</value>
+                <value>-10007</value>
+                <value>-10008</value>
+                <value>-10009</value>
+            </util:list>
+        </property>
+    </bean>
+</beans>

@@ -2269,7 +2269,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 return result.setData(true);
             }
         }
-        return result;
+        return result.setData(matchVas);
     }
 
     /**
@@ -2326,6 +2326,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(!matchVas){
             return result.setData(false);
         }
-        return result;
+        return result.setData(matchVas);
     }
 }

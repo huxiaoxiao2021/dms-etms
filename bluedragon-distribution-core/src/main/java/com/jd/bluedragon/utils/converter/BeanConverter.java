@@ -1,25 +1,15 @@
 package com.jd.bluedragon.utils.converter;
 
-import java.util.Date;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
-import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowData;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
@@ -32,6 +22,10 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * 对象转换工具类
@@ -388,4 +382,42 @@ public class BeanConverter {
 		dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
 		return dto;
 	}
+
+    /**
+     * 用户数据转换
+     *
+     * @param userRaw
+     * @return
+     */
+    public static User convertToSdkUser(com.jd.bluedragon.common.dto.base.request.User userRaw) {
+        if (userRaw == null) {
+            return null;
+        }
+        User user = new User();
+        try {
+            org.apache.commons.beanutils.BeanUtils.copyProperties(user, userRaw);
+        } catch (Exception e) {
+            log.error("BeanConverter.convertToSdkUser error!", e);
+        }
+        return user;
+    }
+
+    /**
+     * 用户操作场地数据转换
+     *
+     * @param currentOperateRaw
+     * @return
+     */
+    public static com.jd.bluedragon.distribution.jy.dto.CurrentOperate convertToSdkCurrentOperate(com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperateRaw) {
+        if (currentOperateRaw == null) {
+            return null;
+        }
+        com.jd.bluedragon.distribution.jy.dto.CurrentOperate currentOperate = new com.jd.bluedragon.distribution.jy.dto.CurrentOperate();
+        try {
+            org.apache.commons.beanutils.BeanUtils.copyProperties(currentOperate, currentOperateRaw);
+        } catch (Exception e) {
+            log.error("BeanConverter.convertToSdkCurrentOperate error!", e);
+        }
+        return currentOperate;
+    }
 }

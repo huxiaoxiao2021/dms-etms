@@ -1,32 +1,32 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
-import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -60,6 +61,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private TransportRelatedService transportRelatedService;
+
+    @Resource
+    private InspectionService inspectionService;
 
 
     @Override
@@ -169,63 +173,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
 
-        // 扫描前校验拦截结果
-        if (!checkBarInterceptResult(response, request)) {
-            // 失败直接返回
-            return response;
-        }
-        final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
-
-        if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
-            if(response.getMsgBoxes() == null){
-                response.setMsgBoxes(new ArrayList<>());
-            }
-            response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
-        }
-        if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-            response.setData(scanResponse.getData() != null && scanResponse.getData().getScanPackCount() != null ? scanResponse.getData().getScanPackCount() : 0);
-            response.toSuccess();
-            return response;
-        } else if (scanResponse.getCode() == InvokeResult.CODE_HINT) {
-            response.setCode(InvokeResult.CODE_HINT);
-            response.addPromptBox(0, scanResponse.getMessage());
-            return response;
-        } else if (scanResponse.getCode() == InvokeResult.CODE_CONFIRM) {
-            response.setCode(InvokeResult.CODE_CONFIRM);
-            response.addWarningBox(0, scanResponse.getMessage());
-            return response;
-        }else if (scanResponse.getCode() == InvokeResult.DP_SPECIAL_CODE) {
-            response.addPromptBox(101, scanResponse.getMessage());
-            return response;
-        } else {
-            response.toFail(scanResponse.getMessage());
-            return response;
-        }
-    }
-
-    /**
-     * 执行卸载扫描操作-新接口
-     * @param request 卸载扫描请求
-     * @return 带有校验结果的卸载扫描响应
-     * @throws Exception 可能抛出异常
-     */
-    @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.doUnloadScan",
-            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request) {
-        JdVerifyResponse<UnLoadScanResponse> response = new JdVerifyResponse<>();
-        response.toSuccess();
-
-        if (!checkBeforeScan(response, request)) {
-            return response;
-        }
-
-        // 扫描前校验拦截结果
-        if (!checkBarInterceptResult(response, request)) {
-            // 失败直接返回
-            return response;
-        }
-
         final JdVerifyResponse<UnLoadScanResponse> scanResponse = unloadVehicleService.unloadScan(request);
         if (CollectionUtils.isNotEmpty(scanResponse.getMsgBoxes())) {
             if(response.getMsgBoxes() == null){
@@ -235,7 +182,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         }
         response.setSelfDomFlag(scanResponse.getSelfDomFlag());
         if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-            response.setData(scanResponse.getData());
+            response.setData(scanResponse.getData().getScanPackCount());
             response.toSuccess();
             return response;
         } else if (scanResponse.getCode() == InvokeResult.CODE_HINT) {
@@ -317,6 +264,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.toFail("请扫描包裹号或运单号！");
             return false;
         }
+        request.getCurrentOperate().setOperateTime(new Date());
 
         return true;
     }
@@ -330,25 +278,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     private boolean checkBarInterceptResult(JdVerifyResponse response, UnloadScanRequest request) {
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
-            InspectionRequest inspectionRequest = new InspectionRequest();
-            inspectionRequest.setBarCode(request.getBarCode());
-            if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
-                inspectionRequest.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-            }
-            inspectionRequest.setBusinessType(10);
-            inspectionRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-            inspectionRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
-            inspectionRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
-            inspectionRequest.setOperateType(2);
-            inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
-            inspectionRequest.setOperateUserName(request.getUser().getUserName());
-            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionGatewayService.checkBeforeInspection(inspectionRequest);
+            final InspectionScanRequest inspectionScanRequest = new InspectionScanRequest();
+            BeanHelper.copyProperties(inspectionScanRequest, request);
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionScanRequest);
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
                 return false;
-            }
-            else {
+            } else {
                 if (CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
                     response.setCode(verifyResponse.getCode());
                     response.setMessage(verifyResponse.getMessage());

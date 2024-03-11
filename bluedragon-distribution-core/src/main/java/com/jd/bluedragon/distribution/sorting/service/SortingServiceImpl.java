@@ -1808,14 +1808,15 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-			//校验特安单
-			sortingJsfResponse = checkTeAnWaybillSorting(pdaOperateRequest);
-			if (sortingJsfResponse.getCode() != 200) {
-				return sortingJsfResponse;
-			}
 			pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
 			//调用web分拣验证校验链
 			sortingJsfResponse = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
+			if (sortingJsfResponse.getCode() != 200) {
+				return sortingJsfResponse;
+			}
+
+			//校验特安单
+			sortingJsfResponse = checkTeAnWaybillSorting(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}

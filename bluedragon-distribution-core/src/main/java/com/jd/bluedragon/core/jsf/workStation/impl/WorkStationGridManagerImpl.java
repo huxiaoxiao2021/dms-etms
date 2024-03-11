@@ -63,6 +63,21 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryWorkStationGridByBusinessKeyWithCache",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Result<WorkStationGrid> queryWorkStationGridByBusinessKeyWithCache(String businessKey) {
+        Result<WorkStationGrid> result = new Result<>();
+        result.toFail("获取三定场地网格工序数据失败");
+        try {
+            log.info("三定场地网格工序管理|queryWorkStationGridByBusinessKeyWithCache:businessKey={}", businessKey);
+            return basicWorkStationGridJsfService.queryWorkStationGridBybusinessKeyWithCache(businessKey);
+        } catch (Exception e) {
+            log.error("获取三定场地网格工序数据异常:businessKey={},e=", businessKey, e);
+            result.toFail("获取三定场地网格工序异常!");
+        }
+        return result;
+    }
+
+    @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryPageList",mState={JProEnum.TP,JProEnum.FunctionError})
     public Result<PageDto<WorkStationGrid>> queryPageList(WorkStationGridQuery workStationGridQuery) {
         Result<PageDto<WorkStationGrid>> result = new Result<>();
