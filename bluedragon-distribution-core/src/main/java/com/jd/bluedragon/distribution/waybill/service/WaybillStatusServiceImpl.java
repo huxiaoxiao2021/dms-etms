@@ -798,6 +798,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
 				// 发送板内明细全程跟踪
 				sendBdTraceOfBoard(tWaybillStatus, bdTraceDto);
+				// 发送分拣操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				task.setYn(0);
 			}
 
