@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
@@ -58,6 +59,7 @@ import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.attBlackList.AttendanceBlackList;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.schedule.WorkGridSchedule;
 import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
@@ -174,6 +176,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private WorkStationManager workStationManager;
 	@Autowired
 	private WorkStationGridManager workStationGridManager;
+
+	@Autowired
+	private JyJobTypeManager jyJobTypeManager;
 
 	/**
 	 * 插入一条数据
@@ -1441,6 +1446,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private String  checkJobCodeSignIn(WorkStationGrid workStationGrid,Integer jobCode){
+		log.info("checkJobCodeSignIn,当前登录的工种:{}", jobCode);
 		//添加开关 以便于上线后没维护工种类型 都进行卡控
 		if(!dmsConfigManager.getPropertyConfig().isJobTypeLimitSwitch() || JobTypeEnum.JOBTYPE8.getCode().equals(jobCode)){
 			log.warn("网格工种限制功能开关关闭!");
@@ -1453,25 +1459,50 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//获取当前网格的工种信息
 		List<WorkStationJobTypeDto> jobTypes = workStationManager.queryWorkStationJobTypeBybusinessKey(workStationGrid.getRefStationKey());
 		log.info("checkJobCodeSignIn -获取网格工种信息 入参-{}，出参-{}",workStationGrid.getRefStationKey(), JSON.toJSONString(jobTypes));
-		//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
-		String jobTypeName=JobTypeEnum.getNameByCode(jobCode);
-		if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
-			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+		//判断网关工种维护关系之前,再判断维护的工种是否处于生效的状态
+		JyJobType query = buildJyJobType(jobCode);
+		List<JyJobType> jyJobTypeList = jyJobTypeManager.getListByCondition(query);
+		if(log.isInfoEnabled()){
+			log.info("checkJobCodeSignIn -获取所有工种信息，出参-{}", JSON.toJSONString(jyJobTypeList));
 		}
-		boolean flag = false;
-		for (int i = 0; i < jobTypes.size(); i++) {
-			if(Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
-				flag =true;
-				break;
+		if (CollectionUtils.isNotEmpty(jyJobTypeList)){
+			JyJobType jyJobType = jyJobTypeList.get(0);
+			if (Objects.isNull(jyJobType)){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_MSG,jobCode,ownerUserErp);
 			}
-		}
-		if(!flag){
-			return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+
+			//网格工种没维护或者维护的工种中没匹配到传入的工种都返回提示
+			String jobTypeName = jyJobType.getName();
+			if(org.apache.commons.collections.CollectionUtils.isEmpty(jobTypes)){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+			}
+
+			boolean flag = false;
+			for (int i = 0; i < jobTypes.size(); i++) {
+				if(Objects.nonNull(jyJobType) && Objects.equals(jobCode,jobTypes.get(i).getJobCode())){
+					flag =true;
+					break;
+				}
+			}
+			if(!flag){
+				return String.format(HintCodeConstants.JY_SIGN_IN_JOB_TYPE_TIP_MSG,gridName,jobTypeName,ownerUserErp);
+			}
 		}
 		return "";
 	}
 
 
+    /**
+     * 构建JyJobType对象
+     * @param jobCode 工作代码
+     * @return JyJobType对象
+     */
+	private JyJobType buildJyJobType(Integer jobCode) {
+		JyJobType jyJobType = new JyJobType();
+		jyJobType.setCode(jobCode);
+		jyJobType.setStatus(Constants.NUMBER_ONE);
+		return jyJobType;
+	}
 
 	private void setWarZoneInfo(UserSignRecord signInData) {
 		if(signInData.getSiteCode() == null){
