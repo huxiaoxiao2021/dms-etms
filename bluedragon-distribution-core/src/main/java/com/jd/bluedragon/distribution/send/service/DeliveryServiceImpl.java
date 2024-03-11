@@ -3657,27 +3657,27 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      */
     private void sendMessage(List<SendDetail> sendDetails, SendM tSendM, boolean needSendMQ) {
         try {
-            if (sendDetails == null || sendDetails.isEmpty()) {
-                return;
-            }
-            Set<String> coldChainWaybillSet = new HashSet<>();
-            List<SendDetail> coldChainSendDetails = new ArrayList<>();
-            //按照包裹
-            for (SendDetail model : sendDetails) {
-                if (StringHelper.isNotEmpty(model.getSendCode())) {
-                    // 发送全程跟踪任务
-                    send(model, tSendM);
-                    if (needSendMQ) {
-                        // 发送取消发货MQ
-                        sendMQ(model, tSendM);
-                        if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
-                            coldChainSendDetails.add(model);
+            if (CollectionUtils.isNotEmpty(sendDetails)) {
+                Set<String> coldChainWaybillSet = new HashSet<>();
+                List<SendDetail> coldChainSendDetails = new ArrayList<>();
+                //按照包裹
+                for (SendDetail model : sendDetails) {
+                    if (StringHelper.isNotEmpty(model.getSendCode())) {
+                        // 发送全程跟踪任务
+                        send(model, tSendM);
+                        if (needSendMQ) {
+                            // 发送取消发货MQ
+                            sendMQ(model, tSendM);
+                            if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
+                                coldChainSendDetails.add(model);
+                            }
                         }
                     }
                 }
+                this.sendColdChainSendMQ(coldChainSendDetails);
+            } else {
+                this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
             }
-            this.sendColdChainSendMQ(coldChainSendDetails);
-            this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
