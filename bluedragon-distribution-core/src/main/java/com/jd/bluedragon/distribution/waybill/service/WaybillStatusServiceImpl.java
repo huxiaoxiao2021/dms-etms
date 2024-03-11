@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -23,7 +22,6 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.DmsOperateTrack;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
@@ -51,7 +49,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -93,10 +90,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private TerminalManager terminalManager;
-
-	@Autowired
-	@Qualifier("dmsOperateTrackProducer")
-	private DefaultJMQProducer dmsOperateTrackProducer;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -376,8 +369,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
-			// 发送分拣操作轨迹
-			sendOperateTrack(waybillStatus);
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
@@ -1021,31 +1012,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			tWaybillStatus.setWaybillCode(dto.right);
 			toWaybillStatus(tWaybillStatus, bdTraceDto);
 			bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-			// 发送分拣操作轨迹
-			sendOperateTrack(tWaybillStatus);
 			waybillQueryManager.sendBdTrace(bdTraceDto);
-		}
-	}
-
-	private void sendOperateTrack(WaybillStatus waybillStatus) {
-		try {
-			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
-		} catch (Exception e) {
-			log.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
-		}
-	}
-
-	private void sendOperateTrackSceneTwo(WaybillSyncParameter waybillSyncParameter, Long operateFlowId) {
-		try {
-			DmsOperateTrack dmsOperateTrack = new DmsOperateTrack();
-			// 操作流水表主键
-			dmsOperateTrack.setOperateFlowId(operateFlowId);
-			// 全程跟踪详细信息
-			dmsOperateTrack.setWaybillSyncParameter(waybillSyncParameter);
-			dmsOperateTrackProducer.sendOnFailPersistent(waybillSyncParameter.getOperatorCode(), JsonHelper.toJson(dmsOperateTrack));
-		} catch (Exception e) {
-			log.error("sendOperateTrackSceneTwo|发送分拣操作轨迹场景二出现异常:waybillSyncParameter={},operateFlowId={}",
-					JsonHelper.toJson(waybillSyncParameter), operateFlowId);
 		}
 	}
 

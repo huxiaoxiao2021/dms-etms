@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -130,6 +131,10 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private DynamicSortingQueryDao dynamicSortingQueryDao;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
+
     /**
      * 获取组板已存在的未完成数据
      * @param operatorInfo 操作人信息
@@ -718,6 +723,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 waybillStatus.setRemark("已取消组板，板号" + boardCode);
             }
             waybillStatus.setOperateFlowId(operatorInfo.getOperateFlowId());
+            // 发送分拣操作轨迹
+            jyOperateFlowService.sendOperateTrack(waybillStatus);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 
