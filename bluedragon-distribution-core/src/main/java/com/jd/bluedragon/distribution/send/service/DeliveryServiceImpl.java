@@ -452,6 +452,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private DefaultJMQProducer cycleMaterialSendMQ;
     @Autowired
     private SortingService sortingService;
+    @Autowired
+    @Qualifier("bigBoxCancelSendProducer")
+    private DefaultJMQProducer bigBoxCancelSendProducer;
 
     /**
      * 自动过期时间 30分钟
@@ -3255,6 +3258,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 Profiler.registerInfoEnd(callerInfo);
+                checkIfNeedCancelInnerBoxes(tSendM);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
                 callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boardCode",Constants.SYSTEM_CODE_WEB,false,true);
@@ -3400,6 +3404,25 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    private void checkIfNeedCancelInnerBoxes(SendM sendM) {
+        try {
+            if (BusinessUtil.isLLBoxcode(sendM.getBoxCode())){
+                Box query =new Box();
+                query.setCode(sendM.getBoxCode());
+                List<Box> boxes =boxService.listAllDescendantsByParentBox(query);
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(boxes)){
+                    for (Box box:boxes){
+                        sendM.setBoxCode(box.getCode());
+                        bigBoxCancelSendProducer.sendOnFailPersistent(sendM.getBoxCode(),JsonHelper.toJson(sendM));
+                        log.info("取消大箱拆分小箱发送消息成功,{}",JsonHelper.toJson(sendM));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("取消大箱拆分小箱取消发货异常:{}",sendM.getBoxCode(),e);
+        }
     }
 
     /**

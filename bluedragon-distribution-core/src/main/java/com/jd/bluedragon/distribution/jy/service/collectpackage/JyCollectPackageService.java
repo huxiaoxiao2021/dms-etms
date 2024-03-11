@@ -56,11 +56,11 @@ public interface JyCollectPackageService {
     InvokeResult<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request);
 
     /**
-     *  取消集装：把箱子从外层箱子中取出
+     *  取消集箱：把箱子从外层箱子中取出
      * @param request
      * @return
      */
-    InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request);
+    InvokeResult<CancelCollectPackageResp> cancelCollectBox(CancelCollectPackageReq request);
 
 
 
