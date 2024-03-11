@@ -714,6 +714,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
                 this.log.info("向运单系统回传全程跟踪，取消发货：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
+				// 发送分拣操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
@@ -816,6 +818,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					toWaybillStatus(tWaybillStatus, bdTraceDto);
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
+					// 发送分拣操作轨迹
+					jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				} else {
 					log.warn("取消分拣全程跟踪失败，包裹号没空！");
 				}
