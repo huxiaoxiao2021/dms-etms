@@ -271,6 +271,8 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
+            // 判断场地使用具有评价权限
+            checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
