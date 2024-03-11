@@ -331,6 +331,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskBody.setUserCode(request.getUser().getUserCode());
         taskBody.setUserName(request.getUser().getUserName());
         taskBody.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
+        taskBody.setOperatorData(request.getCurrentOperate().getOperatorData());
         List<PackSortTaskBody> bodyList = new ArrayList<>();
         bodyList.add(taskBody);
         return JSON.toJSONString(bodyList);
