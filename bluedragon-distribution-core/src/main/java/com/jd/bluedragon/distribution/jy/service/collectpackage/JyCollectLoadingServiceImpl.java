@@ -120,9 +120,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         if (!ObjectHelper.isNotNull(request.getBarCode())) {
             throw new JyBizException("参数错误：缺失扫描单号！");
         }
-        if (!BusinessUtil.isBoxcode(request.getBarCode())) {
-            throw new JyBizException("参数错误：请扫描箱号！");
-        }
+
         String outerBoxType = request.getBoxCode().substring(0,2);
         String innerBoxType =request.getBarCode().substring(0,2);
 
