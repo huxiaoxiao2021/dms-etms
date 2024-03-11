@@ -132,6 +132,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     private DefaultJMQProducer dwsSpotCheckProducer;
 
     @Autowired
+    @Qualifier("automaticWeightingFlowProducer")
+    private DefaultJMQProducer automaticWeightingFlowProducer;
+
+    @Autowired
     private InspectionDao inspectionDao;
 
     private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_FROM_SOURCE =
@@ -169,6 +173,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             // 自动化称重 非0复重量体积拦截
             if (DMS_DWS_MEASURE.equals(entity.getSourceCode())
                     || DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
+                // 自动化称重发送消息给运输
+                sendWeightingFlowInfo(entity);
                 InvokeResult<Void> interceptResult= waybillNotZeroWeightIntercept(entity);
                 if (!interceptResult.codeSuccess()) {
                     // 返回成功，防止重试
@@ -204,6 +210,37 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             taskService.add(weightVolumeTask);
             return result;
         }
+    }
+
+    private void sendWeightingFlowInfo(WeightVolumeEntity entity) {
+        // 只发送包裹和运单的称重流水
+        if (!WaybillUtil.isPackageCode(entity.getBarCode()) && !WaybillUtil.isWaybillCode(entity.getWaybillCode())) {
+            return;
+        }
+        WeightingFlowMQ weightingFlowMQ = convertToWeightingFlowMQ(entity);
+        try {
+            automaticWeightingFlowProducer.send(weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+            logger.info("包裹号{}自动化称重流水MQ body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        } catch (Exception e) {
+            logger.error("包裹号{}自动化称重流水MQ异常 body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        }
+    }
+
+    private WeightingFlowMQ convertToWeightingFlowMQ(WeightVolumeEntity entity) {
+        WeightingFlowMQ weightingFlowMQ = new WeightingFlowMQ();
+        weightingFlowMQ.setWeight(entity.getWeight());
+        weightingFlowMQ.setVolume(entity.getVolume());
+        weightingFlowMQ.setHeight(entity.getHeight());
+        weightingFlowMQ.setLength(entity.getLength());
+        weightingFlowMQ.setWidth(entity.getWidth());
+        weightingFlowMQ.setOperateSiteCode(entity.getOperateSiteCode());
+        weightingFlowMQ.setOperateTime(entity.getOperateTime());
+        weightingFlowMQ.setOperatorCode(entity.getOperatorCode());
+        weightingFlowMQ.setOperatorName(entity.getOperatorName());
+        weightingFlowMQ.setPackageCode(entity.getPackageCode());
+        weightingFlowMQ.setOperateSiteName(entity.getOperateSiteName());
+        weightingFlowMQ.setWaybillCode(entity.getWaybillCode());
+        return weightingFlowMQ;
     }
 
     private boolean automaticUpperLimitCheck(WeightVolumeEntity entity, InvokeResult<Boolean> result) {
