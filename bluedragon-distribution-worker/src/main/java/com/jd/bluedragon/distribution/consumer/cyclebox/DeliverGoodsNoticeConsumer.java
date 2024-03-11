@@ -87,7 +87,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
         }
         try {
             this.sendBoxMaterial(context);
-            this.sendBoxNestMaterial(context, 1);
+            // this.sendBoxNestMaterial(context, 1); // 嵌套箱发货动作会写此步骤
         }catch (Exception e) {
             log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , JsonHelper.toJson(context), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + JsonHelper.toJson(context), e);
