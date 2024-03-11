@@ -7,9 +7,12 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.domain.Response;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService;
 import com.jd.bluedragon.distribution.cage.request.CollectPackageReq;
 import com.jd.bluedragon.distribution.cage.response.CollectPackageResp;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -33,6 +36,9 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
     private JyCollectPackageService jyCollectPackageService;
     @Autowired
     private SiteService siteService;
+    @Autowired
+    private BoxService boxService;
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DeviceCageJsfServiceImpl.cage", mState = JProEnum.TP)
     public InvokeResult<CollectPackageResp> cage(CollectPackageReq req) {
@@ -54,6 +60,18 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
         user.setUserErp(req.getUserErp());
         user.setUserName(req.getUserName());
         request.setUser(user);
+        Box box = boxService.findBoxByCode(request.getBoxCode());
+        if (box == null) {
+            throw new JyBizException("该箱号不存在或者已过期！");
+        }
+        if (Box.STATUS_DEFALUT.intValue() == box.getStatus().intValue()) {
+            throw new JyBizException("该箱号未打印！");
+        }
+        if (box.getCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
+            throw new JyBizException("箱号超长！");
+        }
+        request.setBoxReceiveId(new Long(box.getReceiveSiteCode()));
+        request.setBoxReceiveName(box.getReceiveSiteName());
         InvokeResult<com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp> res;
         try {
             if (BusinessUtil.isBoxcode(req.getBarCode())){

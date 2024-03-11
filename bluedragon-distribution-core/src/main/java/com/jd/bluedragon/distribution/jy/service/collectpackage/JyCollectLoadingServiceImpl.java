@@ -60,8 +60,6 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
     private BaseService baseService;
-    @Autowired
-    private BoxService boxService;
 
     @Override
     public void collectPackageBizCheck(CollectPackageReq request) {
@@ -195,16 +193,6 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     }
 
     private String assembleCollectDataBodyForMachine(CollectPackageReq request) {
-        Box box = boxService.findBoxByCode(request.getBoxCode());
-        if (box == null) {
-            throw new JyBizException("该箱号不存在或者已过期！");
-        }
-        if (Box.STATUS_DEFALUT.intValue() == box.getStatus().intValue()) {
-            throw new JyBizException("该箱号未打印！");
-        }
-        if (box.getCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
-            throw new JyBizException("箱号超长！");
-        }
         PackSortTaskBody taskBody = new PackSortTaskBody();
         taskBody.setBoxCode(request.getBoxCode());
         taskBody.setBusinessType(10);
@@ -214,8 +202,8 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         taskBody.setSiteCode(request.getCurrentOperate().getSiteCode());
         taskBody.setSiteName(request.getCurrentOperate().getSiteName());
         taskBody.setPackageCode(request.getBarCode());
-        taskBody.setReceiveSiteCode(box.getReceiveSiteCode());
-        taskBody.setReceiveSiteName(box.getReceiveSiteName());
+        taskBody.setReceiveSiteCode(request.getBoxReceiveId().intValue());
+        taskBody.setReceiveSiteName(request.getBoxReceiveName());
         taskBody.setUserCode(request.getUser().getUserCode());
         taskBody.setUserName(request.getUser().getUserName());
         taskBody.setBizSource(SortingBizSourceEnum.AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
