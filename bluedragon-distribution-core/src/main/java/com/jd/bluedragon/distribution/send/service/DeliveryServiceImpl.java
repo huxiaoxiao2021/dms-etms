@@ -3678,6 +3678,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             } else {
                 this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
             }
+            }
+            this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
