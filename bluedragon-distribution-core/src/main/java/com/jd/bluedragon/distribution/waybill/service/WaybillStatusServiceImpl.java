@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -90,6 +92,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private TerminalManager terminalManager;
+
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -369,6 +374,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
+			// 发送分拣操作轨迹
+			if (DmsConstants.OPERATE_TYPE_LIST.contains(waybillStatus.getOperateType())) {
+				jyOperateFlowService.sendOperateTrack(waybillStatus);
+			}
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));

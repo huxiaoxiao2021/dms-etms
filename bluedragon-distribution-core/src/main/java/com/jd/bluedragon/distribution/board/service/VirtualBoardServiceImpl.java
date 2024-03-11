@@ -723,8 +723,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 waybillStatus.setRemark("已取消组板，板号" + boardCode);
             }
             waybillStatus.setOperateFlowId(operatorInfo.getOperateFlowId());
-            // 发送分拣操作轨迹
-            jyOperateFlowService.sendOperateTrack(waybillStatus);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 

@@ -610,8 +610,6 @@ public class SortingServiceImpl implements SortingService {
 
 		// 记录分拣操作流水
 		jyOperateFlowService.sendSoringOperateFlowData(sorting, waybillStatus, OperateBizSubTypeEnum.SORTING);
-		// 发送分拣操作轨迹
-		jyOperateFlowService.sendOperateTrack(waybillStatus);
 
 		String jsonStr = JsonHelper.toJson(waybillStatus);
 		Task task = new Task();
@@ -1483,8 +1481,6 @@ public class SortingServiceImpl implements SortingService {
 
 			// 记录取消建箱全称跟踪
 			jyOperateFlowService.sendSoringOperateFlowData(sorting, waybillStatus, OperateBizSubTypeEnum.SORTING_CANCEL);
-			// 发送分拣操作轨迹
-			jyOperateFlowService.sendOperateTrack(waybillStatus);
 	        
 			Task task = new Task();
 			task.setTableName(Task.TABLE_NAME_POP);

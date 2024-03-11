@@ -48,8 +48,6 @@ public class TraceHook extends AbstractTaskHook {
                 WaybillStatus tWaybillStatus =cenConfirmService.createWaybillStatus(cenConfirm,
                         bDto, rDto);
                 if (cenConfirmService.checkFormat(tWaybillStatus, cenConfirm.getType())) {
-                    // 发送分拣操作轨迹
-                    jyOperateFlowService.sendOperateTrack(tWaybillStatus);
                     // 添加到task表
                     taskService.add(cenConfirmService.toTask(tWaybillStatus, cenConfirm.getOperateType()));
                 } else {

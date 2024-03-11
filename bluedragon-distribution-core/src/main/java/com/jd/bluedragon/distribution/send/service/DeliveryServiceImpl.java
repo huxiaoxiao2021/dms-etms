@@ -4046,8 +4046,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
                                 }
-                                // 发送分拣操作轨迹
-                                jyOperateFlowService.sendOperateTrack(tWaybillStatus);
                                 // 如果业务来源是转运装车扫描，不再发送全程跟踪
                                 if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
                                     if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {
@@ -4071,8 +4069,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 } else {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
                                 }
-                                // 发送分拣操作轨迹
-                                jyOperateFlowService.sendOperateTrack(tWaybillStatus);
                                 // 如果业务来源是是转运装车扫描，不再发送全程跟踪
                                 if (dmsConfigManager.getPropertyConfig().isIgnoreTysTrackSwitch()) {
                                     if (!SendBizSourceEnum.ANDROID_PDA_LOAD_SEND.getCode().equals(tSendDetail.getBizSource())) {

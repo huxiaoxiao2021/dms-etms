@@ -1281,8 +1281,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = this.getWaybillStatus(request, operateType);
-            // 发送分拣操作轨迹
-            jyOperateFlowService.sendOperateTrack(waybillStatus);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 
