@@ -35,6 +35,10 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
 
     private Logger logger = LoggerFactory.getLogger(TmsSendArriveAndBookConsumer.class);
 
+    // 操作类型	: 1是发车，2是到车 99:委托书;100:围栏发车，200：围栏到车，10-铁路发车，20-铁路到车，30-发货登记
+    private static final Integer SEND_ARRIVE_TYPE_200 = 200;
+
+
     @Autowired
     private JyTrustHandoverAutoInspectionService jyTrustHandoverAutoInspectionService;
     @Autowired
@@ -71,15 +75,19 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
         if(!invalidDataFilter(mqBody)) {
             return;
         }
-        logInfo("运输围栏到车包裹到达消息开始消费，mqBody={}", message.getText());
         try{
-            PackageArriveAutoInspectionDto packageArriveAutoInspectionDto = this.convertPackageArriveAutoInspectionDto(mqBody);
-            jyTrustHandoverAutoInspectionService.packageArriveCarAutoInspection(packageArriveAutoInspectionDto);
+            if(SEND_ARRIVE_TYPE_200.equals(mqBody.getSendArriveType())) {
+                logInfo("运输围栏到车包裹到达消息开始消费，mqBody={}", message.getText());
+                PackageArriveAutoInspectionDto packageArriveAutoInspectionDto = this.convertPackageArriveAutoInspectionDto(mqBody);
+                jyTrustHandoverAutoInspectionService.packageArriveCarAutoInspection(packageArriveAutoInspectionDto);
+                logInfo("运输围栏到车包裹到达消息消费成功，内容{}", message.getText());
+            }else {
+                logInfo("运输非围栏到车节点暂无消费逻辑，不做处理，mqBody={}", message.getText());
+            }
         }catch (Exception ex) {
-            logger.error("运输围栏到车包裹到达消息消费异常，businessId={},errMsg={},content={}");
-            throw new JyBizException("运输围栏到车包裹到达消息消费异常,businessId=" + message.getBusinessId());
+            logger.error("topic:tms_send_arrive_and_book消息消费异常，businessId={},errMsg={},content={}");
+            throw new JyBizException("topic:tms_send_arrive_and_book消息消费异常,businessId=" + message.getBusinessId());
         }
-        logInfo("运输围栏到车包裹到达消息消费成功，内容{}", message.getText());
 
     }
 

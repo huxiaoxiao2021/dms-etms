@@ -139,6 +139,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
 
             //自动验货执行
             InspectionVO vo = this.convertArriveCarAutoInspectionVO(paramDto);
+            logInfo("packageArriveCarAutoInspection:围栏到车包裹自动验货addTask={}", JsonHelper.toJson(paramDto));
             this.addInspectionTask(vo, InspectionBizSourceEnum.ELECTRONIC_FENCE);
 
             //save success cache
@@ -391,6 +392,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
             inspectionVO.setUserName("-1");
             inspectionVO.setOperateTime(DateHelper.formatDateTime(new Date(param.getOperateTime())));
             inspectionVO.setOperatorData(this.getOperatorData(OperatorTypeEnum.MATERIAL.getCode(), param.getMaterialCode()));
+            logInfo("物资自动扫描包裹自动验货addTask={}", JsonHelper.toJson(inspectionVO));
             this.addInspectionTask(inspectionVO, InspectionBizSourceEnum.ELECTRONIC_GATEWAY);
             //save success cache
             cacheService.saveCacheRecycleMaterialEnterSitePackageInspection(param.getOperateSiteId(), param.getPackageCode(), param.getOperateTime());
