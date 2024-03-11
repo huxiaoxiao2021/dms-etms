@@ -1525,6 +1525,9 @@ public class SortingServiceImpl implements SortingService {
 				eachSorting.setOperateTime(sorting.getOperateTime());
 				eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
 				eachSorting.setUpdateUser(sorting.getUpdateUser());
+				eachSorting.setOperatorData(sorting.getOperatorData());
+				eachSorting.setOperatorId(sorting.getOperatorId());
+				eachSorting.setOperatorTypeCode(sorting.getOperatorTypeCode());
 				canCancel |= canCancel2(eachSorting);
 			}
 		}
@@ -1559,6 +1562,9 @@ public class SortingServiceImpl implements SortingService {
             eachSorting.setOperateTime(cancelSortingOffsiteDto.getOperateTime());
             eachSorting.setUpdateUserCode(cancelSortingOffsiteDto.getUpdateUserCode());
             eachSorting.setUpdateUser(cancelSortingOffsiteDto.getUpdateUser());
+			eachSorting.setOperatorData(cancelSortingOffsiteDto.getOperatorData());
+			eachSorting.setOperatorId(cancelSortingOffsiteDto.getOperatorId());
+			eachSorting.setOperatorTypeCode(cancelSortingOffsiteDto.getOperatorTypeCode());
             canCancel |= canCancelOffsite(eachSorting, cancelSortingOffsiteDto.getCurrentSiteCode());
         }
 
