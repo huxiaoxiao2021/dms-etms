@@ -131,7 +131,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         try {
             if (request.getCancelBindFlag() && BusinessUtil.isBoxcode(request.getBarCode())){
-                return retJdCResponse(jyCollectPackageService.cancelCollectLoading(request));
+                return retJdCResponse(jyCollectPackageService.cancelCollectBox(request));
             }
             return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
         } catch (JyBizException e) {
