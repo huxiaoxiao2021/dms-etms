@@ -88,7 +88,7 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
                         JsonHelper.toJson(req));
                 return response;
             }
-            CollectPackageResp data = JsonHelper.fromJsonUseGson(JsonHelper.toJson(res.getData()), new TypeToken<Response<CollectPackageResp>>() {
+            CollectPackageResp data = JsonHelper.fromJsonUseGson(JsonHelper.toJson(res.getData()), new TypeToken<CollectPackageResp>() {
             }.getType());
             response.setData(data);
             response.success();
