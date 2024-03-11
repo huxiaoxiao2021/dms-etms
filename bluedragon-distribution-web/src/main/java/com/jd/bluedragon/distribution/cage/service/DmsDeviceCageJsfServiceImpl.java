@@ -37,7 +37,7 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
         InvokeResult<CollectPackageResp> response = new InvokeResult<CollectPackageResp>();
         com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq request = new com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq();
         request.setBarCode(req.getBarCode());
-        request.setBoxCode(request.getBoxCode());
+        request.setBoxCode(req.getBoxCode());
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(req.getSiteCode().intValue());
         request.setCurrentOperate(currentOperate);
@@ -67,8 +67,8 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
             response.success();
             return response;
         }catch (Exception e){
-            log.error("分拣机装笼操作异常，组板信息：{}", JsonHelper.toJson(request),e);
-            response.parameterError("分拣机装笼操作异常异常");
+            log.error("分拣机装笼操作异常，装笼信息：{}", JsonHelper.toJson(request),e);
+            response.parameterError("分拣机装笼操作异常");
             return response;
         }
     }
