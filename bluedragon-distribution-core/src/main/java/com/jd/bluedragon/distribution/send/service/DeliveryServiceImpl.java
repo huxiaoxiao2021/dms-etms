@@ -3675,9 +3675,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     }
                 }
                 this.sendColdChainSendMQ(coldChainSendDetails);
-            } else {
-                this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
-            }
             }
             this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
