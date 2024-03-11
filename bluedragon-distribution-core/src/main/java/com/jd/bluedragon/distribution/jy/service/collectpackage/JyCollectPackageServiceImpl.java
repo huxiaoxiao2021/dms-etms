@@ -18,7 +18,6 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -1140,7 +1139,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         cancelCollectPackageDto.setUpdateUserErp(request.getUser().getUserErp());
         cancelCollectPackageDto.setUpdateUserName(request.getUser().getUserName());
         cancelCollectPackageDto.setUpdateUserCode(request.getUser().getUserCode());
-        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
         cancelCollectPackageDto.setOperatorData(operatorData);
         return cancelCollectPackageDto;
     }
@@ -1188,7 +1188,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
         List<String> packageList = sortingList.stream().map(sorting -> sorting.getPackageCode()).collect(Collectors.toList());
         batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
-        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
         batchCancelCollectPackageMqDto.setOperatorData(operatorData);
         return batchCancelCollectPackageMqDto;
     }
