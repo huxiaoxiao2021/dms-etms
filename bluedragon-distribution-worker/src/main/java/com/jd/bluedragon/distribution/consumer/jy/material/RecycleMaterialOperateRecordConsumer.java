@@ -80,6 +80,8 @@ public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
         try{
             if(TYPE_IN.equals(mqBody.getOperateType()) && MaterialOperateNodeV2Enum.AUTO_SCAN.getCode().equals(mqBody.getOperateNodeCode())) {
                 this.recycleMaterialEnterSiteHandler(mqBody);
+            }else {
+                logInfo("物资循环实操监听,当前节点无处理逻辑，不做消费，mqBody={}", message.getText());
             }
 
         }catch (Exception ex) {
@@ -155,7 +157,7 @@ public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
             logInfo("循环物资操作监听，operateNodeCode[操作节点]为空，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
         }
-        if(Constants.SYS_CODE_DMS.equals(mqBody.getBizSource())) {
+        if(!Constants.SYS_CODE_DMS.equals(mqBody.getBizSource())) {
             logInfo("循环物资操作监听，bizSource非[DMS]不处理，无效数据剔除，mqBody={}", JsonHelper.toJson(mqBody));
             return false;
         }
