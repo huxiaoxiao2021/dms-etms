@@ -5,11 +5,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService;
 import com.jd.bluedragon.distribution.cage.request.CollectPackageReq;
 import com.jd.bluedragon.distribution.cage.response.CollectPackageResp;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -29,17 +31,24 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
     @Autowired
     @Qualifier("jyCollectLoadingService")
     private JyCollectPackageService jyCollectPackageService;
-
+    @Autowired
+    private SiteService siteService;
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DeviceCageJsfServiceImpl.cage", mState = JProEnum.TP)
     public InvokeResult<CollectPackageResp> cage(CollectPackageReq req) {
+
+        //校验
 
         InvokeResult<CollectPackageResp> response = new InvokeResult<CollectPackageResp>();
         com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq request = new com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq();
         request.setBarCode(req.getBarCode());
         request.setBoxCode(req.getBoxCode());
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(req.getSiteCode().intValue());
+        Site site = siteService.get(req.getSiteCode().intValue());
+        if (site!=null){
+            currentOperate.setSiteCode(req.getSiteCode().intValue());
+            currentOperate.setSiteName(site.getName());
+        }
         request.setCurrentOperate(currentOperate);
         User user = new User();
         user.setUserErp(req.getUserErp());

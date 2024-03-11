@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.BindCollectBagReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
+import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -17,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageE
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -33,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
+import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 
 @Service("jyCollectLoadingService")
 @Slf4j
@@ -54,7 +60,8 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
     private BaseService baseService;
-
+    @Autowired
+    private BoxService boxService;
 
     @Override
     public void collectPackageBizCheck(CollectPackageReq request) {
@@ -169,8 +176,51 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
 
     protected void execCollectPackageForMachine(CollectPackageReq request, CollectPackageResp response) {
         //执行集包
-        TaskRequest taskRequest = assembleTaskRequest(request);
+        TaskRequest taskRequest = assembleTaskRequestForMachine(request);
         taskService.add(taskRequest);
-        response.setEndSiteId(request.getEndSiteId());
+    }
+
+    protected TaskRequest assembleTaskRequestForMachine(CollectPackageReq request) {
+        TaskRequest taskRequest = new TaskRequest();
+        taskRequest.setBoxCode(request.getBoxCode());
+        taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        taskRequest.setReceiveSiteCode(request.getBoxReceiveId().intValue());
+        taskRequest.setType(TASK_TYPE_SORTING);
+        taskRequest.setKeyword1(String.valueOf(request.getCurrentOperate().getSiteCode()));
+        taskRequest.setKeyword2(request.getBoxCode());
+        taskRequest.setBusinessType(10);
+        String body = assembleCollectDataBodyForMachine(request);
+        taskRequest.setBody(body);
+        return taskRequest;
+    }
+
+    private String assembleCollectDataBodyForMachine(CollectPackageReq request) {
+        Box box = boxService.findBoxByCode(request.getBoxCode());
+        if (box == null) {
+            throw new JyBizException("该箱号不存在或者已过期！");
+        }
+        if (Box.STATUS_DEFALUT.intValue() == box.getStatus().intValue()) {
+            throw new JyBizException("该箱号未打印！");
+        }
+        if (box.getCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
+            throw new JyBizException("箱号超长！");
+        }
+        PackSortTaskBody taskBody = new PackSortTaskBody();
+        taskBody.setBoxCode(request.getBoxCode());
+        taskBody.setBusinessType(10);
+        taskBody.setFeatureType(0);
+        taskBody.setIsCancel(0);
+        taskBody.setIsLoss(0);
+        taskBody.setSiteCode(request.getCurrentOperate().getSiteCode());
+        taskBody.setSiteName(request.getCurrentOperate().getSiteName());
+        taskBody.setPackageCode(request.getBarCode());
+        taskBody.setReceiveSiteCode(box.getReceiveSiteCode());
+        taskBody.setReceiveSiteName(box.getReceiveSiteName());
+        taskBody.setUserCode(request.getUser().getUserCode());
+        taskBody.setUserName(request.getUser().getUserName());
+        taskBody.setBizSource(SortingBizSourceEnum.AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
+        List<PackSortTaskBody> bodyList = new ArrayList<>();
+        bodyList.add(taskBody);
+        return JSON.toJSONString(bodyList);
     }
 }
