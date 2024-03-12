@@ -214,7 +214,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     private void sendWeightingFlowInfo(WeightVolumeEntity entity) {
         // 只发送包裹和运单的称重流水
-        if (!WaybillUtil.isPackageCode(entity.getBarCode()) && !WaybillUtil.isWaybillCode(entity.getWaybillCode())) {
+        if (!WaybillUtil.isPackageCode(entity.getBarCode()) && !WaybillUtil.isWaybillCode(entity.getBarCode())) {
             return;
         }
         WeightingFlowMQ weightingFlowMQ = convertToWeightingFlowMQ(entity);
@@ -227,6 +227,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     }
 
     private WeightingFlowMQ convertToWeightingFlowMQ(WeightVolumeEntity entity) {
+        String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
+        String packageCode = "";
+        if (WaybillUtil.isPackageCode(entity.getBarCode())) {
+            packageCode = entity.getBarCode();
+        }
         WeightingFlowMQ weightingFlowMQ = new WeightingFlowMQ();
         weightingFlowMQ.setWeight(entity.getWeight());
         weightingFlowMQ.setVolume(entity.getVolume());
@@ -237,9 +242,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         weightingFlowMQ.setOperateTime(entity.getOperateTime());
         weightingFlowMQ.setOperatorCode(entity.getOperatorCode());
         weightingFlowMQ.setOperatorName(entity.getOperatorName());
-        weightingFlowMQ.setPackageCode(entity.getPackageCode());
+        weightingFlowMQ.setPackageCode(packageCode);
         weightingFlowMQ.setOperateSiteName(entity.getOperateSiteName());
-        weightingFlowMQ.setWaybillCode(entity.getWaybillCode());
+        weightingFlowMQ.setWaybillCode(waybillCode);
         return weightingFlowMQ;
     }
 
