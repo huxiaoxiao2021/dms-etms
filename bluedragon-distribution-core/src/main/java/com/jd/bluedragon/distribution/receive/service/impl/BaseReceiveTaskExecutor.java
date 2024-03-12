@@ -26,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ldop.center.api.receive.dto.SignTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,21 +227,61 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
             if (StringUtils.isNotBlank(receive.getBoxCode()) && BusinessUtil.isBoxcode(receive.getBoxCode())) {
                 String materialCode = cycleBoxService.getBoxMaterialRelation(receive.getBoxCode());
                 if (StringUtils.isNotBlank(materialCode)) {
-                    BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
-                    loopPackageMq.setBoxCode(receive.getBoxCode());
-                    loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
-                    loopPackageMq.setMaterialCode(materialCode);
-                    loopPackageMq.setOperatorCode(receive.getCreateUserCode() == null ? 0: receive.getCreateUserCode());
-                    loopPackageMq.setOperatorName(receive.getCreateUser());
-                    loopPackageMq.setSiteCode(receive.getCreateSiteCode() + "");
-                    loopPackageMq.setOperatorTime(receive.getUpdateTime());
-
-                    cycleMaterialSendMQ.sendOnFailPersistent(loopPackageMq.getMaterialCode(), JsonHelper.toJson(loopPackageMq));
+                    sendBoxMaterialMq(receive, materialCode);
+                    this.sendBoxNestMaterial(receive, 1);
                 }
             }
         }
 	    catch (Exception ex) {
 	        log.error("push cycle material mq error.", ex);
+        }
+    }
+
+    private void sendBoxMaterialMq(Receive receive, String materialCode) {
+        BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
+        loopPackageMq.setBoxCode(receive.getBoxCode());
+        loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
+        loopPackageMq.setMaterialCode(materialCode);
+        loopPackageMq.setOperatorCode(receive.getCreateUserCode() == null ? 0: receive.getCreateUserCode());
+        loopPackageMq.setOperatorName(receive.getCreateUser());
+        loopPackageMq.setSiteCode(receive.getCreateSiteCode() + "");
+        loopPackageMq.setOperatorTime(receive.getUpdateTime());
+
+        cycleMaterialSendMQ.sendOnFailPersistent(loopPackageMq.getMaterialCode(), JsonHelper.toJson(loopPackageMq));
+    }
+
+    /**
+     * 嵌套发送箱嵌套箱物资消息
+     * @param receive
+     */
+    private void sendBoxNestMaterial(Receive receive, Integer level){
+        if(level > Constants.BOX_NESTED_MAX_DEPTH){
+            return;
+        }
+        try {
+            Box boxNestParam = new Box();
+            boxNestParam.setCode(receive.getBoxCode());
+            final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+            if (CollectionUtils.isEmpty(boxNestList)) {
+                return;
+            }
+            for (Box box : boxNestList) {
+                String materialCode = cycleBoxService.getBoxMaterialRelation(box.getCode());
+                if (StringUtils.isBlank(materialCode)){
+                    continue;
+                }
+                final Receive receiveChild = new Receive();
+                BeanCopyUtil.copy(receive, receiveChild);
+                receiveChild.setBoxCode(box.getCode());
+                this.sendBoxMaterialMq(receiveChild, materialCode);
+
+                // 如果有嵌套子级
+                if (CollectionUtils.isNotEmpty(box.getChildren())) {
+                    sendBoxNestMaterial(receiveChild, level++);
+                }
+            }
+        } catch (Exception e) {
+            log.error("sendBoxNestMaterial exception {}", JsonHelper.toJson(receive), e);
         }
     }
 
@@ -309,8 +350,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		turnoverBoxInfo.setMessageType("SORTING_REVERSE_RECEIVE_QUEUE");
 		turnoverBoxInfo.setOperatorId(receive.getCreateUserCode());
 		turnoverBoxInfo.setOperatorName(receive.getCreateUser());
-		turnoverBoxInfo.setOperateTime(DateHelper.formatDateTime(receive
-				.getCreateTime()));
+		turnoverBoxInfo.setOperateTime(DateHelper.formatDateTime(receive.getCreateTime()));
 		turnoverBoxInfo.setFlowFlag(receive.getReceiveType().toString());
 		try {
 			// messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo),

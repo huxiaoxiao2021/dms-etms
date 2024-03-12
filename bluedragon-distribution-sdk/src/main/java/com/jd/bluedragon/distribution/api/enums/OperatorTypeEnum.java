@@ -8,7 +8,10 @@ package com.jd.bluedragon.distribution.api.enums;
  **/
 public enum OperatorTypeEnum {
 	DMS_CLIENT(1,"分拣客户端"),
-	AUTO_MACHINE(2,"自动化设备")
+	AUTO_MACHINE(2,"自动化设备"),
+	VEHICLE(3,"车"),
+	MATERIAL(4,"循环物资"),
+
     ;
 	
 	private OperatorTypeEnum(Integer code, String name) {

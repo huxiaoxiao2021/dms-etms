@@ -1070,4 +1070,19 @@
         <property name="topic" value="${jmq.topic.cancel.send.split.box}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--  围栏到车包裹重试走自动验货逻辑  -->
+    <bean id="jyPackageArriveRetryAutoInspectionProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  循环物资进场自动验货箱维度数据  -->
+    <bean id="jyRecycleMaterialAutoInspectionBoxProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionBox}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  循环物资进场自动验货包裹维度数据  -->
+    <bean id="jyRecycleMaterialAutoInspectionPackageProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
