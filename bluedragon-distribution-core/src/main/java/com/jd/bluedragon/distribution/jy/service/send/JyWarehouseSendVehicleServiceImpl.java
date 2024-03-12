@@ -1002,12 +1002,13 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         InvokeResult<List<Integer>> nextSiteCodeRes = this.fetchNextSiteId(request);
         if(!nextSiteCodeRes.codeSuccess()) {
             log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
-            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code值不变，新的强发逻辑走结果集中的强发标识
+            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
+            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code/msg不变，新的强发逻辑走结果集中的强发标识
             if(SendScanRes.FORCE_SEND_CODE == nextSiteCodeRes.getCode()) {
                 response.getData().setCheckForceSendFlag(true);
                 response.getData().setCheckForceSendMsg(SendScanRes.FORCE_SEND_MSG_NULL_FLOW);
+                customMsg = "获取路由流向数据失败";
             }
-            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
             response.setCode(SendScanRes.DEFAULT_FAIL);
             response.setMessage(customMsg);
             return;
