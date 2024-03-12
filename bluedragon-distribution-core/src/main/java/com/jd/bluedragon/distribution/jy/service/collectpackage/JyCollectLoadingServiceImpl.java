@@ -146,7 +146,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         }
     }
 
-    private void collectPackageBaseCheck(CollectPackageReq request) {
+    private void collectPackageMachineBaseCheck(CollectPackageReq request) {
 
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
             throw new JyBizException("参数错误：缺失箱号！");
@@ -165,7 +165,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     @Override
     public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
         //基础校验
-        collectPackageBaseCheck(request);
+        collectPackageMachineBaseCheck(request);
         //执行集包
         CollectPackageResp response = new CollectPackageResp();
         execCollectPackageForMachine(request, response);

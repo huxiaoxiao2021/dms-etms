@@ -319,7 +319,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         jyCollectPackageEntity.setEndSiteId(request.getEndSiteId());
         jyCollectPackageEntity.setEndSiteName(request.getEndSiteName());
         jyCollectPackageEntity.setBoxEndSiteId(request.getBoxReceiveId());
-        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxCode());
+        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxReceiveName());
         Date now = new Date();
         jyCollectPackageEntity.setCreateTime(now);
         jyCollectPackageEntity.setUpdateTime(now);
@@ -913,7 +913,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
 
-        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+        if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
             // 查询箱子是否已经被放入LL箱子中
             BoxRelation boxRelation = getBoxRelation(task);
             InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
