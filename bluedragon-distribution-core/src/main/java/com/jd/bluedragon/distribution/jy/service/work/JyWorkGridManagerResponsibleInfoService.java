@@ -12,7 +12,7 @@ public interface JyWorkGridManagerResponsibleInfoService {
 
     JyWorkGridManagerResponsibleInfo queryByBizId(String bizId);
 
-    void saveTaskResponsibleInfo(JyWorkGridManagerData taskData);
+    void saveTaskResponsibleInfo(JyWorkGridManagerData oldData, ResponsibleInfo responsibleInfo);
 
     List<JyWorkGridManagerData> workGridManagerExpiredSaveResponsibleInfo(List<String> bizIds);
 

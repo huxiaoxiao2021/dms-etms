@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.work.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerResponsibleInfoDao;
 import com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.work.constant.ViolentSortingResponsibleStatusEnum;
 import com.jd.jmq.common.exception.JMQException;
+import com.jdl.basic.api.domain.user.JyUserDto;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.common.utils.JsonHelper;
 import com.jdl.basic.common.utils.Result;
@@ -45,6 +47,11 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
     @Qualifier("jyBizTaskWorkGridManagerService")
     private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
 
+    @Autowired
+    @Qualifier("jyUserManager")
+    private JyUserManager jyUserManager;
+
+
     @Override
     public int add(JyWorkGridManagerResponsibleInfo responsibleInfo) {
         return jyWorkGridManagerResponsibleInfoDao.add(responsibleInfo);
@@ -56,11 +63,13 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
     }
     
     @Override
-    public void saveTaskResponsibleInfo(JyWorkGridManagerData taskData){
+    public void saveTaskResponsibleInfo(JyWorkGridManagerData taskData, ResponsibleInfo responsibleInfo){
         String bizId = taskData.getBizId();
         //暴力分拣任务
         if(WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
-            violentSortingTaskSaveResponsibleInfo(bizId, taskData.getResponsibleInfo());
+            Integer siteCode = taskData.getSiteCode();
+            String processInstanceId = taskData.getViolenceSortInfoData().getProcessInstanceId();
+            violentSortingTaskSaveResponsibleInfo(bizId, taskData.getResponsibleInfo(),siteCode, processInstanceId);
             return;
         }
         
@@ -68,7 +77,8 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         notViolentSortingTaskSaveResponsibleInfo(bizId, taskData.getTaskRefGridKey());
     }
     
-    private void violentSortingTaskSaveResponsibleInfo(String bizId, ResponsibleInfo responsibleInfo){
+    private void violentSortingTaskSaveResponsibleInfo(String bizId, ResponsibleInfo responsibleInfo,
+                                                       Integer siteCode, String processInstanceId){
         JyWorkGridManagerResponsibleInfo responsibleEntity = new JyWorkGridManagerResponsibleInfo();
         responsibleEntity.setBizId(bizId);
         responsibleEntity.setName(responsibleInfo.getName());
@@ -87,6 +97,8 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         if(gridOwnerDto != null){
             responsibleEntity.setGridOwnerErp(gridOwnerDto.getErp());
         }
+        responsibleEntity.setSiteCode(siteCode);
+        responsibleEntity.setProcessInstanceId(processInstanceId);
         jyWorkGridManagerResponsibleInfoDao.add(responsibleEntity);
         log.info("暴力分拣任务责任人信息保存成功，bizId:{}", bizId);
     }
@@ -103,9 +115,15 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             log.info("非暴力分拣任务责任人信息保存成功，bizId:{}", bizId);
             return;
         }
+        
         log.info("非暴力分拣任务责任人信息保存失败，任务未查到网格信息，bizId:{}", bizId);
     }
-    
+
+    /**
+     * 任务超时未处理时保存任务责任信息
+     * @param bizIds
+     * @return
+     */
     @Override
     public List<JyWorkGridManagerData> workGridManagerExpiredSaveResponsibleInfo(List<String> bizIds){
         List<JyWorkGridManagerData> taskDatas = new ArrayList<>();
@@ -119,13 +137,55 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
                 log.info("分拣任务超时保存责任信息,非超时任务，bizId:{}", bizId);
                 continue;
             }
+            //非暴力分拣任务 保存网格组长
             if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(jyWorkGridManagerData.getTaskType())){
                 log.info("暴力分拣任务超时上传判责系统,非暴力分拣任务不处理，bizId:{}", bizId);
                 notViolentSortingTaskSaveResponsibleInfo(bizId, jyWorkGridManagerData.getTaskRefGridKey());
                 continue;
             }
-            //暴力分拣任务
-            violentSortingTaskSaveResponsibleInfo(bizId, jyWorkGridManagerData.getResponsibleInfo());
+            
+            /** 暴力分拣任务 **/
+            //暴力分拣信息
+            ViolenceSortInfoData violenceSortInfoData = jyWorkGridManagerData.getViolenceSortInfoData();
+            ResponsibleInfo responsibleInfo = null;
+            //查询任务网格
+            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(jyWorkGridManagerData.getTaskRefGridKey());
+            WorkGrid workGrid;
+            String ownerUserErp = null;
+            //默认网格组长为责任人
+            if(workGridResult != null && (workGrid = workGridResult.getData()) != null 
+                    && StringUtils.isNotBlank(ownerUserErp = workGrid.getOwnerUserErp())){
+                log.info("暴力分拣任务超时定责，使用网格组长为责任人，bizId:{}, TaskRefGridKey:{},ownerUserErp:{}",
+                        bizId, jyWorkGridManagerData.getTaskRefGridKey(), ownerUserErp);
+                responsibleInfo = new ResponsibleInfo();
+                JyWorkGridOwnerDto jyWorkGridOwnerDto = new JyWorkGridOwnerDto();
+                jyWorkGridOwnerDto.setErp(ownerUserErp);
+                responsibleInfo.setGridOwner(jyWorkGridOwnerDto);
+                
+            }
+            
+            //网格组长为空，将使用场地负责人为责任人
+            if(StringUtils.isBlank(ownerUserErp)){
+                JyUserDto jyUserDto = jyUserManager.querySiteLeader(jyWorkGridManagerData.getSiteCode());
+                if(jyUserDto != null){
+                    log.info("暴力分拣任务超时定责，未查到网格组长，使用场地负责人为责任人，bizId:{}, TaskRefGridKey:{},ownerUserErp:{}",
+                            bizId, jyWorkGridManagerData.getTaskRefGridKey(), ownerUserErp);
+                    responsibleInfo = new ResponsibleInfo();
+                    ownerUserErp = jyUserDto.getUserErp();
+                    responsibleInfo.setErp(ownerUserErp);
+                    responsibleInfo.setName(jyUserDto.getUserName());
+                }else {
+                    log.info("暴力分拣任务超时定责，未查到网格组长，未查到场地负责人，bizId:{}, TaskRefGridKey:{},ownerUserErp:{}",
+                            bizId, jyWorkGridManagerData.getTaskRefGridKey(), ownerUserErp);
+                }
+            }
+            
+            if(responsibleInfo != null){
+                jyWorkGridManagerData.setResponsibleInfo(responsibleInfo);
+                responsibleInfo.setWorkType(FORMAL_WORKER.getCode());
+                violentSortingTaskSaveResponsibleInfo(bizId, responsibleInfo, jyWorkGridManagerData.getSiteCode(), 
+                        violenceSortInfoData.getProcessInstanceId());
+            }
             taskDatas.add(jyWorkGridManagerData);
         }
         return taskDatas;
@@ -250,12 +310,11 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             info.setId(violenceSortInfoData.getId());
             info.setSiteCode(taskData.getSiteCode());
             info.setProcessInstanceId(violenceSortInfoData.getProcessInstanceId());
+            //定责信息
+            ResponsibleInfo responsibleInfo = taskData.getResponsibleInfo();
             String key = String.valueOf(violenceSortInfoData.getId());
-            //查询任务网格
-            Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(taskData.getTaskRefGridKey());
-            // 未查到网格信息或网格组长为空
-            WorkGrid workGrid;
-            if(workGridResult == null || (workGrid = workGridResult.getData()) == null || StringUtils.isBlank(workGrid.getOwnerUserErp())){
+
+            if(responsibleInfo == null){
                 info.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
                 log.info("暴力分拣超时任务，未查到网格信息或网格组长为空，bizId:{},workgridKey:{}", taskData.getBizId(), 
                         taskData.getTaskRefGridKey());
@@ -269,7 +328,13 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             }
             
             info.setResponsibleType(FORMAL_WORKER.getCode());
-            info.setResponsibleCode(workGrid.getOwnerUserErp());
+            String responseibleCode = null;
+            if(responsibleInfo.getGridOwner() != null){
+                responseibleCode = responsibleInfo.getGridOwner().getErp();
+            }else {
+                responseibleCode = responsibleInfo.getErp();
+            }
+            info.setResponsibleCode(responseibleCode);
             info.setAdvanceErp(taskData.getHandlerErp());
             info.setStatus(ViolentSortingResponsibleStatusEnum.DETERMINED.getCode());
             try {
@@ -280,6 +345,6 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             }
         }
     }
-
+    
 
 }

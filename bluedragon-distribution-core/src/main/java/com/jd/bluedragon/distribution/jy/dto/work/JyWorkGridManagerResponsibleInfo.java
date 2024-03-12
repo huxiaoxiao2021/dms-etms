@@ -55,7 +55,15 @@ public class JyWorkGridManagerResponsibleInfo implements Serializable{
      * 创建时间
      */
     private Date createTime;
+    /**
+     * 所属场地
+     */
+    private Integer siteCode;
 
+    /**
+     * 判责流程编号
+     */
+    private String processInstanceId;
     /**
      * 0无效 1有效
      */

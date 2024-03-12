@@ -358,7 +358,7 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyAttachmentDetailService.batchInsert(improveAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
 		//保存任务责任人信息
-		jyWorkGridManagerResponsibleInfoService.saveTaskResponsibleInfo(taskData);
+		jyWorkGridManagerResponsibleInfoService.saveTaskResponsibleInfo(oldData, taskData.getResponsibleInfo());
 		//暴力分拣任务 发送责任人信息
 		jyWorkGridManagerResponsibleInfoService.sendViolentSortingResponsibleInfo(oldData, taskData.getResponsibleInfo());
 		return result;

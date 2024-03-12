@@ -12,17 +12,20 @@
         <result column="supplier_name" jdbcType="VARCHAR" property="supplierName" />
         <result column="grid_owner_erp" jdbcType="VARCHAR" property="gridOwnerErp" />
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+        <result column="process_instance_id" jdbcType="VARCHAR" property="processInstanceId" />
         <result column="yn" jdbcType="TINYINT" property="yn" />
     </resultMap>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo">
         insert into jy_work_grid_manager_responsible_info ( biz_id, work_type,
             `name`, id_card, erp,
-            supplier_id, supplier_name, create_time,
+            supplier_id, supplier_name, create_time,site_code,process_instance_id,
             yn)
         values (#{bizId,jdbcType=VARCHAR}, #{workType,jdbcType=TINYINT},
                 #{name,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{erp,jdbcType=VARCHAR},
                 #{supplierId,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+                #{siteCode,jdbcType=INTEGER},#{processInstanceId,jdbcType=VARCHAR},
                 1)
     </insert>
 

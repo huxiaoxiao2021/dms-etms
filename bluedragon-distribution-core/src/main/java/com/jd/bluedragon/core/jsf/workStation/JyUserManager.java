@@ -30,4 +30,6 @@ public interface JyUserManager {
     Result<JyUser> queryUserInfo(String erp);
 
     Result<List<JyThirdpartyUser>> batchQueryJyThirdpartyUser(List<JyTpUserScheduleQueryDto> dtos);
+
+    JyUserDto querySiteLeader(Integer siteCode);
 }

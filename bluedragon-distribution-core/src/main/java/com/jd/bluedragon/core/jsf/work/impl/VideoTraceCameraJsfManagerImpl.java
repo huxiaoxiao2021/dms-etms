@@ -60,7 +60,7 @@ public class VideoTraceCameraJsfManagerImpl implements VideoTraceCameraJsfManage
                 workGridKeys.add(masterGridKey);
             }
             for(VideoTraceCameraConfig config : configs){
-                if(workGridKeys.contains(config.getRefWorkGridKey())){
+                if(!workGridKeys.contains(config.getRefWorkGridKey())){
                     workGridKeys.add(config.getRefWorkGridKey());
                 }
             }

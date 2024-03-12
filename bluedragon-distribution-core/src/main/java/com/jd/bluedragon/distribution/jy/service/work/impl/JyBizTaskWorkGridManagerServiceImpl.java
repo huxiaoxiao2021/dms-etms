@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
+import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerResponsibleInfoService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.work.constant.ViolentSortingResponsibleStatusEnum;
@@ -85,11 +86,6 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	private static final String VIOLENT_SORTING_EXPIRED_HOUR_CONF = "violent.sorting.expired.hour";
 	//暴力分拣任务默认过期时间
 	private static final int VIOLENT_SORTING_EXPIRED_DEFAULT = 24;
-	//一线机构负责人岗位名称
-	private static final String FIRST_LINE_LEADER_POSITION_NAME_KEY = "first.line.leader.position.name";
-
-	//一线机构负责人岗位名称
-	private static final String FIRST_LINE_LEADER_POSITION_NAME = "机构负责人岗";
 
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerDao")
@@ -121,7 +117,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	private DefaultJMQProducer violentSortingResponsibleInfoProducer;
 	
 	@Autowired
-	private HrUserManager hrUserManager;
+	private JyWorkGridManagerResponsibleInfoService jyWorkGridManagerResponsibleInfoService;
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -733,7 +729,6 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 */
 	private void notFoundViolentSortingResponsibleInfo(ViolentSortingMessageDTO violentSortingDto, String infoPrefix){
 		Integer siteCode = violentSortingDto.getSiteCode();
-		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 		ViolentSortingResponsibleInfoDTO dto = new ViolentSortingResponsibleInfoDTO();
 		dto.setId(violentSortingDto.getId());
 		dto.setSiteCode(siteCode);
@@ -741,40 +736,41 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		String key = String.valueOf(violentSortingDto.getId());
 		//未查到场地信息 上报未找到责任人
 
-		//一线机构负责人岗位名称
-		String positionName = getFirstLineLeaderPositionName();
-		Result<List<JyUserDto>> jyUserDtosResult;
-		List<JyUserDto> jyUserDtos;
-		if(siteInfo == null){
-			logger.error("{}场地在青龙基础资料不存在或查询失败，siteCode:{}",infoPrefix,siteCode);
-			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
-		}else if(
-				(jyUserDtosResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, siteInfo.getOrganizationCode(),
-						"",positionName)) == null
-						|| CollectionUtils.isEmpty(jyUserDtos = jyUserDtosResult.getData())){
+		JyWorkGridManagerResponsibleInfo responsibleInfo = new JyWorkGridManagerResponsibleInfo();
+		responsibleInfo.setSiteCode(siteCode);
+		responsibleInfo.setProcessInstanceId(violentSortingDto.getProcessInstanceId());
+		responsibleInfo.setBizId("");
+		responsibleInfo.setWorkType(FORMAL_WORKER.getCode());
+		responsibleInfo.setCreateTime(new Date());
+		
+		JyUserDto jyUserDto;
+		if((jyUserDto = jyUserManager.querySiteLeader(siteCode)) == null){
 			logger.error("{}场地在机构负责人查询失败，或不存在，siteCode:{}",infoPrefix,siteCode);
 			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
+			//保存信息
+			responsibleInfo.setErp("NOT_FOUND");
+			responsibleInfo.setName("无场地或机构人");
 		}else {
-			String superiorErp = jyUserDtos.get(0).getUserErp();
+			String superiorErp = jyUserDto.getUserErp();
 			dto.setStatus(ViolentSortingResponsibleStatusEnum.DETERMINED.getCode());
 			dto.setResponsibleCode(superiorErp);
 			dto.setResponsibleType(FORMAL_WORKER.getCode());
 			dto.setAdvanceErp(superiorErp);
+
+			responsibleInfo.setErp(superiorErp);
+			responsibleInfo.setName(jyUserDto.getUserName());
 		}
 		try {
 			violentSortingResponsibleInfoProducer.send(key, JsonHelper.toJson(dto));
 		} catch (JMQException e) {
 			logger.error("暴力分拣任务无法定责时，发送消费给判责系统时异常",e);
 		}
+		
+		jyWorkGridManagerResponsibleInfoService.add(responsibleInfo);
+		
+		logger.info("{},生成暴力分拣任务失败，保存定责信息成功，ProcessInstanceId:{}", violentSortingDto.getProcessInstanceId());
 	}
 
-	private String getFirstLineLeaderPositionName(){
-		String name = FIRST_LINE_LEADER_POSITION_NAME;
-		SysConfig nameConfig = sysConfigService.findConfigContentByConfigName(FIRST_LINE_LEADER_POSITION_NAME_KEY);
-		if(nameConfig == null || StringUtils.isBlank(nameConfig.getConfigContent())){
-			return name;
-		}
-		return nameConfig.getConfigContent();
-	}
+
 
 }

@@ -15,6 +15,5 @@ public interface HrUserManager {
      * @return
      */
     String getSuperiorErp(String userErp);
-
-    String getSuperiorErpByOrganizationCode(String organizationCode);
+    
 }

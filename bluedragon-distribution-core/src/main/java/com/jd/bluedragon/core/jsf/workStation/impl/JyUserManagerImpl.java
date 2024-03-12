@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.etms.framework.utils.JsonUtils;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jdl.basic.api.domain.user.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +35,19 @@ public class JyUserManagerImpl implements JyUserManager {
 
     @Autowired
     private UserJsfService userJsfService;
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	SysConfigService sysConfigService;
     
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.userJsfService.";
+
+	//一线机构负责人岗位名称
+	private static final String FIRST_LINE_LEADER_POSITION_NAME_KEY = "first.line.leader.position.name";
+
+	//一线机构负责人岗位名称
+	private static final String FIRST_LINE_LEADER_POSITION_NAME = "机构负责人岗";
 
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "queryUserListBySiteAndPosition",mState={JProEnum.TP,JProEnum.FunctionError})	
@@ -103,5 +118,35 @@ public class JyUserManagerImpl implements JyUserManager {
 		return result;
 	}
 	
+	
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "querySiteLeader",mState={JProEnum.TP,JProEnum.FunctionError})
+	public JyUserDto querySiteLeader(Integer siteCode){
+		if(siteCode == null){
+			log.warn("查询场地负责人，参数为空！");
+			return null;
+		}
+		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+		if(siteInfo == null) {
+			log.warn("查询场地负责人,场地【{}】在青龙基础资料不存在！",siteCode);
+			return null;
+		}
+		String positionName = getFirstLineLeaderPositionName();
+		Result<List<JyUserDto>> result = queryUserListBySiteAndPosition(siteCode, siteInfo.getOrganizationCode(),
+				"",positionName);
+		if(result == null || CollectionUtils.isEmpty(result.getData())){
+			log.info("查询场地负责人,未查到，siteCode:{}", siteCode);
+			return null;
+		}
+		return result.getData().get(0);
+	}
+	private String getFirstLineLeaderPositionName(){
+		String name = FIRST_LINE_LEADER_POSITION_NAME;
+		SysConfig nameConfig = sysConfigService.findConfigContentByConfigName(FIRST_LINE_LEADER_POSITION_NAME_KEY);
+		if(nameConfig == null || StringUtils.isBlank(nameConfig.getConfigContent())){
+			return name;
+		}
+		return nameConfig.getConfigContent();
+	}
 
 }
