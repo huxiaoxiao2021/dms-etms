@@ -102,13 +102,24 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	}
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.createOperateFlowId", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public Long createOperateFlowId() {
+		try {
+			return sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+		} catch (Exception e) {
+			logger.error("createOperateFlowId|生成操作流水主键出现异常:", e);
+		}
+		return null;
+	}
+
+	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendOperateTrack", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
 			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
 			logger.info("sendOperateTrack|发送分拣操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
-			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus));
+			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
 		}
 	}
 

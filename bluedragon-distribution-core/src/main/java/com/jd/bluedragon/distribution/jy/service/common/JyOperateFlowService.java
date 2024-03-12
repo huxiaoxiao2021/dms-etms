@@ -40,6 +40,11 @@ public interface JyOperateFlowService {
     int sendMqList(List<JyOperateFlowMqData> jyOperateFlow);
 
     /**
+     * 生成操作流水主键
+     */
+    Long createOperateFlowId();
+
+    /**
      * 发送分拣操作轨迹
      */
     void sendOperateTrack(WaybillStatus waybillStatus);

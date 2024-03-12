@@ -5,9 +5,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,8 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             sendDList.add(getSortingService().addSendDetail(sorting));
             //补发货
             getSortingService().fixSendDAndSendTrack(sorting, sendDList);
-
+            // 记录分拣节点操作流水
+            handleOperateFlow(sorting);
         }else if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
             // 取消分拣
             getSortingService().canCancel(sorting);
@@ -56,6 +59,18 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
         if (Constants.NO_MATCH_DATA == getSortingService().update(sorting).intValue()) {
             getSortingService().add(sorting);
         }
+    }
+
+    private void handleOperateFlow(SortingVO sorting) {
+        // 分拣操作轨迹对象
+        WaybillStatus operateTrack = sorting.getWaybillStatus();
+        if (operateTrack == null) {
+            return;
+        }
+        // 记录分拣操作流水
+        jyOperateFlowService.sendSoringOperateFlowData(sorting, operateTrack, OperateBizSubTypeEnum.SORTING);
+        // 发送分拣操作轨迹
+        jyOperateFlowService.sendOperateTrack(operateTrack);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.domain;
 
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -83,6 +84,11 @@ public class SortingVO extends Sorting {
     private BaseEntity<BigWaybillDto> waybillDtoBaseEntity;
 
     private BaseStaffSiteOrgDto createSite;
+
+    /**
+     * 全程跟踪对象
+     */
+    private WaybillStatus waybillStatus;
 
     public int getSortingType() {
         return sortingType;
@@ -195,5 +201,13 @@ public class SortingVO extends Sorting {
 
     public void setLastTurn(boolean lastTurn) {
         this.lastTurn = lastTurn;
+    }
+
+    public WaybillStatus getWaybillStatus() {
+        return waybillStatus;
+    }
+
+    public void setWaybillStatus(WaybillStatus waybillStatus) {
+        this.waybillStatus = waybillStatus;
     }
 }

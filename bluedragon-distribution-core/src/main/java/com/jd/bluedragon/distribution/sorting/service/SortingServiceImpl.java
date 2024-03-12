@@ -316,7 +316,7 @@ public class SortingServiceImpl implements SortingService {
 		return sendDetail;
 	}
 
-    private WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
+    public WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
                                              BaseStaffSiteOrgDto receiveSite) {
 
         WaybillStatus waybillStatus = new WaybillStatus();
@@ -607,10 +607,6 @@ public class SortingServiceImpl implements SortingService {
 			return;
 		}
 		WaybillStatus waybillStatus = this.parseWaybillStatus(sorting, createSite, receiveSite);
-
-		// 记录分拣操作流水
-		jyOperateFlowService.sendSoringOperateFlowData(sorting, waybillStatus, OperateBizSubTypeEnum.SORTING);
-
 		String jsonStr = JsonHelper.toJson(waybillStatus);
 		Task task = new Task();
 		task.setBody(jsonStr);
