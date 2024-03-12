@@ -1139,19 +1139,24 @@ public class BoxServiceImpl implements BoxService {
 		if (checkBoxIfCanUpdate(request,response)){
 			execUpdateBox(request,response);
 		}
+        upsertBoxMaterialRelation4WmsBoxUsageInline(request);
+		return response;
+	}
+
+    private void upsertBoxMaterialRelation4WmsBoxUsageInline(UpdateBoxReq request){
         // 绑定物资关系
         StoreBoxDetail storeBoxDetail = new StoreBoxDetail();
         storeBoxDetail.setBoxCode(request.getBoxCode());
-        storeBoxDetail.setMaterialCode(request.getBoxCode());
+        storeBoxDetail.setMaterialCode(request.getMaterialCode());
         storeBoxDetail.setCreateSiteCode(request.getCreateSiteCode());
+        storeBoxDetail.setOperateUserErp(request.getUserErp());
         storeBoxDetail.setOperateUserErp(request.getUserErp());
         final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = upsertBoxMaterialRelation4WmsBoxUsage(storeBoxDetail);
         if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
-            log.error("updateBox upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(request));
+            log.error("updateBox upsertBoxMaterialRelation4WmsBoxUsageInline upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(request));
             // throw new RuntimeException("处理箱号绑定物资失败！");
         }
-		return response;
-	}
+    }
 
     /**
      * 更新箱号绑定物资关系
