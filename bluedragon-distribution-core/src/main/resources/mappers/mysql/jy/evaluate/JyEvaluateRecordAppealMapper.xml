@@ -252,12 +252,10 @@
         <include refid="Base_Column_List"/>
         from jy_evaluate_record_appeal
         where yn =1
-        <if test="conditions!=null and conditions.size() >0">
-            AND (target_biz_id, source_biz_id)  in
-            <foreach item="item" collection="conditions" open="(" separator="),(" close=")">
-                #{item.targetBizId}, #{item.sourceBizId}
-            </foreach>
-        </if>
+        AND (target_biz_id, source_biz_id) in
+        <foreach collection="list" item="item" open="(" separator="),(" close=")">
+            #{item.targetBizId}, #{item.sourceBizId}
+        </foreach>
     </select>
 
     <insert id="batchInsert" parameterType="List">
@@ -265,7 +263,7 @@
         appeal_status,
         reasons, dimension_code,
         appeal_result, create_user_erp,
-        create_user_name, update_user_erp, update_user_name, create_time, update_time, ts, yn)  VALUES
+        create_user_name, update_user_erp, update_user_name, create_time, update_time, ts, yn) VALUES
         <foreach collection="list" item="item" index="index" separator=",">
             (
             #{item.targetBizId,jdbcType=VARCHAR},
@@ -287,7 +285,9 @@
         </foreach>
     </insert>
 
-    <select id="queryDetailByCondition" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto" resultMap="jyEvaluateRecordAppealMap">
+    <select id="queryDetailByCondition"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto"
+            resultMap="jyEvaluateRecordAppealMap">
         select
         <include refid="Base_Column_List"/>
         from jy_evaluate_record_appeal
@@ -300,8 +300,9 @@
         </if>
     </select>
 
-    <select id="queryByIdList" parameterType="java.util.List"  resultMap="jyEvaluateRecordAppealMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="queryByIdList" parameterType="java.util.List" resultMap="jyEvaluateRecordAppealMap">
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM jy_evaluate_record_appeal
         WHERE yn = 1 and id in
         <foreach item="item" index="index" collection="list" open="("
@@ -310,7 +311,8 @@
         </foreach>
     </select>
 
-    <update id="batchUpdateStatusByIds" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto">
+    <update id="batchUpdateStatusByIds"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto">
         update jy_evaluate_record_appeal
         <if test="appealStatus != null">
             appeal_status = #{appealStatus} ,
@@ -328,13 +330,13 @@
         </foreach>
     </update>
 
-    <select id="getAppealRejectCount" parameterType="Long"  resultType="java.lang.Integer">
+    <select id="getAppealRejectCount" parameterType="Long" resultType="java.lang.Integer">
         SELECT count(id)
         FROM jy_evaluate_record_appeal
         WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result = 2
     </select>
 
-    <select id="getCheckAppealCount" parameterType="Long"  resultType="java.lang.Integer">
+    <select id="getCheckAppealCount" parameterType="Long" resultType="java.lang.Integer">
         SELECT count(id)
         FROM jy_evaluate_record_appeal
         WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result in (1 , 2)

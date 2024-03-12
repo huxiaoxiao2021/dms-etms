@@ -18,8 +18,8 @@ public class JyEvaluateRecordAppealDao extends BaseDao<JyEvaluateRecordAppealEnt
 
     private final static String NAMESPACE = JyEvaluateRecordAppealDao.class.getName();
 
-    public List<JyEvaluateRecordAppealEntity> queryListByCondition(List<JyEvaluateRecordAppealEntity> conditions) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryListByCondition", conditions);
+    public List<JyEvaluateRecordAppealEntity> queryListByCondition(List<JyEvaluateRecordAppealEntity> list) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryListByCondition", list);
     }
 
     public int batchInsert(List<JyEvaluateRecordAppealDto> entityList) {
