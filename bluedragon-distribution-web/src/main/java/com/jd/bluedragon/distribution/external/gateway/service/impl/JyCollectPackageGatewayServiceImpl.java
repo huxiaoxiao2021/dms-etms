@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackage
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -47,7 +48,8 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
             //扫描循环集包袋
             if (BusinessUtil.isCollectionBag(request.getBarCode())) {
                 BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
-                return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
+                InvokeResult<BindCollectBagResp> rs =jyCollectPackageService.bindCollectBag(bindCollectBagReq);
+                return new JdCResponse(rs.getCode(), rs.getMessage());
             }
             //扫描包裹号
             else if (WaybillUtil.isPackageCode(request.getBarCode())){
@@ -131,7 +133,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         try {
             if (request.getCancelBindFlag() && BusinessUtil.isBoxcode(request.getBarCode())){
-                return retJdCResponse(jyCollectPackageService.cancelCollectLoading(request));
+                return retJdCResponse(jyCollectPackageService.cancelCollectBox(request));
             }
             return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
         } catch (JyBizException e) {

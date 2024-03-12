@@ -309,7 +309,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         jyCollectPackageEntity.setEndSiteId(request.getEndSiteId());
         jyCollectPackageEntity.setEndSiteName(request.getEndSiteName());
         jyCollectPackageEntity.setBoxEndSiteId(request.getBoxReceiveId());
-        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxCode());
+        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxReceiveName());
         Date now = new Date();
         jyCollectPackageEntity.setCreateTime(now);
         jyCollectPackageEntity.setUpdateTime(now);
@@ -669,7 +669,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private void collectPackageBaseCheck(CollectPackageReq request) {
+    public void collectPackageBaseCheck(CollectPackageReq request) {
         if (!ObjectHelper.isNotNull(request.getBizId())) {
             throw new JyBizException("参数错误：缺失任务bizId！");
         }
@@ -703,6 +703,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         Date time = DateHelper.addHoursByDay(new Date(), -Double.valueOf(dmsConfigManager.getPropertyConfig().getJyCollectPackageTaskQueryTimeLimit()));
         query.setCreateTime(time);
         query.setTaskStatusList(Arrays.asList(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode(), JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode(), JyBizTaskCollectPackageStatusEnum.SEALED.getCode()));
+        if (CollectionUtils.isNotEmpty(request.getSupportBoxTypes())){
+            query.setSupportBoxTypes(request.getSupportBoxTypes());
+        }
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(query));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getPageQuery(request, time)));
         return result;
@@ -873,6 +876,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setOffset((request.getPageNo() - 1) * request.getPageSize());
         query.setLimit(request.getPageSize());
         query.setCreateTime(time);
+        if (CollectionUtils.isNotEmpty(request.getSupportBoxTypes())){
+            query.setSupportBoxTypes(request.getSupportBoxTypes());
+        }
         return query;
     }
 
@@ -903,7 +909,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
 
-        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+        if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
             // 查询箱子是否已经被放入LL箱子中
             BoxRelation boxRelation = getBoxRelation(task);
             InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
@@ -941,7 +947,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return boxRelation;
     }
 
-    private JyBizTaskCollectPackageEntity getTaskDetailByReq(TaskDetailReq request) {
+    public JyBizTaskCollectPackageEntity getTaskDetailByReq(TaskDetailReq request) {
         if (BusinessUtil.isBoxcode(request.getBarCode())) {
             // 如果是箱号
             return jyBizTaskCollectPackageService.findByBoxCode(request.getBarCode());
@@ -1069,7 +1075,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @return 绑定集装袋响应结果
      */
     @Override
-    public InvokeResult bindCollectBag(BindCollectBagReq request) {
+    public InvokeResult<BindCollectBagResp> bindCollectBag(BindCollectBagReq request) {
         checkBindCollectBagReq(request);
         JyBizTaskCollectPackageEntity entity =jyBizTaskCollectPackageService.findByBoxCode(request.getBoxCode());
         if (ObjectHelper.isEmpty(entity)){
@@ -1085,7 +1091,20 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             return new InvokeResult(SERVER_ERROR_CODE, bindMaterialResp.getMessage());
         }
         updateCollectBag(request, entity);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        BindCollectBagResp bindCollectBagResp = assembleBindCollectBagResp(request);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, bindCollectBagResp);
+    }
+
+    public BindCollectBagResp assembleBindCollectBagResp(BindCollectBagReq bindCollectBagReq) {
+        BindCollectBagResp bindCollectBagResp =new BindCollectBagResp();
+        if (BusinessUtil.isPalletBoxCollectionBag(bindCollectBagReq.getMaterialCode())){
+            bindCollectBagResp.setMaterialType(MaterialTypeEnum.M_PALLET_BOX.getCode());
+        }else if (BusinessUtil.isTrolleyCollectionBag(bindCollectBagReq.getMaterialCode())){
+            bindCollectBagResp.setMaterialType(MaterialTypeEnum.M_CAGE_CAR.getCode());
+        }else {
+            bindCollectBagResp.setMaterialType(MaterialTypeEnum.M_CYCLE_BAG.getCode());
+        }
+        return bindCollectBagResp;
     }
 
     private void updateCollectBag(BindCollectBagReq request, JyBizTaskCollectPackageEntity entity) {
@@ -1112,7 +1131,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return req;
     }
 
-    private void checkBindCollectBagReq(BindCollectBagReq request) {
+    public void checkBindCollectBagReq(BindCollectBagReq request) {
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
             throw new JyBizException("参数错误：缺失箱号！");
         }
@@ -1429,7 +1448,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isNotNull(collectPackageTask)){
             checkIfNeedUpdateStatus(request,collectPackageTask);
         }
-
+        saveJyCollectPackageScanRecord(request);
     }
 
     private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
@@ -1478,7 +1497,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isEmpty(count) || count <= 0){
             throw new JyBizException("该箱子"+ request.getBarCode()+"为空箱子！");
         }
-        //TODO 再校验一下箱子里面还有没有箱子
     }
 
     private void countLimitCheck(CollectPackageReq request) {
@@ -1610,7 +1628,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return statisticsUnderFlowQueryReq;
     }
 
-    private boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {
+    public boolean checkSearchPackageTaskReq(SearchPackageTaskReq request, InvokeResult<CollectPackageTaskResp> result) {
         if (StringUtils.isEmpty(request.getBarCode())
                 || (!WaybillUtil.isPackageCode(request.getBarCode())
                 && !BusinessHelper.isBoxcode(request.getBarCode()))) {
@@ -1628,6 +1646,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setOffset((request.getPageNo() - 1) * request.getPageSize());
         query.setLimit(request.getPageSize());
         query.setTaskStatusList(Arrays.asList(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode(), JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode(), JyBizTaskCollectPackageStatusEnum.SEALED.getCode()));
+        if (CollectionUtils.isNotEmpty(request.getSupportBoxTypes())){
+            query.setSupportBoxTypes(request.getSupportBoxTypes());
+        }
 
         // 如果是箱号
         if (BusinessHelper.isBoxcode(request.getBarCode())) {
@@ -1660,15 +1681,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
-    public InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request) {
-        checkCancelCollectLoading(request);
-        checkIfAllowCancelCollectLoading(request);
+    public InvokeResult<CancelCollectPackageResp> cancelCollectBox(CancelCollectPackageReq request) {
+        checkCancelCollectBox(request);
+        checkIfAllowCancelCollectBox(request);
         CancelCollectPackageResp response = new CancelCollectPackageResp();
-        execCancelCollectLoading(request, response);
+        execCancelCollectBox(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
-    private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+    private void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
         BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
         InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
         log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
@@ -1679,7 +1700,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
-        relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
         relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         relation.setCreateUserErp(request.getUser().getUserErp());
@@ -1694,11 +1714,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return relation;
     }
 
-    private void checkIfAllowCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkIfAllowCancelCollectBox(CancelCollectPackageReq request) {
+        //校验一下箱号是否已经发货
 
     }
 
-    private void checkCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkCancelCollectBox(CancelCollectPackageReq request) {
+        if (ObjectHelper.isEmpty(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失取消箱号！");
+        }
     }
 
     public static void main(String[] args) {

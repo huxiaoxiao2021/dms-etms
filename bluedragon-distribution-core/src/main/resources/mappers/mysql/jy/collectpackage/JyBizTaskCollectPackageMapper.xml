@@ -286,6 +286,12 @@
     <if test="boxCode != null">
       and box_code = #{boxCode,jdbcType=VARCHAR}
     </if>
+    <if test="supportBoxTypes != null and supportBoxTypes.size()>0 ">
+      and box_type in
+      <foreach collection="supportBoxTypes" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
     and create_time > #{createTime}
     order by ts desc
     limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
@@ -303,7 +309,13 @@
     <if test="boxCode != null">
       and box_code = #{boxCode,jdbcType=VARCHAR}
     </if>
-    and task_status in
+    <if test="supportBoxTypes != null and supportBoxTypes.size()>0 ">
+      and box_type in
+      <foreach collection="supportBoxTypes" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+      and task_status in
     <foreach collection="taskStatusList" item="item" index="index" open="(" separator="," close=")">
       #{item}
     </foreach>

@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.collectpackage.request;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class SearchPackageTaskReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -2582599082183192975L;
@@ -22,6 +23,17 @@ public class SearchPackageTaskReq extends BaseReq implements Serializable {
      * 检索条件，箱号|包裹号
      */
     private String barCode;
+
+
+    private List<String> supportBoxTypes;
+
+    public List<String> getSupportBoxTypes() {
+        return supportBoxTypes;
+    }
+
+    public void setSupportBoxTypes(List<String> supportBoxTypes) {
+        this.supportBoxTypes = supportBoxTypes;
+    }
 
     public Integer getTaskStatus() {
         return taskStatus;
