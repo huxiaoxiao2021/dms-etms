@@ -30,8 +30,8 @@ public class JyEvaluateRecordAppealDao extends BaseDao<JyEvaluateRecordAppealEnt
         return this.getSqlSession().selectList(NAMESPACE + ".queryDetailByCondition", condition);
     }
 
-    public List<JyEvaluateRecordAppealEntity> queryByIdList(List<Long> idList) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryDetailByCondition", idList);
+    public List<JyEvaluateRecordAppealEntity> queryByIdList(List<Long> list) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryDetailByCondition", list);
 
     }
     /**
