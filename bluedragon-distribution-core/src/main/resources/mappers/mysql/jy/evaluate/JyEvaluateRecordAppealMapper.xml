@@ -282,8 +282,8 @@
             #{item.updateUserName,jdbcType=VARCHAR},
             #{item.createTime,jdbcType=TIMESTAMP},
             #{item.updateTime,jdbcType=TIMESTAMP},
-            1,
-            now(3))
+            now(3),
+            1)
         </foreach>
     </insert>
 
