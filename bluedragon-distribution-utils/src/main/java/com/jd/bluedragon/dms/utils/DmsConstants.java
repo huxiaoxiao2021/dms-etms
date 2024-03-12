@@ -553,7 +553,8 @@ public class DmsConstants {
 
     /**
      * 发送分拣操作轨迹的节点
+     * 0-验货、2-发货
      */
-    public static final List<Integer> OPERATE_TYPE_LIST = Arrays.asList(0, 1, 2, 7000);
+    public static final List<Integer> OPERATE_TYPE_LIST = Arrays.asList(0, 2);
 
 }
