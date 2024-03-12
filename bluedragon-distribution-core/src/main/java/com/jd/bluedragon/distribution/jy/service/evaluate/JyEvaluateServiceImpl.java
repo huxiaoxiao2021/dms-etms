@@ -223,7 +223,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             }
         }
         // 场地评价和申诉权限记录为空，初始化记录，默认评价和申诉开启
-        if (Objects.nonNull(permissions)) {
+        if (Objects.isNull(permissions)) {
             JyEvaluateAppealPermissionsEntity entity = buildEntity(request, sideCode);
             jyEvaluateAppealPermissionsDao.insert(entity);
         }
