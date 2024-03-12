@@ -360,6 +360,9 @@
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 
 
 	</bean>
@@ -725,6 +728,9 @@
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 			</list>
 		</property>
 	</bean>

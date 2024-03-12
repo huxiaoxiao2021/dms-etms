@@ -3257,6 +3257,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
+
                 Profiler.registerInfoEnd(callerInfo);
                 checkIfNeedCancelInnerBoxes(tSendM);
                 return threeDeliveryResponse;
@@ -3690,26 +3691,25 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      */
     private void sendMessage(List<SendDetail> sendDetails, SendM tSendM, boolean needSendMQ) {
         try {
-            if (sendDetails == null || sendDetails.isEmpty()) {
-                return;
-            }
-            Set<String> coldChainWaybillSet = new HashSet<>();
-            List<SendDetail> coldChainSendDetails = new ArrayList<>();
-            //按照包裹
-            for (SendDetail model : sendDetails) {
-                if (StringHelper.isNotEmpty(model.getSendCode())) {
-                    // 发送全程跟踪任务
-                    send(model, tSendM);
-                    if (needSendMQ) {
-                        // 发送取消发货MQ
-                        sendMQ(model, tSendM);
-                        if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
-                            coldChainSendDetails.add(model);
+            if (CollectionUtils.isNotEmpty(sendDetails)) {
+                Set<String> coldChainWaybillSet = new HashSet<>();
+                List<SendDetail> coldChainSendDetails = new ArrayList<>();
+                //按照包裹
+                for (SendDetail model : sendDetails) {
+                    if (StringHelper.isNotEmpty(model.getSendCode())) {
+                        // 发送全程跟踪任务
+                        send(model, tSendM);
+                        if (needSendMQ) {
+                            // 发送取消发货MQ
+                            sendMQ(model, tSendM);
+                            if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
+                                coldChainSendDetails.add(model);
+                            }
                         }
                     }
                 }
+                this.sendColdChainSendMQ(coldChainSendDetails);
             }
-            this.sendColdChainSendMQ(coldChainSendDetails);
             this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
@@ -3873,6 +3873,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         boxMaterialRelationMQ.setWaybillCode(new ArrayList<>(waybillCodeSet));
         boxMaterialRelationMQ.setPackageCode(packageCodeList);
+
+        // 如果sendM为空，则判断是否为嵌套箱
+        if (CollectionUtils.isEmpty(sendDetails)) {
+            Box boxNestParam = new Box();
+            boxNestParam.setCode(tSendM.getBoxCode());
+            final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+            if (CollectionUtils.isNotEmpty(boxNestList)) {
+                boxMaterialRelationMQ.setBoxHasChildBox(true);
+            }
+        }
 
         boxMaterialRelationMQ.setBusinessType(BoxMaterialRelationEnum.SEND_CANCEL.getType());
         boxMaterialRelationMQ.setMaterialCode(materialCode);
