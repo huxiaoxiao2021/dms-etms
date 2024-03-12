@@ -1217,7 +1217,7 @@ public class BoxServiceImpl implements BoxService {
 
 		if (ObjectHelper.isEmpty(request.getReceiveSiteName())){
 			BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(request.getReceiveSiteCode());
-			if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsName())){
+			if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getSiteName())){
 				response.toError("未获取到目的场地信息！");
 				return false;
 			}
