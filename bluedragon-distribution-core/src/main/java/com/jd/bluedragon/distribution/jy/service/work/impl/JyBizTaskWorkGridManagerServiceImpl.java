@@ -85,6 +85,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	private static final String VIOLENT_SORTING_EXPIRED_HOUR_CONF = "violent.sorting.expired.hour";
 	//暴力分拣任务默认过期时间
 	private static final int VIOLENT_SORTING_EXPIRED_DEFAULT = 24;
+	//一线机构负责人岗位名称
+	private static final String FIRST_LINE_LEADER_POSITION_NAME_KEY = "first.line.leader.position.name";
+
+	//一线机构负责人岗位名称
+	private static final String FIRST_LINE_LEADER_POSITION_NAME = "机构负责人岗";
 
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerDao")
@@ -731,18 +736,26 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 		ViolentSortingResponsibleInfoDTO dto = new ViolentSortingResponsibleInfoDTO();
 		dto.setId(violentSortingDto.getId());
-		dto.setSiteCode(violentSortingDto.getSiteCode());
+		dto.setSiteCode(siteCode);
 		dto.setProcessInstanceId(violentSortingDto.getProcessInstanceId());
 		String key = String.valueOf(violentSortingDto.getId());
 		//未查到场地信息 上报未找到责任人
-		String superiorErp;
+
+		//一线机构负责人岗位名称
+		String positionName = getFirstLineLeaderPositionName();
+		Result<List<JyUserDto>> jyUserDtosResult;
+		List<JyUserDto> jyUserDtos;
 		if(siteInfo == null){
 			logger.error("{}场地在青龙基础资料不存在或查询失败，siteCode:{}",infoPrefix,siteCode);
 			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
-		}else if((superiorErp = hrUserManager.getSuperiorErpByOrganizationCode(siteInfo.getOrganizationCode())) == null){
+		}else if(
+				(jyUserDtosResult = jyUserManager.queryUserListBySiteAndPosition(siteCode, siteInfo.getOrganizationCode(),
+						"",positionName)) == null
+						|| CollectionUtils.isEmpty(jyUserDtos = jyUserDtosResult.getData())){
 			logger.error("{}场地在机构负责人查询失败，或不存在，siteCode:{}",infoPrefix,siteCode);
 			dto.setStatus(ViolentSortingResponsibleStatusEnum.NOT_FOUND.getCode());
 		}else {
+			String superiorErp = jyUserDtos.get(0).getUserErp();
 			dto.setStatus(ViolentSortingResponsibleStatusEnum.DETERMINED.getCode());
 			dto.setResponsibleCode(superiorErp);
 			dto.setResponsibleType(FORMAL_WORKER.getCode());
@@ -754,4 +767,14 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			logger.error("暴力分拣任务无法定责时，发送消费给判责系统时异常",e);
 		}
 	}
+
+	private String getFirstLineLeaderPositionName(){
+		String name = FIRST_LINE_LEADER_POSITION_NAME;
+		SysConfig nameConfig = sysConfigService.findConfigContentByConfigName(FIRST_LINE_LEADER_POSITION_NAME_KEY);
+		if(nameConfig == null || StringUtils.isBlank(nameConfig.getConfigContent())){
+			return name;
+		}
+		return nameConfig.getConfigContent();
+	}
+
 }

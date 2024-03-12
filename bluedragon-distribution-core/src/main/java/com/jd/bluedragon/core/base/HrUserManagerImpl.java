@@ -104,8 +104,9 @@ public class HrUserManagerImpl implements HrUserManager{
             result = URLDecoder.decode(result, "UTF-8");
             JSONObject jsonResult = JSON.parseObject(result);
             String resStatus = jsonResult.get("resStatus").toString();
-            String responseBody = jsonResult.get("responsebody").toString();
-            if(!Objects.equals(resStatus, String.valueOf(200)) || StringUtils.isEmpty(responseBody)){
+            String responseBody ;
+            if(!Objects.equals(resStatus, String.valueOf(200)) || jsonResult.get("responsebody") == null 
+                    || StringUtils.isEmpty(responseBody = jsonResult.get("responsebody").toString())){
                 logger.error("根据参数:{},{}失败,返回查询状态失败，resStatus:{}", queryParam, functionName, resStatus);
                 return null;
             }
