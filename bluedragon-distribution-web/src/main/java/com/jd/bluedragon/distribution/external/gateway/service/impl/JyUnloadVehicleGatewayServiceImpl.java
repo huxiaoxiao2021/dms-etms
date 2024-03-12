@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
-import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -19,9 +18,9 @@ import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;

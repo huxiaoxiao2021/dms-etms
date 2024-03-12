@@ -168,4 +168,21 @@
         AND weight > 0
         limit 1
     </select>
+
+    <select id="queryPackWeightFlowRecentDetail" resultMap="packageWeighting" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_Exclude_ID"/>
+        FROM ${tableName}
+        WHERE is_delete = 0
+        AND waybill_code=#{waybillCode, jdbcType=VARCHAR}
+        AND package_code=#{packageCode,jdbcType=VARCHAR}
+        AND business_type in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        AND weight > 0
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
 </mapper>

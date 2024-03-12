@@ -703,5 +703,10 @@
     <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
     </jmq:consumer>
+
+    <!--  分拣机触发：直送分拣揽收  -->
+    <jmq:consumer id="jmq.directDeliverySortCollectConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.directDeliverySort.collect}" listener="directDeliverySortCollectConsumer"/>
+    </jmq:consumer>
 </beans>
 

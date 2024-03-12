@@ -248,7 +248,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.5.6-SNAPSHOT</version>
+			<version>1.0.0-COLLECT-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -277,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.8-SNAPSHOT</version>
+            <version>1.0.0-COLLECT-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
