@@ -253,7 +253,7 @@
         from jy_evaluate_record_appeal
         where yn =1
         AND (target_biz_id, source_biz_id) in
-        <foreach collection="list" item="item" open="(" separator="),(" close=")">
+        <foreach collection="list" item="item" open="((" separator="),(" close="))">
             #{item.targetBizId}, #{item.sourceBizId}
         </foreach>
     </select>
