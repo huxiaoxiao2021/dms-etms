@@ -275,7 +275,7 @@
             #{item.appealStatus,jdbcType=INTEGER},
             #{item.reasons,jdbcType=VARCHAR},
             #{item.dimensionCode,jdbcType=INTEGER},
-            #{item.remark,jdbcType=VARCHAR},
+            #{item.appealResult,jdbcType=VARCHAR},
             #{item.createUserErp,jdbcType=VARCHAR},
             #{item.createUserName,jdbcType=VARCHAR},
             #{item.updateUserErp,jdbcType=VARCHAR},
