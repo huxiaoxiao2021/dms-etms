@@ -254,7 +254,7 @@
         where yn =1
         <if test="conditions!=null and conditions.size() >0">
             AND (target_biz_id, source_biz_id)  in
-            <foreach item="item" collection="list" open="(" separator="),(" close=")">
+            <foreach item="item" collection="conditions" open="(" separator="),(" close=")">
                 #{item.targetBizId}, #{item.sourceBizId}
             </foreach>
         </if>
