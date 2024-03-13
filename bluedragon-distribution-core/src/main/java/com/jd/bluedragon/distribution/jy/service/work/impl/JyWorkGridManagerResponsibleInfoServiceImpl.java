@@ -69,7 +69,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         if(WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
             Integer siteCode = taskData.getSiteCode();
             String processInstanceId = taskData.getViolenceSortInfoData().getProcessInstanceId();
-            violentSortingTaskSaveResponsibleInfo(bizId, taskData.getResponsibleInfo(),siteCode, processInstanceId);
+            violentSortingTaskSaveResponsibleInfo(bizId, responsibleInfo,siteCode, processInstanceId);
             return;
         }
         
