@@ -117,7 +117,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendOperateTrack", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
-			dmsOperateTrackProducer.sendOnFailPersistent(waybillStatus.getPackageCode(), JsonHelper.toJson(waybillStatus));
+			// 消息业务ID格式：操作码+单号
+			String businessId = waybillStatus.getOperateType() + waybillStatus.getPackageCode();
+			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
 			logger.info("sendOperateTrack|发送分拣操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
@@ -215,6 +217,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.createAbnormalOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JyOperateFlowMqData createAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum) {
+		if (subTypeEnum == null) {
+			return null;
+		}
 		if (abnormalWayBill.getOperatorData() == null) {
 			logger.warn("组装配送异常操作流水operatorData为空不做处理:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill));
 			return null;

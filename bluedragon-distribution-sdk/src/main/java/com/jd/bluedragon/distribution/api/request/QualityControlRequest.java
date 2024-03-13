@@ -60,6 +60,11 @@ public class QualityControlRequest implements Serializable{
      */
     private OperatorData operatorData;
 
+    /**
+     * 异常菜单来源
+     */
+    private Integer bizSource;
+
     public Integer getUserID() {
         return userID;
     }
@@ -226,5 +231,13 @@ public class QualityControlRequest implements Serializable{
 
     public void setOperatorData(OperatorData operatorData) {
         this.operatorData = operatorData;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
