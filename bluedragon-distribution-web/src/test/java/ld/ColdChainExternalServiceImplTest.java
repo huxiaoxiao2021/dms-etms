@@ -275,4 +275,20 @@ public class ColdChainExternalServiceImplTest {
         coldChainExternalService.sendOfColdKYNew(request);
 
     }
+
+    @Test
+    public void checkSendCodeStatusTest() {
+        SendCheckVO request = new SendCheckVO();
+        request.setSendCode("14514-39-20220829148493930");
+        InvokeResult<ColdSendResult> result = coldChainExternalService.checkSendCodeStatus(request);
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
+    }
+    @Test
+    public void getTransPlanTest() {
+        SendCheckVO request = new SendCheckVO();
+        request.setReceiveSiteCode(39);
+        request.setSiteCode(14514);
+        InvokeResult<List<TransPlanResult>> result = coldChainExternalService.getTransPlan(request);
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
+    }
 }
