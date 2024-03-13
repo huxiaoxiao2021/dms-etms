@@ -83,7 +83,7 @@
         </if>
     </sql>
 
-	<insert id="add" parameterType="abnormalWayBill">
+	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )
@@ -116,7 +116,7 @@
 		</trim>
 	</insert>
 
-    <insert id="addBatch" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addBatch" parameterType="java.util.List">
         INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )

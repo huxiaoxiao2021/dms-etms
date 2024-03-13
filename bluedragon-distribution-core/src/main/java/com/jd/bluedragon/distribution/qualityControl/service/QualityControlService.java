@@ -392,16 +392,10 @@ public class QualityControlService {
             } else {
                 toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
             }
-            // <包裹号,操作流水对象>
-            Map<String, JyOperateFlowMqData> flowMqDataMap = new HashMap<>();
-            List<AbnormalWayBill> abnormalWayBillList = convert2AbnormalWayBills(sendDetails, request, flowMqDataMap);
-            abnormalWayBillService.insertBatchAbnormalWayBill(abnormalWayBillList);
-            // 只有异常处理和异常提报(新)需要处理
-            if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())
-                    || AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
-                // 记录配送异常操作流水
-                jyOperateFlowService.sendAbnormalOperateFlowData(abnormalWayBillList, flowMqDataMap);
-            }
+
+            // 保存异常处理记录
+            convert2AbnormalWayBills(sendDetails, request);
+
         } catch (Exception ex) {
             log.error("分拣中心异常节点推全程跟踪、质控发生异常。" , ex);
             return TaskResult.REPEAT;
@@ -642,15 +636,14 @@ public class QualityControlService {
      * @param request
      * @return
      */
-    private List<AbnormalWayBill> convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request,
-                                                           Map<String, JyOperateFlowMqData> flowMqDataMap) {
+    private void convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request) {
         OperateBizSubTypeEnum operateBizSubTypeEnum = null;
         if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
             operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_HANDLE;
         } else if (AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
             operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_REPORT_H5;
         }
-        List<AbnormalWayBill> list = new ArrayList<AbnormalWayBill>(sendDetails.size());
+
         for (SendDetail sendDetail : sendDetails){
             AbnormalWayBill abnormalWayBill = new AbnormalWayBill();
             abnormalWayBill.setWaybillCode(sendDetail.getWaybillCode());
@@ -680,14 +673,17 @@ public class QualityControlService {
             }
             abnormalWayBill.setOperateFlowId(sendDetail.getOperateFlowId());
             abnormalWayBill.setOperatorData(request.getOperatorData());
-            // 组装操作流水集合
-            JyOperateFlowMqData jyOperateFlowMqData = jyOperateFlowService.createAbnormalOperateFlowData(abnormalWayBill, operateBizSubTypeEnum);
-            if (jyOperateFlowMqData != null) {
-                flowMqDataMap.put(sendDetail.getPackageBarcode(), jyOperateFlowMqData);
+
+            // 执行插入
+            abnormalWayBillService.insertAbnormalWayBill(abnormalWayBill);
+
+            // 只有异常处理和异常提报(新)需要处理
+            if (operateBizSubTypeEnum != null) {
+                // 记录配送异常操作流水
+                jyOperateFlowService.sendAbnormalOperateFlowData(abnormalWayBill, operateBizSubTypeEnum);
             }
-            list.add(abnormalWayBill);
+
         }
-        return list;
     }
 
     public void convertThenAddTask(QualityControlRequest request) throws Exception {

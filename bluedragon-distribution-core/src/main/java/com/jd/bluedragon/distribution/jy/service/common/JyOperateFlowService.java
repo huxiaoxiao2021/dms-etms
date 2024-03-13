@@ -72,13 +72,8 @@ public interface JyOperateFlowService {
     void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
 
     /**
-     * 组装配送异常操作流水
-     */
-    JyOperateFlowMqData createAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum);
-
-    /**
      * 发送配送异常操作流水
      */
-    void sendAbnormalOperateFlowData(List<AbnormalWayBill> abnormalWayBillList, Map<String, JyOperateFlowMqData> flowMqDataMap);
+    void sendAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum);
 
 }

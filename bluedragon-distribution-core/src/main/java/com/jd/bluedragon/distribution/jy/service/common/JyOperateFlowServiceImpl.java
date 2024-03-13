@@ -214,48 +214,20 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		}
 	}
 
+
 	@Override
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.createAbnormalOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public JyOperateFlowMqData createAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum) {
-		if (subTypeEnum == null) {
-			return null;
-		}
-		if (abnormalWayBill.getOperatorData() == null) {
-			logger.warn("组装配送异常操作流水operatorData为空不做处理:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill));
-			return null;
-		}
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendAbnormalOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum) {
 		try {
 			// 组装操作流水实体
 			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(abnormalWayBill);
 			// 业务子类型
 			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
-			return sortingCancelFlowMq;
+			sortingCancelFlowMq.setId(abnormalWayBill.getOperateFlowId());
+			sortingCancelFlowMq.setOperateKey(String.valueOf(abnormalWayBill.getId()));
+			sendMq(sortingCancelFlowMq);
 		} catch (Exception e) {
-			logger.error("组装配送异常操作流水出现异常:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill), e);
-		}
-		return null;
-	}
-
-	@Override
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendAbnormalOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public void sendAbnormalOperateFlowData(List<AbnormalWayBill> abnormalWayBillList, Map<String, JyOperateFlowMqData> flowMqDataMap) {
-		if (flowMqDataMap.isEmpty()) {
-			logger.warn("发送异常操作流水flowMqDataMap为空不做处理:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBillList));
-			return;
-		}
-		try {
-			// 组装其他参数
-			for (AbnormalWayBill abnormalWayBill : abnormalWayBillList) {
-				JyOperateFlowMqData jyOperateFlowMqData = flowMqDataMap.get(abnormalWayBill.getWaybillCode());
-				if (jyOperateFlowMqData != null) {
-					jyOperateFlowMqData.setOperateKey(String.valueOf(abnormalWayBill.getId()));
-					jyOperateFlowMqData.setId(abnormalWayBill.getOperateFlowId());
-				}
-			}
-			// 批量发送
-			sendMqList(new ArrayList<>(flowMqDataMap.values()));
-		} catch (Exception e) {
-			logger.error("发送异常操作流水出现异常:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBillList), e);
+			logger.error("发送异常处理操作流水出现异常:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill), e);
 		}
 	}
 
