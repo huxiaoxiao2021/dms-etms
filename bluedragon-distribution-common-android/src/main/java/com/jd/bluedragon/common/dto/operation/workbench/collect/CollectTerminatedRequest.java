@@ -40,12 +40,12 @@ public class CollectTerminatedRequest implements Serializable {
     /**
      * 揽收终止原因编码
      */
-    private Integer terminatedReasonCode;
+    private String terminatedReasonCode;
 
     /**
      * 揽收终止原因
      */
-    private String terminatedReason;
+    private String terminatedReasonName;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -87,19 +87,19 @@ public class CollectTerminatedRequest implements Serializable {
         this.operateUserName = operateUserName;
     }
 
-    public Integer getTerminatedReasonCode() {
+    public String getTerminatedReasonCode() {
         return terminatedReasonCode;
     }
 
-    public void setTerminatedReasonCode(Integer terminatedReasonCode) {
+    public void setTerminatedReasonCode(String terminatedReasonCode) {
         this.terminatedReasonCode = terminatedReasonCode;
     }
 
-    public String getTerminatedReason() {
-        return terminatedReason;
+    public String getTerminatedReasonName() {
+        return terminatedReasonName;
     }
 
-    public void setTerminatedReason(String terminatedReason) {
-        this.terminatedReason = terminatedReason;
+    public void setTerminatedReasonName(String terminatedReasonName) {
+        this.terminatedReasonName = terminatedReasonName;
     }
 }

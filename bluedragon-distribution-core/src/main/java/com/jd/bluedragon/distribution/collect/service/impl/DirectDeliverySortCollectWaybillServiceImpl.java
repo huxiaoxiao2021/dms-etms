@@ -33,10 +33,12 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.express.collect.api.CommonDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskcollectwaybillterminate.NoTaskCollectWaybillTerminateCommand;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskcollectwaybillterminate.NoTaskCollectWaybillTerminateDTO;
+import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectFailureWaybillInfoDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillCommand;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillInfoDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -130,15 +132,16 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
 
     private InvokeResult<Void> terminatedParamsCheck(CollectTerminatedRequest request) {
         InvokeResult<Void> result = new InvokeResult<>();
-        if(!WaybillUtil.isWaybillCode(request.getWaybillCode())){
-            result.parameterError("请录入有效的运单号!");
+        if(!WaybillUtil.isPackageCode(request.getWaybillCode()) && !WaybillUtil.isWaybillCode(request.getWaybillCode())){
+            result.parameterError("请录入有效的运单号|包裹号!");
             return result;
         }
+        request.setWaybillCode(WaybillUtil.getWaybillCode(request.getWaybillCode()));
         if(request.getOperateSiteCode() == null || request.getOperateUserId() == null){
             result.parameterError("缺少操作场地|人信息!");
             return result;
         }
-        if(request.getTerminatedReasonCode() == null || StringUtils.isEmpty(request.getTerminatedReason())){
+        if(request.getTerminatedReasonCode() == null || StringUtils.isEmpty(request.getTerminatedReasonName())){
             result.parameterError("请选择有效的揽收终止原因!");
             return result;
         }
@@ -168,8 +171,8 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
         command.setSiteName(request.getOperateSiteName());
         command.setOperatorId(request.getOperateUserId());
         command.setOperatorName(request.getOperateUserName());
-        command.setEndReason(request.getTerminatedReasonCode());
-        command.setReasonMemo(request.getTerminatedReason());
+        command.setEndReason(Integer.valueOf(request.getTerminatedReasonCode()));
+        command.setReasonMemo(request.getTerminatedReasonName());
         return command;
     }
 
@@ -193,11 +196,19 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
             result.error(String.format("揽收失败,失败原因：%s", collectResult.getMessage()));
             return result;
         }
+        if(collectResult.getData() != null && CollectionUtils.isNotEmpty(collectResult.getData().getOrderIds())){
+            // 因为是包裹维度的揽收，所以只用取第一个
+            NoTaskFinishCollectFailureWaybillInfoDTO collectFailWaybillDto = collectResult.getData().getOrderIds().get(0);
+            log.warn("直送分拣揽收包裹:{}失败,失败原因:{}", request.getPackOrWaybillCode(), collectFailWaybillDto.getResultMsg());
+            result.error(String.format("揽收失败,失败原因：%s", collectFailWaybillDto.getResultMsg()));
+            return result;
+        }
         return result;
     }
 
     private NoTaskFinishCollectWaybillCommand convert2NoTaskCollectReq(DirectDeliverySortCollectRequest request) {
         NoTaskFinishCollectWaybillCommand command = new NoTaskFinishCollectWaybillCommand();
+        command.setSystemSource(23); // 23表示来源分拣，且无需拦截校验
         command.setSiteId(request.getOperateSiteCode());
         command.setSiteName(request.getOperateSiteName());
         command.setOperatorId(request.getOperateUserId());
@@ -256,6 +267,7 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
             wChoice.setQueryWaybillC(Boolean.TRUE);
             wChoice.setQueryWaybillE(Boolean.TRUE);
             wChoice.setQueryWaybillP(Boolean.TRUE);
+            wChoice.setQueryWaybillExtend(Boolean.TRUE);
             BaseEntity<BigWaybillDto> waybillEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
             if(waybillEntity == null || waybillEntity.getData() == null || waybillEntity.getData().getWaybill() == null){
                 result.error(String.format("运单:%s不存在!", waybillCode));
@@ -284,7 +296,8 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
 
         BaseStaffSiteOrgDto packupSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
         
-        return packupSite != null && Objects.equals(packupSite.getDmsId(), request.getOperateSiteCode());
+        return packupSite != null 
+                && Objects.equals(packupSite.getDmsId() == null ? pickupSiteId : packupSite.getDmsId(), request.getOperateSiteCode());
     }
 
     private boolean collectCheck(DirectDeliverySortCollectRequest request, InvokeResult<Void> result) {
@@ -300,7 +313,7 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
         // weight check
         if(!NumberHelper.gt0(request.getWeight()) 
                 || !NumberHelper.gt0(request.getVolume())){
-            result.error(HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT));
+            result.error(String.format("包裹:%s揽收校验失败：未检测到称重数据，请按照包裹维度操作称重!", request.getPackOrWaybillCode()));
             return false;
         }
         

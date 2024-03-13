@@ -718,7 +718,7 @@
     <jsf:provider id="jsfJyCollectGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyDirectDeliverySortCollectGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="jyCollectGatewayService"
+                  ref="jyDirectDeliverySortCollectGatewayService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>

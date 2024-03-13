@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.inspection.response.WaybillCancelResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -38,6 +39,11 @@ public class UnloadScanContextDto implements Serializable {
      */
     private boolean updateUnloadProcessFlag;
 
+    /**
+     * waybillCancel拦截对象
+     */
+    private WaybillCancelResultDto waybillCancelResultDto;
+
     public UnloadScanRequest getUnloadScanRequest() {
         return unloadScanRequest;
     }
@@ -68,6 +74,14 @@ public class UnloadScanContextDto implements Serializable {
 
     public void setUpdateUnloadProcessFlag(boolean updateUnloadProcessFlag) {
         this.updateUnloadProcessFlag = updateUnloadProcessFlag;
+    }
+
+    public WaybillCancelResultDto getWaybillCancelResultDto() {
+        return waybillCancelResultDto;
+    }
+
+    public void setWaybillCancelResultDto(WaybillCancelResultDto waybillCancelResultDto) {
+        this.waybillCancelResultDto = waybillCancelResultDto;
     }
 
     @Override

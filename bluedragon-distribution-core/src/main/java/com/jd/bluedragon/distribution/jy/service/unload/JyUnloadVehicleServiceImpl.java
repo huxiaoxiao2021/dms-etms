@@ -6,6 +6,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.common.dto.inspection.response.WaybillCancelResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
@@ -577,7 +579,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         // 扫描前校验拦截结果
-        if (!checkBarInterceptResult(result, request)) {
+        if (!checkBarInterceptResult(result, unloadScanContextDto)) {
             // 失败直接返回
             return result;
         }
@@ -709,6 +711,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      */
     private boolean checkIsDirectDeliverySortCollect(UnloadScanContextDto unloadScanContextDto) {
         UnloadScanRequest request = unloadScanContextDto.getUnloadScanRequest();
+        if(!WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
+            return false;
+        }
         BigWaybillDto bigWaybillDto = unloadScanContextDto.getBigWaybillDto();
         if(BusinessUtil.isDirectDeliverySort(bigWaybillDto.getWaybill().getWaybillSign())){
             Integer pickupSiteId = bigWaybillDto.getWaybillPickup() == null ? null : bigWaybillDto.getWaybillPickup().getPickupSiteId();
@@ -717,7 +722,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 return false;
             }
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
-            return baseSite != null && Objects.equals(baseSite.getDmsId(), request.getCurrentOperate().getSiteCode());
+            return baseSite != null 
+                    && Objects.equals(baseSite.getDmsId() == null ? pickupSiteId : baseSite.getDmsId(), 
+                        request.getCurrentOperate().getSiteCode());
         }
         return false;
     }
@@ -730,6 +737,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      */
     private void collectHandle(JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto) {
         if(!checkIsDirectDeliverySortCollect(unloadScanContextDto)){
+            // 非直送分拣揽收单不处理
+            return;
+        }
+        WaybillCancelResultDto waybillCancelResultDto = unloadScanContextDto.getWaybillCancelResultDto();
+        if(waybillCancelResultDto.getInterceptFlag()){
+            // 直送分拣揽收单 && waybillCancel拦截，需在原有提示语的基础上 + ',请操作揽收终止!'
+            Optional<JdVerifyResponse.MsgBox> waybillCancelOptional = result.getMsgBoxes()
+                    .stream()
+                    .filter(item -> Objects.equals(item.getCode(), waybillCancelResultDto.getInterceptCode()))
+                    .findFirst();
+            waybillCancelOptional.ifPresent(msgBox -> msgBox.setMsg(msgBox.getMsg() + ",请操作揽收终止!"));
             return;
         }
         UnloadScanRequest request = unloadScanContextDto.getUnloadScanRequest();
@@ -791,15 +809,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     /**
      * 调用验货拦截链
      * @param response
-     * @param request
+     * @param unloadScanContextDto
      * @return
      */
-    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanContextDto unloadScanContextDto) {
+        UnloadScanRequest request = unloadScanContextDto.getUnloadScanRequest();
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
             final InspectionScanRequest inspectionScanRequest = new InspectionScanRequest();
             BeanHelper.copyProperties(inspectionScanRequest, request);
             JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionScanRequest);
+            
+            // 设置验货其他属性
+            reFillUnloadScanContext(unloadScanContextDto, verifyResponse);
+            
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
@@ -815,6 +838,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         return true;
+    }
+
+    private void reFillUnloadScanContext(UnloadScanContextDto unloadScanContextDto, JdVerifyResponse<InspectionCheckResultDto> verifyResponse) {
+        InspectionCheckResultDto inspectionCheckResult = verifyResponse.getData();
+        InspectionResultDto inspectionResultDto = inspectionCheckResult.getInspectionResultDto();
+        // 设置waybillCancel拦截结果
+        unloadScanContextDto.setWaybillCancelResultDto(inspectionResultDto.getWaybillCancelResultDto());
     }
 
     private void handleMoreLocalOrOutScan(UnloadScanContextDto unloadScanContextDto, UnloadScanDto unloadScanDto, JdVerifyResponse<Integer> result) {
@@ -1136,10 +1166,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private boolean checkBeforeScan(JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto) {
-        // 一个单号只能扫描一次
-        if (checkBarScannedAlready(unloadScanContextDto)) {
-            result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
-            return false;
+        if(unloadScanContextDto.getUpdateUnloadProcessFlag()){
+            // 一个单号只能扫描一次
+            if (checkBarScannedAlready(unloadScanContextDto)) {
+                result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
+                return false;
+            }
         }
 
         return true;
