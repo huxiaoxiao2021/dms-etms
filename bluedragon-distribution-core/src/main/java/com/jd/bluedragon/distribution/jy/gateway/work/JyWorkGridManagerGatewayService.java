@@ -61,8 +61,6 @@ public interface JyWorkGridManagerGatewayService {
 
 	JdCResponse<List<WorkGridCandidateData>> queryCandidates(JyWorkGridManagerQueryRequest query);
 
-	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfosMock(String bizId);
-
 	/**
 	 * 任务负责人信息
 	 * @param bizId
@@ -71,6 +69,5 @@ public interface JyWorkGridManagerGatewayService {
 	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId);
 
 	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId);
-
-	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwnersMock(String bizId);
+	
 }

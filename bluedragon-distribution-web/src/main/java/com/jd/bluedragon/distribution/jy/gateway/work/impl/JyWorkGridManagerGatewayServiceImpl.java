@@ -301,78 +301,11 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 	}
 
 	@Override
-	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfosMock(String bizId) {
-		JdCResponse<List<ResponsibleInfo>> response = new  JdCResponse<List<ResponsibleInfo>>();
-		response.toSucceed();
-		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
-		for(int i=0 ;i<5;i++){
-			ResponsibleInfo info = new ResponsibleInfo();
-			info.setWorkType(ResponsibleWorkTypeEnum.FORMAL_WORKER.getCode());
-			info.setErp("zhangsan" + i);
-			info.setName("张三" + i);
-			responsibleInfos.add(info);
-		}
-		for(int i=0 ;i<5;i++){
-			ResponsibleInfo info = new ResponsibleInfo();
-			info.setWorkType(ResponsibleWorkTypeEnum.OUTWORKER.getCode());
-			info.setIdCard("11000000000000000" + i);
-			info.setName("李四" + i);
-			
-			if(i == 4){
-				List<ResponsibleSupplier> supplierList = new ArrayList<>();
-				for(int j=0 ;j<4;j++){
-					ResponsibleSupplier supplier = new ResponsibleSupplier();
-					supplier.setSupplierId("WB000000" + i);
-					supplier.setSupplierName("外包商" + j);
-					supplierList.add(supplier);
-				}
-				info.setSupplierList(supplierList);
-			}else{
-				ResponsibleSupplier supplier = new ResponsibleSupplier();
-				supplier.setSupplierId("WB000000" + i);
-				supplier.setSupplierName("外包商" + i);
-				info.setSupplier(supplier);
-			}
-			responsibleInfos.add(info);
-
-		}
-		for(int i=0 ;i<5;i++){
-			ResponsibleInfo info = new ResponsibleInfo();
-			info.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
-			info.setIdCard("11000000000000000" + i);
-			info.setName("王五" + i);
-			JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
-			info.setGridOwner(dto);
-			dto.setErp("zuzhang" + i);
-			dto.setName("组长" + i);
-			responsibleInfos.add(info);
-
-		}
-		response.setData(responsibleInfos);
-		return response;
-	}
-
-	@Override
 	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
 		return jyWorkGridManagerBusinessService.queryResponsibleInfos(bizId);
 	}
 	@Override
 	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId){
 		return jyWorkGridManagerBusinessService.queryWorkGridOwners(bizId);
-	}
-
-	@Override
-	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwnersMock(String bizId){
-		JdCResponse<List<JyWorkGridOwnerDto>> response = new JdCResponse<>();
-		response.toSucceed();
-		List<JyWorkGridOwnerDto> dtos = new ArrayList<>();
-		response.setData(dtos);
-		for(int i=1;i<=3;i++){
-			JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
-			dto.setErp("zuzhang" + i);
-			dto.setName("网格组长" + i);
-			dtos.add(dto);
-		}
-		return response;
 	}
 }
