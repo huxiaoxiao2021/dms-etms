@@ -16,16 +16,12 @@ import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
-import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
-import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
@@ -48,6 +44,7 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardBoxResult;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -117,6 +114,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             String str = com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request);
             CombinationBoardRequest c = JsonHelper.fromJson(str, CombinationBoardRequest.class);
             c.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
+            c.setBizType(OperateBizSubTypeEnum.SORT_COMBINATION_BOARD_NEW.getCode());
             jdcResponse = sortBoardGatewayService.combinationBoardNew(c);
         }
         return JsonHelper.fromJsonUseGson(JsonHelper.toJson(jdcResponse),new TypeToken<Response<BoardRequestDto>>(){}.getType());
@@ -204,12 +202,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.addToBoard", mState = JProEnum.TP)
     public Response<BoardSendDto> addToBoard(BindBoardRequest request) {
         Response<BoardSendDto> response = new Response<>();
         try {
             //调板服务组板
             AddBoardBox addBoardBox = initAddBoardBox(request);
-            com.jd.transboard.api.dto.Response<Integer>  bindResult = groupBoardService.addBoxToBoard(addBoardBox);
+            com.jd.transboard.api.dto.Response<BoardBoxResult>  bindResult = groupBoardService.addBoxToBoardReturnId(addBoardBox);
             log.info("分拣机组板调参数:{}，返回值:{}", JsonHelper.toJson(request), JsonHelper.toJson(bindResult));
             if(bindResult.getCode() != 200){
                 response.toFail(MessageFormat.format("调板服务组板接口失败code:{0}，message:{1}", bindResult.getCode(),
@@ -219,16 +218,16 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
-            //发送全程跟踪
+            // 记录组板操作流水
+            jyOperateFlowService.sendBoardOperateFlowData(request, bindResult.getData(), OperateBizSubTypeEnum.SORT_ADD_TO_BOARD);
+
+            // 发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request);
-            
+            operatorInfo.setOperateFlowId(request.getOperateFlowId());
             virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo,request.getOperatorData(), request.getBoard().getCode(),
                     request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
                     request.getBizSource());
-            JyOperateFlowMqData boardCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(request);
-            boardCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.BOARD.getCode());
-            jyOperateFlowService.sendMq(boardCancelFlowMq);
-            
+
             response.toSucceed();
             return response;
         }catch (Exception e){
@@ -240,6 +239,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.calcBoard", mState = JProEnum.TP)
     public Response<List<String>> calcBoard(AutoBoardCompleteRequest request) {
         Response<List<String>> response = new Response<List<String>>();
         BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
@@ -262,6 +262,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.sortMachineComboard", mState = JProEnum.TP)
     public Response<BoardSendDto> sortMachineComboard(BindBoardRequest request) {
         Response<BoardSendDto> response = new Response<>();
         try {
@@ -340,6 +341,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.cancelSortMachineComboard", mState = JProEnum.TP)
     public Response<Void> cancelSortMachineComboard(BindBoardRequest request) {
         Response<Void> response = new Response<>();
         try {

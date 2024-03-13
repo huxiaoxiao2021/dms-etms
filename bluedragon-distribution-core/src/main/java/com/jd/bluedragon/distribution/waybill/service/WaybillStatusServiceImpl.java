@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -90,6 +92,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private TerminalManager terminalManager;
+
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -369,6 +374,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
+			// 发送分拣操作轨迹
+			if (DmsConstants.OPERATE_TYPE_LIST.contains(waybillStatus.getOperateType())) {
+				jyOperateFlowService.sendOperateTrack(waybillStatus);
+			}
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
@@ -705,6 +714,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
                 this.log.info("向运单系统回传全程跟踪，取消发货：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
+				// 发送分拣操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
@@ -789,6 +800,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
 				// 发送板内明细全程跟踪
 				sendBdTraceOfBoard(tWaybillStatus, bdTraceDto);
+				// 发送分拣操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				task.setYn(0);
 			}
 
@@ -805,6 +818,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					toWaybillStatus(tWaybillStatus, bdTraceDto);
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
+					// 发送分拣操作轨迹
+					jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				} else {
 					log.warn("取消分拣全程跟踪失败，包裹号没空！");
 				}

@@ -437,6 +437,12 @@
 			<if test="yn != null">
 				yn = 0,
 			</if>
+			<if test="operatorTypeCode != null">
+				operator_type_code = #{operatorTypeCode,jdbcType=INTEGER},
+			</if>
+			<if test="operatorId != null">
+				operator_id = #{operatorId,jdbcType=VARCHAR},
+			</if>
 		</set>
 		<where>
 		    yn=1

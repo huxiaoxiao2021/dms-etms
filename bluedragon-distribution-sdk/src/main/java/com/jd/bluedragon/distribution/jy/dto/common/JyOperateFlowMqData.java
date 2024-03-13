@@ -50,6 +50,11 @@ public class JyOperateFlowMqData implements Serializable {
 	private Date operateTime;
 
 	/**
+	 * 主键ID
+	 */
+	private Long id;
+
+	/**
 	 *
 	 * @param operateBizType
 	 */
@@ -152,5 +157,12 @@ public class JyOperateFlowMqData implements Serializable {
 	public void setJyOperateFlowData(JyOperateFlowData jyOperateFlowData) {
 		this.jyOperateFlowData = jyOperateFlowData;
 	}
-	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

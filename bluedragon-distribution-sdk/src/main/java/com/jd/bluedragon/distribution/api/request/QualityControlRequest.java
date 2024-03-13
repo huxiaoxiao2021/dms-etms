@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -54,6 +56,16 @@ public class QualityControlRequest implements Serializable{
     private Integer qcVersionFlag;//对接质控版本，1是老质控，2是新质控，null默认为老质控
 
     private Integer inletFlag; // 入口标识
+
+    /**
+     * 操作数据对象
+     */
+    private OperatorData operatorData;
+
+    /**
+     * 异常菜单来源
+     */
+    private Integer bizSource;
 
     public Integer getUserID() {
         return userID;
@@ -221,5 +233,21 @@ public class QualityControlRequest implements Serializable{
 
     public void setInletFlag(Integer inletFlag) {
         this.inletFlag = inletFlag;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

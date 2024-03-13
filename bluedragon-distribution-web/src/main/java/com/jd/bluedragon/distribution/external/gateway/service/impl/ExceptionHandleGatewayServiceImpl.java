@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.qualityControl.AbnormalBizSourceEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.external.gateway.service.ExceptionHandleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class ExceptionHandleGatewayServiceImpl implements ExceptionHandleGateway
     public QualityControlResponse exceptionSubmit(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
         request.setInletFlag(QualityControlInletEnum.DMS_SORTING.getCode());
+        // 设置菜单来源
+        request.setBizSource(AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType());
         InvokeResult<Boolean> result = qualityControlService.exceptionSubmit(request);
         response.setCode(result.getCode());
         response.setMessage(result.getMessage());

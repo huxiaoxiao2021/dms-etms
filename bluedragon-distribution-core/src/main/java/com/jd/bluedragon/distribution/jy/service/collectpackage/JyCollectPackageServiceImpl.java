@@ -60,6 +60,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -354,6 +355,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskBody.setUserCode(request.getUser().getUserCode());
         taskBody.setUserName(request.getUser().getUserName());
         taskBody.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
+        taskBody.setOperatorData(request.getCurrentOperate().getOperatorData());
         List<PackSortTaskBody> bodyList = new ArrayList<>();
         bodyList.add(taskBody);
         return JSON.toJSONString(bodyList);
@@ -1197,6 +1199,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         cancelCollectPackageDto.setUpdateUserErp(request.getUser().getUserErp());
         cancelCollectPackageDto.setUpdateUserName(request.getUser().getUserName());
         cancelCollectPackageDto.setUpdateUserCode(request.getUser().getUserCode());
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        cancelCollectPackageDto.setOperatorData(operatorData);
         return cancelCollectPackageDto;
     }
 
@@ -1243,6 +1248,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
         List<String> packageList = sortingList.stream().map(sorting -> sorting.getPackageCode()).collect(Collectors.toList());
         batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        batchCancelCollectPackageMqDto.setOperatorData(operatorData);
         return batchCancelCollectPackageMqDto;
     }
 
