@@ -40,7 +40,9 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
                 logger.warn("JyOperateFlowMq消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
+            logger.info("jy_operate_flow底表排查-消费1:text={}", message.getText());
             JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
+            logger.info("jy_operate_flow底表排查-消费2:jyOperateFlowMqData={}", JsonHelper.toJson(jyOperateFlowMqData));
             if(jyOperateFlowMqData == null) {
                 logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
                 return;

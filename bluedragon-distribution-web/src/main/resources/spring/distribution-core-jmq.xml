@@ -933,6 +933,11 @@
         <property name="topic" value="${jmq.topic.jyOperateFlowMq}" />
         <property name="timeout" value="3000" />
     </bean>
+    <!-- 分拣操作轨迹mq -->
+    <bean id="dmsOperateTrackProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.operate.track}" />
+        <property name="timeout" value="3000" />
+    </bean>
     <!-- 异常-破损数据通知客服 -->
     <bean id="dmsDamageMainLandNoticeKFProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.exception.damageNoticKF}"/>

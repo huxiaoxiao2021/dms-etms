@@ -499,4 +499,5 @@ public interface WaybillSignConstants {
 	int POSITION_24 = 24;
 	char CHAR_24_G = 'G';
 
+
 }

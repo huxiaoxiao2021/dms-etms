@@ -68,10 +68,9 @@ public interface NewSealVehicleService {
     /**
      * 解封车
      *
-     * @param sealCars
      * @return
      */
-    public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
+    public CommonDto<String> unseal(NewSealVehicleRequest request) throws Exception;
 
     /**
      * VOS查询批次号是否已被封车接口

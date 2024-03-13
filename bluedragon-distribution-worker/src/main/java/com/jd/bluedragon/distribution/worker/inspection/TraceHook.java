@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.framework.TaskHook;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -26,6 +27,9 @@ public class TraceHook extends AbstractTaskHook {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     @Override
     @JProfiler(jKey = "dmsworker.TraceHook.hook", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})

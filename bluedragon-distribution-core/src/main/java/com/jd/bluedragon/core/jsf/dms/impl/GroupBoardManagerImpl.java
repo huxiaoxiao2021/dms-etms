@@ -56,11 +56,31 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardReturnId",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxResult> addBoxToBoardReturnId(AddBoardBox addBoardBox) {
+
+        return groupBoardService.addBoxToBoardReturnId(addBoardBox);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardV2",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox) {
         if (dmsConfigManager.getPropertyConfig().getReComboardSwitch()){
             return groupBoardService.addBoxToBoardV2(addBoardBox);
         }
         return groupBoardService.addBoxToBoard(addBoardBox);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardV2ReturnId",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxResult> addBoxToBoardV2ReturnId(AddBoardBox addBoardBox) {
+        if (dmsConfigManager.getPropertyConfig().getReComboardSwitch()){
+            return groupBoardService.addBoxToBoardV2ReturnId(addBoardBox);
+        }
+        return groupBoardService.addBoxToBoardReturnId(addBoardBox);
     }
 
     @Override
@@ -72,8 +92,17 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxesToBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox) {
         return groupBoardService.addBoxesToBoard(addBoardBox);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxesToBoardReturnId",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxResult> addBoxesToBoardReturnId(AddBoardBoxes addBoardBox) {
+        return groupBoardService.addBoxesToBoardReturnId(addBoardBox);
     }
 
     @Override

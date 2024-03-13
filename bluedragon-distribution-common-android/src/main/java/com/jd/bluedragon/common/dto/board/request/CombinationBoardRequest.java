@@ -71,6 +71,12 @@ public class CombinationBoardRequest implements Serializable {
      */
     private Integer bizSource;
 
+    /**
+     * 业务类型
+     */
+    private String bizType;
+
+
     @Override
     public String toString() {
         return "CombinationBoardRequest{" +
@@ -172,5 +178,13 @@ public class CombinationBoardRequest implements Serializable {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }

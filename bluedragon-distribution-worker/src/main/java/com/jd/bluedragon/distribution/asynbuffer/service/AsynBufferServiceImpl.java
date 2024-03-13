@@ -117,10 +117,15 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                         request.setOperateType(InspectionOperateTypeEnum.BOX.getCode());
                     }
                 }
+                OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+                request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+                request.setOperatorId(operatorData.getOperatorId());
+                request.setOperatorData(operatorData);
+
                 //添加自动化设备信息
-                if(request.getOperatorTypeCode() == null
+                if (request.getOperatorTypeCode() == null
                 		&& StringUtils.isNotBlank(request.getMachineCode())){
-                    OperatorData operatorData = BeanConverter.convertToOperatorDataForAuto(request);
+                    operatorData = BeanConverter.convertToOperatorDataForAuto(request);
                     request.setOperatorTypeCode(operatorData.getOperatorTypeCode());
                     request.setOperatorId(operatorData.getOperatorId());
                     request.setOperatorData(operatorData);
