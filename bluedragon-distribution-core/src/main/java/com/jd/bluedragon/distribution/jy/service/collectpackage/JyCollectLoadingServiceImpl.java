@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
@@ -116,10 +117,13 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         collectBoxMachineCheck(request);
         //执行集装
         CollectPackageResp response = new CollectPackageResp();
-        execCollectBox(request, response);
+        execCollectBoxForMachine(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
-
+    protected void execCollectBoxForMachine(CollectPackageReq request, CollectPackageResp response) {
+        BoxRelation boxRelation =assmbleBoxRelation(request);
+        boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+    }
     private void collectBoxMachineCheck(CollectPackageReq request) {
 
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
