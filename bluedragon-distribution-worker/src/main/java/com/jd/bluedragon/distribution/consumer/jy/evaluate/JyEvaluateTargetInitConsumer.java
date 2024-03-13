@@ -252,7 +252,6 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         // 申诉之后，dimensionCodeList不为空，移除targetResultDto.setDimensionCode的code
         if (CollectionUtils.isNotEmpty(targetInitDto.getDimensionCodeList())
         && CollectionUtils.isNotEmpty(dimensionCodeList)){
-            targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
             dimensionCodeList.removeIf(targetInitDto.getDimensionCodeList()::contains);
             targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
         }
