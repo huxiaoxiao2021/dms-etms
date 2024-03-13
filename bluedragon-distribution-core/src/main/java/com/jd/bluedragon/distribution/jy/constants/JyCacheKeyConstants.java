@@ -25,4 +25,7 @@ public class JyCacheKeyConstants {
     public static final Integer JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED = 4;
     public static final TimeUnit JY_OPEN_PLATFORM_SEND_TASK_COMPLETE_KEY_EXPIRED_TIME_UNIT = TimeUnit.HOURS;
 
+    // 拣运拦截任务场地包裹
+    public static final String JY_EXCEPTION_TASK_INTERCEPT_SITE_PACKAGE_CONCURRENCY_KEY = "DMS:JYAPP:EXP:INTERCEPT:SITE:PACKAGE:%s:%s";
+
 }

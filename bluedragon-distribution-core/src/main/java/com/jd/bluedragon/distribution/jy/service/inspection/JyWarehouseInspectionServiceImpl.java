@@ -227,6 +227,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         if(currentOperate.getSiteName() == null){
             return result.toFail("参数错误，siteName不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
+        currentOperate.setOperateTime(new Date());
         final User user = baseReq.getUser();
         if(user == null){
             return result.toFail("参数错误，user不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
@@ -498,13 +499,13 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @return
      */
     private boolean checkBeforeScan(JdVerifyResponse<Integer> result, InspectionScanRequest request) {
-        if(!checkBarInterceptResult(result, request)){
-            return false;
-        }
-
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
             result.toFail("单号已扫描！");
+            return false;
+        }
+
+        if(!checkBarInterceptResult(result, request)){
             return false;
         }
 
@@ -557,7 +558,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             inspectionRequest.setOperateType(2);
             inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
             inspectionRequest.setOperateUserName(request.getUser().getUserName());
-            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionRequest);
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(request);
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());

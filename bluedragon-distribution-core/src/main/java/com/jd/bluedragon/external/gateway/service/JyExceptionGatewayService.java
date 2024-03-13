@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
-import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
 
@@ -198,4 +197,26 @@ public interface JyExceptionGatewayService {
      * @return
      */
     JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
+
+    /**
+     * 获取拦截任务明细
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<JyExceptionInterceptDetailDto> getTaskDetailOfIntercept(ExpTaskCommonReq req);
+
+    /**
+     * 拦截任务处理
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<Boolean> processTaskOfIntercept(ExpInterceptTaskProcessReq req);
+
+    /**
+     * 拦截任务-上传重量体积
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req);
+
 }

@@ -41,6 +41,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
@@ -1007,5 +1008,64 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param condition
+     * @return
+     */
+    @Override
+    public Result<Boolean> checkAndUpload(WeightVolumeCondition condition) {
+        Result<Boolean> result = Result.success();
+        try {
+            JdResult<WeightVolumeUploadResult> checkResult = this.checkBeforeUpload(condition);
+            if (!checkResult.isSucceed()) {
+                return result.toFail("提交重量体积数据失败、");
+            }
+            //校验成功，上传处理
+            if(checkResult != null
+                    && checkResult.isSucceed()
+                    && checkResult.getData() != null
+                    && Boolean.TRUE.equals(checkResult.getData().getCheckResult())) {
+                //已有-超重信息，本次不上传超重信息
+                boolean showHasOverMsg = false;
+                if(Boolean.TRUE.equals(checkResult.getData().getHasOverLengthAndWeight())) {
+                    condition.setOverLengthAndWeightEnable(false);
+                    condition.setLongPackage(0);
+                    showHasOverMsg = true;
+                }
+                // 称重数据超额处理
+                String remark = this.weightVolumeExcessDeal(condition);
+                WeightVolumeEntity entity = new WeightVolumeEntity()
+                        .barCode(condition.getBarCode())
+                        .businessType(WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType()))
+                        .sourceCode(FromSourceEnum.valueOf(condition.getSourceCode()))
+                        .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
+                        .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
+                        .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
+                        .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
+                        .machineCode(condition.getMachineCode()).remark(remark);
+                entity.setOverLengthAndWeightEnable(condition.getOverLengthAndWeightEnable());
+                entity.setOverLengthAndWeightTypes(condition.getOverLengthAndWeightTypes());
+                InvokeResult<Boolean> uploadResult = this.dealWeightAndVolume(entity, Boolean.FALSE);
+                result.setData(uploadResult.getData());
+
+                if(uploadResult != null
+                        && uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+                    result.toSuccess("上传成功！");
+                    if(showHasOverMsg) {
+                        checkResult.toSuccess("上传成功，此单已有超长超重服务，只上传称重信息！");
+                    }
+                }else if(uploadResult != null){
+                    result.toFail(uploadResult.getMessage());
+                } else {
+                    result.toFail("上传失败！");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            result.toFail("上传重量体积异常");
+            logger.error("DMSWeightVolumeServiceImpl.checkAndUpload exception {}", JsonHelper.toJson(condition), e);
+        }
+        return result;
     }
 }
