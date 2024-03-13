@@ -116,7 +116,7 @@
 		</trim>
 	</insert>
 
-    <insert id="addBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addBatch" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )

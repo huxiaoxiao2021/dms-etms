@@ -436,7 +436,11 @@ public class BeanConverter {
 			return null;
 		}
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
-		mqData.setOperateBizKey(abnormalWayBill.getPackageCode());
+		if (StringUtils.isBlank(abnormalWayBill.getPackageCode())) {
+			mqData.setOperateBizKey(abnormalWayBill.getWaybillCode());
+		} else {
+			mqData.setOperateBizKey(abnormalWayBill.getPackageCode());
+		}
 		mqData.setOperateBizType(OperateBizTypeEnum.ABNORMAL_DELIVERY.getCode());
 		mqData.setOperateKey(StringHelper.getStringValue(abnormalWayBill.getId()));
 		mqData.setOperateTime(abnormalWayBill.getOperateTime());
