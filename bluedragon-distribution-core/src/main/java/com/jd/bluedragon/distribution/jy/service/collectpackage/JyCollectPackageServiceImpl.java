@@ -1442,7 +1442,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     }
 
-    private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
+    protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
         relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
