@@ -15,6 +15,8 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,12 +72,13 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
             logger.error("TmsSendArriveAndBookConsume consume -->JSON转换后为空，内容为【{}】", message.getText());
             return;
         }
-
-        //无效数据过滤
-        if(!invalidDataFilter(mqBody)) {
-            return;
-        }
+        CallerInfo info = Profiler.registerInfo("DMS.WORKER.jy.TmsSendArriveAndBookConsume.consume",
+                Constants.UMP_APP_NAME_DMSWORKER,false,true);
         try{
+            //无效数据过滤
+            if(!invalidDataFilter(mqBody)) {
+                return;
+            }
             if(SEND_ARRIVE_TYPE_200.equals(mqBody.getSendArriveType())) {
                 logInfo("运输围栏到车包裹到达消息开始消费，mqBody={}", message.getText());
                 PackageArriveAutoInspectionDto packageArriveAutoInspectionDto = this.convertPackageArriveAutoInspectionDto(mqBody);
@@ -85,8 +88,11 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
                 logInfo("运输非围栏到车节点暂无消费逻辑，不做处理，mqBody={}", message.getText());
             }
         }catch (Exception ex) {
+            Profiler.functionError(info);
             logger.error("topic:tms_send_arrive_and_book消息消费异常，businessId={},errMsg={},content={}");
             throw new JyBizException("topic:tms_send_arrive_and_book消息消费异常,businessId=" + message.getBusinessId());
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
     }
