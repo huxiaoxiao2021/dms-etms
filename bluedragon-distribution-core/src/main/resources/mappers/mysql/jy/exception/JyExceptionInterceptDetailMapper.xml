@@ -45,6 +45,7 @@
         <result property="inputLength" column="input_length"/>
         <result property="inputWidth" column="input_width"/>
         <result property="inputHeight" column="input_height"/>
+        <result property="waybillCodeNew" column="waybill_code_new"/>
         <result property="saveType" column="save_type"/>
         <result property="createUserId" column="create_user_id"/>
         <result property="createUserCode" column="create_user_code"/>

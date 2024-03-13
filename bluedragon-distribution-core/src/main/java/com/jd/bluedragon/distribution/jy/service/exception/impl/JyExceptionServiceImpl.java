@@ -21,10 +21,13 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessIntercept.config.BusinessInterceptConfig;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
-import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptDisposeNodeEnum;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptTypeEnum;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.jy.constants.JyCacheKeyConstants;
-import com.jd.bluedragon.distribution.jy.dao.exception.*;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
@@ -58,7 +61,10 @@ import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.sdk.util.DateUtil;
@@ -88,7 +94,6 @@ import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -227,6 +232,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("businessInterceptConfig")
     private BusinessInterceptConfig businessInterceptConfig;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
@@ -2098,7 +2106,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     // 1.2 拦截类型相同
                     // 1.2.1 网格工序相同 更新任务+明细数据
                     if(Objects.equals(jyExceptionInterceptDetailExist.getOperateWorkStationGridKey(), businessInterceptReport.getOperateWorkStationGridKey())){
-                        resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
+                        // 如果任务是完结状态+需要换单打印处理的拦截任务，则不重置任务，直接跳过
+                        final List<Integer> disposeNodeListByInterceptType = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
+                        if (CollectionUtils.isNotEmpty(disposeNodeListByInterceptType) && disposeNodeListByInterceptType.contains(businessInterceptConfigHelper.getInterceptDisposeNodeExchangeWaybill())) {
+                        } else {
+                            resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
+                        }
                     }
                     // 1.2.2 网格不同 删除原任务+明细数据，新增任务数据
                     else {
@@ -2368,6 +2381,31 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         }
                     }
                 }
+            } else {
+                // 补充补打新单号处理逻辑
+                if (Objects.equals(businessInterceptConfigHelper.getInterceptDisposeNodeReprint(), businessInterceptDisposeRecord.getDisposeNode())) {
+                    JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
+                    jyExceptionInterceptDetailQuery.setSiteId(businessInterceptDisposeRecord.getSiteCode());
+                    jyExceptionInterceptDetailQuery.setWaybillCodeNew(businessInterceptDisposeRecord.getWaybillCode());
+                    final List<JyExceptionInterceptDetail> jyExceptionInterceptDetailExistList = jyExceptionInterceptDetailDao.queryList(jyExceptionInterceptDetailQuery);
+                    if (CollectionUtils.isNotEmpty(jyExceptionInterceptDetailExistList)) {
+                        for (JyExceptionInterceptDetail jyExceptionInterceptDetail : jyExceptionInterceptDetailExistList) {
+                            // 匹配新单的包裹序号和老单的包裹序号
+                            if (!Objects.equals(WaybillUtil.getPackIndexByPackCode(businessInterceptDisposeRecord.getPackageCode()), WaybillUtil.getPackIndexByPackCode(jyExceptionInterceptDetail.getPackageCode()))) {
+                                continue;
+                            }
+                            final JyBizTaskExceptionQuery jyBizTaskQuery = new JyBizTaskExceptionQuery();
+                            jyBizTaskQuery.setBizId(jyExceptionInterceptDetail.getBizId());
+                            jyBizTaskQuery.setBarCode(jyExceptionInterceptDetail.getPackageCode());
+                            jyBizTaskQuery.setSiteCode(jyExceptionInterceptDetail.getSiteId().longValue());
+                            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+                            final JyBizTaskExceptionEntity bizTaskExceptionExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskQuery);
+                            if (bizTaskExceptionExist != null) {
+                                this.finishInterceptTaskSuccess(bizTaskExceptionExist, businessInterceptDisposeRecord, currentDate);
+                            }
+                        }
+                    }
+                }
             }
 
             // 2. 关闭其他场地任务数据
@@ -2597,17 +2635,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             // 3. 执行逻辑
             final Date currentDate = new Date();
-            // 3.1. 将处理状态改为【继续处理】
-            JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
-            jyExceptionInterceptDetail.setBizId(req.getBizId());
-            jyExceptionInterceptDetail.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
+            JyExceptionInterceptDetail jyExceptionInterceptDetailUpdate = new JyExceptionInterceptDetail();
+            jyExceptionInterceptDetailUpdate.setBizId(req.getBizId());
+            jyExceptionInterceptDetailUpdate.setSiteId(jyExceptionInterceptDetailExist.getSiteId());
             final User user = req.getUser();
-            jyExceptionInterceptDetail.setSaveType(JyExpSaveTypeEnum.TEMP_SAVE.getCode());
-            jyExceptionInterceptDetail.setUpdateUserId((long)user.getUserCode());
-            jyExceptionInterceptDetail.setUpdateUserCode(user.getUserErp());
-            jyExceptionInterceptDetail.setUpdateUserName(user.getUserName());
-            jyExceptionInterceptDetail.setUpdateTime(currentDate);
-            jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
+            jyExceptionInterceptDetailUpdate.setSaveType(JyExpSaveTypeEnum.TEMP_SAVE.getCode());
+            jyExceptionInterceptDetailUpdate.setUpdateUserId((long)user.getUserCode());
+            jyExceptionInterceptDetailUpdate.setUpdateUserCode(user.getUserErp());
+            jyExceptionInterceptDetailUpdate.setUpdateUserName(user.getUserName());
+            jyExceptionInterceptDetailUpdate.setUpdateTime(currentDate);
             // 3.2. 如果是需要触发换单的拦截单
             final List<Integer> disposeNodeMatchedList = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
             if(disposeNodeMatchedList.contains(BusinessInterceptConfig.DISPOSE_NODE_EXCHANGE_WAYBILL_PRINT)){
@@ -2624,7 +2660,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     logger.error("JyExceptionServiceImpl_processTaskOfIntercept_fail exchangeNewWaybill_return_fail {}", JsonHelper.toJson(exchangeWaybillRequest));
                     return result.toFail("任务处理失败，该异常拦截任务需要执行换单，但换单失败，失败原因: " + exchangeNewWaybillResult.getMessage());
                 }
+
+                // 更新上新单号
+                jyExceptionInterceptDetailUpdate.setWaybillCodeNew(exchangeNewWaybillResult.getData());
             }
+            // 3.1. 将处理状态改为【继续处理】
+            jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetailUpdate);
+
             // 3.2 状态置为处理中
             if (!Objects.equals(BusinessInterceptTypeEnum.ZERO_WEIGHT.getCode(), jyExceptionInterceptDetailExist.getInterceptType())) {
                 JyBizTaskExceptionEntity bizTaskExceptionUpdate = new JyBizTaskExceptionEntity();
