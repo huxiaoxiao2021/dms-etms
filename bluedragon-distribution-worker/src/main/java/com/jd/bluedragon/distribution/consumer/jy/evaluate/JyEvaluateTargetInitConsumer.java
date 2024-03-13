@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service("jyEvaluateTargetInitConsumer")
 public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
@@ -245,6 +242,18 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
         }
         if (CollectionUtils.isNotEmpty(dimensionCodeList)) {
             targetResultDto.setStatus(EVALUATE_STATUS_DISSATISFIED);
+            targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+        }
+        // 申诉之后，如果isSatisfied不为空，评价是否满意以isSatisfied为最终结果。
+        if (Objects.nonNull(targetInitDto.getIsSatisfied()) &&
+            Objects.equals(targetInitDto.getIsSatisfied(), EVALUATE_STATUS_SATISFIED)){
+            targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
+        }
+        // 申诉之后，dimensionCodeList不为空，移除targetResultDto.setDimensionCode的code
+        if (CollectionUtils.isNotEmpty(targetInitDto.getDimensionCodeList())
+        && CollectionUtils.isNotEmpty(dimensionCodeList)){
+            targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
+            dimensionCodeList.removeIf(targetInitDto.getDimensionCodeList()::contains);
             targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
         }
         targetResultDto.setEvaluateUserErp(String.join(Constants.SEPARATOR_COMMA, erpList));

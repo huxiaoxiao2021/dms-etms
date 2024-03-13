@@ -88,6 +88,15 @@ public class EvaluateTargetInitDto implements Serializable {
      */
     private List<EvaluateDimensionReq> dimensionList;
 
+    /**
+     * 申诉之后的评价是否满意项，1-满意 0-不满意
+     */
+    private Integer isSatisfied;
+    /**
+     * 申诉通过的评价详情code集合
+     */
+    private List<String> dimensionCodeList;
+
     public String getTargetBizId() {
         return targetBizId;
     }
@@ -206,5 +215,21 @@ public class EvaluateTargetInitDto implements Serializable {
 
     public void setDimensionList(List<EvaluateDimensionReq> dimensionList) {
         this.dimensionList = dimensionList;
+    }
+
+    public Integer getIsSatisfied() {
+        return isSatisfied;
+    }
+
+    public void setIsSatisfied(Integer isSatisfied) {
+        this.isSatisfied = isSatisfied;
+    }
+
+    public List<String> getDimensionCodeList() {
+        return dimensionCodeList;
+    }
+
+    public void setDimensionCodeList(List<String> dimensionCodeList) {
+        this.dimensionCodeList = dimensionCodeList;
     }
 }

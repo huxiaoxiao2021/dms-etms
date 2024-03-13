@@ -40,7 +40,7 @@ public class JyEvaluateRecordAppealDao extends BaseDao<JyEvaluateRecordAppealEnt
      * @return 更新影响的行数
      */
     public int batchUpdateStatusByIds(JyEvaluateRecordAppealUpdateDto dto) {
-        return this.getSqlSession().update(NAMESPACE + ".batchUpdatePassStatusByIds", dto);
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatusByIds", dto);
     }
 
     /**

@@ -2446,4 +2446,17 @@ public class Constants {
      * 审核记录统计数
      */
     public static final Integer APPEAL_COUNT_NUM = 3;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_SATISFIED = 1;
+    /**
+     * 评价类型：1-装车 2-卸车
+     */
+    public static final Integer EVALUATE_TYPE_LOAD = 1;
+
 }
