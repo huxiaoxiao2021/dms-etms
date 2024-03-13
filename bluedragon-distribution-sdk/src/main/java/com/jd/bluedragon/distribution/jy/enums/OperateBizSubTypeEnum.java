@@ -28,8 +28,9 @@ public enum OperateBizSubTypeEnum {
 	UNSEAL("unseal", "解封车"),
 	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),
 
-	ABNORMAL_DELIVERY("abnormal_delivery", "配送异常"),
-    ;
+	ABNORMAL_HANDLE("abnormal_handle", "异常处理"),
+	ABNORMAL_REPORT_H5("abnormal_report_h5", "异常提报(新)"),
+	;
 	
 	private OperateBizSubTypeEnum(String code, String name) {
 		this.code = code;

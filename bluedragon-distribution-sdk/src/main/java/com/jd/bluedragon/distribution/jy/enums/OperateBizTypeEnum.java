@@ -12,7 +12,7 @@ public enum OperateBizTypeEnum {
 	SEND_D("send_d","发货明细"),
 	BOARD("board","组板"),
 	UNSEAL("unseal","解封车"),
-	ABNORMAL_DELIVERY("abnormal_delivery","配送异常"),
+	ABNORMAL_DELIVERY("abnormal_waybill","配送异常"),
     ;
 	
 	private OperateBizTypeEnum(String code, String name) {

@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.ministore.dto.MiniStoreSortingProcessEvent
 import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -155,7 +156,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		// step1-保存收货记录
 		saveReceive(taskContext);
 		// 记录收货操作流水
-		jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody());
+		handleOperateFlow(taskContext);
 		// 必须有封车号，才更新封车表
 		updateSealVehicle(taskContext);
 		// 解封箱
@@ -182,6 +183,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		//移动微仓同步业务节点数据
 		pushMiniStoreProcessDataMQ(taskContext);
 		return true;
+	}
+
+	private void handleOperateFlow(TaskContext<T> taskContext) {
+		// 目前只记录1110类型收货
+		if (Task.TASK_TYPE_RECEIVE.equals(taskContext.getTask().getType())) {
+			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody());
+		}
 	}
 
 	private void pushMiniStoreProcessDataMQ(TaskContext<T> context) {

@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils.converter;
 import java.util.Date;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -424,7 +425,30 @@ public class BeanConverter {
 		data.setOperatorData(request.getOperatorData());
 		mqData.setJyOperateFlowData(data);
 		return mqData;
-	}	
+	}
+	/**
+	 * 对象转换为数据库实体
+	 * @param jyOperateFlow
+	 * @return
+	 */
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(AbnormalWayBill abnormalWayBill) {
+		if (abnormalWayBill == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(abnormalWayBill.getPackageCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.ABNORMAL_DELIVERY.getCode());
+		mqData.setOperateKey(StringHelper.getStringValue(abnormalWayBill.getId()));
+		mqData.setOperateTime(abnormalWayBill.getOperateTime());
+		mqData.setOperateSiteCode(abnormalWayBill.getCreateSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(abnormalWayBill.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("abnormalWayBill-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
 	/**
 	 * 对象转换为数据库实体
 	 * @param jyOperateFlow

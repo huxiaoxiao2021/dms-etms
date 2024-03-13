@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
 import java.util.List;
+import java.util.Map;
 
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
@@ -69,5 +71,14 @@ public interface JyOperateFlowService {
      */
     void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
 
+    /**
+     * 组装配送异常操作流水
+     */
+    JyOperateFlowMqData createAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
+     * 发送配送异常操作流水
+     */
+    void sendAbnormalOperateFlowData(List<AbnormalWayBill> abnormalWayBillList, Map<String, JyOperateFlowMqData> flowMqDataMap);
 
 }

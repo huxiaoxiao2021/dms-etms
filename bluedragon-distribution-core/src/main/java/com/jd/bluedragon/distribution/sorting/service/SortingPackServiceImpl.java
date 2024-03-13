@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,11 +68,19 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
         if (operateTrack == null) {
             return;
         }
+        operateTrack.setWaybillCode(sorting.getWaybillCode());
+        if (StringUtils.isNotBlank(sorting.getPackageCode())) {
+            operateTrack.setPackageCode(sorting.getPackageCode());
+        } else {
+            operateTrack.setPackageCode(sorting.getWaybillCode());
+        }
+        operateTrack.setBoxCode(sorting.getBoxCode());
         // 记录分拣操作流水
         jyOperateFlowService.sendSoringOperateFlowData(sorting, operateTrack, OperateBizSubTypeEnum.SORTING);
         // 发送分拣操作轨迹
         jyOperateFlowService.sendOperateTrack(operateTrack);
     }
+
 
     /**
      * 验货异常比对表插入数据

@@ -29,6 +29,9 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
@@ -161,6 +164,9 @@ public class QualityControlService {
 
     @Autowired
     private PositionManager positionManager;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     /**
      * 协商再投状态校验
@@ -372,13 +378,21 @@ public class QualityControlService {
         }
 
         try {
+            OperateBizSubTypeEnum operateBizSubTypeEnum;
             //如果是对接新质控系统，走新逻辑
             if (request.getQcVersionFlag() != null && request.getQcVersionFlag() == QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType()) {
                 toNewQualityControlWaybillTrace(sendDetails, request);
+                operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_REPORT_H5;
             } else {
                 toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+                operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_HANDLE;
             }
-            abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
+            // <包裹号,操作流水对象>
+            Map<String, JyOperateFlowMqData> flowMqDataMap = new HashMap<>();
+            List<AbnormalWayBill> abnormalWayBillList = convert2AbnormalWayBills(sendDetails, request, flowMqDataMap, operateBizSubTypeEnum);
+            abnormalWayBillService.insertBatchAbnormalWayBill(abnormalWayBillList);
+            // 记录配送异常操作流水
+
         } catch (Exception ex) {
             log.error("分拣中心异常节点推全程跟踪、质控发生异常。" , ex);
             return TaskResult.REPEAT;
@@ -407,8 +421,10 @@ public class QualityControlService {
 
             QualityControl qualityControl = convert2QualityControl(sendDetail.getWaybillCode(), request, boxCode);
             log.info("分拣中心异常页面发质控和全程跟踪开始，消息体：{}" , JsonHelper.toJson(qualityControl));
+            // 透传操作流水主键
+            sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
             // 更新运单状态
-            updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode());
+            updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode(), sendDetail.getOperateFlowId());
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
@@ -436,11 +452,12 @@ public class QualityControlService {
                 continue;
             }
             set.add(sendDetail.getWaybillCode());
-
+            // 透传操作流水主键
+            sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
             // QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
             // log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
             // 更新运单状态
-            updateWaybillStatus(waybillCode, request, operateSite, null);
+            updateWaybillStatus(waybillCode, request, operateSite, null, sendDetail.getOperateFlowId());
             //异常处理 节点发MQ 换新单
             log.info("执行自营换新单 convert2ExchangeNewWaybill exchangeOwnWaybill ");
             OwnReverseTransferDomain domain = convert2ExchangeNewWaybill(waybillCode, request);
@@ -471,7 +488,9 @@ public class QualityControlService {
      * @param request
      * @param operateSite
      */
-    private void updateWaybillStatus(String waybillCode, QualityControlRequest request,BaseStaffSiteOrgDto operateSite, String boxCode){
+    private void updateWaybillStatus(String waybillCode, QualityControlRequest request, BaseStaffSiteOrgDto operateSite,
+                                     String boxCode, Long operateFlowId) {
+
         Task tTask = new Task();
         tTask.setBoxCode(boxCode);
 
@@ -515,6 +534,10 @@ public class QualityControlService {
         }
 
         tWaybillStatus.setPackageCode(waybillCode); //异常 节点运单只接收运单维度
+        tWaybillStatus.setOperateFlowId(operateFlowId);
+
+        // 发送分拣操作轨迹
+        jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
 
@@ -605,7 +628,9 @@ public class QualityControlService {
      * @param request
      * @return
      */
-    private List<AbnormalWayBill> convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request){
+    private List<AbnormalWayBill> convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request,
+                                                           Map<String, JyOperateFlowMqData> flowMqDataMap,
+                                                           OperateBizSubTypeEnum operateBizSubTypeEnum) {
         List<AbnormalWayBill> list = new ArrayList<AbnormalWayBill>(sendDetails.size());
         for (SendDetail sendDetail : sendDetails){
             AbnormalWayBill abnormalWayBill = new AbnormalWayBill();
@@ -633,6 +658,13 @@ public class QualityControlService {
                 abnormalWayBill.setWaveBusinessId(vrsRouteTransferRelationManager.queryWaveInfoByWaybillCodeAndNodeCode(abnormalWayBill.getWaybillCode(), abnormalWayBill.getCreateSiteCode()));
             } else {
                 abnormalWayBill.setWaveBusinessId(request.getWaveBusinessId());
+            }
+            abnormalWayBill.setOperateFlowId(sendDetail.getOperateFlowId());
+            abnormalWayBill.setOperatorData(request.getOperatorData());
+            // 组装操作流水集合
+            JyOperateFlowMqData jyOperateFlowMqData = jyOperateFlowService.createAbnormalOperateFlowData(abnormalWayBill, operateBizSubTypeEnum);
+            if (jyOperateFlowMqData != null) {
+                flowMqDataMap.put(sendDetail.getPackageBarcode(), jyOperateFlowMqData);
             }
             list.add(abnormalWayBill);
         }
