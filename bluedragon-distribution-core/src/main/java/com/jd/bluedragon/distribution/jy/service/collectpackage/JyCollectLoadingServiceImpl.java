@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.BindCollectBagReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
 import com.jd.bluedragon.common.dto.sorting.request.PackSortTaskBody;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -122,6 +123,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     }
     protected void execCollectBoxForMachine(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
+        boxRelation.setOperateSource(OperatorTypeEnum.AUTO_MACHINE.getCode());
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
     }
     private void collectBoxMachineCheck(CollectPackageReq request) {
