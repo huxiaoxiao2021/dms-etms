@@ -1435,12 +1435,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
-        boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        InvokeResult<Boolean> rs =boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE != rs.getCode()){
+            throw new JyBizException("集箱失败！");
+        }
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isNotNull(collectPackageTask)){
             checkIfNeedUpdateStatus(request,collectPackageTask);
         }
-
     }
 
     protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
@@ -1453,7 +1455,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setUpdateUserErp(request.getUser().getUserErp());
         relation.setUpdateUserName(request.getUser().getUserName());
         relation.setYn(Constants.YN_YES);
-        relation.setOperateSource(OperatorTypeEnum.DMS_CLIENT.getCode());
+        relation.setSource(OperatorTypeEnum.DMS_CLIENT.getCode());
 
         Date now = new Date();
         relation.setCreateTime(now);
