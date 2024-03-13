@@ -18,6 +18,7 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -1452,6 +1453,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setUpdateUserErp(request.getUser().getUserErp());
         relation.setUpdateUserName(request.getUser().getUserName());
         relation.setYn(Constants.YN_YES);
+        relation.setOperateSource(OperatorTypeEnum.DMS_CLIENT.getCode());
 
         Date now = new Date();
         relation.setCreateTime(now);
