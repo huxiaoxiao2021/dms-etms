@@ -314,6 +314,7 @@
     <update id="batchUpdateStatusByIds"
             parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto">
         update jy_evaluate_record_appeal
+        set
         <if test="appealStatus != null">
             appeal_status = #{appealStatus} ,
         </if>

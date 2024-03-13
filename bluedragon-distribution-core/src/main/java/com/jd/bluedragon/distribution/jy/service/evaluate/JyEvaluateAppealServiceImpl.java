@@ -252,9 +252,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             dbUpdate(updateDto, updatePassDto, updateRejectDto);
             // 统计审核次数和审核驳回次数，更新场地权限
             updateSiteEvaluateAndAppeal(res);
-            // 审核通过的数据，增量更新到数据库,装车评价记录表
-            List<JyEvaluateRecordEntity> recordList = createSatisfiedEvaluateRecords(res);
-            jyEvaluateCommonService.saveEvaluateInfo(recordList);
+            // 审核通过的数据，更新至装车评价记录表
+            updateEvaluateRecord(updatePassDto);
             // 审核通过的数据，同步到es
             esDataUpdate(res, updatePassDto);
         } catch (Exception e) {
@@ -266,38 +265,20 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         return response;
     }
 
-
     /**
-     * 创建满意的评价记录
-     * @param request 评价记录申诉响应对象
-     * @return recordList 评价记录实体列表
+     * 更新评价记录
+     * @param updatePassDto 更新评价记录的数据传输对象
      */
-    private List<JyEvaluateRecordEntity> createSatisfiedEvaluateRecords(JyEvaluateRecordAppealRes request) {
-        List<JyEvaluateRecordEntity> recordList = new ArrayList<>();
-        JyEvaluateRecordEntity record = createEvaluateRecord(request);
-        recordList.add(record);
-        return recordList;
-    }
-
-    /**
-     * 创建评价记录
-     * @param request 评价记录申诉响应对象
-     * @return record 评价记录实体对象
-     */
-    private JyEvaluateRecordEntity createEvaluateRecord(JyEvaluateRecordAppealRes request) {
-        JyEvaluateRecordEntity record = new JyEvaluateRecordEntity();
-        record.setEvaluateType(Constants.EVALUATE_TYPE_LOAD);
-        record.setTargetBizId(request.getTargetBizId());
-        record.setSourceBizId(request.getSourceBizId());
-        record.setEvaluateStatus(Constants.EVALUATE_STATUS_SATISFIED);
-        record.setCreateUserErp(request.getUpdateUserErp());
-        record.setCreateUserName(request.getUpdateUserName());
-        record.setUpdateUserErp(request.getUpdateUserErp());
-        record.setUpdateUserName(request.getUpdateUserName());
-        record.setCreateTime(new Date());
-        record.setUpdateTime(new Date());
-        record.setYn(Constants.YN_YES);
-        return record;
+    private void updateEvaluateRecord(JyEvaluateRecordAppealUpdateDto updatePassDto) {
+        if (CollectionUtils.isNotEmpty(updatePassDto.getDimensionCodeList())){
+            List<JyEvaluateRecordEntity> recordEntities =jyEvaluateCommonService.findByCondition(updatePassDto);
+            List<Long> ids = recordEntities.stream()
+                .map(JyEvaluateRecordEntity::getId)
+                .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(ids)){
+                jyEvaluateCommonService.batchUpdate(ids);
+            }
+        }
     }
 
     /**
@@ -377,7 +358,10 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      * 更新ES数据
      * @param res 评价记录申诉响应对象
      */
-    private void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
+    public void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
+        if (CollectionUtils.isEmpty(updatePassDto.getDimensionCodeList())){
+            return;
+        }
         EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
         // 操作时间
         targetInitDto.setOperateTime(System.currentTimeMillis());
@@ -387,6 +371,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         targetInitDto.setOperateUserName(res.getUpdateUserName());
         // 评价来源bizId
         targetInitDto.setSourceBizId(res.getSourceBizId());
+        // 评价目标bizId
+        targetInitDto.setTargetBizId(res.getTargetBizId());
         // 设置申诉通过的code空集合
         List<String> codeList = new ArrayList<>();
         for (Integer number : updatePassDto.getDimensionCodeList()) {
@@ -436,9 +422,15 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealServiceImpl.dbUpdate", mState = {JProEnum.TP, JProEnum.FunctionError})
     private void dbUpdate(JyEvaluateRecordAppealUpdateDto updateDto, JyEvaluateRecordAppealUpdateDto updatePassDto,
         JyEvaluateRecordAppealUpdateDto updateRejectDto) {
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateDto);
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updatePassDto);
-        jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateRejectDto);
+        if (CollectionUtils.isNotEmpty(updateDto.getIdList())){
+            jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateDto);
+        }
+        if (CollectionUtils.isNotEmpty(updatePassDto.getIdList())){
+            jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updatePassDto);
+        }
+        if (CollectionUtils.isNotEmpty(updateRejectDto.getIdList())){
+            jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateRejectDto);
+        }
     }
 
     /**
@@ -466,6 +458,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                     if (opinion.equals(Constants.CONSTANT_NUMBER_ONE)) {
                         updatePassDto.getIdList().add(entity.getId());
                         updatePassDto.getDimensionCodeList().add(entity.getDimensionCode());
+                        updatePassDto.setSourceBizId(entity.getSourceBizId());
+                        updatePassDto.setTargetBizId(entity.getTargetBizId());
                     } else if (opinion.equals(Constants.CONSTANT_NUMBER_TWO)) {
                         updateRejectDto.getIdList().add(entity.getId());
                         updateRejectDto.getDimensionCodeList().add(entity.getDimensionCode());
