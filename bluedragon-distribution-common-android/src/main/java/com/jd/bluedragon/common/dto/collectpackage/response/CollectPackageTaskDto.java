@@ -73,6 +73,60 @@ public class CollectPackageTaskDto implements Serializable {
      */
     private boolean hasBoundBoxFlag;
 
+
+    /**
+     * 已扫包裹数量
+     */
+    private Integer packageScanCount;
+
+    /**
+     * 已扫箱号数量
+     */
+    private Integer boxScanCount;
+
+
+    /**
+     * 拦截包裹数量
+     */
+    private Integer packageInterceptCount;
+
+    /**
+     * 拦截箱号数量
+     */
+    private Integer boxInterceptCount;
+
+    public Integer getPackageScanCount() {
+        return packageScanCount;
+    }
+
+    public void setPackageScanCount(Integer packageScanCount) {
+        this.packageScanCount = packageScanCount;
+    }
+
+    public Integer getBoxScanCount() {
+        return boxScanCount;
+    }
+
+    public void setBoxScanCount(Integer boxScanCount) {
+        this.boxScanCount = boxScanCount;
+    }
+
+    public Integer getPackageInterceptCount() {
+        return packageInterceptCount;
+    }
+
+    public void setPackageInterceptCount(Integer packageInterceptCount) {
+        this.packageInterceptCount = packageInterceptCount;
+    }
+
+    public Integer getBoxInterceptCount() {
+        return boxInterceptCount;
+    }
+
+    public void setBoxInterceptCount(Integer boxInterceptCount) {
+        this.boxInterceptCount = boxInterceptCount;
+    }
+
     public boolean getHasBoundBoxFlag() {
         return hasBoundBoxFlag;
     }

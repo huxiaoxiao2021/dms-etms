@@ -18,6 +18,32 @@ public class CollectPackageFlowDto {
      */
     private Integer count;
 
+    /**
+     * 包裹数量
+     */
+    private Integer packageCount;
+
+    /**
+     * 箱号数量
+     */
+    private Integer boxCount;
+
+    public Integer getPackageCount() {
+        return packageCount;
+    }
+
+    public void setPackageCount(Integer packageCount) {
+        this.packageCount = packageCount;
+    }
+
+    public Integer getBoxCount() {
+        return boxCount;
+    }
+
+    public void setBoxCount(Integer boxCount) {
+        this.boxCount = boxCount;
+    }
+
     public Integer getCount() {
         return count;
     }

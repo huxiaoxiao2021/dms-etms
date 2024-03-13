@@ -44,10 +44,6 @@ import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCC
 @Slf4j
 public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
 
-    @Resource
-    private FuncSwitchConfigService funcSwitchConfigService;
-    @Resource
-    private CycleBoxService cycleBoxService;
     @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
