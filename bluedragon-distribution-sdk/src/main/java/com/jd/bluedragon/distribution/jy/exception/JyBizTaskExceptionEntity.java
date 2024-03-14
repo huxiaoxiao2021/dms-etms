@@ -134,6 +134,11 @@ public class JyBizTaskExceptionEntity implements Serializable {
      */
     private Date ts;
 
+    /**
+     * 处理人用户ID
+     */
+    private Integer handlerUserId;
+
     public Long getId() {
         return id;
     }
@@ -372,5 +377,13 @@ public class JyBizTaskExceptionEntity implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getHandlerUserId() {
+        return handlerUserId;
+    }
+
+    public void setHandlerUserId(Integer handlerUserId) {
+        this.handlerUserId = handlerUserId;
     }
 }

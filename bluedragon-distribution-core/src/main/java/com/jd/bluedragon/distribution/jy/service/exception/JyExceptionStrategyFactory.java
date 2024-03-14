@@ -1,17 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.exception;
 
-import com.jd.bluedragon.distribution.jy.service.exception.impl.JySanwuExceptionServiceImpl;
-import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,9 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class JyExceptionStrategyFactory implements InitializingBean, ApplicationContextAware {
-
-    @Autowired
-    private JySanwuExceptionServiceImpl jySanwuExceptionService;
 
     //使用Map集合存储策略信息,彻底消除if...else
     private final Map<Integer, JyExceptionStrategy> strategyMap = new ConcurrentHashMap<>();

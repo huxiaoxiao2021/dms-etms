@@ -81,6 +81,17 @@ public class PdaOperateRequest {
 
 	boolean jyCollectPackageFlag;
 
+    private String positionCode;
+
+    /**
+     * 网格key:关联场地网格业务主键
+     */
+    private String workGridKey;
+    /**
+     * 网格工序key:关联场地网格工序业务主键
+     */
+    private String workStationGridKey;
+
 	public boolean getJyCollectPackageFlag() {
 		return jyCollectPackageFlag;
 	}
@@ -196,5 +207,29 @@ public class PdaOperateRequest {
 
     public void setOnlineStatus(Integer onlineStatus) {
         this.onlineStatus = onlineStatus;
+    }
+
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
+    }
+
+    public String getWorkGridKey() {
+        return workGridKey;
+    }
+
+    public void setWorkGridKey(String workGridKey) {
+        this.workGridKey = workGridKey;
+    }
+
+    public String getWorkStationGridKey() {
+        return workStationGridKey;
+    }
+
+    public void setWorkStationGridKey(String workStationGridKey) {
+        this.workStationGridKey = workStationGridKey;
     }
 }

@@ -810,6 +810,14 @@
     <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
     </jmq:consumer>
+    <!-- 拦截数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptReportConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptReport}" listener="dmsBusinessInterceptReportConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截后处理数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptDisposeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptDispose}" listener="dmsBusinessInterceptDisposeConsumer"/>
+    </jmq:consumer>
 
     <!-- 组板 组大箱时拆分成小箱进行组板  -->
     <jmq:consumer id="jmq.BoxComboardConsumer" transport="jmq4.dmsWorker.transport">
