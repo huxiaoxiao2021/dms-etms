@@ -15,23 +15,21 @@ public enum BoxTypeV2Enum {
     TYPE_TA("TA", "特安", Collections.<String>emptyList()),
     TYPE_LL("LL", "笼车/围板箱", Arrays.asList("BW","TC","WJ","TA","BC")),
     TYPE_BX("BX", "正向虚拟", Collections.<String>emptyList()),
-    TYPE_WM("BW", "仓储", Arrays.asList("BC"));
+    TYPE_WM("BW", "仓储", Collections.<String>emptyList());
 
 
     private String code;
 
     private String name;
 
+    public static Map<String, String> ENUM_MAP;
+
+    public static List<String> ENUM_LIST;
 
     /**
      * 支持内嵌的箱号类型
      */
     private List<String> supportEmbeddedTypes;
-
-    public static Map<String, String> ENUM_MAP;
-
-    public static List<String> ENUM_LIST;
-
 
     BoxTypeV2Enum(String code, String name,List<String> supportEmbeddedTypes) {
         this.code = code;

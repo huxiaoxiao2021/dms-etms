@@ -1046,6 +1046,18 @@
         <property name="topic" value="${jmq.topic.aviationRailwayShuttleSeal}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--  拣运组板岗-大箱组板发货  -->
+    <bean id="bigBoxComboardProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.comboard.split.box}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运组板岗-大箱取消发货  -->
+    <bean id="bigBoxCancelSendProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cancel.send.split.box}" />
+        <property name="timeout" value="1000" />
+    </bean>
     <!--  围栏到车包裹重试走自动验货逻辑  -->
     <bean id="jyPackageArriveRetryAutoInspectionProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" />

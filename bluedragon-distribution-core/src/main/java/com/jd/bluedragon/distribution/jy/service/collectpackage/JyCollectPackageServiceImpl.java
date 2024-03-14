@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -65,6 +68,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
@@ -109,7 +113,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private TaskService taskService;
+    protected TaskService taskService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
@@ -181,12 +185,22 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request) {
+        return null;
+    }
+
     /**
      * 执行集包操作
      * @param request 集包请求对象
      * @param response 集包响应对象
      */
-    private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -309,7 +323,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         jyCollectPackageEntity.setEndSiteId(request.getEndSiteId());
         jyCollectPackageEntity.setEndSiteName(request.getEndSiteName());
         jyCollectPackageEntity.setBoxEndSiteId(request.getBoxReceiveId());
-        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxCode());
+        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxReceiveName());
         Date now = new Date();
         jyCollectPackageEntity.setCreateTime(now);
         jyCollectPackageEntity.setUpdateTime(now);
@@ -322,7 +336,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return jyCollectPackageEntity;
     }
 
-    private TaskRequest assembleTaskRequest(CollectPackageReq request) {
+    protected TaskRequest assembleTaskRequest(CollectPackageReq request) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -631,13 +645,21 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         //pdaOperateRequest.setOperateType(request.getOperateType());
         pdaOperateRequest.setPackageCode(request.getBarCode());
         pdaOperateRequest.setReceiveSiteCode(request.getEndSiteId().intValue());
-        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
-        pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        final CurrentOperate currentOperate = request.getCurrentOperate();
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
+        pdaOperateRequest.setOperateTime(DateUtil.format(currentOperate.getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
         pdaOperateRequest.setJyCollectPackageFlag(true);
+        final OperatorData operatorData = currentOperate.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+        }
         return pdaOperateRequest;
     }
 
@@ -903,7 +925,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
 
-        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+        if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
             // 查询箱子是否已经被放入LL箱子中
             BoxRelation boxRelation = getBoxRelation(task);
             InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
@@ -1422,17 +1444,19 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
-    private void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
-        boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        InvokeResult<Boolean> rs =boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE != rs.getCode()){
+            throw new JyBizException("集箱失败！");
+        }
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isNotNull(collectPackageTask)){
             checkIfNeedUpdateStatus(request,collectPackageTask);
         }
-
     }
 
-    private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
+    protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
         relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
@@ -1442,6 +1466,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setUpdateUserErp(request.getUser().getUserErp());
         relation.setUpdateUserName(request.getUser().getUserName());
         relation.setYn(Constants.YN_YES);
+        relation.setSource(OperatorTypeEnum.DMS_CLIENT.getCode());
 
         Date now = new Date();
         relation.setCreateTime(now);
@@ -1496,9 +1521,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setCreateTime(now);
         relation.setUpdateTime(now);
         int existRelations = boxRelationService.countByBoxCode(relation);
-        if (dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit() > 0
-                && existRelations >= dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit()) {
-            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit());
+        if (dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit() > 0
+                && existRelations >= dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()) {
+            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()+"个");
         }
     }
 
@@ -1660,15 +1685,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     @Override
-    public InvokeResult<CancelCollectPackageResp> cancelCollectLoading(CancelCollectPackageReq request) {
-        checkCancelCollectLoading(request);
-        checkIfAllowCancelCollectLoading(request);
+    public InvokeResult<CancelCollectPackageResp> cancelCollectBox(CancelCollectPackageReq request) {
+        checkCancelCollectBox(request);
+        checkIfAllowCancelCollectBox(request);
         CancelCollectPackageResp response = new CancelCollectPackageResp();
-        execCancelCollectLoading(request, response);
+        execCancelCollectBox(request, response);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
-    private void execCancelCollectLoading(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+    private void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
         BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
         InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
         log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
@@ -1679,7 +1704,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
-        relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
         relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         relation.setCreateUserErp(request.getUser().getUserErp());
@@ -1694,11 +1718,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return relation;
     }
 
-    private void checkIfAllowCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkIfAllowCancelCollectBox(CancelCollectPackageReq request) {
+        //校验一下箱号是否已经发货
 
     }
 
-    private void checkCancelCollectLoading(CancelCollectPackageReq request) {
+    private void checkCancelCollectBox(CancelCollectPackageReq request) {
+        if (ObjectHelper.isEmpty(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失取消箱号！");
+        }
     }
 
     public static void main(String[] args) {

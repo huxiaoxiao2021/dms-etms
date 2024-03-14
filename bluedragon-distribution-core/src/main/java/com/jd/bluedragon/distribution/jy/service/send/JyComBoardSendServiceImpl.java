@@ -88,6 +88,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.GroupBoardService;
@@ -194,6 +195,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("waybillComboardProducer")
   private DefaultJMQProducer waybillComboardProducer;
+
+  @Autowired
+  @Qualifier("bigBoxComboardProducer")
+  private DefaultJMQProducer bigBoxComboardProducer;
 
 
   @Autowired
@@ -1284,7 +1289,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           jyComboardService.save(jyComboardRecord);
           //按运单拆分batch包裹-异步执行组板
           asyncExecComboard(request);
-          log.info("扫描大宗运单，走异步租板逻辑 板号：{},单号:{}",request.getBoardCode(),request.getBarCode());
+          log.info("扫描大宗运单，走异步租板逻辑 板号:{},单号:{}",request.getBoardCode(),request.getBarCode());
           return;
         }
 
@@ -1312,22 +1317,33 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void checkIfNeedExecComboardInner(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now) {
-    if (BusinessUtil.isLLBoxcode(request.getBarCode())) {
-      String outBox = request.getBarCode();
-      Box query =new Box();
-      query.setCode(request.getBarCode());
-      List<Box> boxList =boxService.listSonBoxesByParentBox(query);
-      if (!CollectionUtils.isEmpty(boxList)){
-        for (Box box:boxList){
-          request.setBarCode(box.getCode());
-          execComboardOnce(request, entity, now, false);
+    try {
+      if (BusinessUtil.isLLBoxcode(request.getBarCode())) {
+        String outBox = request.getBarCode();
+        Box query =new Box();
+        query.setCode(request.getBarCode());
+        List<Box> boxList =boxService.listSonBoxesByParentBox(query);
+        if (!CollectionUtils.isEmpty(boxList)){
+          request.setOperateTime(now);
+          for (Box box:boxList){
+            request.setBarCode(box.getCode());
+            productComboardMsg(request);
+          }
+          request.setBarCode(outBox);
         }
       }
-      request.setBarCode(outBox);
+    } catch (Exception e) {
+      log.error("checkIfNeedExecComboardInner error:{}",JsonHelper.toJson(request),e);
     }
   }
 
-  private void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now ,boolean outContainerFlag) {
+  private void productComboardMsg(ComboardScanReq request) {
+    bigBoxComboardProducer.sendOnFailPersistent(request.getBarCode(),JsonHelper.toJson(request));
+    log.info("大箱拆分小箱:{}任务成功生成",request.getBarCode());
+  }
+
+  @Override
+  public void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now ,boolean outContainerFlag) {
     log.info("execComboardOnce boardCode:{},barCode:{}",request.getBoardCode(),request.getBarCode());
     AddBoardBox addBoardBox = assembleComboardParam(request);
     Response<Integer> comboardResp = groupBoardManager.addBoxToBoardV2(addBoardBox);
@@ -1993,7 +2009,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
       pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
       pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
-      BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
+      pdaOperateRequest.setOperateNode(OperateNodeConstants.COMBINE_BOARD);
+      final CurrentOperate currentOperate = request.getCurrentOperate();
+      final com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = currentOperate.getOperatorData();
+      if (operatorData != null) {
+        pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+        pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+        pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+      }
+      BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheckAndReportIntercept(pdaOperateRequest);
       if (!interceptResult.getCode().equals(200)) {
         JyComboardEntity comboardEntity = createJyComboardRecord(request);
         comboardEntity.setInterceptFlag(true);

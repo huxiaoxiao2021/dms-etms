@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_JyExceptionInterceptDetail" type="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="interceptBizId" column="intercept_biz_id"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="bizSource" column="biz_source"/>
+        <result property="siteId" column="site_id"/>
+        <result property="siteName" column="site_name"/>
+        <result property="provinceAgencyCode" column="province_agency_code"/>
+        <result property="provinceAgencyName" column="province_agency_name"/>
+        <result property="areaHubCode" column="area_hub_code"/>
+        <result property="areaHubName" column="area_hub_name"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="packageTotal" column="package_total"/>
+        <result property="waybillCode" column="waybill_code"/>
+        <result property="boxCode" column="box_code"/>
+        <result property="operateNode" column="operate_node"/>
+        <result property="interceptEffectTime" column="intercept_effect_time"/>
+        <result property="interceptType" column="intercept_type"/>
+        <result property="deviceCode" column="device_code"/>
+        <result property="deviceType" column="device_type"/>
+        <result property="deviceSubType" column="device_sub_type"/>
+        <result property="operatePositionCode" column="operate_position_code"/>
+        <result property="operateWorkStationGridKey" column="operate_work_station_grid_key"/>
+        <result property="operateWorkGridKey" column="operate_work_grid_key"/>
+        <result property="operateAreaCode" column="operate_area_code"/>
+        <result property="operateAreaName" column="operate_area_name"/>
+        <result property="operateGridCode" column="operate_grid_code"/>
+        <result property="operateGridName" column="operate_grid_name"/>
+        <result property="operateWorkCode" column="operate_work_code"/>
+        <result property="operateWorkName" column="operate_work_name"/>
+        <result property="interceptCode" column="intercept_code"/>
+        <result property="interceptMessage" column="intercept_message"/>
+        <result property="disposeNode" column="dispose_node"/>
+        <result property="disposeUserId" column="dispose_user_id"/>
+        <result property="disposeUserCode" column="dispose_user_code"/>
+        <result property="disposeUserName" column="dispose_user_name"/>
+        <result property="disposeTime" column="dispose_time"/>
+        <result property="inputWeight" column="input_weight"/>
+        <result property="inputVolume" column="input_volume"/>
+        <result property="inputLength" column="input_length"/>
+        <result property="inputWidth" column="input_width"/>
+        <result property="inputHeight" column="input_height"/>
+        <result property="saveType" column="save_type"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createUserCode" column="create_user_code"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateUserCode" column="update_user_code"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        insert into `jy_exception_intercept_detail`(
+            id,
+            biz_id,
+            intercept_biz_id,
+            bar_code,
+            biz_source,
+            site_id,
+            site_name,
+            province_agency_code,
+            province_agency_name,
+            area_hub_code,
+            area_hub_name,
+            package_code,
+            package_total,
+            waybill_code,
+            box_code,
+            operate_node,
+            intercept_effect_time,
+            intercept_type,
+            device_code,
+            device_type,
+            device_sub_type,
+            operate_position_code,
+            operate_work_station_grid_key,
+            operate_work_grid_key,
+            operate_area_code,
+            operate_area_name,
+            operate_grid_code,
+            operate_grid_name,
+            operate_work_code,
+            operate_work_name,
+            intercept_code,
+            intercept_message,
+            dispose_node,
+            dispose_user_id,
+            dispose_user_code,
+            dispose_user_name,
+            dispose_time,
+            input_weight,
+            input_volume,
+            input_length,
+            input_width,
+            input_height,
+            save_type,
+            create_user_id,
+            create_user_code,
+            create_user_name,
+            update_user_id,
+            update_user_code,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts
+        ) values (
+            #{id},
+            #{bizId},
+            #{interceptBizId},
+            #{barCode},
+            #{bizSource},
+            #{siteId},
+            #{siteName},
+            #{provinceAgencyCode},
+            #{provinceAgencyName},
+            #{areaHubCode},
+            #{areaHubName},
+            #{packageCode},
+            #{packageTotal},
+            #{waybillCode},
+            #{boxCode},
+            #{operateNode},
+            #{interceptEffectTime},
+            #{interceptType},
+            #{deviceCode},
+            #{deviceType},
+            #{deviceSubType},
+            #{operatePositionCode},
+            #{operateWorkStationGridKey},
+            #{operateWorkGridKey},
+            #{operateAreaCode},
+            #{operateAreaName},
+            #{operateGridCode},
+            #{operateGridName},
+            #{operateWorkCode},
+            #{operateWorkName},
+            #{interceptCode},
+            #{interceptMessage},
+            #{disposeNode},
+            #{disposeUserId},
+            #{disposeUserCode},
+            #{disposeUserName},
+            #{disposeTime},
+            #{inputWeight},
+            #{inputVolume},
+            #{inputLength},
+            #{inputWidth},
+            #{inputHeight},
+            #{saveType},
+            #{createUserId},
+            #{createUserCode},
+            #{createUserName},
+            #{updateUserId},
+            #{updateUserCode},
+            #{updateUserName},
+            #{createTime},
+            #{updateTime},
+            #{yn},
+            #{ts}
+         )
+    </insert>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        insert into `jy_exception_intercept_detail`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="bizId != null and bizId != ''">
+                biz_id,
+            </if>
+            <if test="interceptBizId != null and interceptBizId != ''">
+                intercept_biz_id,
+            </if>
+            <if test="barCode != null and barCode != ''">
+                bar_code,
+            </if>
+            <if test="bizSource != null and bizSource != ''">
+                biz_source,
+            </if>
+            <if test="siteId != null">
+                site_id,
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name,
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+                province_agency_code,
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''">
+                province_agency_name,
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                area_hub_code,
+            </if>
+            <if test="areaHubName != null and areaHubName != ''">
+                area_hub_name,
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                package_code,
+            </if>
+            <if test="packageTotal != null">
+                package_total,
+            </if>
+            <if test="waybillCode != null and waybillCode != ''">
+                waybill_code,
+            </if>
+            <if test="boxCode != null and boxCode != ''">
+                box_code,
+            </if>
+            <if test="operateNode != null">
+                operate_node,
+            </if>
+            <if test="interceptEffectTime != null">
+                intercept_effect_time,
+            </if>
+            <if test="interceptType != null">
+                intercept_type,
+            </if>
+            <if test="deviceCode != null and deviceCode != ''">
+                device_code,
+            </if>
+            <if test="deviceType != null">
+                device_type,
+            </if>
+            <if test="deviceSubType != null">
+                device_sub_type,
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code,
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key,
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key,
+            </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code,
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name,
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code,
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name,
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code,
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name,
+            </if>
+            <if test="interceptCode != null">
+                intercept_code,
+            </if>
+            <if test="interceptMessage != null and interceptMessage != ''">
+                intercept_message,
+            </if>
+            <if test="disposeNode != null">
+                dispose_node,
+            </if>
+            <if test="disposeUserId != null">
+                dispose_user_id,
+            </if>
+            <if test="disposeUserCode != null and disposeUserCode != ''">
+                dispose_user_code,
+            </if>
+            <if test="disposeUserName != null and disposeUserName != ''">
+                dispose_user_name,
+            </if>
+            <if test="disposeTime != null">
+                dispose_time,
+            </if>
+            <if test="inputWeight != null">
+                input_weight,
+            </if>
+            <if test="inputVolume != null">
+                input_volume,
+            </if>
+            <if test="inputLength != null">
+                input_length,
+            </if>
+            <if test="inputWidth != null">
+                input_width,
+            </if>
+            <if test="inputHeight != null">
+                input_height,
+            </if>
+            <if test="saveType != null">
+                save_type,
+            </if>
+            <if test="createUserId != null">
+                create_user_id,
+            </if>
+            <if test="createUserCode != null and createUserCode != ''">
+                create_user_code,
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name,
+            </if>
+            <if test="updateUserId != null">
+                update_user_id,
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                update_user_code,
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="bizId != null and bizId != ''">
+                #{bizId},
+            </if>
+            <if test="interceptBizId != null and interceptBizId != ''">
+                #{interceptBizId},
+            </if>
+            <if test="barCode != null and barCode != ''">
+                #{barCode},
+            </if>
+            <if test="bizSource != null and bizSource != ''">
+                #{bizSource},
+            </if>
+            <if test="siteId != null">
+                #{siteId},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                #{siteName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+                #{provinceAgencyCode},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''">
+                #{provinceAgencyName},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                #{areaHubCode},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''">
+                #{areaHubName},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                #{packageCode},
+            </if>
+            <if test="packageTotal != null">
+                #{packageTotal},
+            </if>
+            <if test="waybillCode != null and waybillCode != ''">
+                #{waybillCode},
+            </if>
+            <if test="boxCode != null and boxCode != ''">
+                #{boxCode},
+            </if>
+            <if test="operateNode != null">
+                #{operateNode},
+            </if>
+            <if test="interceptEffectTime != null">
+                #{interceptEffectTime},
+            </if>
+            <if test="interceptType != null">
+                #{interceptType},
+            </if>
+            <if test="deviceCode != null and deviceCode != ''">
+                #{deviceCode},
+            </if>
+            <if test="deviceType != null">
+                #{deviceType},
+            </if>
+            <if test="deviceSubType != null">
+                #{deviceSubType},
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                #{operatePositionCode},
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                #{operateWorkGridKey},
+            </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                #{operateAreaCode},
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                #{operateAreaName},
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                #{operateGridCode},
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                #{operateGridName},
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                #{operateWorkCode},
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                #{operateWorkName},
+            </if>
+            <if test="interceptCode != null">
+                #{interceptCode},
+            </if>
+            <if test="interceptMessage != null and interceptMessage != ''">
+                #{interceptMessage},
+            </if>
+            <if test="disposeNode != null">
+                #{disposeNode},
+            </if>
+            <if test="disposeUserId != null">
+                #{disposeUserId},
+            </if>
+            <if test="disposeUserCode != null and disposeUserCode != ''">
+                #{disposeUserCode},
+            </if>
+            <if test="disposeUserName != null and disposeUserName != ''">
+                #{disposeUserName},
+            </if>
+            <if test="disposeTime != null">
+                #{disposeTime},
+            </if>
+            <if test="inputWeight != null">
+                #{inputWeight},
+            </if>
+            <if test="inputVolume != null">
+                #{inputVolume},
+            </if>
+            <if test="inputLength != null">
+                #{inputLength},
+            </if>
+            <if test="inputWidth != null">
+                #{inputWidth},
+            </if>
+            <if test="inputHeight != null">
+                #{inputHeight},
+            </if>
+            <if test="saveType != null">
+                #{saveType},
+            </if>
+            <if test="createUserId != null">
+                #{createUserId},
+            </if>
+            <if test="createUserCode != null and createUserCode != ''">
+                #{createUserCode},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                #{createUserName},
+            </if>
+            <if test="updateUserId != null">
+                #{updateUserId},
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                #{updateUserCode},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                #{updateUserName},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `jy_exception_intercept_detail`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            biz_id,
+            intercept_biz_id,
+            bar_code,
+            biz_source,
+            site_id,
+            site_name,
+            province_agency_code,
+            province_agency_name,
+            area_hub_code,
+            area_hub_name,
+            package_code,
+            package_total,
+            waybill_code,
+            box_code,
+            operate_node,
+            intercept_effect_time,
+            intercept_type,
+            device_code,
+            device_type,
+            device_sub_type,
+            operate_position_code,
+            operate_work_station_grid_key,
+            operate_work_grid_key,
+            operate_area_code,
+            operate_area_name,
+            operate_grid_code,
+            operate_grid_name,
+            operate_work_code,
+            operate_work_name,
+            intercept_code,
+            intercept_message,
+            dispose_node,
+            dispose_user_id,
+            dispose_user_code,
+            dispose_user_name,
+            dispose_time,
+            input_weight,
+            input_volume,
+            input_length,
+            input_width,
+            input_height,
+            save_type,
+            create_user_id,
+            create_user_code,
+            create_user_name,
+            update_user_id,
+            update_user_code,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.bizId},
+                #{item.interceptBizId},
+                #{item.barCode},
+                #{item.bizSource},
+                #{item.siteId},
+                #{item.siteName},
+                #{item.provinceAgencyCode},
+                #{item.provinceAgencyName},
+                #{item.areaHubCode},
+                #{item.areaHubName},
+                #{item.packageCode},
+                #{item.packageTotal},
+                #{item.waybillCode},
+                #{item.boxCode},
+                #{item.operateNode},
+                #{item.interceptEffectTime},
+                #{item.interceptType},
+                #{item.deviceCode},
+                #{item.deviceType},
+                #{item.deviceSubType},
+                #{item.operatePositionCode},
+                #{item.operateWorkStationGridKey},
+                #{item.operateWorkGridKey},
+                #{item.operateAreaCode},
+                #{item.operateAreaName},
+                #{item.operateGridCode},
+                #{item.operateGridName},
+                #{item.operateWorkCode},
+                #{item.operateWorkName},
+                #{item.interceptCode},
+                #{item.interceptMessage},
+                #{item.disposeNode},
+                #{item.disposeUserId},
+                #{item.disposeUserCode},
+                #{item.disposeUserName},
+                #{item.disposeTime},
+                #{item.inputWeight},
+                #{item.inputVolume},
+                #{item.inputLength},
+                #{item.inputWidth},
+                #{item.inputHeight},
+                #{item.saveType},
+                #{item.createUserId},
+                #{item.createUserCode},
+                #{item.createUserName},
+                #{item.updateUserId},
+                #{item.updateUserCode},
+                #{item.updateUserName},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.yn},
+                #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        UPDATE `jy_exception_intercept_detail`
+        <set>
+            <if test="bizId != null and bizId != ''">
+                biz_id = #{bizId},
+            </if>
+            <if test="interceptBizId != null and interceptBizId != ''">
+                intercept_biz_id = #{interceptBizId},
+            </if>
+            <if test="barCode != null and barCode != ''">
+                bar_code = #{barCode},
+            </if>
+            <if test="bizSource != null and bizSource != ''">
+                biz_source = #{bizSource},
+            </if>
+            <if test="siteId != null ">
+                site_id = #{siteId},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name = #{siteName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+                province_agency_code = #{provinceAgencyCode},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''">
+                province_agency_name = #{provinceAgencyName},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                area_hub_code = #{areaHubCode},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''">
+                area_hub_name = #{areaHubName},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                package_code = #{packageCode},
+            </if>
+            <if test="packageTotal != null ">
+                package_total = #{packageTotal},
+            </if>
+            <if test="waybillCode != null and waybillCode != ''">
+                waybill_code = #{waybillCode},
+            </if>
+            <if test="boxCode != null and boxCode != ''">
+                box_code = #{boxCode},
+            </if>
+            <if test="operateNode != null ">
+                operate_node = #{operateNode},
+            </if>
+            <if test="interceptEffectTime != null ">
+                intercept_effect_time = #{interceptEffectTime},
+            </if>
+            <if test="interceptType != null ">
+                intercept_type = #{interceptType},
+            </if>
+            <if test="deviceCode != null and deviceCode != ''">
+                device_code = #{deviceCode},
+            </if>
+            <if test="deviceType != null ">
+                device_type = #{deviceType},
+            </if>
+            <if test="deviceSubType != null ">
+                device_sub_type = #{deviceSubType},
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code = #{operatePositionCode},
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key = #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key = #{operateWorkGridKey},
+            </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code = #{operateAreaCode},
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name = #{operateAreaName},
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code = #{operateGridCode},
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name = #{operateGridName},
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code = #{operateWorkCode},
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name = #{operateWorkName},
+            </if>
+            <if test="interceptCode != null ">
+                intercept_code = #{interceptCode},
+            </if>
+            <if test="interceptMessage != null and interceptMessage != ''">
+                intercept_message = #{interceptMessage},
+            </if>
+            <if test="disposeNode != null ">
+                dispose_node = #{disposeNode},
+            </if>
+            <if test="disposeUserId != null ">
+                dispose_user_id = #{disposeUserId},
+            </if>
+            <if test="disposeUserCode != null and disposeUserCode != ''">
+                dispose_user_code = #{disposeUserCode},
+            </if>
+            <if test="disposeUserName != null and disposeUserName != ''">
+                dispose_user_name = #{disposeUserName},
+            </if>
+            <if test="disposeTime != null ">
+                dispose_time = #{disposeTime},
+            </if>
+            <if test="inputWeight != null ">
+                input_weight = #{inputWeight},
+            </if>
+            <if test="inputVolume != null ">
+                input_volume = #{inputVolume},
+            </if>
+            <if test="inputLength != null ">
+                input_length = #{inputLength},
+            </if>
+            <if test="inputWidth != null ">
+                input_width = #{inputWidth},
+            </if>
+            <if test="inputHeight != null ">
+                input_height = #{inputHeight},
+            </if>
+            <if test="saveType != null ">
+                save_type = #{saveType},
+            </if>
+            <if test="createUserId != null ">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="createUserCode != null and createUserCode != ''">
+                create_user_code = #{createUserCode},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name = #{createUserName},
+            </if>
+            <if test="updateUserId != null ">
+                update_user_id = #{updateUserId},
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                update_user_code = #{updateUserCode},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_JyExceptionInterceptDetail" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `jy_exception_intercept_detail`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_JyExceptionInterceptDetail" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `jy_exception_intercept_detail`
+        <include refid="where"/>
+        limit 1
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="bizId != null and bizId != ''">
+            AND biz_id = #{bizId}
+        </if>
+        <if test="barCode != null and barCode != ''">
+            AND bar_code = #{barCode}
+        </if>
+        <if test="siteId != null">
+            AND site_id = #{siteId}
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND package_code = #{packageCode}
+        </if>
+        <if test="waybillCode != null and waybillCode != ''">
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="boxCode != null and boxCode != ''">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="interceptType != null">
+            AND intercept_type = #{interceptType}
+        </if>
+        <if test="deviceCode != null and deviceCode != ''">
+            AND device_code = #{deviceCode}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailQuery">
+        SELECT count(1) FROM `jy_exception_intercept_detail`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_JyExceptionInterceptDetail" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `jy_exception_intercept_detail`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{limitStart}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        UPDATE `jy_exception_intercept_detail` SET
+            <if test="updateUserId != null">
+                update_user_id = #{updateUserId},
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                update_user_code = #{updateUserCode},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            yn = 0
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDeleteByPrimaryKeys" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailQuery">
+        UPDATE `jy_exception_intercept_detail` SET
+        <if test="updateUserId != null">
+            update_user_id = #{updateUserId},
+        </if>
+        <if test="updateUserCode != null and updateUserCode != ''">
+            update_user_code = #{updateUserCode},
+        </if>
+        <if test="updateUserName != null and updateUserName != ''">
+            update_user_name = #{updateUserName},
+        </if>
+        <if test="updateTime != null ">
+            update_time = #{updateTime},
+        </if>
+        yn = 0
+        WHERE id IN
+        <foreach collection="idList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <!-- 按条件删除 -->
+    <update id="deleteByParam" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyExceptionInterceptDetailQuery">
+        UPDATE `jy_exception_intercept_detail`
+        SET
+            <if test="updateUserId != null">
+                update_user_id = #{updateUserId},
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                update_user_code = #{updateUserCode},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            yn = 0
+        <include refid="where"/>
+    </update>
+
+    <!-- 更新 -->
+    <update id="updateByBizId" parameterType="com.jd.bluedragon.distribution.jy.exception.model.JyExceptionInterceptDetail">
+        UPDATE `jy_exception_intercept_detail`
+        <set>
+            <if test="interceptBizId != null and interceptBizId != ''">
+                intercept_biz_id = #{interceptBizId},
+            </if>
+            <if test="barCode != null and barCode != ''">
+                bar_code = #{barCode},
+            </if>
+            <if test="bizSource != null and bizSource != ''">
+                biz_source = #{bizSource},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name = #{siteName},
+            </if>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''">
+                province_agency_code = #{provinceAgencyCode},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''">
+                province_agency_name = #{provinceAgencyName},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''">
+                area_hub_code = #{areaHubCode},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''">
+                area_hub_name = #{areaHubName},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                package_code = #{packageCode},
+            </if>
+            <if test="packageTotal != null ">
+                package_total = #{packageTotal},
+            </if>
+            <if test="waybillCode != null and waybillCode != ''">
+                waybill_code = #{waybillCode},
+            </if>
+            <if test="boxCode != null and boxCode != ''">
+                box_code = #{boxCode},
+            </if>
+            <if test="operateNode != null ">
+                operate_node = #{operateNode},
+            </if>
+            <if test="interceptEffectTime != null ">
+                intercept_effect_time = #{interceptEffectTime},
+            </if>
+            <if test="interceptType != null ">
+                intercept_type = #{interceptType},
+            </if>
+            <if test="deviceCode != null and deviceCode != ''">
+                device_code = #{deviceCode},
+            </if>
+            <if test="deviceType != null ">
+                device_type = #{deviceType},
+            </if>
+            <if test="deviceSubType != null ">
+                device_sub_type = #{deviceSubType},
+            </if>
+            <if test="operatePositionCode != null and operatePositionCode != ''">
+                operate_position_code = #{operatePositionCode},
+            </if>
+            <if test="operateWorkStationGridKey != null and operateWorkStationGridKey != ''">
+                operate_work_station_grid_key = #{operateWorkStationGridKey},
+            </if>
+            <if test="operateWorkGridKey != null and operateWorkGridKey != ''">
+                operate_work_grid_key = #{operateWorkGridKey},
+            </if>
+            <if test="operateAreaCode != null and operateAreaCode != ''">
+                operate_area_code = #{operateAreaCode},
+            </if>
+            <if test="operateAreaName != null and operateAreaName != ''">
+                operate_area_name = #{operateAreaName},
+            </if>
+            <if test="operateGridCode != null and operateGridCode != ''">
+                operate_grid_code = #{operateGridCode},
+            </if>
+            <if test="operateGridName != null and operateGridName != ''">
+                operate_grid_name = #{operateGridName},
+            </if>
+            <if test="operateWorkCode != null and operateWorkCode != ''">
+                operate_work_code = #{operateWorkCode},
+            </if>
+            <if test="operateWorkName != null and operateWorkName != ''">
+                operate_work_name = #{operateWorkName},
+            </if>
+            <if test="interceptCode != null ">
+                intercept_code = #{interceptCode},
+            </if>
+            <if test="interceptMessage != null and interceptMessage != ''">
+                intercept_message = #{interceptMessage},
+            </if>
+            <if test="disposeNode != null ">
+                dispose_node = #{disposeNode},
+            </if>
+            <if test="disposeUserId != null ">
+                dispose_user_id = #{disposeUserId},
+            </if>
+            <if test="disposeUserCode != null and disposeUserCode != ''">
+                dispose_user_code = #{disposeUserCode},
+            </if>
+            <if test="disposeUserName != null and disposeUserName != ''">
+                dispose_user_name = #{disposeUserName},
+            </if>
+            <if test="disposeTime != null ">
+                dispose_time = #{disposeTime},
+            </if>
+            <if test="inputWeight != null ">
+                input_weight = #{inputWeight},
+            </if>
+            <if test="inputVolume != null ">
+                input_volume = #{inputVolume},
+            </if>
+            <if test="inputLength != null ">
+                input_length = #{inputLength},
+            </if>
+            <if test="inputWidth != null ">
+                input_width = #{inputWidth},
+            </if>
+            <if test="inputHeight != null ">
+                input_height = #{inputHeight},
+            </if>
+            <if test="saveType != null ">
+                save_type = #{saveType},
+            </if>
+            <if test="createUserId != null ">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="createUserCode != null and createUserCode != ''">
+                create_user_code = #{createUserCode},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name = #{createUserName},
+            </if>
+            <if test="updateUserId != null ">
+                update_user_id = #{updateUserId},
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                update_user_code = #{updateUserCode},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts}
+            </if>
+        </set>
+        WHERE
+        site_id = #{siteId} and biz_id = #{bizId}
+    </update>
+</mapper>
+

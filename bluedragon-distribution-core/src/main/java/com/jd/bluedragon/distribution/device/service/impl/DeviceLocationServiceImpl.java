@@ -517,33 +517,39 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
         deviceLocationExceptionOpLog.setRefLogId(deviceLocationUploadPo.getRefLogId());
         // 设备信息
         final DeviceInfo deviceInfo = deviceLocationUploadPo.getDeviceInfo();
-        deviceLocationExceptionOpLog.setSystemCode("DMS");
-        deviceLocationExceptionOpLog.setDeviceCode(deviceInfo.getDeviceCode());
-        deviceLocationExceptionOpLog.setDeviceName(deviceInfo.getDeviceName());
-        deviceLocationExceptionOpLog.setDeviceSn(deviceInfo.getDeviceSn());
-        deviceLocationExceptionOpLog.setDeviceType(deviceInfo.getDeviceType());
-        deviceLocationExceptionOpLog.setProgramType(deviceInfo.getProgramType());
-        deviceLocationExceptionOpLog.setVersionCode(deviceInfo.getVersionCode());
+        if(deviceInfo != null){
+            deviceLocationExceptionOpLog.setSystemCode("DMS");
+            deviceLocationExceptionOpLog.setDeviceCode(deviceInfo.getDeviceCode());
+            deviceLocationExceptionOpLog.setDeviceName(deviceInfo.getDeviceName());
+            deviceLocationExceptionOpLog.setDeviceSn(deviceInfo.getDeviceSn());
+            deviceLocationExceptionOpLog.setDeviceType(deviceInfo.getDeviceType());
+            deviceLocationExceptionOpLog.setProgramType(deviceInfo.getProgramType());
+            deviceLocationExceptionOpLog.setVersionCode(deviceInfo.getVersionCode());
+        }
         // 操作人信息
         final OperateUser operateUser = deviceLocationUploadPo.getOperateUser();
-        deviceLocationExceptionOpLog.setOrgId(operateUser.getOrgId());
-        deviceLocationExceptionOpLog.setOrgName(operateUser.getOrgName());
-        deviceLocationExceptionOpLog.setSiteCode(operateUser.getSiteCode());
-        deviceLocationExceptionOpLog.setSiteName(operateUser.getSiteName());
-        deviceLocationExceptionOpLog.setOperateUserErp(operateUser.getUserCode());
-        deviceLocationExceptionOpLog.setOperateUserName(operateUser.getUserName());
+        if (operateUser != null) {
+            deviceLocationExceptionOpLog.setOrgId(operateUser.getOrgId());
+            deviceLocationExceptionOpLog.setOrgName(operateUser.getOrgName());
+            deviceLocationExceptionOpLog.setSiteCode(operateUser.getSiteCode());
+            deviceLocationExceptionOpLog.setSiteName(operateUser.getSiteName());
+            deviceLocationExceptionOpLog.setOperateUserErp(operateUser.getUserCode());
+            deviceLocationExceptionOpLog.setOperateUserName(operateUser.getUserName());
+        }
         // 位置信息
         final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
-        deviceLocationExceptionOpLog.setIpv4(deviceLocationInfo.getIpv4());
-        deviceLocationExceptionOpLog.setIpv6(deviceLocationInfo.getIpv6());
-        deviceLocationExceptionOpLog.setMacAddressSelf(deviceLocationInfo.getMacAddressSelf());
-        deviceLocationExceptionOpLog.setMacAddressNetwork(deviceLocationInfo.getMacAddressNetwork());
-        deviceLocationExceptionOpLog.setLongitude(deviceLocationInfo.getLongitude());
-        deviceLocationExceptionOpLog.setLatitude(deviceLocationInfo.getLatitude());
+        if (deviceLocationInfo != null) {
+            deviceLocationExceptionOpLog.setIpv4(deviceLocationInfo.getIpv4());
+            deviceLocationExceptionOpLog.setIpv6(deviceLocationInfo.getIpv6());
+            deviceLocationExceptionOpLog.setMacAddressSelf(deviceLocationInfo.getMacAddressSelf());
+            deviceLocationExceptionOpLog.setMacAddressNetwork(deviceLocationInfo.getMacAddressNetwork());
+            deviceLocationExceptionOpLog.setLongitude(deviceLocationInfo.getLongitude());
+            deviceLocationExceptionOpLog.setLatitude(deviceLocationInfo.getLatitude());
+            deviceLocationExceptionOpLog.setOperateTime(new Date(deviceLocationUploadPo.getOperateTime()));
+            deviceLocationExceptionOpLog.setOperateType(deviceLocationUploadPo.getOperateType());
+        }
 
-        deviceLocationExceptionOpLog.setOperateTime(new Date(deviceLocationUploadPo.getOperateTime()));
         deviceLocationExceptionOpLog.setCreateTime(new Date());
-        deviceLocationExceptionOpLog.setOperateType(deviceLocationUploadPo.getOperateType());
         return deviceLocationExceptionOpLog;
     }
 
