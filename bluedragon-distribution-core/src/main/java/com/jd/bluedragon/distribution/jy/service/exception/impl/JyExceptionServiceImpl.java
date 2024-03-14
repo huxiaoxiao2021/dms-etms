@@ -271,10 +271,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
-        //如果是包裹号转成运单号
-        if(WaybillUtil.isPackageCode(req.getBarCode())){
-            req.setBarCode(WaybillUtil.getWaybillCode(req.getBarCode()));
-        }
         //处理运单号
         if(WaybillUtil.isWaybillCode(req.getBarCode())){
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(req.getBarCode());
@@ -390,7 +386,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
-            waybillStatus.setWaybillCode(entity.getBarCode());
             waybillStatus.setPackageCode(entity.getBarCode());
             waybillStatus.setCreateSiteCode(entity.getSiteCode().intValue());
             waybillStatus.setCreateSiteName(entity.getSiteName());
