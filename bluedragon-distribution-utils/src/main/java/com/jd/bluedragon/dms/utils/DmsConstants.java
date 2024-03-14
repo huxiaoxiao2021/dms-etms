@@ -560,4 +560,11 @@ public class DmsConstants {
      * 换单打印时指定KA商家
      */
     public static final List<String> KA_CUNSTOMER = Arrays.asList("021K221922","021K104578","021K193222");
+
+    /**
+     * 发送分拣操作轨迹的节点
+     * 0-验货、2-发货
+     */
+    public static final List<Integer> OPERATE_TYPE_LIST = Arrays.asList(0, 2);
+
 }

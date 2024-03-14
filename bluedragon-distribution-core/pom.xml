@@ -1336,7 +1336,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.10-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>

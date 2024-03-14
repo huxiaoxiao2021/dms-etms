@@ -60,6 +60,7 @@ public class BatchCancelCollectPackageConsumer extends MessageBaseConsumer {
         cancelCollectPackageDto.setUpdateUserErp(request.getUpdateUserErp());
         cancelCollectPackageDto.setUpdateUserName(request.getUpdateUserName());
         cancelCollectPackageDto.setUpdateUserCode(request.getUpdateUserCode());
+        cancelCollectPackageDto.setOperatorData(request.getOperatorData());
         return cancelCollectPackageDto;
     }
 }
