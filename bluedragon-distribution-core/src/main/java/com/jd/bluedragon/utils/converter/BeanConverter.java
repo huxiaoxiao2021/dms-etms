@@ -472,7 +472,13 @@ public class BeanConverter {
 			log.error("BeanConverter.convertToJyOperateFlowDto error!", e);
 		}
 		dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
-		log.info("jy_operate_flow底表排查-消费3:dto={}", com.jd.bluedragon.utils.JsonHelper.toJson(dto));
+		if (dto.getOperateBizKey() == null) {
+			dto.setOperateBizKey(Constants.EMPTY_FILL);
+		}
+		if (dto.getOperateKey() == null) {
+			dto.setOperateKey(Constants.EMPTY_FILL);
+		}
 		return dto;
 	}
+
 }
