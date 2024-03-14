@@ -1521,9 +1521,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setCreateTime(now);
         relation.setUpdateTime(now);
         int existRelations = boxRelationService.countByBoxCode(relation);
-        if (dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit() > 0
-                && existRelations >= dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit()) {
-            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit());
+        if (dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit() > 0
+                && existRelations >= dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()) {
+            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()+"个");
         }
     }
 

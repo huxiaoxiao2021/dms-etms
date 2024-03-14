@@ -357,6 +357,7 @@
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
 
 
 	</bean>
@@ -701,6 +702,7 @@
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
 			</list>
 		</property>
 	</bean>

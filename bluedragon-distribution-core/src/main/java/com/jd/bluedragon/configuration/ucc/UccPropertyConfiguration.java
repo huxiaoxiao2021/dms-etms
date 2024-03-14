@@ -4556,4 +4556,17 @@ public class UccPropertyConfiguration{
     public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
         this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
     }
+
+    /**
+     * LL箱号内嵌箱号数量限制
+     */
+    private int LLContainBoxNumberLimit;
+
+    public int getLLContainBoxNumberLimit() {
+        return LLContainBoxNumberLimit;
+    }
+
+    public void setLLContainBoxNumberLimit(int LLContainBoxNumberLimit) {
+        this.LLContainBoxNumberLimit = LLContainBoxNumberLimit;
+    }
 }
