@@ -219,12 +219,6 @@
 	<update id="canCancel2" parameterType="SendDetail">
 		UPDATE Send_d
 		SET is_cancel = 1, update_time = NOW()
-		<if test="operatorTypeCode != null">
-			,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
-		</if>
-		<if test="operatorId != null">
-			,operator_id = #{operatorId,jdbcType=VARCHAR}
-		</if>
 		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		<if test="packageBarcode != null">
 			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
@@ -643,12 +637,6 @@
 				SET sendd_status=0 , is_cancel=2 , update_time = NOW() ,
 				excute_count = 0,
 			    excute_time = NOW(), send_code=null
-		<if test="operatorTypeCode != null">
-			,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
-		</if>
-		<if test="operatorId != null">
-			,operator_id = #{operatorId,jdbcType=VARCHAR}
-		</if>
 		<where>
 		    is_cancel=0 
 			<if test="createSiteCode!=null">

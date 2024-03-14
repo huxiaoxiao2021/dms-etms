@@ -798,11 +798,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			if (null != task.getKeyword2() &&
 					(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())
 					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
-				String boxOrPackageCode = tWaybillStatus.getPackageCode();
 				// 发送板内明细全程跟踪
 				sendBdTraceOfBoard(tWaybillStatus, bdTraceDto);
-				// 发送分拣操作轨迹
-				sendBoardOperateTrack(tWaybillStatus, boxOrPackageCode);
 				task.setYn(0);
 			}
 
@@ -1029,16 +1026,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			toWaybillStatus(tWaybillStatus, bdTraceDto);
 			bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 			waybillQueryManager.sendBdTrace(bdTraceDto);
+			// 发送分拣操作轨迹
+			jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 		}
-	}
-
-	private void sendBoardOperateTrack(WaybillStatus tWaybillStatus, String boxOrPackageCode) {
-		if (BusinessUtil.isBoxcode(boxOrPackageCode)) {
-			tWaybillStatus.setBoxCode(boxOrPackageCode);
-			tWaybillStatus.setPackageCode(null);
-			tWaybillStatus.setWaybillCode(null);
-		}
-		jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 	}
 
 	private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {

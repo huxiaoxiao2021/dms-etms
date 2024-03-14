@@ -117,13 +117,31 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendOperateTrack", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
+			// 获取有效单号
+			String barCode = getBarCode(waybillStatus);
 			// 消息业务ID格式：操作码+单号
-			String businessId = waybillStatus.getOperateType() + waybillStatus.getPackageCode();
+			String businessId = waybillStatus.getOperateType() + barCode;
 			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
 			logger.info("sendOperateTrack|发送分拣操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
 		}
+	}
+
+	private String getBarCode(WaybillStatus waybillStatus) {
+		String packageCode = waybillStatus.getPackageCode();
+		String waybillCode = waybillStatus.getWaybillCode();
+		String boxCode = waybillStatus.getBoxCode();
+		if (StringUtils.isNotEmpty(packageCode)) {
+			return packageCode;
+		}
+		if (StringUtils.isNotEmpty(waybillCode)) {
+			return waybillCode;
+		}
+		if (StringUtils.isNotEmpty(boxCode)) {
+			return boxCode;
+		}
+		return null;
 	}
 
 	@Override
