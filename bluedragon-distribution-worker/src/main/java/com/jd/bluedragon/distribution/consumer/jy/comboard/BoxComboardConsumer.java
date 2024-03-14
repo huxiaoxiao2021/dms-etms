@@ -51,6 +51,8 @@ public class BoxComboardConsumer extends MessageBaseConsumer  {
             return;
         }
 
+        log.info("boxComboardConsumer body:{}",message.getText());
+
         Response<Board> rs =groupBoardManager.getBoardByBoxCode(req.getBarCode(),req.getCurrentOperate().getSiteCode());
         if (ObjectHelper.isNotNull(rs) && JdCResponse.CODE_SUCCESS.equals(rs.getCode())
                 && ObjectHelper.isNotNull(rs.getData()) && req.getBoardCode().equals(rs.getData().getCode())){

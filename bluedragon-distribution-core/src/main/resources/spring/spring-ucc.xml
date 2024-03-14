@@ -363,6 +363,7 @@
 		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
 		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
+		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
 
 
 	</bean>
@@ -731,6 +732,7 @@
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
 				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
+				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
 			</list>
 		</property>
 	</bean>
