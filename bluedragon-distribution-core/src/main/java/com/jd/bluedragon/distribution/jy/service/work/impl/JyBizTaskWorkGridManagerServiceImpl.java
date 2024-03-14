@@ -141,6 +141,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			if(WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(jyTaskData.getTaskType())){
 				ViolenceSortInfoData data  = JsonHelper.fromJsonMs(jyTaskData.getExtendInfo(), ViolenceSortInfoData.class);
 				taskData.setViolenceSortInfoData(data);
+				ResponsibleInfo responsibleInfo = jyWorkGridManagerResponsibleInfoService.queryResponsibleInfoByBizId(jyTaskData.getBizId());
+				taskData.setResponsibleInfo(responsibleInfo);
 			}
 			
 		}

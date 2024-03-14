@@ -63,6 +63,40 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
     }
     
     @Override
+    public ResponsibleInfo queryResponsibleInfoByBizId(String bizId){
+        JyWorkGridManagerResponsibleInfo entity = queryByBizId(bizId);
+        if(entity == null){
+            return null;
+        }
+        ResponsibleInfo dto = new ResponsibleInfo();
+        dto.setWorkType(entity.getWorkType());
+        ResponsibleWorkTypeEnum workTypeEnum = ResponsibleWorkTypeEnum.getByCode(entity.getWorkType());
+        switch (workTypeEnum){
+            case FORMAL_WORKER:
+                dto.setErp(entity.getErp());
+                dto.setName(entity.getName());
+                break;
+            case OUTWORKER:
+                ResponsibleSupplier supplier = new ResponsibleSupplier();
+                supplier.setSupplierId(entity.getSupplierId());
+                supplier.setSupplierName(entity.getSupplierName());
+                dto.setSupplier(supplier);
+                dto.setIdCard(entity.getIdCard());
+                dto.setName(entity.getName());
+                break;
+            case TEMPORARY_WORKERS:
+                dto.setName(entity.getName());
+                dto.setIdCard(entity.getIdCard());
+                JyWorkGridOwnerDto gridOwner = new JyWorkGridOwnerDto();
+                gridOwner.setErp(entity.getGridOwnerErp());
+                gridOwner.setName(entity.getGridOwnerErp());
+                dto.setGridOwner(gridOwner);
+        }
+        return dto;
+        
+    }
+    
+    @Override
     public void saveTaskResponsibleInfo(JyWorkGridManagerData taskData, ResponsibleInfo responsibleInfo){
         String bizId = taskData.getBizId();
         //暴力分拣任务
@@ -168,10 +202,10 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             if(StringUtils.isBlank(ownerUserErp)){
                 JyUserDto jyUserDto = jyUserManager.querySiteLeader(jyWorkGridManagerData.getSiteCode());
                 if(jyUserDto != null){
+                    ownerUserErp = jyUserDto.getUserErp();
                     log.info("暴力分拣任务超时定责，未查到网格组长，使用场地负责人为责任人，bizId:{}, TaskRefGridKey:{},ownerUserErp:{}",
                             bizId, jyWorkGridManagerData.getTaskRefGridKey(), ownerUserErp);
                     responsibleInfo = new ResponsibleInfo();
-                    ownerUserErp = jyUserDto.getUserErp();
                     responsibleInfo.setErp(ownerUserErp);
                     responsibleInfo.setName(jyUserDto.getUserName());
                 }else {
@@ -211,6 +245,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
                 break;
             case OUTWORKER:
                 info.setResponsibleCode(responsibleInfo.getSupplier().getSupplierId());
+                break;
             case TEMPORARY_WORKERS:
                 info.setResponsibleCode(responsibleInfo.getErp());
 
@@ -280,7 +315,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         
         //临时工 身份信息
         if(TEMPORARY_WORKERS.getCode().equals(workType) 
-                && (StringUtils.isBlank(responsibleInfo.getIdCard()) || StringUtils.isBlank(responsibleInfo.getName()))){
+                && (StringUtils.isBlank(responsibleInfo.getIdCard()))){
             result.toFail("请选择临时工责任人");
             log.info("责任人工种为临时工，临时工身份证或姓名为空,bizId:{},idCard:{},name:{}", bizId, responsibleInfo.getIdCard(), 
                     responsibleInfo.getName());
@@ -288,8 +323,8 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         }
         //临时工 对应的网格组长
         if(TEMPORARY_WORKERS.getCode().equals(workType)
-                && (responsibleInfo.getGridOwner() == null || StringUtils.isBlank(responsibleInfo.getGridOwner() .getErp()))){
-            result.toFail("请选择临时工责任人");
+                && (responsibleInfo.getGridOwner() == null || StringUtils.isBlank(responsibleInfo.getGridOwner().getErp()))){
+            result.toFail("请选择临时工时网格组长不能为空");
             log.info("责任人工种为临时工，临时工身份证或姓名为空,bizId:{},idCard:{},name:{}", bizId, responsibleInfo.getIdCard(),
                     responsibleInfo.getName());
             return result;

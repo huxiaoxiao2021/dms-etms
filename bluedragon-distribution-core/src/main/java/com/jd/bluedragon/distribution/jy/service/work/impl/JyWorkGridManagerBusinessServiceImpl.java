@@ -1399,23 +1399,36 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				logger.info("根据gridKey获取网格信息，未查到网格信息，网格可能已删除,gridKey:{}", gridKey);
 				continue;
 			}
+			if(StringUtils.isBlank(workGrid.getOwnerUserErp())){
+				logger.info("根据gridKey获取网格信息，未查到网格信息，网格未维护组长,gridKey:{}", gridKey);
+				continue;
+			}
 			JyWorkGridOwnerDto dto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
-			gridOwnerDtos.add(dto);
+			if(dto != null){
+				gridOwnerDtos.add(dto);
+			}
+			
 		}
 		result.setData(gridOwnerDtos);
 		return result;
 	}
 	
 	private JyWorkGridOwnerDto getJyWorkGridOwnerDto(String erp){
+		if(StringUtils.isBlank(erp)){
+			return null;
+		}
 		JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
+		if(erp.contains(",") && ArrayUtils.isNotEmpty(erp.split(","))){
+			erp = erp.split(",")[0];
+		}
 		dto.setErp(erp);
 		Result<JyUser> userResult = jyUserManager.queryUserInfo(dto.getErp());
 		JyUser jyUser = null;
 		if(userResult != null && (jyUser = userResult.getData()) != null){
 			dto.setName(jyUser.getUserName());
 		}else{
-			dto.setName("");
-			logger.info("根据erp获取岗位信息失败");
+			dto.setName(erp);
+			logger.info("根据erp:{}获取岗位信息失败", erp);
 		}
 		return dto;
 	}
@@ -1437,12 +1450,12 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			logger.info("签到数据无临时工签到记录,bizId:{}", bizId);
 			return responsibleInfos;
 		}
+		JyWorkGridOwnerDto workGridOwnerDto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
 		for(BaseUserSignRecordVo vo : temporaryWorkerSignRecords){
 			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
 			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
 			responsibleInfo.setIdCard(vo.getUserCode());
 			responsibleInfo.setName(vo.getUserName());
-			JyWorkGridOwnerDto workGridOwnerDto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
 			responsibleInfo.setGridOwner(workGridOwnerDto);
 			responsibleInfos.add(responsibleInfo);
 		}
