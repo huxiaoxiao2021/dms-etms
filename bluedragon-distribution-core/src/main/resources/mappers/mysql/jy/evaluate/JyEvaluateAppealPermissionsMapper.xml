@@ -212,55 +212,6 @@
         </where>
     </update>
 
-
-    <sql id="condition_sql">
-
-        <if test="id != null">
-            and id = #{id}
-        </if>
-        <if test="siteCode != null">
-            and site_code = #{siteCode}
-        </if>
-        <if test="evaluate != null">
-            and evaluate = #{evaluate}
-        </if>
-        <if test="appeal != null">
-            and appeal = #{appeal}
-        </if>
-        <if test="evaluateClosureDate != null">
-            and evaluate_closure_date = #{evaluateClosureDate}
-        </if>
-        <if test="appealClosureDate != null">
-            and appeal_closure_date = #{appealClosureDate}
-        </if>
-        <if test="createUserErp != null">
-            and create_user_erp = #{createUserErp}
-        </if>
-        <if test="createUserName != null">
-            and create_user_name = #{createUserName}
-        </if>
-        <if test="updateUserErp != null">
-            and update_user_erp = #{updateUserErp}
-        </if>
-        <if test="updateUserName != null">
-            and update_user_name = #{updateUserName}
-        </if>
-        <if test="createTime != null">
-            and create_time = #{createTime}
-        </if>
-        <if test="updateTime != null">
-            and update_time = #{updateTime}
-        </if>
-        <if test="ts != null">
-            and ts = #{ts}
-        </if>
-        <if test="yn != null">
-            and yn = #{yn}
-        </if>
-
-    </sql>
-
-
     <select id="queryByCondition" parameterType="java.lang.Integer" resultMap="jyEvaluateAppealPermissionsMap">
         select <include refid="Base_Column_List" />
         from jy_evaluate_appeal_permissions

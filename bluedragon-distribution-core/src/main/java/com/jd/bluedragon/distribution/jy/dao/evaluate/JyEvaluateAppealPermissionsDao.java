@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.dao.evaluate;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity;
 
-import java.util.List;
 
 /***
  * 
@@ -15,6 +14,11 @@ public class JyEvaluateAppealPermissionsDao extends BaseDao<JyEvaluateAppealPerm
 
     private final static String NAMESPACE = JyEvaluateAppealPermissionsDao.class.getName();
 
+    /**
+     * 根据条件查询JyEvaluateAppealPermissionsEntity
+     * @param siteCode 站点代码
+     * @return JyEvaluateAppealPermissionsEntity 对应条件的实体对象
+     */
     public JyEvaluateAppealPermissionsEntity queryByCondition(Integer siteCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByCondition", siteCode);
     }
@@ -28,6 +32,11 @@ public class JyEvaluateAppealPermissionsDao extends BaseDao<JyEvaluateAppealPerm
         return this.getSqlSession().update(NAMESPACE + ".updateAppealStatusById", entity);
     }
 
+    /**
+     * 插入评价申诉权限实体
+     * @param entity 评价申诉权限实体
+     * @return 插入操作结果
+     */
     public int insert(JyEvaluateAppealPermissionsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }

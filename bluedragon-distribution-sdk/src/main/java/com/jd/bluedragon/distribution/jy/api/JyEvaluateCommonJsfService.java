@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
@@ -20,14 +21,14 @@ public interface JyEvaluateCommonJsfService {
      * @param conditions 条件列表
      * @return 符合条件的评价记录申诉实体列表
      */
-    Response<List<JyEvaluateRecordAppealEntity>> getListByCondition(List<JyEvaluateRecordAppealEntity> conditions);
+    Response<List<JyEvaluateRecordAppealDto>> getListByCondition(List<String> conditions);
 
     /**
      * 申诉记录提交保存接口
-     * @param entityList 待添加的装车评价申诉数实体列表
+     * @param addDto 待添加的装车评价申诉数实体列表
      * @return 响应是否成功的布尔值
      */
-    Response<Boolean> submitAppeal(List<JyEvaluateRecordAppealDto> entityList);
+    Response<Boolean> submitAppeal(JyEvaluateRecordAppealAddDto addDto);
 
     /**
      * 查询申诉详情，带图片

@@ -193,7 +193,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
      * @param request 评价对象
      */
     private void checkSiteCanEvaluate(EvaluateTargetReq request) {
-        // 如果是满意评价，不做控制
+        // 如果是满意评价，不做控制 todo pda实操
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
             return;
         }

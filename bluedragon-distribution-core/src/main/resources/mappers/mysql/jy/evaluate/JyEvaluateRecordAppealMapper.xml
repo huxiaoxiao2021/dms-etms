@@ -199,62 +199,15 @@
         </where>
     </update>
 
-    <sql id="condition_sql">
-        <if test="id != null">
-            and id = #{id}
-        </if>
-        <if test="targetBizId != null">
-            and target_biz_id = #{targetBizId}
-        </if>
-        <if test="sourceBizId != null">
-            and source_biz_id = #{sourceBizId}
-        </if>
-        <if test="appealStatus != null">
-            and appeal_status = #{appealStatus}
-        </if>
-        <if test="reasons != null">
-            and reasons = #{reasons}
-        </if>
-        <if test="dimensionCode != null">
-            and dimension_code = #{dimensionCode}
-        </if>
-        <if test="appealResult != null">
-            and appeal_result = #{appealResult}
-        </if>
-        <if test="createUserErp != null">
-            and create_user_erp = #{createUserErp}
-        </if>
-        <if test="createUserName != null">
-            and create_user_name = #{createUserName}
-        </if>
-        <if test="updateUserErp != null">
-            and update_user_erp = #{updateUserErp}
-        </if>
-        <if test="updateUserName != null">
-            and update_user_name = #{updateUserName}
-        </if>
-        <if test="createTime != null">
-            and create_time = #{createTime}
-        </if>
-        <if test="updateTime != null">
-            and update_time = #{updateTime}
-        </if>
-        <if test="ts != null">
-            and ts = #{ts}
-        </if>
-        <if test="yn != null">
-            and yn = #{yn}
-        </if>
-    </sql>
-
     <select id="queryListByCondition" parameterType="list" resultMap="jyEvaluateRecordAppealMap">
         select
         <include refid="Base_Column_List"/>
         from jy_evaluate_record_appeal
         where yn =1
-        AND (target_biz_id, source_biz_id) in
-        <foreach collection="list" item="item" open="((" separator="),(" close="))">
-            #{item.targetBizId}, #{item.sourceBizId}
+        AND target_biz_id in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
         </foreach>
     </select>
 
@@ -292,12 +245,7 @@
         <include refid="Base_Column_List"/>
         from jy_evaluate_record_appeal
         where yn =1
-        <if test="targetBizId != null and targetBizId != ''">
             and target_biz_id = #{targetBizId}
-        </if>
-        <if test="sourceBizId != null and sourceBizId != ''">
-            and source_biz_id = #{sourceBizId}
-        </if>
     </select>
 
     <select id="queryByIdList" parameterType="java.util.List" resultMap="jyEvaluateRecordAppealMap">

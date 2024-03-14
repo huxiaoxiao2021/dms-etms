@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.evaluate;
 
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author pengchong28
@@ -19,14 +19,14 @@ public interface JyEvaluateAppealService {
      * @param conditions 条件列表
      * @return 符合条件的评价记录申诉实体列表
      */
-    Response<List<JyEvaluateRecordAppealEntity>> getListByCondition(List<JyEvaluateRecordAppealEntity> conditions);
+    Response<List<JyEvaluateRecordAppealDto>> getListByCondition(List<String> conditions);
 
     /**
      * 提交装车评价申诉数据
-     * @param entityList 待添加的装车评价申诉数实体列表
+     * @param addDto 待添加的装车评价申诉数实体列表
      * @return 响应是否成功的布尔值
      */
-    Response<Boolean> submitAppeal(List<JyEvaluateRecordAppealDto> entityList);
+    Response<Boolean> submitAppeal(JyEvaluateRecordAppealAddDto addDto);
 
     /**
      * 查询申诉详情，带图片

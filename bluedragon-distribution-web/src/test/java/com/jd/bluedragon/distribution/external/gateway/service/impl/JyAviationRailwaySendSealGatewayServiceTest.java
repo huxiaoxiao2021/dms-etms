@@ -16,8 +16,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.evaluate.AppealDimensionReq;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto;
 import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateAppealServiceImpl;
@@ -83,7 +85,7 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         jyEvaluateRecordAppealRes.setDimensionList(appealDimensionReqs);
         JyEvaluateRecordAppealUpdateDto updateDto = new JyEvaluateRecordAppealUpdateDto();
         updateDto.setDimensionCodeList(Arrays.asList(100));
-        jyEvaluateAppealService.esDataUpdate(jyEvaluateRecordAppealRes, updateDto);
+        //jyEvaluateAppealService.esDataUpdate(jyEvaluateRecordAppealRes, updateDto);
     }
 
     @Test
@@ -112,6 +114,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         maps.add(stringIntegerHashMap);
         jyEvaluateRecordAppealRes.setAppealList(maps);
         jyEvaluateAppealService.checkAppeal(jyEvaluateRecordAppealRes);
+
+        Response<List<JyEvaluateRecordAppealDto>> listByCondition =
+            jyEvaluateAppealService.getListByCondition(Arrays.asList("SST23122900000059", "SST24010200000041"));
+        System.out.println(JsonHelper.toJson(listByCondition));
     }
 
 

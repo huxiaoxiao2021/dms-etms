@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.api.JyEvaluateCommonJsfService;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author pengchong28
@@ -36,21 +36,21 @@ public class JyEvaluateCommonJsfServiceImpl implements JyEvaluateCommonJsfServic
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonJsfService.getListByCondition", mState = {
         JProEnum.TP, JProEnum.FunctionError})
-    public Response<List<JyEvaluateRecordAppealEntity>> getListByCondition(
-        List<JyEvaluateRecordAppealEntity> conditions) {
+    public Response<List<JyEvaluateRecordAppealDto>> getListByCondition(
+        List<String> conditions) {
         return jyEvaluateAppealService.getListByCondition(conditions);
     }
 
     /**
      * 批量添加装车评价申诉数据
-     * @param entityList 待添加的装车评价申诉数实体列表
+     * @param addDto 待添加的装车评价申诉数实体列表
      * @return 响应是否成功的布尔值
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonJsfService.submitAppeal", mState = {
         JProEnum.TP, JProEnum.FunctionError})
-    public Response<Boolean> submitAppeal(List<JyEvaluateRecordAppealDto> entityList) {
-        return jyEvaluateAppealService.submitAppeal(entityList);
+    public Response<Boolean> submitAppeal(JyEvaluateRecordAppealAddDto addDto) {
+        return jyEvaluateAppealService.submitAppeal(addDto);
     }
 
     @Override

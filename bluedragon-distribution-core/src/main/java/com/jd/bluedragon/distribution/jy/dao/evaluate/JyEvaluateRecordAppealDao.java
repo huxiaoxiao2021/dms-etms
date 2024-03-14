@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /***
@@ -18,18 +17,38 @@ public class JyEvaluateRecordAppealDao extends BaseDao<JyEvaluateRecordAppealEnt
 
     private final static String NAMESPACE = JyEvaluateRecordAppealDao.class.getName();
 
-    public List<JyEvaluateRecordAppealEntity> queryListByCondition(List<JyEvaluateRecordAppealEntity> list) {
+    /**
+     * 根据条件查询评价记录申诉实体列表
+     * @param list 条件列表
+     * @return 符合条件的评价记录申诉实体列表
+     */
+    public List<JyEvaluateRecordAppealEntity> queryListByCondition(List<String> list) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryListByCondition", list);
     }
 
+    /**
+     * 批量插入评价记录申诉数据
+     * @param entityList 实体列表
+     * @return 插入操作影响的行数
+     */
     public int batchInsert(List<JyEvaluateRecordAppealDto> entityList) {
         return this.getSqlSession().insert(NAMESPACE + ".batchInsert", entityList);
     }
 
+    /**
+     * 根据条件查询评价记录申诉详情
+     * @param condition 查询条件对象
+     * @return 符合条件的评价记录申诉详情列表
+     */
     public List<JyEvaluateRecordAppealEntity> queryDetailByCondition(JyEvaluateRecordAppealDto condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryDetailByCondition", condition);
     }
 
+    /**
+     * 根据ID列表查询评价记录申诉实体列表
+     * @param list ID列表
+     * @return 评价记录申诉实体列表
+     */
     public List<JyEvaluateRecordAppealEntity> queryByIdList(List<Long> list) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByIdList", list);
 
