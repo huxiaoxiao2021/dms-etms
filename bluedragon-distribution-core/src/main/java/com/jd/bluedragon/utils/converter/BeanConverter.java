@@ -333,7 +333,7 @@ public class BeanConverter {
 		return mqData;
 	}
 
-	public static JyOperateFlowMqData convertToJyOperateFlowMqData(SealCarDto sealCarDto, OperatorData operatorData) {
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(SealCarDto sealCarDto) {
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
 		mqData.setOperateBizKey(sealCarDto.getSealCarCode());
 		mqData.setOperateBizType(OperateBizTypeEnum.UNSEAL.getCode());
@@ -341,7 +341,6 @@ public class BeanConverter {
 		mqData.setOperateTime(sealCarDto.getDesealCarTime());
 		mqData.setOperateSiteCode(sealCarDto.getDesealSiteId());
 		JyOperateFlowData data = new JyOperateFlowData();
-		data.setOperatorData(operatorData);
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
@@ -474,12 +473,23 @@ public class BeanConverter {
 			if (Constants.LONG_ZERO.equals(dto.getId())) {
 				dto.setId(null);
 			}
+			dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
+			if (dto.getOperateBizKey() == null) {
+				dto.setOperateBizKey(Constants.EMPTY_FILL);
+			}
+			if (dto.getOperateKey() == null) {
+				dto.setOperateKey(Constants.EMPTY_FILL);
+			}
+			if (dto.getOperateValue() == null) {
+				dto.setOperateValue(Constants.EMPTY_FILL);
+			}
 		}catch (Exception e) {
 			log.error("BeanConverter.convertToJyOperateFlowDto error!", e);
 		}
-		dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
+
 		return dto;
 	}
+
 
     /**
      * 用户数据转换

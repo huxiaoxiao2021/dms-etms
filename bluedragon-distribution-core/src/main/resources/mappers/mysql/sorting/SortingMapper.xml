@@ -366,12 +366,6 @@
 		UPDATE Sorting
 		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},
 		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
-		<if test="operatorTypeCode != null">
-			,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
-		</if>
-		<if test="operatorId != null">
-			,operator_id = #{operatorId,jdbcType=VARCHAR}
-		</if>
 		WHERE yn=1 AND is_cancel = 0
 		AND create_site_code = #{createSiteCode}
 		<if test="id != null">
