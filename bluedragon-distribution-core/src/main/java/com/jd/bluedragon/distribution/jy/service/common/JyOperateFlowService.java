@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.transboard.api.dto.BoardBoxResult;
 
 /**
@@ -55,6 +57,11 @@ public interface JyOperateFlowService {
      * 发送组板操作流水
      */
     <T> void sendBoardOperateFlowData(T t, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
+     * 发送解封车操作流水
+     */
+    void sendUnsealOperateFlowData(SealCarDto sealCarDto, NewSealVehicleRequest request);
 
     /**
      * 发送收货操作流水
