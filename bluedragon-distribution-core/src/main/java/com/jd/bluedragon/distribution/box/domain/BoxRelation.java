@@ -14,12 +14,12 @@ public class BoxRelation extends DbEntity implements Serializable {
     private static final long serialVersionUID = 2421784228793092268L;
 
     /**
-    * 箱号
+    * 箱号 外层/父
     */
     private String boxCode;
 
     /**
-    * 关联箱号
+    * 关联箱号 内层/子
     */
     private String relationBoxCode;
 
