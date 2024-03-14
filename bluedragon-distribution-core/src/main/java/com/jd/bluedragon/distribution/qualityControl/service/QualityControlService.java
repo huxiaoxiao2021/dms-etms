@@ -15,12 +15,9 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
-import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
-import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -32,7 +29,6 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -78,7 +74,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.weaver.ast.Var;
@@ -173,8 +168,6 @@ public class QualityControlService {
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
 
-    @Autowired
-    private WorkStationGridManager workStationGridManager;
 
     /**
      * 协商再投状态校验
@@ -538,8 +531,7 @@ public class QualityControlService {
 
         tWaybillStatus.setPackageCode(waybillCode); //异常 节点运单只接收运单维度
 
-        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())
-                || AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
+        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
             // 透传操作流水主键
             sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
             tWaybillStatus.setOperateFlowId(sendDetail.getOperateFlowId());
@@ -640,8 +632,6 @@ public class QualityControlService {
         OperateBizSubTypeEnum operateBizSubTypeEnum = null;
         if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
             operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_HANDLE;
-        } else if (AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
-            operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_REPORT_H5;
         }
 
         for (SendDetail sendDetail : sendDetails){
@@ -831,18 +821,15 @@ public class QualityControlService {
                 // 设置菜单来源
                 qualityControlRequest.setBizSource(AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType());
 
-                // 组装操作数据对象
-                assembleOperatorData(qualityControlRequest);
-
-                // 找到操作人登录网格并发送MQ消息
-                QcfindGridAndSendMQ(qualityControlRequest, qcReportJmqDto);
-
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
-                
+
+                // 找到操作人登录网格并发送MQ消息
+                QcfindGridAndSendMQ(qcReportJmqDto);
+
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     return result.toFail();
@@ -858,13 +845,12 @@ public class QualityControlService {
         return result;
     }
 
-    private void QcfindGridAndSendMQ(QualityControlRequest qualityControlRequest, QcReportJmqDto qcReportJmqDto) {
+    private void QcfindGridAndSendMQ(QcReportJmqDto qcReportJmqDto) {
         try{
-            OperatorData operatorData = qualityControlRequest.getOperatorData();
-            if (operatorData == null) {
+            String positionCode = getCreateGridCodeByUser(qcReportJmqDto.getCreateUser(), qcReportJmqDto.getCreateTime());
+            if (StringUtils.isEmpty(positionCode)) {
                 return;
             }
-            String positionCode = operatorData.getWorkStationGridKey();
             // 推送MQ
             abnormalReportRecordMQ body = BeanUtils.copy(qcReportJmqDto, abnormalReportRecordMQ.class);
             body.setCreateGridCode(positionCode);
@@ -967,31 +953,6 @@ public class QualityControlService {
             result.toFail("handleQcOutCallReportConsume exception " + e.getMessage());
         }
         return result;
-    }
-
-    private void assembleOperatorData(QualityControlRequest qualityControlRequest) {
-        // 获取操作人最近一次签到的网格工序主键
-        String refGridKey = getCreateGridCodeByUser(qualityControlRequest.getUserERP(), qualityControlRequest.getOperateTime().getTime());
-        if (StringUtils.isEmpty(refGridKey)) {
-            log.warn("assembleOperatorData|未获取操作人最近一次签到的网格工序主键:qualityControlRequest={}", JsonHelper.toJson(qualityControlRequest));
-            return;
-        }
-        // 根据网格工序主键查询网格信息
-        com.jdl.basic.common.utils.Result<WorkStationGrid> result = workStationGridManager.queryWorkStationGridByBusinessKeyWithCache(refGridKey);
-        if (result == null || result.getData() == null) {
-            log.warn("assembleOperatorData|根据网格工序业务主键未查询到网格业务主键:refGridKey={},qualityControlRequest={}", refGridKey, JsonHelper.toJson(qualityControlRequest));
-            return;
-        }
-        WorkStationGrid workStationGrid = result.getData();
-        // 网格业务主键
-        String refWorkGridKey = workStationGrid.getRefWorkGridKey();
-        // 操作信息对象
-        OperatorData operatorData = new OperatorData();
-        operatorData.setWorkGridKey(refWorkGridKey);
-        operatorData.setWorkStationGridKey(refGridKey);
-        operatorData.setOperatorTypeCode(OperatorTypeEnum.DMS_CLIENT.getCode());
-        // 透传操作信息对象
-        qualityControlRequest.setOperatorData(operatorData);
     }
 
     private void QcOutCallfindGridAndSendMQ(QcReportOutCallJmqDto qcReportJmqDto) {
