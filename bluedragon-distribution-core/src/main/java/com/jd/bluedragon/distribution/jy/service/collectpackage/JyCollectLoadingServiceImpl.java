@@ -54,10 +54,6 @@ import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 @Slf4j
 public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
 
-    @Resource
-    private FuncSwitchConfigService funcSwitchConfigService;
-    @Resource
-    private CycleBoxService cycleBoxService;
     @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
@@ -123,7 +119,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     }
     protected void execCollectBoxForMachine(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
-        boxRelation.setOperateSource(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        boxRelation.setSource(OperatorTypeEnum.AUTO_MACHINE.getCode());
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
     }
     private void collectBoxMachineCheck(CollectPackageReq request) {

@@ -1454,12 +1454,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
-        boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        InvokeResult<Boolean> rs =boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE != rs.getCode()){
+            throw new JyBizException("集箱失败！");
+        }
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isNotNull(collectPackageTask)){
             checkIfNeedUpdateStatus(request,collectPackageTask);
         }
-
     }
 
     protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
@@ -1472,7 +1474,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setUpdateUserErp(request.getUser().getUserErp());
         relation.setUpdateUserName(request.getUser().getUserName());
         relation.setYn(Constants.YN_YES);
-        relation.setOperateSource(OperatorTypeEnum.DMS_CLIENT.getCode());
+        relation.setSource(OperatorTypeEnum.DMS_CLIENT.getCode());
 
         Date now = new Date();
         relation.setCreateTime(now);
@@ -1527,9 +1529,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setCreateTime(now);
         relation.setUpdateTime(now);
         int existRelations = boxRelationService.countByBoxCode(relation);
-        if (dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit() > 0
-                && existRelations >= dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit()) {
-            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getBCContainWJNumberLimit());
+        if (dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit() > 0
+                && existRelations >= dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()) {
+            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()+"个");
         }
     }
 
