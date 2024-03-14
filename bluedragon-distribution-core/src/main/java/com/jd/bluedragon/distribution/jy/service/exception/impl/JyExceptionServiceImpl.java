@@ -2109,9 +2109,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                         // 如果任务是完结状态+需要换单打印处理的拦截任务，则不重置任务，直接跳过
                         final List<Integer> disposeNodeListByInterceptType = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
                         if (CollectionUtils.isNotEmpty(disposeNodeListByInterceptType) && disposeNodeListByInterceptType.contains(businessInterceptConfigHelper.getInterceptDisposeNodeExchangeWaybill())) {
-                        } else {
-                            resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
+                            logger.info("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload 换单打印后扫描老单号，忽略此数据 {}", JsonHelper.toJson(businessInterceptReport));
+                            return result.toSuccess("换单打印后扫描老单号，忽略此数据");
                         }
+                        resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
                     }
                     // 1.2.2 网格不同 删除原任务+明细数据，新增任务数据
                     else {
