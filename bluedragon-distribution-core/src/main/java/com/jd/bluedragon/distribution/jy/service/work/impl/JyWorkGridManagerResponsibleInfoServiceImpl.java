@@ -248,6 +248,9 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
                 break;
             case TEMPORARY_WORKERS:
                 info.setResponsibleCode(responsibleInfo.getGridOwner().getErp());
+                break;
+            default: 
+                log.error("暴力分拣责任信息上报判责系统，工作类型错误，biz:{}", oldData.getBizId());
 
         }
         info.setSiteCode(oldData.getSiteCode());
@@ -261,7 +264,6 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             violentSortingResponsibleInfoProducer.send(key, JsonHelper.toJSONString(info));
         } catch (JMQException e) {
             log.error("暴力分拣责任信息上报判责系统，发送jmq异常,bizId:{}", oldData.getBizId(),e);
-            throw new RuntimeException(e);
         }
     } 
     @Override
