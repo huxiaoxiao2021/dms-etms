@@ -247,7 +247,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
                 info.setResponsibleCode(responsibleInfo.getSupplier().getSupplierId());
                 break;
             case TEMPORARY_WORKERS:
-                info.setResponsibleCode(responsibleInfo.getErp());
+                info.setResponsibleCode(responsibleInfo.getGridOwner().getErp());
 
         }
         info.setSiteCode(oldData.getSiteCode());
