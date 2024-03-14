@@ -444,6 +444,12 @@
                   ref="sortBoardJsfService"
                   server="dmsjsf">
     </jsf:provider>
+    <jsf:provider id="jsfDmsDeviceCageJsfService"
+                  interface="com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsDeviceCageJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <jsf:provider id="jsfDockService"
                   interface="com.jd.bluedragon.distribution.dock.service.DockService"
