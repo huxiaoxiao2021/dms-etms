@@ -126,7 +126,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
             responsibleEntity.setSupplierId(supplier.getSupplierId());
             responsibleEntity.setSupplierName(supplier.getSupplierName());
         }
-
+        responsibleEntity.setIdCard(responsibleInfo.getIdCard());
         JyWorkGridOwnerDto gridOwnerDto = responsibleInfo.getGridOwner();
         if(gridOwnerDto != null){
             responsibleEntity.setGridOwnerErp(gridOwnerDto.getErp());

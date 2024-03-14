@@ -31,7 +31,7 @@
 
     <select id="queryByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
         select id, biz_id, work_type, `name`, id_card, erp, supplier_id, supplier_name, create_time,
-               yn
+               yn,grid_owner_erp,site_code,process_instance_id
         from jy_work_grid_manager_responsible_info
         where biz_id = #{bizId,jdbcType=VARCHAR}
         and yn = 1
