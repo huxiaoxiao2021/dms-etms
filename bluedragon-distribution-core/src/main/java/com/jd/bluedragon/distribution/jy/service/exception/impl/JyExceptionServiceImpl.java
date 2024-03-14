@@ -2383,7 +2383,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 }
             } else {
                 // 补充补打新单号处理逻辑
-                if (Objects.equals(businessInterceptConfigHelper.getInterceptDisposeNodeReprint(), businessInterceptDisposeRecord.getDisposeNode())) {
+                /*if (Objects.equals(businessInterceptConfigHelper.getInterceptDisposeNodeReprint(), businessInterceptDisposeRecord.getDisposeNode())) {
                     JyExceptionInterceptDetailQuery jyExceptionInterceptDetailQuery = new JyExceptionInterceptDetailQuery();
                     jyExceptionInterceptDetailQuery.setSiteId(businessInterceptDisposeRecord.getSiteCode());
                     jyExceptionInterceptDetailQuery.setWaybillCodeNew(businessInterceptDisposeRecord.getWaybillCode());
@@ -2405,7 +2405,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             }
                         }
                     }
-                }
+                }*/
             }
 
             // 2. 关闭其他场地任务数据
