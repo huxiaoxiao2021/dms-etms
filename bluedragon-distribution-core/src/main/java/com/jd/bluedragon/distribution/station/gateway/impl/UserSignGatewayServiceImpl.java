@@ -355,6 +355,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			PositionData positionData = new PositionData();
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
+			
+			// fixme: 设置租户
 
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
