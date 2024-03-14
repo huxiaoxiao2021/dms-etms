@@ -45,6 +45,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
 import com.jd.bluedragon.utils.ASCPContants;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.cp.wbms.client.dto.SubmitWaybillResponse;
@@ -89,6 +90,8 @@ import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandI
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE;
+import static com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum.CONTRABAND_GOODS;
+import static com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum.AIR_TO_ROAD_CODE;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.HK_OR_MO;
 import static com.jd.bluedragon.enums.WaybillFlowTypeEnum.INTERNATION;
 import static com.jd.bluedragon.utils.BusinessHelper.getWaybillFlowType;
@@ -318,6 +321,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             dto.setSiteName(siteOrgDto.getSiteName());
             dto.setAreaId(siteOrgDto.getOrgId());
         }
+        dto.setTransformType(AIR_TO_ROAD_CODE.getFxmId());
+        dto.setAbnormalType(CONTRABAND_GOODS.getFxmId());
         dto.setFirstLevelCode(request.getFirstReasonLevelCode());
         dto.setFirstLevelName(request.getFirstReasonLevelName());
         dto.setSecondLevelCode(request.getSecondReasonLevelCode());
@@ -850,6 +855,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             throw new RuntimeException("获取运单信息失败!");
         }
         Waybill waybill = bigWaybillDto.getWaybill();
+        if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+            throw new RuntimeException("该单为保温箱运单，请正常发货流转!");
+        }
         WaybillFlowTypeEnum waybillFlowType = getWaybillFlowType(waybill);
         if (JyExceptionContrabandEnum.ContrabandTypeEnum.RETURN.getCode().equals(req.getContrabandType())) {
             if(!waybillFlowType.equals(HK_OR_MO) && !waybillFlowType.equals(WaybillFlowTypeEnum.INTERNATION)){

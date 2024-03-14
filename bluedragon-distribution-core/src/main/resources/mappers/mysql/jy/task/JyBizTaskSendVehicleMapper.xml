@@ -37,6 +37,7 @@
         <result property="taskName" column="task_name"/>
         <result property="bookingCode" column="booking_code"/>
         <result property="taskType" column="task_type"/>
+        <result property="refGroupCode" column="ref_group_code"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -76,7 +77,7 @@
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
         bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, driver_tag, last_plan_depart_time, last_seal_car_time,come_time,near_come_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name,
-        task_type, booking_code
+        task_type, booking_code, ref_group_code
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
@@ -178,6 +179,9 @@
             <if test="bookingCode != null">
                 booking_code,
             </if>
+            <if test="refGroupCode != null">
+                ref_group_code,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -276,6 +280,9 @@
             <if test="bookingCode != null">
                 #{bookingCode,jdbcType=VARCHAR},
             </if>
+            <if test="refGroupCode != null">
+                #{refGroupCode,jdbcType=VARCHAR},
+            </if>
         </trim>
     </insert>
 
@@ -371,6 +378,9 @@
             </if>
             <if test="bookingCode != null">
                 booking_code = #{bookingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="refGroupCode != null">
+                ref_group_code = #{refGroupCode,jdbcType=VARCHAR},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
@@ -468,6 +478,9 @@
             </if>
             <if test="bookingCode != null">
                 booking_code = #{bookingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="refGroupCode != null">
+                ref_group_code = #{refGroupCode,jdbcType=VARCHAR},
             </if>
         </set>
         where biz_id = #{bizId}
