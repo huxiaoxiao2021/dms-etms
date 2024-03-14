@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
@@ -14,6 +12,8 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.transboard.api.dto.BoardBoxResult;
+
+import java.util.List;
 
 /**
  * service接口
@@ -49,7 +49,7 @@ public interface JyOperateFlowService {
     Long createOperateFlowId();
 
     /**
-     * 发送分拣操作轨迹
+     * 发送操作轨迹
      */
     void sendOperateTrack(WaybillStatus waybillStatus);
 
@@ -64,9 +64,14 @@ public interface JyOperateFlowService {
     void sendUnsealOperateFlowData(SealCarDto sealCarDto, NewSealVehicleRequest request);
 
     /**
+     * 发送验货操作流水
+     */
+    void sendInspectOperateFlowData(List<Inspection> inspectionList, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
      * 发送收货操作流水
      */
-    void sendReceiveOperateFlowData(Receive receive);
+    void sendReceiveOperateFlowData(Receive receive, OperateBizSubTypeEnum subTypeEnum);
 
     /**
      * 发送分拣操作流水

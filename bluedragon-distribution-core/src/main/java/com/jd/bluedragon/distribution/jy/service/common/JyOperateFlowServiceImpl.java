@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowData;
@@ -201,13 +202,39 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	}
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendInspectOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendInspectOperateFlowData(List<Inspection> inspectionList, OperateBizSubTypeEnum subTypeEnum) {
+		// 用于异常时日志打印
+		Inspection originInspection = null;
+		try {
+			// 验货操作流水消息集合
+			List<JyOperateFlowMqData> inspectionFlowMqList = new ArrayList<>();
+			for (Inspection inspection : inspectionList) {
+				originInspection = inspection;
+				// 组装操作流水实体
+				JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
+				// 业务子类型
+				inspectionFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+				// 设置操作流水表业务主键
+				inspectionFlowMq.setId(inspection.getOperateFlowId());
+				inspectionFlowMqList.add(inspectionFlowMq);
+			}
+			// 批量发送验货操作流水消息
+			sendMqList(inspectionFlowMqList);
+		} catch (Exception e) {
+			logger.error("发送验货操作流水消息出现异常:inspection={}", originInspection, e);
+		}
+	}
+
+
+	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendReceiveOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public void sendReceiveOperateFlowData(Receive receive) {
+	public void sendReceiveOperateFlowData(Receive receive, OperateBizSubTypeEnum subTypeEnum) {
 		try {
 			// 组装操作流水实体
 			JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(receive);
 			// 业务子类型
-			boardFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.RECEIVE.getCode());
+			boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
 			// 提前生成操作流水表业务主键
 			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
 			boardFlowMq.setId(operateFlowId);
@@ -273,26 +300,38 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 
 	private Long sendBoardCore(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
 		try {
-			if (bindBoardRequest == null) {
+			// 组装操作流水实体
+			JyOperateFlowMqData boardFlowMq = createBoardOperateFlowMqData(bindBoardRequest, boardBoxResult, subTypeEnum);
+			if (boardFlowMq == null) {
 				return null;
 			}
-			if (boardBoxResult != null && boardBoxResult.getId() != null) {
-				bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
-			}
-			// 组装操作流水实体
-			JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-			// 业务子类型
-			boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
-			// 提前生成操作流水表业务主键
-			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-			boardFlowMq.setId(operateFlowId);
+			// 发送
 			sendMq(boardFlowMq);
-			return operateFlowId;
+			// 返回操作流水表主键
+			return boardFlowMq.getId();
 		} catch (Exception e) {
 			logger.error("发送组板操作流水消息核心逻辑出现异常:request={},boardBoxResult={},subTypeEnum={}",
 					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
 		}
 		return null;
+	}
+
+	private JyOperateFlowMqData createBoardOperateFlowMqData(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult,
+															 OperateBizSubTypeEnum subTypeEnum) {
+		if (bindBoardRequest == null) {
+			return null;
+		}
+		if (boardBoxResult != null && boardBoxResult.getId() != null) {
+			bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
+		}
+		// 组装操作流水实体
+		JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+		// 业务子类型
+		boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+		// 提前生成操作流水表业务主键
+		Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+		boardFlowMq.setId(operateFlowId);
+		return boardFlowMq;
 	}
 
 
@@ -335,12 +374,22 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			if (boardBoxResult != null) {
 				List<BoxDto> boxList = boardBoxResult.getBoxList();
 				if (CollectionUtils.isNotEmpty(boxList)) {
+					List<JyOperateFlowMqData> boardOperateFlowMqList = new ArrayList<>(boxList.size());
 					for (BoxDto boxDto : boxList) {
 						bindBoardRequest.setBarcode(boxDto.getBoxCode());
 						bindBoardRequest.setOperateKey(String.valueOf(boxDto.getId()));
-						Long operateFlowId = sendBoardCore(bindBoardRequest, boardBoxResult, subTypeEnum);
+						// 操作流水表主键
+						Long operateFlowId = null;
+						// 组装操作流水消息对象
+						JyOperateFlowMqData boardOperateFlowMq = createBoardOperateFlowMqData(bindBoardRequest, boardBoxResult, subTypeEnum);
+						if (boardOperateFlowMq != null) {
+							operateFlowId = boardOperateFlowMq.getId();
+							boardOperateFlowMqList.add(boardOperateFlowMq);
+						}
 						map.put(boxDto.getBoxCode(), operateFlowId);
 					}
+					// 批量发送操作流水消息
+					sendMqList(boardOperateFlowMqList);
 				}
 			}
 		} catch (Exception e) {

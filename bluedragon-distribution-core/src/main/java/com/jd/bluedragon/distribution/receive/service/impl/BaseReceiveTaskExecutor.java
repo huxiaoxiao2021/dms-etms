@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
@@ -188,7 +189,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	private void handleOperateFlow(TaskContext<T> taskContext) {
 		// 目前只记录1110类型收货
 		if (Task.TASK_TYPE_RECEIVE.equals(taskContext.getTask().getType())) {
-			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody());
+			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.RECEIVE);
 		}
 	}
 
