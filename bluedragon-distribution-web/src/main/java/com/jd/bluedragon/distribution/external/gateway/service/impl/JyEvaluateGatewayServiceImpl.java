@@ -121,7 +121,12 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
                     return result;
                 }
             }
-            jyEvaluateService.saveTargetEvaluate(request);
+            String message = jyEvaluateService.saveTargetEvaluate(request);
+            if (StringUtils.isNotBlank(message)){
+                result.setCode(JdCResponse.CODE_CONFIRM);
+                result.setMessage(message);
+                return result;
+            }
         } catch (JyBizException e) {
             LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());

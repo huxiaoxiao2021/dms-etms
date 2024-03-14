@@ -284,7 +284,7 @@ public class DateHelper {
         return c.getTime();
     }
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
 
         for(int i=1;i<=28;i++) {
         	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
@@ -848,7 +848,7 @@ public class DateHelper {
      */
     public static boolean isDateMoreThanDaysAgo(Date givenDate, int days) {
         Calendar sevenDaysAgo = Calendar.getInstance();
-        sevenDaysAgo.add(Calendar.DAY_OF_MONTH, -7);
+        sevenDaysAgo.add(Calendar.DAY_OF_MONTH, -days);
         Calendar givenDateCal = Calendar.getInstance();
         givenDateCal.setTime(givenDate);
         return givenDateCal.before(sevenDaysAgo);

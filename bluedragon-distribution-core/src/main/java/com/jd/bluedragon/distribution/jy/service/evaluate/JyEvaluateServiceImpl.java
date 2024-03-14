@@ -163,14 +163,17 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void saveTargetEvaluate(EvaluateTargetReq request) {
+    public String saveTargetEvaluate(EvaluateTargetReq request) {
         try {
             // 获取锁
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
             // 判断场地使用具有评价权限
-            checkSiteCanEvaluate(request);
+            String message = checkSiteCanEvaluate(request);
+            if (StringUtils.isNotBlank(message)){
+                return message;
+            }
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
@@ -186,16 +189,16 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         } finally {
             unLock(request.getSourceBizId());
         }
+        return null;
     }
 
     /**
      * 检查站点是否可以进行评价
      * @param request 评价对象
      */
-    private void checkSiteCanEvaluate(EvaluateTargetReq request) {
-        // 如果是满意评价，不做控制 todo pda实操
+    private String checkSiteCanEvaluate(EvaluateTargetReq request) {
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-            return;
+            return null;
         }
         // 查询评价的来源场地
         JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
@@ -213,13 +216,13 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             Constants.EVALUATE_APPEAL_PERMISSIONS_0)) {
             // 场地评价已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行评价
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
-            if (DateHelper.isDateMoreThanDaysAgo(permissions.getEvaluateClosureDate(), closeDay)) {
-                throw new JyBizException("当前场地评价权限已经被关闭！");
+            if (!DateHelper.isDateMoreThanDaysAgo(permissions.getEvaluateClosureDate(), closeDay)) {
+                return "当前场地评价权限已经被关闭！";
             } else {
                 // 超过7天，开启场地评价权限
                 JyEvaluateAppealPermissionsEntity entity =
                     buildJyEvaluateAppealPermissionsEntity(request, permissions);
-                jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
+                jyEvaluateAppealPermissionsDao.updateEvaluateStatusById(entity);
             }
         }
         // 场地评价和申诉权限记录为空，初始化记录，默认评价和申诉开启
@@ -227,6 +230,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             JyEvaluateAppealPermissionsEntity entity = buildEntity(request, sideCode);
             jyEvaluateAppealPermissionsDao.insert(entity);
         }
+        return null;
     }
 
     /**
@@ -265,14 +269,17 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void updateTargetEvaluate(EvaluateTargetReq request) {
+    public String updateTargetEvaluate(EvaluateTargetReq request) {
         try {
             // 获取锁
             if (!lock(request.getSourceBizId())) {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
             // 判断场地使用具有评价权限
-            checkSiteCanEvaluate(request);
+            String message = checkSiteCanEvaluate(request);
+            if (StringUtils.isNotBlank(message)){
+                return message;
+            }
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 校验操作合法性
@@ -288,6 +295,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         } finally {
             unLock(request.getSourceBizId());
         }
+        return null;
     }
 
 

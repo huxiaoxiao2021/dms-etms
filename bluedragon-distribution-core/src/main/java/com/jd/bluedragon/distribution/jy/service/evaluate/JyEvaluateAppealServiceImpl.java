@@ -173,7 +173,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             Constants.EVALUATE_APPEAL_PERMISSIONS_0)) {
             // 场地申诉已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行申诉
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
-            if (DateHelper.isDateMoreThanDaysAgo(permissions.getAppealClosureDate(), closeDay)) {
+            if (!DateHelper.isDateMoreThanDaysAgo(permissions.getAppealClosureDate(), closeDay)) {
                 response.toError("当前场地申诉已经被关闭！");
                 response.setData(Boolean.FALSE);
                 return response;

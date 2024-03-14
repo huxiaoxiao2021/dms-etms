@@ -248,7 +248,7 @@
         update jy_evaluate_appeal_permissions
         <set>
             <if test="evaluate != null">
-                appeal = #{evaluate} ,
+                evaluate = #{evaluate} ,
             </if>
             <if test="evaluateClosureDate != null or evaluateClosureDate == null">
                 evaluate_closure_date = #{evaluateClosureDate} ,
