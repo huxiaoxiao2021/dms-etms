@@ -1153,8 +1153,24 @@ public class BoxServiceImpl implements BoxService {
 		if (checkBoxIfCanUpdate(request,response)){
 			execUpdateBox(request,response);
 		}
+        upsertBoxMaterialRelation4WmsBoxUsageInline(request);
 		return response;
 	}
+
+    private void upsertBoxMaterialRelation4WmsBoxUsageInline(UpdateBoxReq request){
+        // 绑定物资关系
+        StoreBoxDetail storeBoxDetail = new StoreBoxDetail();
+        storeBoxDetail.setBoxCode(request.getBoxCode());
+        storeBoxDetail.setMaterialCode(request.getMaterialCode());
+        storeBoxDetail.setCreateSiteCode(request.getCreateSiteCode());
+        storeBoxDetail.setOperateUserErp(request.getUserErp());
+        storeBoxDetail.setOperateUserErp(request.getUserErp());
+        final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = upsertBoxMaterialRelation4WmsBoxUsage(storeBoxDetail);
+        if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
+            log.error("updateBox upsertBoxMaterialRelation4WmsBoxUsageInline upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(request));
+            // throw new RuntimeException("处理箱号绑定物资失败！");
+        }
+    }
 
     /**
      * 更新箱号绑定物资关系
@@ -1321,6 +1337,50 @@ public class BoxServiceImpl implements BoxService {
 		List<Box> boxList =assembleBoxList(rs.getData());
 		return boxList;
 	}
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    @Override
+    public List<Box> listAllParentBox(Box box){
+        return listAllParentBox(box, null);
+    }
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @param level 嵌套层数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    public List<Box> listAllParentBox(Box box, Integer level) {
+        if (ObjectHelper.isEmpty(level)){
+            level = 0;
+        }
+        if (level >= Constants.BOX_NESTED_MAX_DEPTH){
+            return Collections.emptyList();
+        }
+        if (ObjectHelper.isEmpty(box) || ObjectHelper.isEmpty(box.getCode())) {
+            return Collections.emptyList();
+        }
+        final BoxRelation boxRelationParam = new BoxRelation();
+        boxRelationParam.setRelationBoxCode(box.getCode());
+        InvokeResult<List<BoxRelation>> rs = boxRelationService.queryBoxRelation(boxRelationParam);
+        if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())) {
+            return Collections.emptyList();
+        }
+
+        List<Box> boxList = assembleBoxList(rs.getData());
+        for (Box boxItem : boxList) {
+            boxItem.setParent(listAllParentBox(box, level + 1));
+        }
+        return boxList;
+    }
 
 	@Override
 	public boolean saveBoxBindRelation(BoxBindDto containerBindDto) {
