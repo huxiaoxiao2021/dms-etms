@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -113,7 +114,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private TaskService taskService;
+    protected TaskService taskService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
@@ -185,12 +186,22 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request) {
+        return null;
+    }
+
     /**
      * 执行集包操作
      * @param request 集包请求对象
      * @param response 集包响应对象
      */
-    private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -313,7 +324,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         jyCollectPackageEntity.setEndSiteId(request.getEndSiteId());
         jyCollectPackageEntity.setEndSiteName(request.getEndSiteName());
         jyCollectPackageEntity.setBoxEndSiteId(request.getBoxReceiveId());
-        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxCode());
+        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxReceiveName());
         Date now = new Date();
         jyCollectPackageEntity.setCreateTime(now);
         jyCollectPackageEntity.setUpdateTime(now);
@@ -326,7 +337,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return jyCollectPackageEntity;
     }
 
-    private TaskRequest assembleTaskRequest(CollectPackageReq request) {
+    protected TaskRequest assembleTaskRequest(CollectPackageReq request) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -916,7 +927,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
 
-        if (BusinessUtil.isBoxcode(request.getBarCode())) {
+        if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
             // 查询箱子是否已经被放入LL箱子中
             BoxRelation boxRelation = getBoxRelation(task);
             InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
@@ -1441,7 +1452,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
-    private void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
         boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
@@ -1451,7 +1462,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     }
 
-    private BoxRelation assmbleBoxRelation(CollectPackageReq request) {
+    protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
         BoxRelation relation =new BoxRelation();
         relation.setBoxCode(request.getBoxCode());
         relation.setRelationBoxCode(request.getBarCode());
@@ -1461,6 +1472,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         relation.setUpdateUserErp(request.getUser().getUserErp());
         relation.setUpdateUserName(request.getUser().getUserName());
         relation.setYn(Constants.YN_YES);
+        relation.setOperateSource(OperatorTypeEnum.DMS_CLIENT.getCode());
 
         Date now = new Date();
         relation.setCreateTime(now);

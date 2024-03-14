@@ -53,6 +53,17 @@ public class BoxRelation extends DbEntity implements Serializable {
     */
     private Integer yn;
 
+
+    private Integer operateSource;
+
+    public Integer getOperateSource() {
+        return operateSource;
+    }
+
+    public void setOperateSource(Integer operateSource) {
+        this.operateSource = operateSource;
+    }
+
     public String getBoxCode() {
         return boxCode;
     }
