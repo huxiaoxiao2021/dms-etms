@@ -2075,7 +2075,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setType(JyBizTaskExceptionTypeEnum.INTERCEPT.getCode());
             jyBizTaskExceptionQuery.setBarCode(businessInterceptReport.getPackageCode());
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptReport.getSiteCode().longValue());
-            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            // jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
             jyBizTaskExceptionQuery.setYn(Constants.YN_YES);
             // final List<JyBizTaskExceptionEntity> currentSiteSamePackageTaskList = jyBizTaskExceptionDao.selectListByCondition(jyBizTaskExceptionQuery);
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
@@ -2094,9 +2094,32 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 jyExceptionInterceptDetailQuery.setYn(Constants.YN_YES);
                 final JyExceptionInterceptDetail jyExceptionInterceptDetailExist = jyExceptionInterceptDetailDao.selectOne(jyExceptionInterceptDetailQuery);
                 // 1.1 拦截类型不同 丢弃
-                if (!Objects.equals(jyExceptionInterceptDetailExist.getInterceptType(), businessInterceptReport.getInterceptType())) {
-                    logger.warn("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload 该包裹的上一个拦截类型的任务还未处理完成，忽略此数据 {}", JsonHelper.toJson(businessInterceptReport));
-                    return result.toSuccess("该包裹的上一个拦截类型的任务还未处理完成，忽略此数据");
+                if (!Objects.equals(JyExpStatusEnum.COMPLETE.getCode(), currentSiteSamePackageTaskExist.getStatus())) {
+                    if (!Objects.equals(jyExceptionInterceptDetailExist.getInterceptType(), businessInterceptReport.getInterceptType())) {
+                        logger.warn("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload 该包裹的上一个拦截类型的任务还未处理完成，忽略此数据 {}", JsonHelper.toJson(businessInterceptReport));
+                        return result.toSuccess("该包裹的上一个拦截类型的任务还未处理完成，忽略此数据");
+                    } else {
+                        // 1.2 拦截类型相同
+                        // 1.2.1 网格工序相同 更新任务+明细数据
+                        if(Objects.equals(jyExceptionInterceptDetailExist.getOperateWorkStationGridKey(), businessInterceptReport.getOperateWorkStationGridKey())){
+                            // 如果任务是完结状态+需要换单打印处理的拦截任务，则不重置任务，直接跳过
+                            final List<Integer> disposeNodeListByInterceptType = businessInterceptConfig.getDisposeNodeListByInterceptType(jyExceptionInterceptDetailExist.getInterceptType());
+                            if (CollectionUtils.isNotEmpty(disposeNodeListByInterceptType) && disposeNodeListByInterceptType.contains(businessInterceptConfigHelper.getInterceptDisposeNodeExchangeWaybill())) {
+                                logger.info("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload 换单打印后扫描老单号，忽略此数据 {}", JsonHelper.toJson(businessInterceptReport));
+                                return result.toSuccess("换单打印后扫描老单号，忽略此数据");
+                            }
+                            resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
+                        }
+                        // 1.2.2 网格不同 删除原任务+明细数据，新增任务数据
+                        else {
+                            // 删除原数据
+                            logicDelCurrentSite(currentSiteSamePackageTaskExist);
+                            // 需新增数据
+                            needInsertNewTask = true;
+                        }
+                    }
+                    // 将其他场地数据更新为完成
+                    finishOtherSiteTaskAnd2Fail(businessInterceptReport.getPackageCode(), businessInterceptReport.getSiteCode());
                 } else {
                     // 1.2 拦截类型相同
                     // 1.2.1 网格工序相同 更新任务+明细数据
@@ -2107,19 +2130,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             logger.info("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload 换单打印后扫描老单号，忽略此数据 {}", JsonHelper.toJson(businessInterceptReport));
                             return result.toSuccess("换单打印后扫描老单号，忽略此数据");
                         }
-                        resetOriginalInterceptTask(currentSiteSamePackageTaskExist, businessInterceptReport);
-                    }
-                    // 1.2.2 网格不同 删除原任务+明细数据，新增任务数据
-                    else {
-                        // 删除原数据
-                        logicDelCurrentSite(currentSiteSamePackageTaskExist);
-                        // 需新增数据
-                        needInsertNewTask = true;
                     }
                 }
-
-                // 将其他场地数据更新为完成
-                finishOtherSiteTaskAnd2Fail(businessInterceptReport.getPackageCode(), businessInterceptReport.getSiteCode());
             } else {
                 needInsertNewTask = true;
             }
