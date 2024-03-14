@@ -4548,4 +4548,25 @@ public class UccPropertyConfiguration{
         }
         return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
     }
+
+    private boolean needCollectLoadingBoxflowCheck;
+    public boolean getNeedCollectLoadingBoxflowCheck() {
+        return needCollectLoadingBoxflowCheck;
+    }
+    public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
+        this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
+
+    /**
+     * LL箱号内嵌箱号数量限制
+     */
+    private int LLContainBoxNumberLimit;
+
+    public int getLLContainBoxNumberLimit() {
+        return LLContainBoxNumberLimit;
+    }
+
+    public void setLLContainBoxNumberLimit(int LLContainBoxNumberLimit) {
+        this.LLContainBoxNumberLimit = LLContainBoxNumberLimit;
+    }
 }

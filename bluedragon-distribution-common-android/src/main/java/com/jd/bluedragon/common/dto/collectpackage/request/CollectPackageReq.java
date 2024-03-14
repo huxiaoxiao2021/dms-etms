@@ -69,12 +69,21 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
 
     private Integer businessType;
 
+    private String  boxType;
+
     public Integer getBusinessType() {
         return businessType;
     }
 
     public void setBusinessType(Integer businessType) {
         this.businessType = businessType;
+    }
+
+    public String getBoxType(){
+        return boxType;
+    }
+    public void setBoxType(String boxType) {
+        this.boxType = boxType;
     }
 
     public void setEndSiteName(String endSiteName) {

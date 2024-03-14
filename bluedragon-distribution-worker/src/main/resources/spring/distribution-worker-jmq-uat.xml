@@ -711,5 +711,15 @@
     <jmq:consumer id="jmq.dmsBusinessInterceptDisposeConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsBusinessInterceptDispose}" listener="dmsBusinessInterceptDisposeConsumer"/>
     </jmq:consumer>
+
+    <!-- 组板 组大箱时拆分成小箱进行组板  -->
+    <jmq:consumer id="jmq.BoxComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.comboard.split.box}" listener="boxComboardConsumer"/>
+    </jmq:consumer>
+
+    <!-- 取消发货 大箱时拆分成小箱进行取消发货  -->
+    <jmq:consumer id="jmq.BoxCancelSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.cancel.send.split.box}" listener="boxCancelSendConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -277,7 +277,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.7.8-SNAPSHOT</version>
+            <version>1.7.10-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1443,7 +1443,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>2.4-SNAPSHOT</version>
+			<version>2.5-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
@@ -2289,7 +2289,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.4-SNAPSHOT</version>
+			<version>1.41-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -2799,6 +2799,11 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+			</plugin>
         </plugins>
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
