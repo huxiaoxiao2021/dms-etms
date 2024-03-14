@@ -25,7 +25,6 @@ import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -37,10 +36,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
-import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
@@ -90,7 +87,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
@@ -1717,18 +1713,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     private void saveOperateFlow(List<SealCarDto> paramList, NewSealVehicleRequest request) {
-        OperatorData operatorData = request.getOperatorData();
-        if (operatorData == null) {
+        if (CollectionUtils.isEmpty(paramList)) {
             return;
         }
-        try {
-            for (SealCarDto sealCarDto : paramList) {
-                JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToJyOperateFlowMqData(sealCarDto, operatorData);
-                unsealFlowMq.setOperateBizSubType(request.getBizType());
-                jyOperateFlowService.sendMq(unsealFlowMq);
-            }
-        } catch (Exception e){
-            log.error("发送解封车操作流水异常,解封车数据={}", JsonHelper.toJson(paramList), e);
+        for (SealCarDto sealCarDto : paramList) {
+            jyOperateFlowService.sendUnsealOperateFlowData(sealCarDto, request);
         }
     }
 
