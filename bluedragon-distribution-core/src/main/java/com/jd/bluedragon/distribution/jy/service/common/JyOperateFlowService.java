@@ -79,6 +79,11 @@ public interface JyOperateFlowService {
     void sendSoringOperateFlowData(Sorting sorting, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
 
     /**
+     * 构建发货操作流水
+     */
+    JyOperateFlowMqData createDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
      * 发送发货操作流水
      */
     void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum);
