@@ -45,7 +45,6 @@
         <result property="inputLength" column="input_length"/>
         <result property="inputWidth" column="input_width"/>
         <result property="inputHeight" column="input_height"/>
-        <result property="waybillCodeNew" column="waybill_code_new"/>
         <result property="saveType" column="save_type"/>
         <result property="createUserId" column="create_user_id"/>
         <result property="createUserCode" column="create_user_code"/>
@@ -61,7 +60,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `waybill_code_new`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `biz_id`, `intercept_biz_id`, `bar_code`, `biz_source`, `site_id`, `site_name`, `province_agency_code`, `province_agency_name`, `area_hub_code`, `area_hub_name`, `package_code`, `package_total`, `waybill_code`, `box_code`, `operate_node`, `intercept_effect_time`, `intercept_type`, `device_code`, `device_type`, `device_sub_type`, `operate_position_code`, `operate_work_station_grid_key`, `operate_work_grid_key`, `intercept_code`, `intercept_message`, `dispose_node`, `dispose_user_id`, `dispose_user_code`, `dispose_user_name`, `dispose_time`, `input_weight`, `input_volume`, `input_length`, `input_width`, `input_height`, `save_type`, `create_user_id`, `create_user_code`, `create_user_name`, `update_user_id`, `update_user_code`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 插入 -->
@@ -109,7 +108,6 @@
             input_length,
             input_width,
             input_height,
-            waybill_code_new,
             save_type,
             create_user_id,
             create_user_code,
@@ -164,7 +162,6 @@
             #{inputLength},
             #{inputWidth},
             #{inputHeight},
-            #{waybillCodeNew},
             #{saveType},
             #{createUserId},
             #{createUserCode},
@@ -308,9 +305,6 @@
             </if>
             <if test="inputHeight != null">
                 input_height,
-            </if>
-            <if test="waybillCodeNew != null">
-                waybill_code_new,
             </if>
             <if test="saveType != null">
                 save_type,
@@ -473,9 +467,6 @@
             <if test="inputHeight != null">
                 #{inputHeight},
             </if>
-            <if test="waybillCodeNew != null">
-                #{waybillCodeNew},
-            </if>
             <if test="saveType != null">
                 #{saveType},
             </if>
@@ -557,7 +548,6 @@
             input_length,
             input_width,
             input_height,
-            waybill_code_new,
             save_type,
             create_user_id,
             create_user_code,
@@ -615,7 +605,6 @@
                 #{item.inputLength},
                 #{item.inputWidth},
                 #{item.inputHeight},
-                #{item.waybillCodeNew},
                 #{item.saveType},
                 #{item.createUserId},
                 #{item.createUserCode},
@@ -756,9 +745,6 @@
             </if>
             <if test="inputHeight != null ">
                 input_height = #{inputHeight},
-            </if>
-            <if test="waybillCodeNew != null ">
-                waybill_code_new = #{waybillCodeNew},
             </if>
             <if test="saveType != null ">
                 save_type = #{saveType},
@@ -1049,9 +1035,6 @@
             </if>
             <if test="inputHeight != null ">
                 input_height = #{inputHeight},
-            </if>
-            <if test="waybillCodeNew != null ">
-                waybill_code_new = #{waybillCodeNew},
             </if>
             <if test="saveType != null ">
                 save_type = #{saveType},
