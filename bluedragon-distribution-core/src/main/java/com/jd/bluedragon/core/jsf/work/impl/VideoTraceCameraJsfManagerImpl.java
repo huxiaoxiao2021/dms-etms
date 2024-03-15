@@ -43,8 +43,7 @@ public class VideoTraceCameraJsfManagerImpl implements VideoTraceCameraJsfManage
         VideoTraceCameraQuery videoTraceCameraQuery = new VideoTraceCameraQuery();
         videoTraceCameraQuery.setCameraCode(deviceNo);
         videoTraceCameraQuery.setNationalChannelCode(nationalChannelCode);
-        videoTraceCameraQuery.setStartTimeStr(createTime);
-        videoTraceCameraQuery.setEndTimeStr(createTime);
+        videoTraceCameraQuery.setOperateTimeStr(createTime);
         videoTraceCameraQuery.setSiteCode(siteCode);
         //不指定查询所有状态
         videoTraceCameraQuery.setStatus(status);
