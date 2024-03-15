@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.List;
 
@@ -270,4 +272,9 @@ public interface SortingService {
     SortingResponse doCancelSortingOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto);
 
     int  deleteOldAndInsertNewSorting(List<Sorting> sortingList);
+
+
+    WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
+                                     BaseStaffSiteOrgDto receiveSite);
+
 }

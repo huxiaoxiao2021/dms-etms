@@ -30,10 +30,23 @@ public class BindBoardRequest implements Serializable {
     private String machineCode;
 
     private boolean cancelLast;
+
     /**
      * 操作信息对象
      */
 	private OperatorData operatorData;
+
+    /**
+     * com_board_box表业务主键
+     */
+    private String operateKey;
+
+    /**
+     * 操作流水表业务主键
+     */
+    private Long operateFlowId;
+
+
     public boolean getCancelLast() {
         return cancelLast;
     }
@@ -96,4 +109,20 @@ public class BindBoardRequest implements Serializable {
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
 	}
+
+    public String getOperateKey() {
+        return operateKey;
+    }
+
+    public void setOperateKey(String operateKey) {
+        this.operateKey = operateKey;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
+    }
 }

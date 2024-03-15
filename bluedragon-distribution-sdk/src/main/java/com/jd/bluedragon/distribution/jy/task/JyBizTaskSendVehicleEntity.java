@@ -220,6 +220,11 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private transient Date currentDate;
 
+    /**
+     * 关联组号
+     */
+    private String refGroupCode;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -607,4 +612,12 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	public void setCurrentDate(Date currentDate) {
 		this.currentDate = currentDate;
 	}
+
+    public String getRefGroupCode() {
+        return refGroupCode;
+    }
+
+    public void setRefGroupCode(String refGroupCode) {
+        this.refGroupCode = refGroupCode;
+    }
 }

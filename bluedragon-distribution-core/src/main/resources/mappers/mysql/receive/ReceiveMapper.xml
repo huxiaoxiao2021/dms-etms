@@ -46,7 +46,7 @@
 		</where>
 	</sql>
 
-	<insert id="add" parameterType="Receive">
+	<insert id="add" parameterType="Receive" useGeneratedKeys="true" keyProperty="receiveId">
 		insert into receive (receive_id, create_user, create_user_code,
 		create_time, create_site_code, waybill_code,
 		package_barcode, box_code, receive_type,boxing_type,

@@ -252,6 +252,103 @@
                    1)
     </insert>
 
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="bizId != null and bizId != ''">
+            AND biz_id = #{bizId}
+        </if>
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        <if test="source != null">
+            AND source = #{source}
+        </if>
+        <if test="barCode != null and barCode != ''">
+            AND bar_code = #{barCode}
+        </if>
+        <if test="tags != null">
+            AND tags = #{tags}
+        </if>
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="excludeSiteCode != null">
+            AND site_code != #{excludeSiteCode}
+        </if>
+        <if test="siteName != null and siteName != ''">
+            AND site_name = #{siteName}
+        </if>
+        <if test="floor != null">
+            AND floor = #{floor}
+        </if>
+        <if test="gridNo != null and gridNo != ''">
+            AND grid_no = #{gridNo}
+        </if>
+        <if test="gridCode != null and gridCode != ''">
+            AND grid_code = #{gridCode}
+        </if>
+        <if test="areaCode != null and areaCode != ''">
+            AND area_code = #{areaCode}
+        </if>
+        <if test="areaName != null and areaName != ''">
+            AND area_name = #{areaName}
+        </if>
+        <if test="distributionType != null">
+            AND distribution_type = #{distributionType}
+        </if>
+        <if test="distributionTarget != null and distributionTarget != ''">
+            AND distribution_target = #{distributionTarget}
+        </if>
+        <if test="distributionTime != null">
+            AND distribution_time = #{distributionTime}
+        </if>
+        <if test="handlerErp != null and handlerErp != ''">
+            AND handler_erp = #{handlerErp}
+        </if>
+        <if test="status != null">
+            AND `status` = #{status}
+        </if>
+        <if test="excludeStatusList != null">
+            AND `status` not in
+            <foreach item="id" index="index" collection="excludeStatusList"
+                     open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyBizTaskExceptionQuery" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `jy_biz_task_exception`
+        <include refid="where"/>
+        order by id desc
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="selectOneByCondition" parameterType="com.jd.bluedragon.distribution.jy.exception.query.JyBizTaskExceptionQuery" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `jy_biz_task_exception`
+        <include refid="where"/>
+        order by id desc
+        limit 1
+    </select>
+
     <select id="getCommonStatusStatistic" resultMap="StatisticStatusResp">
         select status,count(*) as `count`
         FROM jy_biz_task_exception

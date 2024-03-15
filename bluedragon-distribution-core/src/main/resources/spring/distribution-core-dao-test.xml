@@ -360,4 +360,11 @@
 		  class="com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao" >
 		<property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
 	</bean>
+
+	<bean id="jyExceptionInterceptDetailDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
+	<bean id="jyExceptionInterceptDetailKvDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailKvDao">
+		<property name="sqlSession" ref="sessionTemplate"/>
+	</bean>
 </beans>

@@ -41,6 +41,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
@@ -131,6 +132,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     private DefaultJMQProducer dwsSpotCheckProducer;
 
     @Autowired
+    @Qualifier("automaticWeightingFlowProducer")
+    private DefaultJMQProducer automaticWeightingFlowProducer;
+
+    @Autowired
     private InspectionDao inspectionDao;
 
     private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_FROM_SOURCE =
@@ -168,6 +173,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             // 自动化称重 非0复重量体积拦截
             if (DMS_DWS_MEASURE.equals(entity.getSourceCode())
                     || DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
+                // 自动化称重发送消息给运输
+                sendWeightingFlowInfo(entity);
                 InvokeResult<Void> interceptResult= waybillNotZeroWeightIntercept(entity);
                 if (!interceptResult.codeSuccess()) {
                     // 返回成功，防止重试
@@ -203,6 +210,42 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             taskService.add(weightVolumeTask);
             return result;
         }
+    }
+
+    private void sendWeightingFlowInfo(WeightVolumeEntity entity) {
+        // 只发送包裹和运单的称重流水
+        if (!WaybillUtil.isPackageCode(entity.getBarCode()) && !WaybillUtil.isWaybillCode(entity.getBarCode())) {
+            return;
+        }
+        WeightingFlowMQ weightingFlowMQ = convertToWeightingFlowMQ(entity);
+        try {
+            automaticWeightingFlowProducer.send(weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+            logger.info("包裹号{}自动化称重流水MQ body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        } catch (Exception e) {
+            logger.error("包裹号{}自动化称重流水MQ异常 body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        }
+    }
+
+    private WeightingFlowMQ convertToWeightingFlowMQ(WeightVolumeEntity entity) {
+        String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
+        String packageCode = "";
+        if (WaybillUtil.isPackageCode(entity.getBarCode())) {
+            packageCode = entity.getBarCode();
+        }
+        WeightingFlowMQ weightingFlowMQ = new WeightingFlowMQ();
+        weightingFlowMQ.setWeight(entity.getWeight());
+        weightingFlowMQ.setVolume(entity.getVolume());
+        weightingFlowMQ.setHeight(entity.getHeight());
+        weightingFlowMQ.setLength(entity.getLength());
+        weightingFlowMQ.setWidth(entity.getWidth());
+        weightingFlowMQ.setOperateSiteCode(entity.getOperateSiteCode());
+        weightingFlowMQ.setOperateTime(entity.getOperateTime());
+        weightingFlowMQ.setOperatorCode(entity.getOperatorCode());
+        weightingFlowMQ.setOperatorName(entity.getOperatorName());
+        weightingFlowMQ.setPackageCode(packageCode);
+        weightingFlowMQ.setOperateSiteName(entity.getOperateSiteName());
+        weightingFlowMQ.setWaybillCode(waybillCode);
+        return weightingFlowMQ;
     }
 
     private boolean automaticUpperLimitCheck(WeightVolumeEntity entity, InvokeResult<Boolean> result) {
@@ -1011,5 +1054,64 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param condition
+     * @return
+     */
+    @Override
+    public Result<Boolean> checkAndUpload(WeightVolumeCondition condition) {
+        Result<Boolean> result = Result.success();
+        try {
+            JdResult<WeightVolumeUploadResult> checkResult = this.checkBeforeUpload(condition);
+            if (!checkResult.isSucceed()) {
+                return result.toFail("提交重量体积数据失败、");
+            }
+            //校验成功，上传处理
+            if(checkResult != null
+                    && checkResult.isSucceed()
+                    && checkResult.getData() != null
+                    && Boolean.TRUE.equals(checkResult.getData().getCheckResult())) {
+                //已有-超重信息，本次不上传超重信息
+                boolean showHasOverMsg = false;
+                if(Boolean.TRUE.equals(checkResult.getData().getHasOverLengthAndWeight())) {
+                    condition.setOverLengthAndWeightEnable(false);
+                    condition.setLongPackage(0);
+                    showHasOverMsg = true;
+                }
+                // 称重数据超额处理
+                String remark = this.weightVolumeExcessDeal(condition);
+                WeightVolumeEntity entity = new WeightVolumeEntity()
+                        .barCode(condition.getBarCode())
+                        .businessType(WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType()))
+                        .sourceCode(FromSourceEnum.valueOf(condition.getSourceCode()))
+                        .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
+                        .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
+                        .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
+                        .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
+                        .machineCode(condition.getMachineCode()).remark(remark);
+                entity.setOverLengthAndWeightEnable(condition.getOverLengthAndWeightEnable());
+                entity.setOverLengthAndWeightTypes(condition.getOverLengthAndWeightTypes());
+                InvokeResult<Boolean> uploadResult = this.dealWeightAndVolume(entity, Boolean.FALSE);
+                result.setData(uploadResult.getData());
+
+                if(uploadResult != null
+                        && uploadResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+                    result.toSuccess("上传成功！");
+                    if(showHasOverMsg) {
+                        checkResult.toSuccess("上传成功，此单已有超长超重服务，只上传称重信息！");
+                    }
+                }else if(uploadResult != null){
+                    result.toFail(uploadResult.getMessage());
+                } else {
+                    result.toFail("上传失败！");
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            result.toFail("上传重量体积异常");
+            logger.error("DMSWeightVolumeServiceImpl.checkAndUpload exception {}", JsonHelper.toJson(condition), e);
+        }
+        return result;
     }
 }

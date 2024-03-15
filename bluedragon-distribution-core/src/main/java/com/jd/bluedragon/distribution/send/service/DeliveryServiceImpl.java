@@ -447,6 +447,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+    @Autowired
+    private SortingService sortingService;
+    @Autowired
+    @Qualifier("bigBoxCancelSendProducer")
+    private DefaultJMQProducer bigBoxCancelSendProducer;
 
     /**
      * 自动过期时间 30分钟
@@ -1044,6 +1049,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     }
 
+    private boolean checkBoxIfEmpty(SendM domain) {
+        //箱内没有包裹 && 箱内没有箱子
+        Integer count =sortingService.getSumByBoxCode(domain.getBoxCode());
+        if (ObjectHelper.isEmpty(count) || count <= 0 ){
+            log.info("{}箱内没有包裹",domain.getBoxCode());
+            BoxRelation boxRelation =new BoxRelation();
+            boxRelation.setBoxCode(domain.getBoxCode());
+            int boxCount =boxRelationService.countByBoxCode(boxRelation);
+            if (boxCount <= 0){
+                log.info("{}箱内没有包裹 && 箱内没有箱子",domain.getBoxCode());
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 一车一单发货逻辑，不包括多次发货取消上次发货校验和处理逻辑
      *
@@ -1608,6 +1629,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 sortingCheck.setOperateType(1);
             }
         }
+        sortingCheck.setOperatorData(domain.getOperatorData());
         return sortingCheck;
     }
 
@@ -3212,7 +3234,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     //更新箱号状态
                     openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
+                    checkIfNeedCancelInnerBoxes(tSendM);
                 }
+
                 Profiler.registerInfoEnd(callerInfo);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
@@ -3359,6 +3383,25 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    private void checkIfNeedCancelInnerBoxes(SendM sendM) {
+        try {
+            if (BusinessUtil.isLLBoxcode(sendM.getBoxCode())){
+                Box query =new Box();
+                query.setCode(sendM.getBoxCode());
+                List<Box> boxes =boxService.listAllDescendantsByParentBox(query);
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(boxes)){
+                    for (Box box:boxes){
+                        sendM.setBoxCode(box.getCode());
+                        bigBoxCancelSendProducer.sendOnFailPersistent(sendM.getBoxCode(),JsonHelper.toJson(sendM));
+                        log.info("取消大箱拆分小箱发送消息成功,{}",JsonHelper.toJson(sendM));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("取消大箱拆分小箱取消发货异常:{}",sendM.getBoxCode(),e);
+        }
     }
 
     /**
@@ -3626,26 +3669,25 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      */
     private void sendMessage(List<SendDetail> sendDetails, SendM tSendM, boolean needSendMQ) {
         try {
-            if (sendDetails == null || sendDetails.isEmpty()) {
-                return;
-            }
-            Set<String> coldChainWaybillSet = new HashSet<>();
-            List<SendDetail> coldChainSendDetails = new ArrayList<>();
-            //按照包裹
-            for (SendDetail model : sendDetails) {
-                if (StringHelper.isNotEmpty(model.getSendCode())) {
-                    // 发送全程跟踪任务
-                    send(model, tSendM);
-                    if (needSendMQ) {
-                        // 发送取消发货MQ
-                        sendMQ(model, tSendM);
-                        if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
-                            coldChainSendDetails.add(model);
+            if (CollectionUtils.isNotEmpty(sendDetails)) {
+                Set<String> coldChainWaybillSet = new HashSet<>();
+                List<SendDetail> coldChainSendDetails = new ArrayList<>();
+                //按照包裹
+                for (SendDetail model : sendDetails) {
+                    if (StringHelper.isNotEmpty(model.getSendCode())) {
+                        // 发送全程跟踪任务
+                        send(model, tSendM);
+                        if (needSendMQ) {
+                            // 发送取消发货MQ
+                            sendMQ(model, tSendM);
+                            if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
+                                coldChainSendDetails.add(model);
+                            }
                         }
                     }
                 }
+                this.sendColdChainSendMQ(coldChainSendDetails);
             }
-            this.sendColdChainSendMQ(coldChainSendDetails);
             this.sendDmsCycleMaterialMq4CancelSendBox(tSendM, sendDetails);
         } catch (Exception ex) {
             log.error("取消发货 发全程跟踪sendMessage： " + ex);
@@ -3810,6 +3852,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         boxMaterialRelationMQ.setWaybillCode(new ArrayList<>(waybillCodeSet));
         boxMaterialRelationMQ.setPackageCode(packageCodeList);
 
+        // 如果sendM为空，则判断是否为嵌套箱
+        if (CollectionUtils.isEmpty(sendDetails)) {
+            Box boxNestParam = new Box();
+            boxNestParam.setCode(tSendM.getBoxCode());
+            final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+            if (CollectionUtils.isNotEmpty(boxNestList)) {
+                boxMaterialRelationMQ.setBoxHasChildBox(true);
+            }
+        }
+
         boxMaterialRelationMQ.setBusinessType(BoxMaterialRelationEnum.SEND_CANCEL.getType());
         boxMaterialRelationMQ.setMaterialCode(materialCode);
         boxMaterialRelationMQ.setOperatorCode(tSendM.getUpdateUserCode() == null ? 0 : tSendM.getUpdateUserCode());
@@ -3842,6 +3894,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         DeliveryResponse.CODE_Delivery_NO_MESAGE,
                         HintService.getHint(HintCodeConstants.DELIVERY_PROCESSING), null);
             }
+            dSendM.setOperatorData(tSendM.getOperatorData());
+            dSendM.setOperatorId(tSendM.getOperatorId());
+            dSendM.setOperatorTypeCode(tSendM.getOperatorTypeCode());
             return this.cancelDeliveryStatusByBox(dSendM, tSendDatail);
         } else {
             return new ThreeDeliveryResponse(
@@ -4009,18 +4064,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             List<WaybillStatus> waybillStatusList = new ArrayList<WaybillStatus>(sendDetails.size());
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
             List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
-            List<JyOperateFlowMqData> sendFlowMqList = new ArrayList<JyOperateFlowMqData>();
-            List<JyOperateFlowMqData> sendCancelFlowMqList = new ArrayList<JyOperateFlowMqData>();
-            
+            // 发货操作流水集合
+            List<JyOperateFlowMqData> sendFlowMqList = new ArrayList<>();
+            // 取消发货操作流水集合
+            List<JyOperateFlowMqData> sendCancelFlowMqList = new ArrayList<>();
+
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
                 tSendDetail.setStatus(1);
                 if (tSendDetail.getIsCancel().equals(1)) {
                     cancelSendList.add(tSendDetail);
-                    JyOperateFlowMqData sendCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(tSendDetail);
-                    sendCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SEND_CANCEL.getCode());
-                    sendCancelFlowMqList.add(sendCancelFlowMq);
                 } else {
                     BaseStaffSiteOrgDto createSiteDto = this.getBaseStaffSiteDto(tSendDetail.getCreateSiteCode());
                     BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(tSendDetail.getReceiveSiteCode());
@@ -4029,6 +4083,19 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             this.log.warn("发货数据调用基础资料接口参数信息不全：包裹号为{}" , tSendDetail.getPackageBarcode());
                         } else {
                             WaybillStatus tWaybillStatus = this.buildWaybillStatus(tSendDetail, createSiteDto, receiveSiteDto);
+
+                            CallerInfo info5 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
+                            // 组装取消发货操作流水
+                            if (Constants.NUMBER_ONE.equals(tSendDetail.getYn()) && Constants.NUMBER_TWO.equals(tSendDetail.getIsCancel())) {
+                                JyOperateFlowMqData sendCancelFlowMq = jyOperateFlowService.createDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND_CANCEL);
+                                sendCancelFlowMqList.add(sendCancelFlowMq);
+                            } else {
+                                // 组装发货操作流水
+                                JyOperateFlowMqData sendFlowMq = jyOperateFlowService.createDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND);
+                                sendFlowMqList.add(sendFlowMq);
+                            }
+                            Profiler.registerInfoEnd(info5);
+
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
                                 addOperationLog(tSendDetail,createSiteDto.getSiteName(),"DeliveryServiceImpl#updateWaybillStatus");
@@ -4075,9 +4142,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         }
                     }
                     sendDetailList.add(tSendDetail);
-                    JyOperateFlowMqData sendFlowMq = BeanConverter.convertToJyOperateFlowMqData(tSendDetail);
-                    sendFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SEND.getCode());
-                    sendFlowMqList.add(sendFlowMq);
                 }
             }
             if(log.isInfoEnabled() && sendDetails.size() > 10) {
@@ -4107,12 +4171,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             Profiler.registerInfoEnd(info3);
             CallerInfo info4 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
+            // 批量发送操作流水消息
             jyOperateFlowService.sendMqList(sendCancelFlowMqList);
             jyOperateFlowService.sendMqList(sendFlowMqList);
             Profiler.registerInfoEnd(info4);
         }
         return true;
     }
+
+
 
     private WaybillStatus buildWaybillStatus(SendDetail tSendDetail, BaseStaffSiteOrgDto cbDto, BaseStaffSiteOrgDto rbDto) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
@@ -4325,7 +4392,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                OperatorData operatorData = BeanConverter.convertToOperatorData(newSendM);
 	                dSendDetail.setOperatorTypeCode(operatorData.getOperatorTypeCode());
 	                dSendDetail.setOperatorId(operatorData.getOperatorId());
-	                dSendDetail.setOperatorData(operatorData);   
+	                dSendDetail.setOperatorData(operatorData);
 	                sendDetailList.add(dSendDetail);
 	            }
 	        }

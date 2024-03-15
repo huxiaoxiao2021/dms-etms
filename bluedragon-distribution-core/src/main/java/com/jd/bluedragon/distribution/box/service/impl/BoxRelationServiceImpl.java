@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+
 /**
  * @ClassName BoxRelationServiceImpl
  * @Description
@@ -130,28 +132,7 @@ public class BoxRelationServiceImpl implements BoxRelationService {
                 return chkRet;
             }
 
-            boolean saveNewRelations = false;
-            BoxRelation upRecord = new BoxRelation(relation.getCreateSiteCode(), relation.getRelationBoxCode());
-            List<BoxRelation> existRelations = boxRelationDao.queryBoxRelation(upRecord);
-            if (CollectionUtils.isNotEmpty(existRelations)) {
-                BoxRelation oneRecord = existRelations.get(0);
-                // 绑定的箱号不同时，逻辑删除之前的绑定记录
-                if (!ObjectUtils.equals(oneRecord.getBoxCode(), relation.getBoxCode())) {
-                    saveNewRelations = true;
-                    upRecord.setYn(Constants.YN_NO);
-                    upRecord.setUpdateUserErp(relation.getUpdateUserErp());
-                    upRecord.setUpdateUserName(relation.getUpdateUserName());
-                    upRecord.setUpdateTime(new Date());
-                    boxRelationDao.updateByUniqKey(upRecord);
-                }
-            }
-            else {
-                saveNewRelations = true;
-            }
-
-            if (saveNewRelations) {
-                boxRelationDao.insert(relation);
-            }
+            doSaveBoxRelation(relation);
         }
         catch (Exception ex) {
             LOGGER.error("保存箱号绑定记录异常. body:{}", JsonHelper.toJson(relation), ex);
@@ -162,6 +143,42 @@ public class BoxRelationServiceImpl implements BoxRelationService {
         }
 
         return result;
+    }
+
+    @Override
+    public InvokeResult<Boolean> saveBoxRelationWithoutCheck(BoxRelation relation) {
+        try {
+            doSaveBoxRelation(relation);
+        } catch (Exception e) {
+            LOGGER.error("saveBoxRelationWithoutCheck err out box:{},inner box:{} ",relation.getBoxCode(),relation.getRelationBoxCode(),e);
+            return  new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE,false);
+        }
+        return  new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,true);
+    }
+
+    private void doSaveBoxRelation(BoxRelation relation) {
+        boolean saveNewRelations = false;
+        BoxRelation upRecord = new BoxRelation(relation.getCreateSiteCode(), relation.getRelationBoxCode());
+        List<BoxRelation> existRelations = boxRelationDao.queryBoxRelation(upRecord);
+        if (CollectionUtils.isNotEmpty(existRelations)) {
+            BoxRelation oneRecord = existRelations.get(0);
+            // 绑定的箱号不同时，逻辑删除之前的绑定记录
+            if (!ObjectUtils.equals(oneRecord.getBoxCode(), relation.getBoxCode())) {
+                saveNewRelations = true;
+                upRecord.setYn(Constants.YN_NO);
+                upRecord.setUpdateUserErp(relation.getUpdateUserErp());
+                upRecord.setUpdateUserName(relation.getUpdateUserName());
+                upRecord.setUpdateTime(new Date());
+                boxRelationDao.updateByUniqKey(upRecord);
+            }
+        }
+        else {
+            saveNewRelations = true;
+        }
+
+        if (saveNewRelations) {
+            boxRelationDao.insert(relation);
+        }
     }
 
     private InvokeResult<Boolean> checkAllowBind(BoxRelation relation) {
@@ -200,5 +217,23 @@ public class BoxRelationServiceImpl implements BoxRelationService {
         }
 
         return result;
+    }
+
+    @Override
+    public InvokeResult<Boolean> releaseBoxRelation(BoxRelation relation) {
+        try {
+            relation.setYn(Constants.YN_NO);
+            relation.setUpdateTime(new Date());
+            boxRelationDao.updateByUniqKey(relation);
+        } catch (Exception e) {
+            LOGGER.error("releaseBoxRelation err out box:{},inner box:{} ",relation.getBoxCode(),relation.getRelationBoxCode(),e);
+            return  new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE,false);
+        }
+        return  new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,true);
+    }
+
+    @Override
+    public int countByBoxCode(BoxRelation relation) {
+        return boxRelationDao.countByBoxCode(relation);
     }
 }

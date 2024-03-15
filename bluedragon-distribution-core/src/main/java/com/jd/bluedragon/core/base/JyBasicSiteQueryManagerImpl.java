@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dto.basedata.request.GetFlowDirectionQuery;
-import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -15,7 +13,6 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.dto.site.AreaVO;
 import com.jdl.basic.api.dto.site.BasicSiteVO;
 import com.jdl.basic.api.dto.site.ProvinceAgencyVO;
@@ -45,9 +42,6 @@ public class JyBasicSiteQueryManagerImpl implements JyBasicSiteQueryManager {
     
     @Autowired
     private SiteQueryService siteQueryService;
-
-    @Autowired
-    private JyExceptionService jyExceptionService;
 
     @Autowired
     private RouterService routerService;

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleBaseInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -31,6 +33,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
@@ -197,6 +200,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private InspectionService inspectionService;
 
     @Autowired
     @Qualifier("jyCallbackJsfManager")
@@ -573,10 +579,24 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (taskUnloadVehicle == null) {
             result.toCustomError(InvokeResult.CODE_HINT, "卸车任务不存在，请刷新卸车任务列表后再扫描！");
             return result;
+        }else {
+            if(Boolean.TRUE.equals(dmsConfigManager.getUccPropertyConfiguration().getPdaUnloadAndAutoInspectionRejectSwitch())) {
+                // 判断是否触发围栏到车自动验货，如果已经开启则不能手动验
+                if(Boolean.TRUE.equals(request.getRejectAutoInspectionSwitch()) && Constants.NUMBER_ONE.equals(taskUnloadVehicle.getAutoInspectionFlag())) {
+                    result.toCustomError(InvokeResult.CODE_HINT, "该任务包裹已围栏到车自动验货，无需手动验货");
+                    return result;
+                }
+            }
         }
 
         // 卸车扫描前置校验
         if (!checkBeforeScan(result, request)) {
+            return result;
+        }
+
+        // 扫描前校验拦截结果
+        if (!checkBarInterceptResult(result, request)) {
+            // 失败直接返回
             return result;
         }
 
@@ -621,6 +641,35 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         return result;
+    }
+
+    /**
+     * 调用验货拦截链
+     * @param response
+     * @param request
+     * @return
+     */
+    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+        // 非强制提交，校验拦截
+        if (!request.getForceSubmit()) {
+            final InspectionScanRequest inspectionScanRequest = new InspectionScanRequest();
+            BeanHelper.copyProperties(inspectionScanRequest, request);
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionScanRequest);
+            if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
+                response.setCode(verifyResponse.getCode());
+                response.setMessage(verifyResponse.getMessage());
+                return false;
+            } else {
+                if (CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
+                    response.setCode(verifyResponse.getCode());
+                    response.setMessage(verifyResponse.getMessage());
+                    response.setMsgBoxes(verifyResponse.getMsgBoxes());
+                    return true;
+                }
+            }
+        }
+
+        return true;
     }
 
     private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<UnLoadScanResponse> result) {

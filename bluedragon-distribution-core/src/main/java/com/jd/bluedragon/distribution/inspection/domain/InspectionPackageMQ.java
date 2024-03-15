@@ -93,6 +93,10 @@ public class InspectionPackageMQ implements Serializable {
      * 操作信息对象
      */
     private OperatorData operatorData;
+    /**
+     * 操作流水表主键
+     */
+    private Long operateFlowId;
 
 
     public String getPackageCode() {
@@ -237,5 +241,13 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setOperatorData(OperatorData operatorData) {
         this.operatorData = operatorData;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
     }
 }

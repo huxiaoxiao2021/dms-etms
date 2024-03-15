@@ -6,11 +6,9 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
-import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
 import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
-import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +38,7 @@ public class JyCollectPackageGatewayServiceImplTest {
     public void collectPackage() {
         CollectPackageReq collectPackageReq =new CollectPackageReq();
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(40240);
+        currentOperate.setSiteCode(910);
         User user =new User();
         user.setUserErp("wuyoude");
         user.setUserName("吴有德");
@@ -51,8 +49,8 @@ public class JyCollectPackageGatewayServiceImplTest {
 
 
         collectPackageReq.setBizId("JCP23111300000004");
-        collectPackageReq.setBoxCode("BC1001231113290000300226");
-        collectPackageReq.setBarCode("JD0003422585760-3-30-");
+        collectPackageReq.setBoxCode("LL1001240313260000300226");
+        collectPackageReq.setBarCode("BC1001240312200000700126");
 
 
 

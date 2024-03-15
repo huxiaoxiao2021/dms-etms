@@ -41,7 +41,10 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
                 return;
             }
             JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
-            if(jyOperateFlowMqData == null) {
+            if (logger.isInfoEnabled()) {
+                logger.info("JyOperateFlowMqConsumer:jyOperateFlowMqData={}", message.getText());
+            }
+            if (jyOperateFlowMqData == null) {
                 logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
                 return;
             }
