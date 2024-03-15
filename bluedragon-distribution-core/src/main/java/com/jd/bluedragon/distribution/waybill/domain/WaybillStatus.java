@@ -349,6 +349,11 @@ public class WaybillStatus {
     // 额外属性，同步运单全程跟踪对象属性
     private Map<String, Object> extendParamMap;
 
+    /**
+     * 操作流水表主键
+     */
+    private Long operateFlowId;
+
     public Long getId() {
         return this.id;
     }
@@ -531,6 +536,14 @@ public class WaybillStatus {
 
     public void setExtendParamMap(Map<String, Object> extendParamMap) {
         this.extendParamMap = extendParamMap;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
     }
 
     /**

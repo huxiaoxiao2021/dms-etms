@@ -21,7 +21,9 @@ public class JyOperateFlowDao extends BaseDao<JyOperateFlowDto> {
     private SequenceGenAdaptor sequenceGenAdaptor;
 
     public int insert(JyOperateFlowDto entity){
-        entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+        if (entity.getId() == null) {
+            entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+        }
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
