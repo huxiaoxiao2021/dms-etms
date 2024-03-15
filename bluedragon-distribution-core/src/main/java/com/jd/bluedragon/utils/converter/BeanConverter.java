@@ -5,6 +5,7 @@ import java.util.Date;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
@@ -482,6 +483,44 @@ public class BeanConverter {
 		}
 
 		return dto;
+	}
+
+	/**
+	 * 用户数据转换
+	 *
+	 * @param userRaw
+	 * @return
+	 */
+	public static User convertToSdkUser(com.jd.bluedragon.common.dto.base.request.User userRaw) {
+		if (userRaw == null) {
+			return null;
+		}
+		User user = new User();
+		try {
+			org.apache.commons.beanutils.BeanUtils.copyProperties(user, userRaw);
+		} catch (Exception e) {
+			log.error("BeanConverter.convertToSdkUser error!", e);
+		}
+		return user;
+	}
+
+	/**
+	 * 用户操作场地数据转换
+	 *
+	 * @param currentOperateRaw
+	 * @return
+	 */
+	public static com.jd.bluedragon.distribution.jy.dto.CurrentOperate convertToSdkCurrentOperate(com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperateRaw) {
+		if (currentOperateRaw == null) {
+			return null;
+		}
+		com.jd.bluedragon.distribution.jy.dto.CurrentOperate currentOperate = new com.jd.bluedragon.distribution.jy.dto.CurrentOperate();
+		try {
+			org.apache.commons.beanutils.BeanUtils.copyProperties(currentOperate, currentOperateRaw);
+		} catch (Exception e) {
+			log.error("BeanConverter.convertToSdkCurrentOperate error!", e);
+		}
+		return currentOperate;
 	}
 
 }
