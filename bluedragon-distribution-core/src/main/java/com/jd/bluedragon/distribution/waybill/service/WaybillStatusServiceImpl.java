@@ -27,7 +27,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -375,12 +374,29 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 			// 发送操作轨迹
-			jyOperateFlowService.sendOperateTrack(waybillStatus);
+			sendOperateTrack(waybillStatus);
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
         }
 		return params;
+	}
+
+	/**
+	 * 发送操作轨迹
+	 * 按理说验货、分拣、发货三个节点都应该使用这个方法，但是此消息中要存放jy_operate_flow表的主键flowId，
+	 * 当按照运单分拣的时候，发送全程跟踪只按运单调用了一次，jy_operate_flow表却存放的是包裹维度，导致使用本方法时不知道放哪个flowId，所以目前写在了doSorting方法里
+	 * 验货和发货都拆成了包裹维度，不存在此问题
+	 * 之后新增节点时，可以参照此场景决定代码放在何处
+	 */
+	private void sendOperateTrack(WaybillStatus waybillStatus) {
+		// 操作码
+		Integer operateType = waybillStatus.getOperateType();
+		// 如果是验货或发货
+		if (WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION.equals(operateType)
+				|| WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(operateType)) {
+			jyOperateFlowService.sendOperateTrack(waybillStatus);
+		}
 	}
 
 	private String resultToString(Long taskId, Result result, String message) {
