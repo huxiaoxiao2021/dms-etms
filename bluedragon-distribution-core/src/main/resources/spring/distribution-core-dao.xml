@@ -957,6 +957,9 @@
     <bean id="jyBizTaskWorkGridManagerDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyWorkGridManagerResponsibleInfoDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerResponsibleInfoDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyWorkGridManagerCaseDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>

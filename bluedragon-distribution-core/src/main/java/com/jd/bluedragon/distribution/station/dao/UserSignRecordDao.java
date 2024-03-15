@@ -213,5 +213,8 @@ public interface UserSignRecordDao {
 	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
 
 	public int signOutTimeById(UserSignRecord param, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) ;
-
-	}
+	
+	
+	List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
+	
+}

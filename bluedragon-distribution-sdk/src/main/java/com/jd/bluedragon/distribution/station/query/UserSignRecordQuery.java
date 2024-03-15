@@ -173,6 +173,8 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private String idCard;
 	
+	private List<String> refGridKeyList;
+	
 	public String getIdCard() {
 		return idCard;
 	}
@@ -397,5 +399,13 @@ public class UserSignRecordQuery extends BasePagerCondition {
 
 	public void setJobCodeList(List<Integer> jobCodeList) {
 		this.jobCodeList = jobCodeList;
+	}
+
+	public List<String> getRefGridKeyList() {
+		return refGridKeyList;
+	}
+
+	public void setRefGridKeyList(List<String> refGridKeyList) {
+		this.refGridKeyList = refGridKeyList;
 	}
 }

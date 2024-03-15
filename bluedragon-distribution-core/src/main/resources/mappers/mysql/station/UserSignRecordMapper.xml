@@ -157,6 +157,8 @@
 		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
@@ -1383,5 +1385,22 @@
 		and r.site_code = #{siteCode}
 		order by r.sign_in_time asc
 		limit 1
+	</select>
+
+	<select id="queryByGridSign" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
+		select user_code,user_code_encrypt,user_name,user_name_encrypt,job_code,sign_in_time
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key IN
+		<foreach item="refGridKey" collection="refGridKeyList" open="(" close=")" index="index" separator=",">
+			#{refGridKey,jdbcType=VARCHAR}
+		</foreach>
+		AND <![CDATA[ sign_in_time <= #{signDateEnd,jdbcType=TIMESTAMP}  ]]>
+		AND <![CDATA[ sign_in_time >= #{signDateStart,jdbcType=TIMESTAMP}  ]]>
+		AND (sign_out_time is null or <![CDATA[ sign_out_time >= #{signDateEnd,jdbcType=TIMESTAMP}  ]]> )
+		AND job_code IN
+		<foreach item="item" collection="jobCodeList" open="(" close=")" index="index" separator=",">
+			#{item,jdbcType=INTEGER}
+		</foreach>
 	</select>
 </mapper>

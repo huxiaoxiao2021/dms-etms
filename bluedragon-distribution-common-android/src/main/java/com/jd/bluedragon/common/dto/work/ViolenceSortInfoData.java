@@ -13,8 +13,23 @@ public class ViolenceSortInfoData implements Serializable {
     private String createTime;
     /** 设备名称 **/
     private String deviceName;
+    
     /** 视频链接 **/
     private String url;
+
+    /**
+     * 判责流程号
+     * @return
+     */
+    private String processInstanceId;
+
+    /**
+     * 对应网格业务主键，多个用英文逗号分割
+     * @return
+     */
+    private String gridKeys;
+    //暴力分拣id
+    private Long id;
 
     public String getTitle() {
         return title;
@@ -46,5 +61,29 @@ public class ViolenceSortInfoData implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public String getGridKeys() {
+        return gridKeys;
+    }
+
+    public void setGridKeys(String gridKeys) {
+        this.gridKeys = gridKeys;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
