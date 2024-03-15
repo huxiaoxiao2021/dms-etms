@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
+import com.jd.bluedragon.distribution.board.domain.OperatorInfo;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jy.dao.common.JyOperateFlowDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
@@ -33,6 +34,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -93,12 +95,15 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMqList", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public int sendMqList(List<JyOperateFlowMqData> mqDataList) {
-		if(!Boolean.TRUE.equals(dmsConfigManager.getPropertyConfig().getSendJyOperateFlowMqSwitch())) {
+		if (!Boolean.TRUE.equals(dmsConfigManager.getPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
 		List<Message> msgList = new ArrayList<>();
-		if(CollectionUtils.isNotEmpty(mqDataList)) {
-			for(JyOperateFlowMqData mqData : mqDataList) {
+		if (CollectionUtils.isNotEmpty(mqDataList)) {
+			for (JyOperateFlowMqData mqData : mqDataList) {
+				if (mqData == null) {
+					continue;
+				}
 				msgList.add(new Message(jyOperateFlowMqProducer.getTopic(), JsonHelper.toJson(mqData), mqData.getOperateBizKey()));
 			}
 			jyOperateFlowMqProducer.batchSendOnFailPersistent(msgList);
@@ -128,7 +133,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			String businessId = waybillStatus.getOperateType() + barCode;
 			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
 		} catch (Exception e) {
-			logger.error("sendOperateTrack|发送分拣操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
+			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
 		}
 	}
 
@@ -265,17 +270,33 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendDeliveryOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JyOperateFlowMqData createDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData deliveryCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sendDetail);
+			// 业务子类型
+			deliveryCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			deliveryCancelFlowMq.setId(operateFlowId);
+			waybillStatus.setOperateFlowId(operateFlowId);
+			return deliveryCancelFlowMq;
+		} catch (Exception e) {
+			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
+		}
+		return null;
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendDeliveryOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void sendDeliveryOperateFlowData(SendDetail sendDetail, WaybillStatus waybillStatus, OperateBizSubTypeEnum subTypeEnum) {
 		try {
 			// 组装操作流水实体
-			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sendDetail);
-			// 业务子类型
-			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
-			// 提前生成操作流水表业务主键
-			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-			sortingCancelFlowMq.setId(operateFlowId);
-			sendMq(sortingCancelFlowMq);
-			waybillStatus.setOperateFlowId(operateFlowId);
+			JyOperateFlowMqData deliveryCancelFlowMq = createDeliveryOperateFlowData(sendDetail, waybillStatus, subTypeEnum);
+			if (deliveryCancelFlowMq == null) {
+				return;
+			}
+			sendMq(deliveryCancelFlowMq);
 		} catch (Exception e) {
 			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
 		}
@@ -318,19 +339,26 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 
 	private JyOperateFlowMqData createBoardOperateFlowMqData(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult,
 															 OperateBizSubTypeEnum subTypeEnum) {
-		if (bindBoardRequest == null) {
-			return null;
+		// 操作流水消息对象
+		JyOperateFlowMqData boardFlowMq = null;
+		try {
+			if (bindBoardRequest == null) {
+				return null;
+			}
+			if (boardBoxResult != null && boardBoxResult.getId() != null) {
+				bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
+			}
+			// 组装操作流水实体
+			boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
+			// 业务子类型
+			boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			boardFlowMq.setId(operateFlowId);
+		} catch (Exception e) {
+			logger.error("构建组板操作流水消息对象出现异常:request={},boardBoxResult={},subTypeEnum={}",
+					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
 		}
-		if (boardBoxResult != null && boardBoxResult.getId() != null) {
-			bindBoardRequest.setOperateKey(String.valueOf(boardBoxResult.getId()));
-		}
-		// 组装操作流水实体
-		JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(bindBoardRequest);
-		// 业务子类型
-		boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
-		// 提前生成操作流水表业务主键
-		Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
-		boardFlowMq.setId(operateFlowId);
 		return boardFlowMq;
 	}
 
@@ -338,12 +366,12 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	private BindBoardRequest createBindBoardRequest(ComboardScanReq request) {
 		BindBoardRequest bindBoardRequest = new BindBoardRequest();
 		bindBoardRequest.setBarcode(request.getBarCode());
-		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		OperatorInfo operatorInfo = new OperatorInfo();
 		operatorInfo.setSiteCode(request.getCurrentOperate().getSiteCode());
 		bindBoardRequest.setOperatorInfo(operatorInfo);
 		com.jd.bluedragon.common.dto.base.request.OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
-		com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
-		org.springframework.beans.BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		OperatorData destOperatorData = new OperatorData();
+		BeanUtils.copyProperties(originOperatorData, destOperatorData);
 		bindBoardRequest.setOperatorData(destOperatorData);
 		return bindBoardRequest;
 	}
@@ -351,7 +379,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	private BindBoardRequest createBindBoardRequest(BoardCombinationRequest request) {
 		BindBoardRequest bindBoardRequest = new BindBoardRequest();
 		bindBoardRequest.setBarcode(request.getBoxOrPackageCode());
-		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		OperatorInfo operatorInfo = new OperatorInfo();
 		operatorInfo.setSiteCode(request.getSiteCode());
 		bindBoardRequest.setOperatorInfo(operatorInfo);
 		bindBoardRequest.setOperatorData(request.getOperatorData());
@@ -361,7 +389,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	private BindBoardRequest createBindBoardRequest(ComboardTaskDto request) {
 		BindBoardRequest bindBoardRequest = new BindBoardRequest();
 		bindBoardRequest.setBarcode(request.getBarCode());
-		com.jd.bluedragon.distribution.board.domain.OperatorInfo operatorInfo = new com.jd.bluedragon.distribution.board.domain.OperatorInfo();
+		OperatorInfo operatorInfo = new OperatorInfo();
 		operatorInfo.setSiteCode(request.getStartSiteId());
 		bindBoardRequest.setOperatorInfo(operatorInfo);
 		bindBoardRequest.setOperatorData(request.getOperatorData());

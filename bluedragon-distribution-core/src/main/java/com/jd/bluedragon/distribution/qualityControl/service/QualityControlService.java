@@ -581,7 +581,7 @@ public class QualityControlService {
             // 透传操作流水主键
             sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
             tWaybillStatus.setOperateFlowId(sendDetail.getOperateFlowId());
-            // 发送分拣操作轨迹
+            // 发送操作轨迹
             jyOperateFlowService.sendOperateTrack(tWaybillStatus);
         }
 
