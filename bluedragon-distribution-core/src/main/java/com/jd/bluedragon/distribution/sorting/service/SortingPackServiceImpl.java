@@ -63,7 +63,7 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
     }
 
     private void handleOperateFlow(SortingVO sorting) {
-        // 分拣操作轨迹对象
+        // 操作轨迹对象
         WaybillStatus operateTrack = sorting.getWaybillStatus();
         if (operateTrack == null) {
             return;
@@ -75,9 +75,9 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             operateTrack.setPackageCode(sorting.getWaybillCode());
         }
         operateTrack.setBoxCode(sorting.getBoxCode());
-        // 记录分拣操作流水
+        // 记录操作流水
         jyOperateFlowService.sendSoringOperateFlowData(sorting, operateTrack, OperateBizSubTypeEnum.SORTING);
-        // 发送分拣操作轨迹
+        // 发送操作轨迹
         jyOperateFlowService.sendOperateTrack(operateTrack);
     }
 

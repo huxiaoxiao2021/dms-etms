@@ -4064,7 +4064,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             List<WaybillStatus> waybillStatusList = new ArrayList<WaybillStatus>(sendDetails.size());
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
             List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
-            
+            // 发货操作流水集合
+            List<JyOperateFlowMqData> sendFlowMqList = new ArrayList<>();
+            // 取消发货操作流水集合
+            List<JyOperateFlowMqData> sendCancelFlowMqList = new ArrayList<>();
+
             CallerInfo info0 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.0", false, true);
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
@@ -4079,16 +4083,19 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             this.log.warn("发货数据调用基础资料接口参数信息不全：包裹号为{}" , tSendDetail.getPackageBarcode());
                         } else {
                             WaybillStatus tWaybillStatus = this.buildWaybillStatus(tSendDetail, createSiteDto, receiveSiteDto);
-                            CallerInfo info4 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
-                            // 记录取消发货操作流水
-                            if (Constants.NUMBER_ONE.equals(tSendDetail.getYn()) && Constants.NUMBER_TWO.equals(tSendDetail.getIsCancel())) {
-                                jyOperateFlowService.sendDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND_CANCEL);
-                            } else {
-                                // 记录发货操作流水
-                                jyOperateFlowService.sendDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND);
-                            }
 
-                            Profiler.registerInfoEnd(info4);
+                            CallerInfo info5 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
+                            // 组装取消发货操作流水
+                            if (Constants.NUMBER_ONE.equals(tSendDetail.getYn()) && Constants.NUMBER_TWO.equals(tSendDetail.getIsCancel())) {
+                                JyOperateFlowMqData sendCancelFlowMq = jyOperateFlowService.createDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND_CANCEL);
+                                sendCancelFlowMqList.add(sendCancelFlowMq);
+                            } else {
+                                // 组装发货操作流水
+                                JyOperateFlowMqData sendFlowMq = jyOperateFlowService.createDeliveryOperateFlowData(tSendDetail, tWaybillStatus, OperateBizSubTypeEnum.SEND);
+                                sendFlowMqList.add(sendFlowMq);
+                            }
+                            Profiler.registerInfoEnd(info5);
+
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
                                 addOperationLog(tSendDetail,createSiteDto.getSiteName(),"DeliveryServiceImpl#updateWaybillStatus");
@@ -4163,9 +4170,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 this.updateSendStatusByPackage(cancelSendList);
             }
             Profiler.registerInfoEnd(info3);
+            CallerInfo info4 = Profiler.registerInfo("DMSWEB.DeliveryService.updateWaybillStatus.4", false, true);
+            // 批量发送操作流水消息
+            jyOperateFlowService.sendMqList(sendCancelFlowMqList);
+            jyOperateFlowService.sendMqList(sendFlowMqList);
+            Profiler.registerInfoEnd(info4);
         }
         return true;
     }
+
+
 
     private WaybillStatus buildWaybillStatus(SendDetail tSendDetail, BaseStaffSiteOrgDto cbDto, BaseStaffSiteOrgDto rbDto) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
