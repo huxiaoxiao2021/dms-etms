@@ -2080,6 +2080,12 @@ public class UccPropertyConfiguration{
     private String teanSiteIdEnableListStr4InterceptFilter;
     private List<Integer> teanSiteIdEnableList4InterceptFilter = new ArrayList<>();
 
+    /**
+     * 异常岗启动场地
+     */
+    private String interceptExceptionSiteIdEnableListStr;
+    private List<Integer> interceptExceptionSiteIdEnableList = new ArrayList<>();
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4547,5 +4553,33 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
+    }
+
+    public String getInterceptExceptionSiteIdEnableListStr() {
+        return interceptExceptionSiteIdEnableListStr;
+    }
+
+    public void setInterceptExceptionSiteIdEnableListStr(String interceptExceptionSiteIdEnableListStr) {
+        this.interceptExceptionSiteIdEnableListStr = interceptExceptionSiteIdEnableListStr;
+        this.setInterceptExceptionSiteIdEnableList();
+    }
+
+    public List<Integer> getInterceptExceptionSiteIdEnableList() {
+        return interceptExceptionSiteIdEnableList;
+    }
+
+    public void setInterceptExceptionSiteIdEnableList() {
+        this.interceptExceptionSiteIdEnableList.clear();
+        if(StringUtils.isNotBlank(interceptExceptionSiteIdEnableListStr)){
+            this.interceptExceptionSiteIdEnableList = Arrays.stream(interceptExceptionSiteIdEnableListStr.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isInterceptExceptionSiteIdEnable(Integer siteCode){
+        if(Objects.equals(this.interceptExceptionSiteIdEnableListStr, Constants.STR_ALL)){
+            return true;
+        }
+        return this.interceptExceptionSiteIdEnableList.contains(siteCode);
     }
 }

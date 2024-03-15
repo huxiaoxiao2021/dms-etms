@@ -2064,6 +2064,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 按场地-包裹加锁
         String concurrencyCacheKey = String.format(JyCacheKeyConstants.JY_EXCEPTION_TASK_INTERCEPT_SITE_PACKAGE_CONCURRENCY_KEY, businessInterceptReport.getPackageCode(), businessInterceptReport.getSiteCode());
         try {
+            if (!dmsConfigManager.getPropertyConfig().isInterceptExceptionSiteIdEnable(businessInterceptReport.getSiteCode())) {
+                return result;
+            }
             final Boolean exists = redisClientOfJy.exists(concurrencyCacheKey);
             if(Objects.equals(exists, Boolean.TRUE)){
                 return result.toFail("上一个相同场地包裹数据还未处理完成，请稍后再试");
@@ -2348,6 +2351,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         Result<Boolean> result = Result.success();
         try {
+            if (!dmsConfigManager.getPropertyConfig().isInterceptExceptionSiteIdEnable(businessInterceptDisposeRecord.getSiteCode())) {
+                return result;
+            }
             final Date currentDate = new Date();
             // 1. 处理同场地
             // 1.1 当前场地未完结的已有相同包裹的任务
