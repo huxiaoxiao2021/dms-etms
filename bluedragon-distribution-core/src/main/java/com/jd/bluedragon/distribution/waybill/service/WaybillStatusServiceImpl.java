@@ -392,9 +392,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private void sendOperateTrack(WaybillStatus waybillStatus) {
 		// 操作码
 		Integer operateType = waybillStatus.getOperateType();
-		// 如果是验货或发货
+		// 如果是验货、发货、配送异常
 		if (WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION.equals(operateType)
-				|| WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(operateType)) {
+				|| WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(operateType)
+				|| WaybillStatus.WAYBILL_TRACK_QC.equals(operateType)) {
 			jyOperateFlowService.sendOperateTrack(waybillStatus);
 		}
 	}
