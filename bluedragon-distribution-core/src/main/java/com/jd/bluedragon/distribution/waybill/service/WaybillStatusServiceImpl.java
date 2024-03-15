@@ -384,7 +384,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	/**
 	 * 发送操作轨迹
-	 * 按理说验货、分拣、发货三个节点都应该使用这个方法，但是此消息中要存放jy_operate_flow表的主键flowId，
+	 * 按理说验货、分拣、发货三个节点都应该使用这个方法，并且此消息中要存放jy_operate_flow表的主键flowId，
 	 * 当按照运单分拣的时候，发送全程跟踪只按运单调用了一次，jy_operate_flow表却存放的是包裹维度，导致使用本方法时不知道放哪个flowId，所以目前写在了doSorting方法里
 	 * 验货和发货都拆成了包裹维度，不存在此问题
 	 * 之后新增节点时，可以参照此场景决定代码放在何处
