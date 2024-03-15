@@ -11,6 +11,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service("violentSortingFixDutyConsumer")
-public class ViolentSortingFixDutyConsumer extends MessageBaseConsumer {
+public class ViolentSortingFixDutyConsumer extends MessageBaseConsumer implements InitializingBean {
     @Autowired
     private JyBizTaskWorkGridManagerService jyBizTaskWorkGridManagerService;
     @Override
@@ -86,5 +87,9 @@ public class ViolentSortingFixDutyConsumer extends MessageBaseConsumer {
             return false;
         }
         return true;
+    }
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        setUat("false");
     }
 }
