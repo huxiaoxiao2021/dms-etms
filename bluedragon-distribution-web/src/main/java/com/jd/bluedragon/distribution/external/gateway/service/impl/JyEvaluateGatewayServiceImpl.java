@@ -170,7 +170,12 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
                 result.toFail("评价维度列表详情不能为空");
                 return result;
             }
-            jyEvaluateService.updateTargetEvaluate(request);
+            String message = jyEvaluateService.updateTargetEvaluate(request);
+            if (StringUtils.isNotBlank(message)){
+                result.setCode(JdCResponse.CODE_CONFIRM);
+                result.setMessage(message);
+                return result;
+            }
         } catch (JyBizException e) {
             LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
