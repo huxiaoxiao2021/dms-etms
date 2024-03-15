@@ -649,7 +649,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+    private boolean checkBarInterceptResult(JdVerifyResponse<UnLoadScanResponse> response, UnloadScanRequest request) {
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
             final InspectionScanRequest inspectionScanRequest = new InspectionScanRequest();
