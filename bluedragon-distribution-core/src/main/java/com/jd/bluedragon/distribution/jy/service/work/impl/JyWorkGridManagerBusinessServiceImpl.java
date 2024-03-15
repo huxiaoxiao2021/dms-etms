@@ -11,14 +11,21 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.jd.bluedragon.common.dto.work.*;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
 import com.jd.bluedragon.distribution.jy.manager.IQuotaTargetConfigManager;
 import com.google.common.base.Objects;
 import com.jd.bluedragon.core.jsf.work.ScheduleJSFServiceManager;
+import com.jd.bluedragon.distribution.jy.service.work.*;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkCheckResultEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
+import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.distribution.workingConfig.WorkingConfigQueryService;
 import com.jd.bluedragon.utils.easydata.OneTableEasyDataConfig;
+import com.jd.dms.wb.report.sdk.model.vo.working.data.SupplierVO;
 import com.jd.dms.wb.sdk.enums.oneTable.BusinessTypeEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.easydata.DmsWEasyDataConfig;
@@ -27,6 +34,9 @@ import com.jd.dms.wb.sdk.enums.oneTable.Class2TypeEnum;
 import com.jd.fds.lib.dto.server.FdsPage;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.user.JyThirdpartyUser;
+import com.jdl.basic.api.domain.user.JyTpUserScheduleQueryDto;
+import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.work.WorkGridCandidate;
 import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.api.service.work.WorkGridCandidateJsfService;
@@ -34,6 +44,8 @@ import com.jdl.jy.flat.base.ServiceResult;
 import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
 import com.jdl.jy.flat.dto.schedule.UserDateScheduleQueryDto;
 import com.jdl.jy.flat.dto.schedule.UserScheduleDto;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,16 +76,11 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.enums.EditTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
-import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseItemService;
-import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerCaseService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -93,6 +100,7 @@ import com.jdl.basic.common.utils.Result;
 
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentSubBizTypeEnum.TASK_WORK_GRID_MANAGER_IMPROVE;
 import static com.jd.bluedragon.distribution.jy.service.work.impl.JyWorkGridManagerCaseServiceImpl.CASE_ZHIBIAO_QITA_ITEM_CODE;
+import static com.jd.bluedragon.distribution.station.enums.JobTypeEnum.*;
 import static com.jdl.basic.api.enums.WorkGridManagerTaskBizType.KPI_IMPROVE;
 
 /**
@@ -110,6 +118,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private static final String SEND_SCAN_QUOTA_CODE="dis000034";
 	// 指标改善任务场地数量 sysconfig配置
 	private static final String KPI_IMPROVE_TASK_SITE_NUM_KEY = "kpi.improve.task.site.num";
+	//任务责任人-人员签到数据开始时间查询偏移量 sysconfig配置
+	private static final String SIGN_DATE_START_OFFSET = "sign.date.start.offset";
 
 	@Autowired
 	@Qualifier("jyBizTaskWorkGridManagerService")
@@ -172,6 +182,15 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 
 	@Autowired
 	private IQuotaTargetConfigManager iQuotaTargetConfigManager;
+	
+	@Autowired
+	private UserSignRecordService userSignRecordService;
+	
+	@Autowired
+	private WorkingConfigQueryService workingConfigQueryService;
+	
+	@Autowired
+	private JyWorkGridManagerResponsibleInfoService jyWorkGridManagerResponsibleInfoService;
     /**
      * 任务提前执行时间 （单位：秒）
      */
@@ -204,6 +223,10 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 	private int lostOneTableSendQuotaNum;
 
     private static final String UMP_KEY_PREFIX = "dmsWeb.beans.jyWorkGridManagerBusinessService.";
+
+	@Autowired
+	@Qualifier("violentSortingResponsibleInfoProducer")
+	private DefaultJMQProducer violentSortingResponsibleInfoProducer;
 
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "submitData",mState={JProEnum.TP,JProEnum.FunctionError})
@@ -259,6 +282,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 				}
 			}
 		}
+		
+		//暴力分拣任务责任人信息校验
+		result = jyWorkGridManagerResponsibleInfoService.checkResponsibleInfo(taskData, result);
+		if(result.isFail()){
+			return result;
+		}
+		
 		JyBizTaskWorkGridManager updateTaskData = new JyBizTaskWorkGridManager();
 		updateTaskData.setStatus(WorkTaskStatusEnum.COMPLETE.getCode());
 		updateTaskData.setHandlerPositionCode("");
@@ -327,8 +357,13 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		jyAttachmentDetailService.batchInsert(addAttachmentList);
 		jyAttachmentDetailService.batchInsert(improveAttachmentList);
 		jyBizTaskWorkGridManagerService.finishTask(updateTaskData);
+		//保存任务责任人信息
+		jyWorkGridManagerResponsibleInfoService.saveTaskResponsibleInfo(oldData, taskData.getResponsibleInfo());
+		//暴力分拣任务 发送责任人信息
+		jyWorkGridManagerResponsibleInfoService.sendViolentSortingResponsibleInfo(oldData, taskData.getResponsibleInfo());
 		return result;
 	}
+	
 
 	/**
 	 * 巡检任务表增加是否匹配字段
@@ -1091,8 +1126,15 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		data.setUpdateUserName(DmsConstants.SYS_AUTO_USER_CODE);
 		closeData.setData(data);
 		jyBizTaskWorkGridManagerService.autoCloseTask(closeData);
+		//保存任务责任信息
+		List<JyWorkGridManagerData>  jyWorkGridManagerData = jyWorkGridManagerResponsibleInfoService.workGridManagerExpiredSaveResponsibleInfo(taskData.getBizIdList());
+		//超时暴力分拣发送jmq 给判责系统
+		if(!CollectionUtils.isEmpty(jyWorkGridManagerData)){
+			jyWorkGridManagerResponsibleInfoService.workGridManagerExpiredSendMq(jyWorkGridManagerData);
+		}
 		return true;
 	}
+	
 	void addWorkGridManagerScanTask(TaskWorkGridManagerScanData taskData){
 		//新增|修改任务-修改执行时间
 		Task tTask = new Task();
@@ -1255,6 +1297,350 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 		return true;
 	}
 
+	@Override
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+		JdCResponse<List<ResponsibleInfo>> result = new JdCResponse<List<ResponsibleInfo>>();
+		result.toSucceed("查询成功！");
+		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		if(taskData == null) {
+			logger.warn("查询责任选择信息,任务信息不存在，bizId:{}", bizId);
+			result.toFail("任务信息不存在！");
+			return result;
+		}
+		//非暴力分拣任务
+		if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
+			logger.warn("非暴力分拣任务，不用指定责任人，bizId:{}", bizId);
+			result.toFail("非暴力分拣任务，不用指定责任人！");
+			return result;
+		}
+
+		//任务对应网格
+		WorkGrid workGrid = getTaskWorkGrid(taskData.getTaskRefGridKey(), bizId);
+		if(workGrid == null){
+			logger.warn("查询责任选择信息，获取任务网格信息失败，bizId:{}", bizId);
+			result.toFail("获取任务网格信息失败！");
+			return result;
+		}
+		String gridKeys = taskData.getViolenceSortInfoData().getGridKeys();
+		if(StringUtils.isBlank(gridKeys) || ArrayUtils.isEmpty(gridKeys.split(","))){
+			result.toFail("获取任务网格信息失败！");
+			return result;
+		}
+		
+		//查询任务所在网格下所有工序
+		List<String> refWorkGridKeys = new ArrayList<>(Arrays.asList(gridKeys.split(",")));
+		List<String> workStationGrids = workStationGridManager.queryBusinessKeyByRefWorkGridKeys(refWorkGridKeys);
+		if(CollectionUtils.isEmpty(workStationGrids)){
+			result.toFail("网格无效或网格下无工序,请先配置");
+			return result;
+		}
+		
+		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(workStationGrids, taskData.getProcessBeginTime());
+		if(CollectionUtils.isEmpty(userSignRecords)){
+			result.toFail("该任务所在网格无签到数据！");
+			return result;
+		}
+		
+		//正式工
+		List<ResponsibleInfo> formalWorkerResponsibleInfo = getFormalWorkerResponsibleInfo(userSignRecords, bizId);
+		
+		//网格工序对应外包商
+		ResponsibleSupplier workGridSupplier = getWorkGridSupplier(workGrid, bizId);
+		//外包工
+		List<ResponsibleInfo> outsourcingWorkerResponsibleInfo = getOutsourcingWorkerResponsibleInfo(userSignRecords,
+				taskData.getSiteCode(), bizId, workGridSupplier);
+		
+		//临时工
+		List<ResponsibleInfo> temporaryWorkerResponsibleInfo = getTemporaryWorkerResponsibleInfo(userSignRecords, 
+				workGrid, bizId);
+
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		responsibleInfos.addAll(formalWorkerResponsibleInfo);
+		responsibleInfos.addAll(outsourcingWorkerResponsibleInfo);
+		responsibleInfos.addAll(temporaryWorkerResponsibleInfo);
+		result.setData(responsibleInfos);
+		return result;
+	}
+
+	@Override
+	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId) {
+		JdCResponse<List<JyWorkGridOwnerDto>> result = new JdCResponse<List<JyWorkGridOwnerDto>>();
+		result.toSucceed("查询成功！");
+		JyWorkGridManagerData taskData  = jyBizTaskWorkGridManagerService.queryTaskDataByBizId(bizId);
+		if(taskData == null) {
+			result.toFail("任务数据不存在！");
+			return result;
+		}
+		//非暴力分拣任务
+		if(!WorkTaskTypeEnum.VIOLENCE_SORT.getCode().equals(taskData.getTaskType())){
+			result.toFail("非暴力分拣任务，不用指定责任人！");
+			return result;
+		}
+		
+		
+		ViolenceSortInfoData violenceSortInfoData = taskData.getViolenceSortInfoData();
+		String gridKeys = violenceSortInfoData.getGridKeys();
+		//切判责前历史数据无网格，取任务所属网格
+		if(StringUtils.isBlank(gridKeys)){
+			gridKeys = taskData.getTaskRefGridKey();
+		}
+		String[] gridKeyArray = gridKeys.split(",");
+		
+		//摄像头最多绑3个网格 可以循环查下
+		List<JyWorkGridOwnerDto> gridOwnerDtos = new ArrayList<>();
+		for(String gridKey : gridKeyArray){
+			Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridKey);
+			if(workGridResult == null){
+				logger.info("根据gridKey获取网格信息，方法返回null,gridKey:{}", gridKey);
+				continue;
+			}
+			WorkGrid workGrid = null;
+			if((workGrid = workGridResult.getData()) == null){
+				logger.info("根据gridKey获取网格信息，未查到网格信息，网格可能已删除,gridKey:{}", gridKey);
+				continue;
+			}
+			if(StringUtils.isBlank(workGrid.getOwnerUserErp())){
+				logger.info("根据gridKey获取网格信息，未查到网格信息，网格未维护组长,gridKey:{}", gridKey);
+				continue;
+			}
+			JyWorkGridOwnerDto dto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
+			if(dto != null){
+				gridOwnerDtos.add(dto);
+			}
+			
+		}
+		result.setData(gridOwnerDtos);
+		return result;
+	}
+	
+	private JyWorkGridOwnerDto getJyWorkGridOwnerDto(String erp){
+		if(StringUtils.isBlank(erp)){
+			return null;
+		}
+		JyWorkGridOwnerDto dto = new JyWorkGridOwnerDto();
+		if(erp.contains(",") && ArrayUtils.isNotEmpty(erp.split(","))){
+			erp = erp.split(",")[0];
+		}
+		dto.setErp(erp);
+		Result<JyUser> userResult = jyUserManager.queryUserInfo(dto.getErp());
+		JyUser jyUser = null;
+		if(userResult != null && (jyUser = userResult.getData()) != null){
+			dto.setName(jyUser.getUserName());
+		}else{
+			dto.setName(erp);
+			logger.info("根据erp:{}获取岗位信息失败", erp);
+		}
+		return dto;
+	}
+	
+	
+
+	/**
+	 * 临时工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> getTemporaryWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords, WorkGrid workGrid,
+																	String bizId){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤临时工签到数据
+		List<BaseUserSignRecordVo> temporaryWorkerSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE4.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(temporaryWorkerSignRecords)){
+			logger.info("签到数据无临时工签到记录,bizId:{}", bizId);
+			return responsibleInfos;
+		}
+		JyWorkGridOwnerDto workGridOwnerDto = getJyWorkGridOwnerDto(workGrid.getOwnerUserErp());
+		for(BaseUserSignRecordVo vo : temporaryWorkerSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.TEMPORARY_WORKERS.getCode());
+			responsibleInfo.setIdCard(vo.getUserCode());
+			responsibleInfo.setName(vo.getUserName());
+			responsibleInfo.setGridOwner(workGridOwnerDto);
+			responsibleInfos.add(responsibleInfo);
+		}
+		return responsibleInfos;
+	}
+	/**
+	 * 获取网格绑定的外包商
+	 * @return
+	 */
+	WorkGrid getTaskWorkGrid(String workGridKey, String bizId){
+		Result<WorkGrid> result = workGridManager.queryByWorkGridKey(workGridKey);
+		if(result == null){
+			logger.error("根据网格业务主键查询网格信息失败,返回值为空，workGridKey:{},bizId:{},", workGridKey, bizId);
+			return null;
+		}
+		if(result.getData() == null){
+			logger.error("根据网格业务主键未查询到网格信息，workGridKey:{},bizId:{},result.code:{}, result.messge:{}",
+					workGridKey, bizId, result.getCode(), result.getMessage());
+			return null;
+		}
+		return result.getData();
+	}
+	
+	/**
+	 * 获取网格绑定的外包商
+	 * @return
+	 */
+	ResponsibleSupplier getWorkGridSupplier(WorkGrid workGrid, String bizId){
+		if(StringUtils.isBlank(workGrid.getSupplierCode()) || StringUtils.isBlank(workGrid.getSupplierName())){
+			logger.info("网格未配置外包商，workGridKey:{},bizId:{}",
+					workGrid.getBusinessKey(), bizId);
+			return null;
+		}
+		ResponsibleSupplier supplier = new ResponsibleSupplier();
+		supplier.setSupplierName(workGrid.getSupplierName());
+		supplier.setSupplierId(workGrid.getSupplierCode());
+		return supplier;
+	}
+	/**
+	 * 正式工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> getFormalWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords, String bizId){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤正式工签到数据
+		List<BaseUserSignRecordVo> formalWorkerUserSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE1.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(formalWorkerUserSignRecords)){
+			logger.info("签到数据无正式工签到记录,bizId:{}", bizId);
+			return responsibleInfos;
+		}
+		for(BaseUserSignRecordVo userSignRecord : formalWorkerUserSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.FORMAL_WORKER.getCode());
+			responsibleInfo.setErp(userSignRecord.getUserCode());
+			responsibleInfo.setName(userSignRecord.getUserName());
+			responsibleInfos.add(responsibleInfo);
+		}
+		return responsibleInfos;
+	}
+	/**
+	 * 外包工-责任备选人
+	 * @param userSignRecords
+	 * @return
+	 */
+	private List<ResponsibleInfo> getOutsourcingWorkerResponsibleInfo(List<BaseUserSignRecordVo> userSignRecords,
+																   Integer siteCode, String bizId, ResponsibleSupplier workGridSupplier){
+		List<ResponsibleInfo> responsibleInfos = new ArrayList<>();
+		//过滤外包工签到数据
+		List<BaseUserSignRecordVo> outsourcingUserSignRecords = userSignRecords.stream()
+				.filter(u -> JOBTYPE3.getCode().equals(u.getJobCode())).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(outsourcingUserSignRecords)){
+			logger.info("签到数据无外包工签到记录,bizId:{},siteCode:{}", bizId, siteCode);
+			return responsibleInfos;
+		}
+		
+		List<JyTpUserScheduleQueryDto> dtos = new ArrayList<>();
+		for(BaseUserSignRecordVo userSignRecord : outsourcingUserSignRecords){
+			JyTpUserScheduleQueryDto dto = new JyTpUserScheduleQueryDto();
+			dto.setSiteCode(siteCode);
+			//外包工种
+			dto.setNature(String.valueOf(JOBTYPE3.getCode()));
+			dto.setUserCode(userSignRecord.getUserCode());
+			dto.setScheduleDate(userSignRecord.getSignInTime());
+			dtos.add(dto);
+		}
+		//查询三方人员储备，获取外包人员对应的外包商
+		Result<List<JyThirdpartyUser>> jyThirdpartyUserResult = jyUserManager.batchQueryJyThirdpartyUser(dtos);
+		Map<String, JyThirdpartyUser> userCodeToUser = null;
+		if(jyThirdpartyUserResult.isFail() || CollectionUtils.isEmpty(jyThirdpartyUserResult.getData())){
+			logger.info("外包工-责任备选人，未查到外包工,bizId:{}, siteCode:{}", bizId,siteCode);
+		}else {
+			userCodeToUser = jyThirdpartyUserResult.getData().stream().
+					collect(Collectors.toMap(JyThirdpartyUser::getUserCode, user->user));
+		}
+		
+		for(BaseUserSignRecordVo vo : outsourcingUserSignRecords){
+			ResponsibleInfo responsibleInfo = new ResponsibleInfo();
+			responsibleInfo.setWorkType(ResponsibleWorkTypeEnum.OUTWORKER.getCode());
+			responsibleInfo.setIdCard(vo.getUserCode());
+			responsibleInfo.setName(vo.getUserName());
+			JyThirdpartyUser jyThirdpartyUser = null;
+			//从三方储备信息获取外包商信息
+			if(userCodeToUser != null && (jyThirdpartyUser = userCodeToUser.get(vo.getUserCode())) != null && 
+			StringUtils.isNotBlank(jyThirdpartyUser.getCompanyId()) && StringUtils.isNotBlank(jyThirdpartyUser.getCompanyName())){
+				ResponsibleSupplier supplier = new ResponsibleSupplier();
+				supplier.setSupplierId(jyThirdpartyUser.getCompanyId());
+				supplier.setSupplierName(jyThirdpartyUser.getCompanyName());
+				responsibleInfo.setSupplier(supplier);
+			}else {
+				//无三方储备信息 取网格外包商家信息
+				responsibleInfo.setSupplier(workGridSupplier);
+			}
+			responsibleInfos.add(responsibleInfo);
+		}
+		//外包计提场地外包商
+		
+		
+		//外包计提配置的外包商
+		List<SupplierVO> supplierVOs = workingConfigQueryService.querySupplierBySiteCode(siteCode);
+		List<ResponsibleSupplier> supplierList = new ArrayList<>();
+		if(!CollectionUtils.isEmpty(supplierVOs)){
+			for(SupplierVO supplierVO : supplierVOs){
+				ResponsibleSupplier supplier = new ResponsibleSupplier();
+				supplier.setSupplierId(supplierVO.getSupplierCode());
+				supplier.setSupplierName(supplierVO.getSupplierName());
+				supplierList.add(supplier);
+			}
+		}
+		
+		//无三方储备和网格外包商的，设置无场地外包计提配置的外包商
+		for(ResponsibleInfo responsibleInfo : responsibleInfos){
+			if(responsibleInfo.getSupplier() == null){
+				responsibleInfo.setSupplierList(supplierList);
+			}
+		}
+		//无外包商信息的删除
+		Boolean removed = responsibleInfos.removeIf(r -> r.getSupplier() == null && CollectionUtils.isEmpty(r.getSupplierList()));
+		logger.info("部分外包无外包商，bizId:{},删除结果removed:{}", bizId, removed);
+		return responsibleInfos;
+		
+	}
+
+	/**
+	 * 查询任务网格签到数据
+	 * @param refWorkKeys 工序外键
+	 * @param processBeginTime 任务开始时间
+	 * @return
+	 */
+	private List<BaseUserSignRecordVo> getWorkStationGridJobSignRecordList(List<String> refWorkKeys, Date processBeginTime){
+		UserSignRecordQuery query = new UserSignRecordQuery();
+		query.setRefGridKeyList(refWorkKeys);
+		//正式 外包 临时
+		List<Integer> jobCodeList = Arrays.asList(JOBTYPE1.getCode(), JOBTYPE3.getCode(), JOBTYPE4.getCode());
+		query.setJobCodeList(jobCodeList);
+		//签到时间往前偏移n小时
+		Date signDateStart = DateHelper.addHours(processBeginTime, -1 * getSignDateStartOffset());
+		query.setSignDateStart(signDateStart);
+		query.setSignDateEnd(processBeginTime);
+		//查询任务开始前签到数据
+		List<BaseUserSignRecordVo> records = userSignRecordService.queryByGridSign(query);
+		if(CollectionUtils.isEmpty(records)){
+			return records;
+		}
+		//userCode 在库里为加密存储，不方便在查询sql中去重
+		List<BaseUserSignRecordVo> recordList = new ArrayList<>(records.size());
+		//根据userCode 去重
+		records.stream().filter(StringHelper.distinctByKey(BaseUserSignRecordVo::getUserCode)).forEach(recordList::add);
+		return recordList;
+	}
+
+	/**
+	 * 开始时间偏移量
+	 * @return
+	 */
+	private int getSignDateStartOffset(){
+		int hours = 18;
+		SysConfig signDateStartOffsetConfig = sysConfigService.findConfigContentByConfigName(SIGN_DATE_START_OFFSET);
+		if(signDateStartOffsetConfig != null && org.apache.commons.lang3.StringUtils.isNumeric(signDateStartOffsetConfig.getConfigContent())){
+			hours = Integer.parseInt(signDateStartOffsetConfig.getConfigContent());
+		}
+		return hours;
+	}
+	
 
 	/**
 	 * 从装车质量报表ck查询该场地网格

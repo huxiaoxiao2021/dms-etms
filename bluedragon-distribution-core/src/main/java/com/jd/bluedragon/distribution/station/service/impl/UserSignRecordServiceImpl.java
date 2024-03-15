@@ -3065,4 +3065,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
         return result;
 	}
+	@Override
+	public List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query){
+		return userSignRecordDao.queryByGridSign(query);
+	}
 }

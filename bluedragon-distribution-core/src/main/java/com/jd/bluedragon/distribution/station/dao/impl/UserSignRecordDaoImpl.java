@@ -246,4 +246,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 		param.put("jobCodeHoursDtoList", jobCodeHoursDtoList);
 		return this.getSqlSession().update(NAMESPACE + ".signOutTimeById", param);
 	}
+
+	@Override
+	public List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryByGridSign", query);
+	}
 }

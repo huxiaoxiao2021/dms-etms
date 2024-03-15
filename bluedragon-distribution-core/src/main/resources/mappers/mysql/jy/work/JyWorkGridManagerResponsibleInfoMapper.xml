@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerResponsibleInfoDao">
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+        <result column="work_type" jdbcType="TINYINT" property="workType" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="id_card" jdbcType="VARCHAR" property="idCard" />
+        <result column="erp" jdbcType="VARCHAR" property="erp" />
+        <result column="supplier_id" jdbcType="VARCHAR" property="supplierId" />
+        <result column="supplier_name" jdbcType="VARCHAR" property="supplierName" />
+        <result column="grid_owner_erp" jdbcType="VARCHAR" property="gridOwnerErp" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+        <result column="process_instance_id" jdbcType="VARCHAR" property="processInstanceId" />
+        <result column="yn" jdbcType="TINYINT" property="yn" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.work.JyWorkGridManagerResponsibleInfo">
+        insert into jy_work_grid_manager_responsible_info ( biz_id, work_type,
+            `name`, id_card, erp,
+            supplier_id, supplier_name, create_time,site_code,process_instance_id,grid_owner_erp,
+            yn)
+        values (#{bizId,jdbcType=VARCHAR}, #{workType,jdbcType=TINYINT},
+                #{name,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{erp,jdbcType=VARCHAR},
+                #{supplierId,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+                #{siteCode,jdbcType=INTEGER},#{processInstanceId,jdbcType=VARCHAR},#{gridOwnerErp,jdbcType=VARCHAR},
+                1)
+    </insert>
+
+    <select id="queryByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select id, biz_id, work_type, `name`, id_card, erp, supplier_id, supplier_name, create_time,
+               yn,grid_owner_erp,site_code,process_instance_id
+        from jy_work_grid_manager_responsible_info
+        where biz_id = #{bizId,jdbcType=VARCHAR}
+        and yn = 1
+        limit 1
+    </select>
+</mapper>

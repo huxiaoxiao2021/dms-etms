@@ -316,4 +316,12 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		return response;
 	}
 
+	@Override
+	public JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId) {
+		return jyWorkGridManagerBusinessService.queryResponsibleInfos(bizId);
+	}
+	@Override
+	public JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId){
+		return jyWorkGridManagerBusinessService.queryWorkGridOwners(bizId);
+	}
 }

@@ -931,4 +931,5 @@ public class JyBizTaskWorkGridManager implements Serializable {
 	public void setExtendInfo(String extendInfo) {
 		this.extendInfo = extendInfo;
 	}
+	
 }

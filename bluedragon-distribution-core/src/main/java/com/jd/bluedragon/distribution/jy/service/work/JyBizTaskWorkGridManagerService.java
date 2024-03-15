@@ -12,6 +12,9 @@ import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerQuery;
+import com.jd.bluedragon.distribution.jy.dto.work.ViolentSortingMessageDTO;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 
 /**
@@ -106,7 +109,7 @@ public interface JyBizTaskWorkGridManagerService {
 
     String selectLastHandlerErp(String taskCode, Integer siteCode);
 
-    void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid);
-
     int updateTask4Uat(Map<String,Object> data);
+	
+	void generateViolentSortingTask(ViolentSortingMessageDTO violentSortingDto);
 }
