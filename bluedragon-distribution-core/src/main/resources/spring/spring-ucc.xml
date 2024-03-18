@@ -353,6 +353,7 @@
 		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
 
 		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
@@ -733,6 +734,7 @@
 				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
 			</list>
 		</property>
 	</bean>

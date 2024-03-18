@@ -392,10 +392,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private void sendOperateTrack(WaybillStatus waybillStatus) {
 		// 操作码
 		Integer operateType = waybillStatus.getOperateType();
-		// 如果是验货、发货、配送异常
+		// 如果是验货、发货、配送异常、收货
 		if (WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION.equals(operateType)
 				|| WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(operateType)
-				|| WaybillStatus.WAYBILL_TRACK_QC.equals(operateType)) {
+				|| WaybillStatus.WAYBILL_TRACK_QC.equals(operateType)
+				|| WaybillStatus.WAYBILL_TRACK_SH.equals(operateType)) {
 			jyOperateFlowService.sendOperateTrack(waybillStatus);
 		}
 	}
@@ -1006,6 +1007,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		// left：包裹号，right：运单号
 		List<ImmutablePair<String, String>> list = new ArrayList<>();
 		if (BusinessUtil.isBoxcode(boxOrPackageCode)){
+			tWaybillStatus.setBoxCode(boxOrPackageCode);
 			// 箱号处理
 			String boxCode = tWaybillStatus.getPackageCode();
 			// 1.查询分拣sorting
