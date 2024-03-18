@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -55,6 +56,8 @@ public class SplitWaybillWeightVolumeHandler extends AbstractWeightVolumeHandler
         weightDTO.setStatus(10);
         try {
             dmsWeighByWaybillProducer.send(entity.getWaybillCode(), JsonHelper.toJson(weightDTO));
+            // 记录称重操作流水
+            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_BOX);
         } catch (JMQException e) {
             logger.error("发送MQ-TOPIC【{}】消息失败，消息体为：{}",dmsWeighByWaybillProducer.getTopic(),JsonHelper.toJson(weightDTO));
             throw new RuntimeException(e);

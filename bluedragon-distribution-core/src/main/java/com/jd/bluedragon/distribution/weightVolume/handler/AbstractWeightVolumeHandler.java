@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
@@ -100,6 +101,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     @Autowired
     private DMSWeightVolumeService weightVolumeService;
+
+    @Autowired
+    protected JyOperateFlowService jyOperateFlowService;
 
     @Override
     public InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity) {

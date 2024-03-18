@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 
@@ -123,6 +124,11 @@ public class WeightVolumeEntity {
      * 超重服务类型
      */
     private List<String> overLengthAndWeightTypes;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
@@ -399,4 +405,12 @@ public class WeightVolumeEntity {
 	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
 		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
 	}
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
 }

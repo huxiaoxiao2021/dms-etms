@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
@@ -108,6 +109,9 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
                 weightDTO.setStatus(20);
             }
             weighByWaybillProducer.send(entity.getWaybillCode(), JsonHelper.toJson(weightDTO));
+
+            // 记录称重操作流水
+            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_WAYBILL);
 
             /* 记录原始的称重流水 */
             DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();

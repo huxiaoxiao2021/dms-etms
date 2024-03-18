@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -336,6 +337,20 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sendMq(sortingCancelFlowMq);
 		} catch (Exception e) {
 			logger.error("发送异常处理操作流水出现异常:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendWeightVolumeOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendWeightVolumeOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
+			// 业务子类型
+			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			sendMq(sortingCancelFlowMq);
+		} catch (Exception e) {
+			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJson(entity), e);
 		}
 	}
 
