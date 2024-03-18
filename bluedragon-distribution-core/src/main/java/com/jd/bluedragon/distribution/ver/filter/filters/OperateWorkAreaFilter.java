@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,7 @@ public class OperateWorkAreaFilter implements Filter {
             return;
         }
 
+        CallerInfo info = Profiler.registerInfo("DMS.WEB.SortingCheck.OperateWorkAreaFilter", false, true);
         // 如果不在白名单内，且是启用名单，则进行校验
         if (!dmsConfigManager.getPropertyConfig().isTeanSiteIdWhite4InterceptFilter(pdaOperateRequest.getCreateSiteCode())
             && dmsConfigManager.getPropertyConfig().isTeanSiteIdEnable4InterceptFilter(pdaOperateRequest.getCreateSiteCode())) {
@@ -67,12 +70,14 @@ public class OperateWorkAreaFilter implements Filter {
                     // 查看网格作业区信息
                     // 没有签到网格码
                     if (StringUtils.isBlank(pdaOperateRequest.getWorkStationGridKey())) {
+                        Profiler.registerInfoEnd(info);
                         throw new SortingCheckException(SortingResponse.CODE_29466, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
                     }
 
                     final WorkStationGrid workStationGrid = this.getWorkStationGrid(pdaOperateRequest.getWorkStationGridKey());
                     // 网格查找作业区为空
                     if (workStationGrid == null) {
+                        Profiler.registerInfoEnd(info);
                         throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
                     }
 
@@ -83,6 +88,7 @@ public class OperateWorkAreaFilter implements Filter {
                 }
             }
         }
+        Profiler.registerInfoEnd(info);
 
         chain.doFilter(filterContext, chain);
     }
