@@ -382,14 +382,16 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         JyCollectPackageEntity query =new JyCollectPackageEntity();
         query.setPackageCode(request.getBarCode());
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
-        JyCollectPackageEntity entity =jyCollectPackageScanRecordService.queryJyCollectPackageRecord(query);
-        if (ObjectHelper.isNotNull(entity)){
-            if (ObjectHelper.isNotNull(entity.getBoxCode()) && entity.getBoxCode().equals(request.getBoxCode())){
-                throw new JyBizException("该包裹已经在此箱号中,请勿重复集包！");
-            }else if (ObjectHelper.isNotNull(entity.getCreateTime())) {
-                Date createTime = entity.getCreateTime();
-                if (System.currentTimeMillis() - createTime.getTime() <=  dmsConfigManager.getPropertyConfig().getReComboardTimeLimit() * 3600L * 1000L) {
-                    throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请前去取消后再重新集包！");
+        List<JyCollectPackageEntity> packageEntityList =jyCollectPackageScanRecordService.listJyCollectPackageRecord(query);
+        if (CollectionUtils.isNotEmpty(packageEntityList)){
+            for (JyCollectPackageEntity entity : packageEntityList){
+                if (ObjectHelper.isNotNull(entity.getBoxCode()) && entity.getBoxCode().equals(request.getBoxCode())){
+                    throw new JyBizException("该包裹已经在此箱号中,请勿重复集包！");
+                }else if (ObjectHelper.isNotNull(entity.getCreateTime())) {
+                    Date createTime = entity.getCreateTime();
+                    if (System.currentTimeMillis() - createTime.getTime() <=  dmsConfigManager.getPropertyConfig().getReComboardTimeLimit() * 3600L * 1000L) {
+                        throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请在新版取消后再重新集包！");
+                    }
                 }
             }
         }

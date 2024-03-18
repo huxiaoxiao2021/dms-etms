@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 public class JyCollectPackageDao extends BaseDao<JyCollectPackageEntity> {
     private final static String NAMESPACE = JyCollectPackageDao.class.getName();
     private static final String DB_TABLE_NAME = "jy_collect_package";
@@ -40,5 +42,9 @@ public class JyCollectPackageDao extends BaseDao<JyCollectPackageEntity> {
 
     public JyCollectPackageEntity queryJyCollectPackageRecord(JyCollectPackageEntity query) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryJyCollectPackageRecord", query);
+    }
+
+    public List<JyCollectPackageEntity> listJyCollectPackageRecord(JyCollectPackageEntity query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listJyCollectPackageRecord", query);
     }
 }
