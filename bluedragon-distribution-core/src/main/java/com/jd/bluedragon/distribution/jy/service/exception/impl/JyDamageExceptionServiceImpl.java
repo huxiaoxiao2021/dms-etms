@@ -159,8 +159,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      *
      * @return
      */
-    private boolean checkDamageChangePackageRepair(String waybillCode) {
+    private boolean checkDamageChangePackageRepair(String barcode) {
 
+        String waybillCode = WaybillUtil.getWaybillCode(barcode);
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
             logger.warn("运单{}获取运单信息失败!", waybillCode);
