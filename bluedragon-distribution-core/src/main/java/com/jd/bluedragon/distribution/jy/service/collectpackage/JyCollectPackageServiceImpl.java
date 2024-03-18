@@ -918,6 +918,15 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         // 查询集包袋号
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
+        if (ObjectHelper.isNotNull(taskDto.getMaterialCode())){
+            if (BusinessUtil.isPalletBoxCollectionBag(taskDto.getMaterialCode())){
+                taskDto.setMaterialType(MaterialTypeEnum.M_PALLET_BOX.getCode());
+            }else if (BusinessUtil.isTrolleyCollectionBag(taskDto.getMaterialCode())){
+                taskDto.setMaterialType(MaterialTypeEnum.M_CAGE_CAR.getCode());
+            }else {
+                taskDto.setMaterialType(MaterialTypeEnum.M_CYCLE_BAG.getCode());
+            }
+        }
 
         // 统计数据
         HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(taskDto.getBizId()));

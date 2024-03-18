@@ -95,6 +95,20 @@ public class CollectPackageTaskDto implements Serializable {
      */
     private Integer boxInterceptCount;
 
+
+    /**
+     * 箱号绑定的循环物资类型
+     */
+    private int materialType;
+
+    public int getMaterialType(){
+        return materialType;
+    }
+
+    public void setMaterialType(int materialType) {
+        this.materialType = materialType;
+    }
+
     public Integer getPackageScanCount() {
         return packageScanCount;
     }
