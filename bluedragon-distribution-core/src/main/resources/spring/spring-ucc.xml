@@ -351,6 +351,7 @@
 		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
 		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -688,6 +689,7 @@
 				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
 			</list>
 		</property>
 	</bean>

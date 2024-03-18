@@ -1922,6 +1922,10 @@ public class UccPropertyConfiguration{
      * 空铁提货岗提货完成时间查询范围
      */
     private Integer pickingFinishTimeRange;
+    /**
+     * 操作流水新逻辑开关
+     */
+    private boolean operateFlowNewSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -4420,5 +4424,13 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public boolean isOperateFlowNewSwitch() {
+        return operateFlowNewSwitch;
+    }
+
+    public void setOperateFlowNewSwitch(boolean operateFlowNewSwitch) {
+        this.operateFlowNewSwitch = operateFlowNewSwitch;
     }
 }
