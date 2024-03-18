@@ -175,6 +175,9 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
                     request.setPackageBarcode(pack.getPackageBarcode());
                     // 透传操作流水表主键
                     request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
+                    }
                     inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
                 }
             }
@@ -185,6 +188,9 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
             }
             // 透传操作流水表主键
             request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
+            }
             inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
         }
         Collections.sort(inspectionList);
