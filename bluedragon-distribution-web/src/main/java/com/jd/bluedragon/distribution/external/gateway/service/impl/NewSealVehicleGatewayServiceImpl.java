@@ -307,8 +307,19 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     public JdCResponse sealCar(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
-        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
-        newSealVehicleRequest.setData(convert(list));
+
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> data = convert(sealCarRequest.getSealCarDtoList());
+        newSealVehicleRequest.setData(data);
+        newSealVehicleRequest.setPost(sealCarRequest.getPost());
+        if(Objects.nonNull(sealCarRequest.getUser())) {
+            newSealVehicleRequest.setUserErp(sealCarRequest.getUser().getUserErp());
+            newSealVehicleRequest.setUserName(sealCarRequest.getUser().getUserName());
+        }
+        if(Objects.nonNull(sealCarRequest.getCurrentOperate())) {
+            newSealVehicleRequest.setDmsSiteId(sealCarRequest.getCurrentOperate().getSiteCode());
+        }
+
+
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.seal(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
@@ -635,6 +646,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setVehicleNumber(request.getCarNum());
         return param;
     }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getUnSealSendCodes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request) {
     	JdCResponse<List<String>> result = new JdCResponse<List<String>>();

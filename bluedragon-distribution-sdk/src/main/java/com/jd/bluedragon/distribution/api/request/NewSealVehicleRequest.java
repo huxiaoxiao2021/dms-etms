@@ -81,6 +81,12 @@ public class NewSealVehicleRequest extends JdRequest {
 	/** 当前站点ID	 */
     private Integer dmsSiteId;
 
+	/**
+	 * 岗位类型
+	 * JyFuncCodeEnum
+	 */
+	private String post;
+
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
@@ -203,5 +209,13 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	public void setDmsSiteId(Integer dmsSiteId) {
 		this.dmsSiteId = dmsSiteId;
+	}
+
+	public String getPost() {
+		return post;
+	}
+
+	public void setPost(String post) {
+		this.post = post;
 	}
 }
