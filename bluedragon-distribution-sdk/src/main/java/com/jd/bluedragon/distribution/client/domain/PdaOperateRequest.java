@@ -92,6 +92,11 @@ public class PdaOperateRequest {
      */
     private String workStationGridKey;
 
+    /**
+     * 操作来源
+     */
+    private Integer bizSource;
+
 	public boolean getJyCollectPackageFlag() {
 		return jyCollectPackageFlag;
 	}
@@ -231,5 +236,13 @@ public class PdaOperateRequest {
 
     public void setWorkStationGridKey(String workStationGridKey) {
         this.workStationGridKey = workStationGridKey;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
