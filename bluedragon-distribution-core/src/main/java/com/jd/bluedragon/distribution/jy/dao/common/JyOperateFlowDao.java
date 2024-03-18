@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dao.common;
 
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.common.dao.BaseDao;
@@ -20,8 +21,15 @@ public class JyOperateFlowDao extends BaseDao<JyOperateFlowDto> {
     @Autowired
     private SequenceGenAdaptor sequenceGenAdaptor;
 
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
+
     public int insert(JyOperateFlowDto entity){
-        if (entity.getId() == null) {
+        if (dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
+            if (entity.getId() == null) {
+                entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+            }
+        } else {
             entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         }
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
