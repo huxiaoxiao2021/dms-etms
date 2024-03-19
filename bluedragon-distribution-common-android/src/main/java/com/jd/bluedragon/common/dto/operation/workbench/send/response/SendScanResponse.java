@@ -82,6 +82,12 @@ public class SendScanResponse implements Serializable {
      * 明细任务创建时间
      */
     private Date createTime;
+    /**
+     * 本次扫描的运单下包裹总数
+     */
+    private Integer scanWaybillPackSum;
+
+    //=========================
 
     public Integer getScanPackCount() {
         return scanPackCount;
@@ -161,5 +167,13 @@ public class SendScanResponse implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getScanWaybillPackSum() {
+        return scanWaybillPackSum;
+    }
+
+    public void setScanWaybillPackSum(Integer scanWaybillPackSum) {
+        this.scanWaybillPackSum = scanWaybillPackSum;
     }
 }

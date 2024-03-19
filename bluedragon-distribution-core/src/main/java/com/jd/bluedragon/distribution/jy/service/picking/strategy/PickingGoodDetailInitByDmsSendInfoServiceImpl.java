@@ -5,9 +5,9 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServiceEnum;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
-import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.distribution.jy.service.picking.template.AviationPickingGoodTaskInit;
+import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -52,8 +52,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
     @Qualifier(value = "jyPickingGoodSaveWaitScanItemNumProducer")
     private DefaultJMQProducer jyPickingGoodSaveWaitScanItemNumProducer;
     @Autowired
-    private CommonService commonService;
-
+    private RouterService routerService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -155,7 +154,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                         break;
                     }
 
-                    BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
+                    BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
                     if (!Objects.isNull(dto) && !Objects.isNull(dto.getSiteCode())) {
                         nextSiteId = dto.getSiteCode();
                         waybillRouteMap.put(waybillCode, nextSiteId);
@@ -180,7 +179,7 @@ public class PickingGoodDetailInitByDmsSendInfoServiceImpl implements PickingGoo
                 String waybillCode = WaybillUtil.getWaybillCode(barCode);
                 Integer nextSiteId = waybillRouteMap.get(waybillCode);
                 if(Objects.isNull(nextSiteId)) {
-                    BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
+                    BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
                     if (!Objects.isNull(dto) && !Objects.isNull(dto.getSiteCode())) {
                         nextSiteId = dto.getSiteCode();
                         waybillRouteMap.put(waybillCode, nextSiteId);

@@ -64,6 +64,10 @@ public class InvokeWithMsgBoxResult<T> implements Serializable {
         this.message = message;
     }
 
+    public boolean isSuccess() {
+        return this.code == CODE_SUCCESS;
+    }
+
     public void toSuccess(){
         this.init(CODE_SUCCESS, MESSAGE_SUCCESS);
     }

@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
@@ -19,6 +20,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Objects;
 
 /**
@@ -45,6 +48,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
+
+	@Resource
+	private TenantManager tenantManager;
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -340,7 +346,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
 			
-			// fixme: 设置租户
+			// 设置租户编码
+			JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(positionData.getSiteCode());
+			if(tenant != null){
+				positionData.setTenantCode(tenant.getBelongTenantCode());
+			}
 
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
