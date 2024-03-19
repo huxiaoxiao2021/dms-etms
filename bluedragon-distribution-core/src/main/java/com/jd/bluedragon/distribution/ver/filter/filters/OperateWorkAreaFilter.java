@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -21,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * 网格作业区拦截相关
@@ -45,6 +48,12 @@ public class OperateWorkAreaFilter implements Filter {
         logger.info("do filter process...");
 
         final PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
+
+        // 如果是打印客户端操作的批量分拣，则不校验
+        if (Objects.equals(SortingBizSourceEnum.PRINT_CLIENT_BATCH_SORTING.getCode(), pdaOperateRequest.getBizSource())) {
+            chain.doFilter(filterContext, chain);
+            return;
+        }
 
         // 如果不在白名单内，且是启用名单，则进行校验
         if (!dmsConfigManager.getPropertyConfig().isTeanSiteIdWhite4InterceptFilter(pdaOperateRequest.getCreateSiteCode())

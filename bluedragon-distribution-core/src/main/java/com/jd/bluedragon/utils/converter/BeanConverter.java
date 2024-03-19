@@ -5,6 +5,7 @@ import java.util.Date;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowData;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
@@ -32,10 +32,6 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * 对象转换工具类
@@ -141,9 +137,6 @@ public class BeanConverter {
 
 
 	public static OperatorData convertToOperatorDataForAuto(InspectionRequest requestBean) {
-		if(requestBean.getOperatorData() != null) {
-			return requestBean.getOperatorData();
-		}
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(requestBean.getMachineCode());
@@ -473,6 +466,9 @@ public class BeanConverter {
 			if (Constants.LONG_ZERO.equals(dto.getId())) {
 				dto.setId(null);
 			}
+			if (log.isInfoEnabled()) {
+				log.info("BeanConverter:转换jyOperateFlowDto={}", JsonHelper.toJson(dto));
+			}
 			dto.setOperateValue(JsonHelper.toJson(jyOperateFlow.getJyOperateFlowData()));
 			if (dto.getOperateBizKey() == null) {
 				dto.setOperateBizKey(Constants.EMPTY_FILL);
@@ -483,7 +479,7 @@ public class BeanConverter {
 			if (dto.getOperateValue() == null) {
 				dto.setOperateValue(Constants.EMPTY_FILL);
 			}
-		}catch (Exception e) {
+		} catch (Exception e) {
 			log.error("BeanConverter.convertToJyOperateFlowDto error!", e);
 		}
 

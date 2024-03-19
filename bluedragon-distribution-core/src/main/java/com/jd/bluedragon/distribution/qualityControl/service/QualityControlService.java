@@ -580,6 +580,9 @@ public class QualityControlService {
         if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
             // 透传操作流水主键
             sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            if (log.isInfoEnabled()) {
+                log.info("convert2AbnormalWayBills|配送异常生成主键:sendDetail={}", JsonHelper.toJson(sendDetail));
+            }
             tWaybillStatus.setOperateFlowId(sendDetail.getOperateFlowId());
             // 发送操作轨迹
             jyOperateFlowService.sendOperateTrack(tWaybillStatus);
@@ -709,6 +712,9 @@ public class QualityControlService {
             }
             abnormalWayBill.setOperateFlowId(sendDetail.getOperateFlowId());
             abnormalWayBill.setOperatorData(request.getOperatorData());
+            if (log.isInfoEnabled()) {
+                log.info("convert2AbnormalWayBills|发送配送异常流水:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill));
+            }
 
             // 执行插入
             abnormalWayBillService.insertAbnormalWayBill(abnormalWayBill);

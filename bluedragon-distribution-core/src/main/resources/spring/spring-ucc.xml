@@ -364,7 +364,7 @@
 		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
-
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -733,6 +733,7 @@
 				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
 			</list>
 		</property>
 	</bean>
