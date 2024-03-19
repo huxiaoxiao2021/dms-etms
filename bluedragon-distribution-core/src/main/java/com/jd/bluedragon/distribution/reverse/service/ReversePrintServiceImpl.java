@@ -636,7 +636,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * @time 2020-12-14 14:11:58 周一
      */
     private Response<Boolean> sendDisposeAfterInterceptMsgByPackageCode(ReversePrintRequest reversePrintRequest){
-        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsgByPackgeCode {}", JSON.toJSONString(reversePrintRequest));
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode {}", JSON.toJSONString(reversePrintRequest));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 
@@ -644,10 +644,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
             final String packageCode = WaybillUtil.genPackageCodeByPackNumAndPackIndex(reversePrintRequest.getOldCode(), WaybillUtil.getPackNumByPackCode(reversePrintRequest.getNewPackageCode()), WaybillUtil.getPackIndexByPackCode(reversePrintRequest.getNewPackageCode()));
             if(StringUtils.isBlank(packageCode)){
-                log.warn("sendDisposeAfterInterceptMsgByPackgeCode getOldPackageCode null {}", JSON.toJSONString(reversePrintRequest));
+                log.warn("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode getOldPackageCode null {}", JSON.toJSONString(reversePrintRequest));
                 return result;
             }
-            saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
+            saveDisposeAfterInterceptMsgDto.setBarCode(packageCode);
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
             saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
             saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
@@ -658,7 +658,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             // log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
-            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
             result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;
