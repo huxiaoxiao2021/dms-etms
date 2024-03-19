@@ -141,6 +141,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			// 消息业务ID格式：操作码+单号
 			String businessId = waybillStatus.getOperateType() + barCode;
 			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
+			if (logger.isInfoEnabled()) {
+				logger.info("sendOperateTrack|发送操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
+			}
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
 		}
