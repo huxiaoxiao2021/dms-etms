@@ -42,6 +42,9 @@ public class JyOperateFlowDao extends BaseDao<JyOperateFlowDto> {
             }
             entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         }
+        if (logger.isInfoEnabled()) {
+            logger.info("JyOperateFlowDao-insert|最终insert:entity={}", JsonHelper.toJson(entity));
+        }
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
