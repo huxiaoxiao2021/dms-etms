@@ -338,8 +338,10 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setSiteName(dto.getSiteName());
         OperatorData operatorData = dto.getOperatorData();
         sortingRequest.setOperatorData(operatorData);
-        sortingRequest.setOperatorId(operatorData.getOperatorId());
-        sortingRequest.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        if (operatorData != null) {
+            sortingRequest.setOperatorId(operatorData.getOperatorId());
+            sortingRequest.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        }
         return sortingRequest;
     }
 
