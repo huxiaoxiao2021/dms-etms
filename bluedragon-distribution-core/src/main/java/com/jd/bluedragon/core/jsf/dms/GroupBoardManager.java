@@ -38,11 +38,25 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
     /**
+     * 将板、箱/包裹关系推给TC（同时返回业务主键）
+     * @param addBoardBox
+     * @return
+     */
+    Response<BoardBoxResult> addBoxToBoardReturnId(AddBoardBox addBoardBox);
+
+    /**
      * 允许二次组板（返调度场景）
      * @param addBoardBox
      * @return
      */
     Response<Integer> addBoxToBoardV2(AddBoardBox addBoardBox);
+
+    /**
+     * 允许二次组板（返调度场景,同时返回业务主键）
+     * @param addBoardBox
+     * @return
+     */
+    Response<BoardBoxResult> addBoxToBoardV2ReturnId(AddBoardBox addBoardBox);
 
     /**
      * 将板、箱/包裹关系推给TC(不校验板状态)
@@ -52,6 +66,11 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox);
 
     Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox);
+
+    /**
+     * 批量组板同时返回业务主键
+     */
+    Response<BoardBoxResult> addBoxesToBoardReturnId(AddBoardBoxes addBoardBox);
 
     /**
      * 组板转移

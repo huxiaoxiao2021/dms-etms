@@ -162,6 +162,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         inspection.setOperatorData(packageMQ.getOperatorData());
         inspection.setOperatorId(packageMQ.getOperatorId());
         inspection.setOperatorTypeCode(packageMQ.getOperatorTypeCode());
+        inspection.setOperateFlowId(packageMQ.getOperateFlowId());
         return inspection;
     }
 

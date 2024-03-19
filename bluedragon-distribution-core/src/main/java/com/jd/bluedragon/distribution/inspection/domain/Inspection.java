@@ -166,6 +166,10 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
      * 操作信息对象
      */
 	private OperatorData operatorData;
+	/**
+	 * 操作流水表主键
+	 */
+	private Long operateFlowId;
 	
     public Date getOperateTime() {
         return operateTime;
@@ -590,8 +594,9 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		inspection.setBizSource(requestBean.getBizSource());
     	OperatorData operatorData = BeanConverter.convertToOperatorData(requestBean);
     	inspection.setOperatorTypeCode(operatorData.getOperatorTypeCode());
-    	inspection.setOperatorId(operatorData.getMachineCode());
+    	inspection.setOperatorId(operatorData.getOperatorId());
     	inspection.setOperatorData(operatorData);
+		inspection.setOperateFlowId(requestBean.getOperateFlowId());
 		return inspection;
 	}
 
@@ -725,5 +730,13 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
+	}
+
+	public Long getOperateFlowId() {
+		return operateFlowId;
+	}
+
+	public void setOperateFlowId(Long operateFlowId) {
+		this.operateFlowId = operateFlowId;
 	}
 }

@@ -1769,6 +1769,11 @@ public class Constants {
     public static final Integer NUMBER_ONE = 1;
 
     /**
+     * 数字：2
+     */
+    public static final Integer NUMBER_TWO = 2;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
@@ -2440,4 +2445,16 @@ public class Constants {
      * 签到开始日期前1天
      * */
     public static final Integer SIGN_BEFORE_ONE_DAY = -1;
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
+
 }

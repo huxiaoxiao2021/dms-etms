@@ -6,7 +6,9 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -190,4 +192,13 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
+
+  /**
+   * 组板执行单元
+   * @param request
+   * @param entity
+   * @param now
+   * @param outContainerFlag
+   */
+  void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now , boolean outContainerFlag);
 }

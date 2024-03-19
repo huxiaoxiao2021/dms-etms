@@ -132,6 +132,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     private DefaultJMQProducer dwsSpotCheckProducer;
 
     @Autowired
+    @Qualifier("automaticWeightingFlowProducer")
+    private DefaultJMQProducer automaticWeightingFlowProducer;
+
+    @Autowired
     private InspectionDao inspectionDao;
 
     private static final List<FromSourceEnum> NOT_ZERO_WEIGHT_VOLUME_CHECK_FROM_SOURCE =
@@ -169,6 +173,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             // 自动化称重 非0复重量体积拦截
             if (DMS_DWS_MEASURE.equals(entity.getSourceCode())
                     || DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode())) {
+                // 自动化称重发送消息给运输
+                sendWeightingFlowInfo(entity);
                 InvokeResult<Void> interceptResult= waybillNotZeroWeightIntercept(entity);
                 if (!interceptResult.codeSuccess()) {
                     // 返回成功，防止重试
@@ -204,6 +210,42 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             taskService.add(weightVolumeTask);
             return result;
         }
+    }
+
+    private void sendWeightingFlowInfo(WeightVolumeEntity entity) {
+        // 只发送包裹和运单的称重流水
+        if (!WaybillUtil.isPackageCode(entity.getBarCode()) && !WaybillUtil.isWaybillCode(entity.getBarCode())) {
+            return;
+        }
+        WeightingFlowMQ weightingFlowMQ = convertToWeightingFlowMQ(entity);
+        try {
+            automaticWeightingFlowProducer.send(weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+            logger.info("包裹号{}自动化称重流水MQ body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        } catch (Exception e) {
+            logger.error("包裹号{}自动化称重流水MQ异常 body:{}", weightingFlowMQ.getWaybillCode(), JsonHelper.toJson(weightingFlowMQ));
+        }
+    }
+
+    private WeightingFlowMQ convertToWeightingFlowMQ(WeightVolumeEntity entity) {
+        String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
+        String packageCode = "";
+        if (WaybillUtil.isPackageCode(entity.getBarCode())) {
+            packageCode = entity.getBarCode();
+        }
+        WeightingFlowMQ weightingFlowMQ = new WeightingFlowMQ();
+        weightingFlowMQ.setWeight(entity.getWeight());
+        weightingFlowMQ.setVolume(entity.getVolume());
+        weightingFlowMQ.setHeight(entity.getHeight());
+        weightingFlowMQ.setLength(entity.getLength());
+        weightingFlowMQ.setWidth(entity.getWidth());
+        weightingFlowMQ.setOperateSiteCode(entity.getOperateSiteCode());
+        weightingFlowMQ.setOperateTime(entity.getOperateTime());
+        weightingFlowMQ.setOperatorCode(entity.getOperatorCode());
+        weightingFlowMQ.setOperatorName(entity.getOperatorName());
+        weightingFlowMQ.setPackageCode(packageCode);
+        weightingFlowMQ.setOperateSiteName(entity.getOperateSiteName());
+        weightingFlowMQ.setWaybillCode(waybillCode);
+        return weightingFlowMQ;
     }
 
     private boolean automaticUpperLimitCheck(WeightVolumeEntity entity, InvokeResult<Boolean> result) {
@@ -553,7 +595,11 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 logger.info("零称重量方 运费临时欠款，需要拦截，运单号{}",waybillCode);
                 return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;
             }
-
+            //纯配外单 冷链专送
+            if(BusinessUtil.isPureDeliveryColdDelivery(waybillSign)){
+                logger.info("零称重量方 纯配外单 冷链专送，需要拦截，运单号{}",waybillCode);
+                return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
+            }
             /*************纯配外单 统一拦截场景结束******************/
 
             if(BusinessUtil.isCInternet(waybillSign)){
@@ -820,6 +866,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return result;
         }
 
+        // 部分包裹发货只依赖分拣上传的重量数据,这部分包裹重量体积正常上传，不进行拦截
+        if (checkIsOnlyUseSortingWeight(waybillCode, bigWaybill.getWaybill().getWaybillSign())) {
+            logger.info("该包裹{}发货只依赖分拣上传的重量数据,重量体积正常上传", waybillCode);
+            return result;
+        }
+
         // 判断该包裹的揽收站点是否为城配车队，若为城配车队，则不进行以下校验。
         if (checkWaybillPickup(bigWaybill)) {
             logger.info("运单{}揽收站点为城配车队", waybillCode);
@@ -842,6 +894,21 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //            return result;
 //        }
         return result;
+    }
+
+    /**
+     * 部分包裹发货只依赖分拣上传的重量数据,这部分包裹重量体积正常上传，不进行拦截
+     * 1. 众邮包裹
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private boolean checkIsOnlyUseSortingWeight(String waybillCode, String waybillSign) {
+        //众邮包裹
+        if(BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign)){
+            return true;
+        }
+        return false;
     }
 
     /**
