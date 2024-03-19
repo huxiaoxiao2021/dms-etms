@@ -311,7 +311,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             taskService.add(tTask, true);
 
             // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
-            this.sendDisposeAfterInterceptMsg(domain);
+            // this.sendDisposeAfterInterceptMsg(domain);
 
             //发送换单打印消息 三无使用 ，与亚国沟通也放在这里  减少频繁发送的问题
             ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
