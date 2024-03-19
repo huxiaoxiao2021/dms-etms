@@ -19,7 +19,7 @@
 		operate_value,operate_time,ts
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto">
 		insert into jy_operate_flow
 			(
 			<trim suffixOverrides=",">
