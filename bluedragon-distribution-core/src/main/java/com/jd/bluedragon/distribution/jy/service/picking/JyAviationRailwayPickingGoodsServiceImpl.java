@@ -24,7 +24,6 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidi
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
-import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -95,8 +94,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private TaskService taskService;
     @Autowired
     private BaseMajorManager baseMajorManager;
-    @Autowired
-    private CommonService commonService;
     @Resource
     @Qualifier("jyPickingGoodScanProducer")
     private DefaultJMQProducer pickingGoodScanProducer;
@@ -431,13 +428,13 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         String routerNextSiteName = null;
         String boxConfirmNextSiteKey = null;
         if(!BusinessUtil.isBoxcode(request.getBarCode())) {
-            BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(request.getCurrentOperate().getSiteCode(), WaybillUtil.getWaybillCode(request.getBarCode()));
+            BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(request.getCurrentOperate().getSiteCode(), WaybillUtil.getWaybillCode(request.getBarCode()));
             if(!Objects.isNull(dto)) {
                 routerNextSiteName = dto.getSiteName();
                 routerNextSiteId = dto.getSiteCode();
             }
         }else {
-            BoxNextSiteDto boxNextSiteDto = commonService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
+            BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
             if(!Objects.isNull(boxNextSiteDto)) {
                 routerNextSiteId = boxNextSiteDto.getNextSiteId();
                 routerNextSiteName = boxNextSiteDto.getNextSiteName();

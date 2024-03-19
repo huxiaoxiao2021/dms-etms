@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntityCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -74,13 +75,17 @@ public class JyBizTaskPickingGoodTransactionManager {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskPickingGoodTransactionManager.startPickingGoodTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public boolean startPickingGoodTask(JyPickingGoodScanDto scanDto) {
-//        Integer count = jyPickingSendRecordService.countTaskRealScanItemNum(scanDto.getBizId(), scanDto.getSiteId());
-//        if (NumberHelper.gt0(count)) {
-//            return true;
-//        }
+        Long operateTime = scanDto.getOperateTime();
+
         JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(scanDto.getBizId(), false);
-        if(Objects.isNull(entity) || !PickingGoodStatusEnum.TO_PICKING.getCode().equals(entity.getStatus())) {
-            //todo zcf 时间先后修改
+        if(Objects.isNull(entity)) {
+            return true;
+        }
+        else if(PickingGoodStatusEnum.PICKING.getCode().equals(entity.getStatus())) {
+            if(!Objects.isNull(entity.getPickingStartTime()) && NumberHelper.gte(operateTime, entity.getPickingStartTime().getTime())) {
+                return true;
+            }
+        }else if(!PickingGoodStatusEnum.TO_PICKING.getCode().equals(entity.getStatus())) {
             return true;
         }
         logInfo("提货任务{}首次扫描逻辑开始.{}", JsonHelper.toJson(scanDto));
@@ -89,20 +94,19 @@ public class JyBizTaskPickingGoodTransactionManager {
         updateEntity.setNextSiteId(scanDto.getPickingSiteId());
         updateEntity.setBizId(scanDto.getBizId());
         updateEntity.setStatus(PickingGoodStatusEnum.PICKING.getCode());
-        Long startTime = scanDto.getOperateTime();
-        updateEntity.setPickingStartTime(new Date());
-        updateEntity.setUpdateTime(new Date(startTime));
+        updateEntity.setPickingStartTime(new Date(operateTime));
+        updateEntity.setUpdateTime(new Date(operateTime));
         updateEntity.setUpdateUserErp(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
         updateEntity.setUpdateUserName(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserName());
         jyBizTaskPickingGoodService.updateTaskByBizIdWithCondition(updateEntity);
-        logInfo("提货任务{}状态改为开始提货中", scanDto.getBizId(), startTime);
+        logInfo("提货任务{}状态改为开始提货中,时间={}", scanDto.getBizId(), operateTime);
         //分配调度任务
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(scanDto.getBizId());
         req.setTaskType(JyScheduleTaskTypeEnum.PICKING.getCode());
         req.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
         req.setDistributionTarget(scanDto.getGroupCode());
-        req.setDistributionTime(new Date(startTime));
+        req.setDistributionTime(new Date(operateTime));
         req.setOpeUser(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserErp());
         req.setOpeUserName(Objects.isNull(scanDto.getUser()) ? Constants.SYS_CODE_DMS : scanDto.getUser().getUserName());
         req.setOpeTime(req.getDistributionTime());
