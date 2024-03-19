@@ -334,30 +334,34 @@ public abstract class AbstractBaseUserService implements LoginService {
             // 省区
             response.setProvinceAgencyCode(loginResult.getProvinceAgencyCode());
             response.setProvinceAgencyName(loginResult.getProvinceAgencyName());
-            //租户编码
-            JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(getQuerySiteCode(request.getPositionCode(),response.getSiteCode()));
-            if(tenant != null){
-                response.setTenantCode(tenant.getBelongTenantCode());
-            }
+            // 设置租户和业务条线
+            this.setTenantAndBusinessLineCode(request, response);
             // 返回结果
             return response;
         }
     }
-    /**
-     * 获取查询站点代码
-     * 场地码不为空，就按场地码所属场地；为空就按人员所属场地
-     * @param positionCode 职位代码
-     * @param erpSiteCode ERP站点代码
-     * @return Integer 返回站点代码
-     */
-    private Integer getQuerySiteCode(String positionCode,Integer erpSiteCode){
-        if(StringUtils.isNotBlank(positionCode)){
-            Result<PositionData> apiResult = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
-            if(apiResult != null && apiResult.isSuccess() && apiResult.getData() != null && apiResult.getData().getSiteCode() != null){
-                return apiResult.getData().getSiteCode();
-            }
+
+    private void setTenantAndBusinessLineCode(LoginRequest request, LoginUserResponse response) {
+        if (StringUtils.isBlank(request.getPositionCode())) {
+            return;
         }
-        return erpSiteCode;
+        //租户编码
+        Result<PositionData> apiResult = positionManager.queryPositionWithIsMatchAppFunc(request.getPositionCode());
+        if(apiResult == null || !apiResult.isSuccess()){
+            log.error("查询岗位信息失败");
+            return;
+        }
+        final PositionData positionData = apiResult.getData();
+        if (positionData != null) {
+            // 设置业务条线
+            response.setBusinessLineCode(positionData.getBusinessLineCode());
+        }
+
+        // 设置租户
+        JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(positionData != null ? (positionData.getSiteCode() != null ? positionData.getSiteCode() : request.getSiteCode()) : request.getSiteCode());
+        if(tenant != null){
+            response.setTenantCode(tenant.getBelongTenantCode());
+        }
     }
 
     /**

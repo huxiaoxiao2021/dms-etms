@@ -1668,7 +1668,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private void saveUnsealOrder(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealist){
         // 如果是作业APP，则更新解封车顺序
         final com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDtoSample = sealist.get(0);
-        if(StringUtils.isBlank(sealCarDtoSample.getBizId())){
+        if(StringUtils.isBlank(sealCarDtoSample.getBizId()) || sealCarDtoSample.getUnsealOrderIndex() == null){
             return;
         }
         for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto : sealist) {

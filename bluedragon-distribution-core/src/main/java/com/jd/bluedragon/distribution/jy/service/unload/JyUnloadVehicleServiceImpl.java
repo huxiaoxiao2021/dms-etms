@@ -202,11 +202,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private SysConfigService sysConfigService;
 
     @Autowired
-    private InspectionService inspectionService;
-
-    @Autowired
     @Qualifier("jyCallbackJsfManager")
     private JyCallbackJsfManager jyCallbackJsfManager;
+
+    @Autowired
+    private InspectionService inspectionService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
