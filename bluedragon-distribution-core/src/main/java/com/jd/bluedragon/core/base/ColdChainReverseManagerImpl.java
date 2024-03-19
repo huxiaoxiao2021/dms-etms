@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseResult;
@@ -43,8 +42,6 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
     private ColdChainReverseService coldChainReverseService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    @Autowired
-    private ColdDmsPackingConsumableApi coldDmsPackingConsumableApi;
     /**
      * 二次换单限制次数
      */
