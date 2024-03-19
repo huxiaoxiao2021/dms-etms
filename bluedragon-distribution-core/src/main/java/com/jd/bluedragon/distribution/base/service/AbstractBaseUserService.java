@@ -353,7 +353,6 @@ public abstract class AbstractBaseUserService implements LoginService {
         }
         final PositionData positionData = apiResult.getData();
         if (positionData != null) {
-            log.error("查询岗位信息为空");
             // 设置业务条线
             response.setBusinessLineCode(positionData.getBusinessLineCode());
         }
