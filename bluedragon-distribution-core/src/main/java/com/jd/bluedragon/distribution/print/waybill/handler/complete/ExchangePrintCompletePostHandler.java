@@ -53,33 +53,33 @@ public class ExchangePrintCompletePostHandler implements Handler<WaybillPrintCom
 
     /**
      * 发送消息
-     * @param rePrintCallBackRequest 换单请求参数
+     * @param request 换单请求参数
      * @return 发送结果
      * @author fanggang7
      * @time 2024-03-19 16:56:19 周二
      */
-    private Response<Boolean> sendDisposeAfterInterceptMsg(PrintCompleteRequest rePrintCallBackRequest){
-        logger.info("ExchangePrintCompletePostHandler sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JsonHelper.toJson(rePrintCallBackRequest));
+    private Response<Boolean> sendDisposeAfterInterceptMsg(PrintCompleteRequest request){
+        logger.info("ExchangePrintCompletePostHandler sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JsonHelper.toJson(request));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 
         try {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
-            saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getPackageBarcode());
+            saveDisposeAfterInterceptMsgDto.setBarCode(request.getPackageBarcode());
             if(StringUtils.isBlank(saveDisposeAfterInterceptMsgDto.getBarCode())){
-                saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getWaybillCode());
+                saveDisposeAfterInterceptMsgDto.setBarCode(request.getWaybillCode());
             }
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
             saveDisposeAfterInterceptMsgDto.setOperateTime(System.currentTimeMillis());
-            saveDisposeAfterInterceptMsgDto.setOperateUserErp(rePrintCallBackRequest.getOperatorErp());
-            saveDisposeAfterInterceptMsgDto.setOperateUserCode(rePrintCallBackRequest.getOperatorCode());
-            saveDisposeAfterInterceptMsgDto.setOperateUserName(rePrintCallBackRequest.getOperatorName());
-            saveDisposeAfterInterceptMsgDto.setSiteCode(rePrintCallBackRequest.getOperateSiteCode());
-            saveDisposeAfterInterceptMsgDto.setSiteName(rePrintCallBackRequest.getOperateSiteName());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(request.getOperatorErp());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(request.getOperatorCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(request.getOperatorName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(request.getOperateSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(request.getOperateSiteName());
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         }
         catch (Exception e) {
-            logger.error("ExchangePrintCompletePostHandler sendDisposeAfterInterceptMsg exception, rePrintCallBackRequest: [{}]" , JsonHelper.toJson(rePrintCallBackRequest), e);
+            logger.error("ExchangePrintCompletePostHandler sendDisposeAfterInterceptMsg exception, request: [{}]" , JsonHelper.toJson(request), e);
             result.toError("换单打印操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;

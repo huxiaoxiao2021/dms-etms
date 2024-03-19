@@ -641,7 +641,6 @@
                 <ref bean="dealPopPrintHandler" />
 				<ref bean="popPrintFirstHandler" />
 				<ref bean="pushPrintRecordHandler" />
-                <ref bean="exchangePrintCompletePostHandler"/>
             </list>
         </property>
     </bean>

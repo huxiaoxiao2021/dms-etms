@@ -20,7 +20,6 @@ import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillSer
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
@@ -55,10 +54,8 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
 import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
@@ -101,13 +98,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
 
 /**
  * 逆向换单打印
@@ -311,7 +304,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             taskService.add(tTask, true);
 
             // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
-            // this.sendDisposeAfterInterceptMsg(domain);
+            this.sendDisposeAfterInterceptMsgByWaybill(domain);
 
             //发送换单打印消息 三无使用 ，与亚国沟通也放在这里  减少频繁发送的问题
             ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
@@ -324,6 +317,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             //全量接单也是此逻辑 减少频繁发送的问题
             waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
+        } else {
+            if(WaybillUtil.isPackageCode(domain.getNewPackageCode())){
+                // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
+                this.sendDisposeAfterInterceptMsgByPackageCode(domain);
+            }
         }
 
         tTask.setKeyword1(domain.getNewCode());
@@ -606,13 +604,49 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * @author fanggang7
      * @time 2020-12-14 14:11:58 周一
      */
-    private Response<Boolean> sendDisposeAfterInterceptMsg(ReversePrintRequest reversePrintRequest){
-        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
+    private Response<Boolean> sendDisposeAfterInterceptMsgByWaybill(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsgByWaybill {}", JSON.toJSONString(reversePrintRequest));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 
         try {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
+            saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(reversePrintRequest.getStaffId());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(reversePrintRequest.getStaffRealName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(reversePrintRequest.getSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(reversePrintRequest.getSiteName());
+            // log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
+            result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 发送消息
+     * @param reversePrintRequest 换单请求参数
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsgByPackageCode(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsgByPackgeCode {}", JSON.toJSONString(reversePrintRequest));
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            final String packageCode = WaybillUtil.genPackageCodeByPackNumAndPackIndex(reversePrintRequest.getOldCode(), WaybillUtil.getPackNumByPackCode(reversePrintRequest.getNewPackageCode()), WaybillUtil.getPackIndexByPackCode(reversePrintRequest.getNewPackageCode()));
+            if(StringUtils.isBlank(packageCode)){
+                log.warn("sendDisposeAfterInterceptMsgByPackgeCode getOldPackageCode null {}", JSON.toJSONString(reversePrintRequest));
+                return result;
+            }
             saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
             saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
