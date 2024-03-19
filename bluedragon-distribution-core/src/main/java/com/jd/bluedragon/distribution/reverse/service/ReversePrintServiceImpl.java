@@ -648,6 +648,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 return result;
             }
             saveDisposeAfterInterceptMsgDto.setBarCode(packageCode);
+            saveDisposeAfterInterceptMsgDto.setPackageCode(packageCode);
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
             saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
             saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());

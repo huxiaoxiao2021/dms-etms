@@ -373,6 +373,6 @@ public class WaybillUtil {
         if(waybillCode == null || packNum == null || packIndex == null){
             return null;
         }
-        return new StringBuilder(waybillCode).append("-").append(packIndex).append("-").append(packNum).toString();
+        return new StringBuilder(waybillCode).append("-").append(packIndex).append("-").append(packNum).append("-").toString();
     }
 }
