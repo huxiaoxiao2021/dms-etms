@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.capability.send.factory;
 
-import com.jd.bluedragon.distribution.capability.send.domain.SendChainEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
 import com.jd.bluedragon.distribution.capability.send.exce.SendOfCapabilityAreaException;
 import com.jd.bluedragon.distribution.capability.send.handler.SendHandlerChain;
 import com.jd.bluedragon.distribution.capability.send.handler.deal.*;
@@ -35,51 +35,20 @@ public class SendOfCapabilityAreaFactory {
      * @param sendBizSourceEnum  参考 SendBizSourceEnum
      * @return
      */
-    public SendHandlerChain getSendHandlerChain(SendBizSourceEnum sendBizSourceEnum){
+    public SendHandlerChain getSendHandlerChain(SendChainModeEnum sendChainModeEnum){
 
-        switch (makeSendChainForSendBizSource (sendBizSourceEnum)){
+        switch (sendChainModeEnum){
             case DEFAULT:
                 return buildOfDefault();
             case WITH_CYCLE_BOX_MODE:
                 return buildOfCycleBoxBind();
+            case NO_CHECK_MODE:
+                return buildOfNoCheck();
         }
 
         throw new SendOfCapabilityAreaException("getSendHandlerChain not found!");
     }
 
-
-    /**
-     * 根据业务SendBizSourceEnum 匹配 执行链的 SendChainEnum
-     * @param sendBizSourceEnum
-     * @return
-     */
-    private SendChainEnum makeSendChainForSendBizSource(SendBizSourceEnum sendBizSourceEnum) {
-        if(sendBizSourceEnum == null){
-            throw new SendOfCapabilityAreaException("sendBizSourceEnum  not be null!");
-        }
-
-        Map<SendBizSourceEnum, SendChainEnum> sendChainMap = new HashMap<>();
-        sendChainMap.put(SendBizSourceEnum.WAYBILL_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.NEW_PACKAGE_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.BOARD_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.ANDROID_PDA_SEND, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.JY_APP_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
-        sendChainMap.put(SendBizSourceEnum.JY_APP_TRANSFER_AND_FERRY_SEND, SendChainEnum.WITH_CYCLE_BOX_MODE);
-        sendChainMap.put(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW, SendChainEnum.DEFAULT);
-        sendChainMap.put(SendBizSourceEnum.SORT_MACHINE_SEND, SendChainEnum.NO_CHECK_MODE);
-        sendChainMap.put(SendBizSourceEnum.SCANNER_FRAME_SEND, SendChainEnum.NO_CHECK_MODE);
-
-
-
-        SendChainEnum sendChain = sendChainMap.get(sendBizSourceEnum);
-        if (sendChain != null) {
-            return sendChain;
-        }
-
-        throw new SendOfCapabilityAreaException(
-                String.format("sendBizSourceEnum %s not find SendChainEnum!", sendBizSourceEnum.getCode()));
-    }
 
     /**
      * 构建默认执行链
@@ -121,6 +90,35 @@ public class SendOfCapabilityAreaFactory {
 
         //转换响应对象
         chain.addHandler(sendRespMsgBoxHandler);
+        return chain;
+    }
+
+
+    /**
+     * 构建无校验发货链
+     * @return
+     */
+    private SendHandlerChain buildOfNoCheck(){
+
+        SendHandlerChain chain = new SendHandlerChain();
+
+        //初始化
+        chain.addHandler(sendInItContextHandler);
+
+        //执行
+        chain.addHandler(sendCancelLastHandler);
+        chain.addHandler(sendCancelBoardHandler);
+        chain.addHandler(sendMInitHandler);
+        chain.addHandler(sendResetCancelDetailHandler);
+        chain.addHandler(sendMakeUpForSortingHandler);
+        chain.addHandler(sendTurnoverBoxHandler);
+        chain.addHandler(sendAsyncTaskHandler);
+        chain.addHandler(sendTransitHandler);
+        chain.addHandler(sendGoodsNoticeHandler);
+        chain.addHandler(sendUrgentHintHandler);
+        chain.addHandler(sendFileBoxHandler);
+
+
         return chain;
     }
 
