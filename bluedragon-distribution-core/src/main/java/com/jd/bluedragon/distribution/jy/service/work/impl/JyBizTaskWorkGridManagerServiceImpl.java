@@ -652,11 +652,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		String erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
 		logger.info("{},根据岗位配置查到任务处理人，positonNames:{}，siteCode:{}，erps:{}", infoPrefix, positonNames, siteCode, erps);
 		//三定排班过滤
-//		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
-//		if(CollectionUtils.isEmpty(jyUserDtos)){
-//			logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
-//			return null;
-//		}
+		jyUserDtos = jyWorkGridManagerBusinessService.filterJyUserDtoInSchedule("", curDate, preFinishTime, jyUserDtos);
+		if(CollectionUtils.isEmpty(jyUserDtos)){
+			logger.error("{}场地人员未在任务时间内无排班,positonNames:{}，siteCode:{}", infoPrefix, positonNames, siteCode);
+			return null;
+		}
 		erps = jyUserDtos.stream().map(JyUserDto::getUserErp).collect(Collectors.joining(","));
 		logger.info("{},任务处理经过三定排班过滤后人员，siteCode:{}，erps:{}", infoPrefix, siteCode, erps);
 		return jyUserDtos.get(0);
