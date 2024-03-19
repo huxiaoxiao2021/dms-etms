@@ -119,6 +119,17 @@ public class LoginUserResponse extends JdResponse {
 	private String provinceAgencyCode;
 	private String provinceAgencyName;
 	/**
+	 * 租户编码
+	 */
+	private String tenantCode;
+	/**
+	 * 业务条线
+	 */
+	private String businessLineCode;
+
+	//====================================属性分割线
+
+	/**
 	 * @return the dmsSiteCode
 	 */
 	public Integer getDmsSiteCode() {
@@ -371,6 +382,22 @@ public class LoginUserResponse extends JdResponse {
 		this.provinceAgencyName = provinceAgencyName;
 	}
 
+	public String getTenantCode() {
+		return tenantCode;
+	}
+
+	public void setTenantCode(String tenantCode) {
+		this.tenantCode = tenantCode;
+	}
+
+	public String getBusinessLineCode() {
+		return businessLineCode;
+	}
+
+	public void setBusinessLineCode(String businessLineCode) {
+		this.businessLineCode = businessLineCode;
+	}
+
 	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
@@ -417,6 +444,10 @@ public class LoginUserResponse extends JdResponse {
 				", siteSortType=" + siteSortType +
 				", siteSortSubType=" + siteSortSubType +
 				", siteSortThirdType=" + siteSortThirdType +
-				'}';
+				", provinceAgencyCode='" + provinceAgencyCode + '\'' +
+				", provinceAgencyName='" + provinceAgencyName + '\'' +
+				", tenantCode='" + tenantCode + '\'' +
+				", businessLineCode='" + businessLineCode + '\'' +
+				"} " + super.toString();
 	}
 }

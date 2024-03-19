@@ -88,6 +88,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		if(!Boolean.TRUE.equals(dmsConfigManager.getPropertyConfig().getSendJyOperateFlowMqSwitch())) {
 			return 0;
 		}
+		if (logger.isInfoEnabled()) {
+			logger.info("jyOperateFlowMqProducer-sendMq|发送流水:mqData={}", JsonHelper.toJson(mqData));
+		}
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
 		return 1;
 	}
@@ -105,6 +108,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 					continue;
 				}
 				msgList.add(new Message(jyOperateFlowMqProducer.getTopic(), JsonHelper.toJson(mqData), mqData.getOperateBizKey()));
+				if (logger.isInfoEnabled()) {
+					logger.info("jyOperateFlowMqProducer-sendMqList|发送流水:mqData={}", JsonHelper.toJson(mqData));
+				}
 			}
 			jyOperateFlowMqProducer.batchSendOnFailPersistent(msgList);
 			return mqDataList.size();
@@ -127,11 +133,17 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendOperateTrack", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void sendOperateTrack(WaybillStatus waybillStatus) {
 		try {
+			if (!dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
+				return;
+			}
 			// 获取有效单号
 			String barCode = getBarCode(waybillStatus);
 			// 消息业务ID格式：操作码+单号
 			String businessId = waybillStatus.getOperateType() + barCode;
 			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
+			if (logger.isInfoEnabled()) {
+				logger.info("sendOperateTrack|发送操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
+			}
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
 		}
@@ -215,6 +227,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			// 验货操作流水消息集合
 			List<JyOperateFlowMqData> inspectionFlowMqList = new ArrayList<>();
 			for (Inspection inspection : inspectionList) {
+				if (logger.isInfoEnabled()) {
+					logger.info("sendInspectOperateFlowData|发送验货流水:inspection={}", JsonHelper.toJson(inspection));
+				}
 				originInspection = inspection;
 				// 组装操作流水实体
 				JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
@@ -263,6 +278,10 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sortingCancelFlowMq.setId(operateFlowId);
 			sendMq(sortingCancelFlowMq);
 			waybillStatus.setOperateFlowId(operateFlowId);
+			if (logger.isInfoEnabled()) {
+				logger.info("sendSoringOperateFlowData|发送分拣流水:sorting={},sortingMQ={},waybillStatus={}", JsonHelper.toJson(sorting),
+						JsonHelper.toJson(sortingCancelFlowMq), JsonHelper.toJson(waybillStatus));
+			}
 		} catch (Exception e) {
 			logger.error("发送分拣操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
 		}
@@ -280,6 +299,10 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
 			deliveryCancelFlowMq.setId(operateFlowId);
 			waybillStatus.setOperateFlowId(operateFlowId);
+			if (logger.isInfoEnabled()) {
+				logger.info("createDeliveryOperateFlowData|发送发货流水:sendDetail={},deliveryMQ={},waybillStatus={}", JsonHelper.toJson(sendDetail),
+						JsonHelper.toJson(deliveryCancelFlowMq), JsonHelper.toJson(waybillStatus));
+			}
 			return deliveryCancelFlowMq;
 		} catch (Exception e) {
 			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
