@@ -18,6 +18,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.requ
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.common.utils.SdkConvertAndroidUtil;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
@@ -35,14 +37,12 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanContextDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
+import com.jd.bluedragon.distribution.jy.manager.JyCallbackJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
@@ -85,11 +85,13 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.enums.TenantEnum;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -201,6 +203,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private InspectionService inspectionService;
+
+    @Autowired
+    @Qualifier("jyCallbackJsfManager")
+    private JyCallbackJsfManager jyCallbackJsfManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -553,14 +559,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
     }
 
+    /**
+     * 执行卸车扫描操作
+     * @param request 卸车扫描请求对
+     * @return 返回带有校验结果的卸车扫描响应对象
+     * @throws EconomicNetException 经济网异常
+     */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.unloadScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request) {
+    public JdVerifyResponse<UnLoadScanResponse> unloadScan(UnloadScanRequest request) {
 
         logInfo("开始卸车扫描. {}", JsonHelper.toJson(request));
 
-        JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
+        JdVerifyResponse<UnLoadScanResponse> result = new JdVerifyResponse<>();
         result.toSuccess();
 
         JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadVehicleService.findByBizId(request.getBizId());
@@ -612,6 +624,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             // 处理特殊产品类型提示音
             this.handleSpecialProductType(request, result, unloadScanContextDto);
+
+            // 执行回调
+            this.unloadScanOfCallback(result,request);
         }
         catch (EconomicNetException e) {
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
@@ -634,7 +649,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+    private boolean checkBarInterceptResult(JdVerifyResponse<UnLoadScanResponse> response, UnloadScanRequest request) {
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
             final InspectionScanRequest inspectionScanRequest = new InspectionScanRequest();
@@ -657,7 +672,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return true;
     }
 
-    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<Integer> result) {
+    private void handleMoreLocalOrOutScan(UnloadScanRequest request, UnloadScanDto unloadScanDto, JdVerifyResponse<UnLoadScanResponse> result) {
         // 降级开关
         if (!sysConfigService.getConfigByName(Constants.MORE_OUT_SCAN_NOTIFY_SWITCH)) {
             log.info("handleMoreLocalOrOutScan|卸车扫描非本场地多扫弱提醒开关已关闭");
@@ -720,7 +735,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return pager;
     }
 
-    private void handleDepponMergeCondition(UnloadScanRequest request, JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto) {
+    private void handleDepponMergeCondition(UnloadScanRequest request, JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
         // 只处理包裹号或运单号
         if(!WaybillUtil.isWaybillCode(request.getBarCode()) && WaybillUtil.isPackageCode(request.getBarCode())){
             return;
@@ -857,11 +872,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 更新PDA卸车扫描进度
-     * @param pdaUnloadCount
+     * @param dataResult
      * @param request
      * @param taskUnloadVehicle
      */
-    private void recordUnloadProgress(Integer pdaUnloadCount, UnloadScanDto unloadScanDto, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+    private void recordUnloadProgress(UnLoadScanResponse dataResult, UnloadScanDto unloadScanDto, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+        Integer pdaUnloadCount = dataResult.getScanPackCount();
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(request.getBizId());
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
 
@@ -963,11 +979,16 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 扫描前校验
-     * @param result
-     * @param request
-     * @return
+     * @param result JdVerifyResponse对象，用于存储校验结果
+     * @param request UnloadScanRequest对象，表示卸货扫描请求
+     * @return 若满足条件则返回true，否则返回false
      */
-    private boolean checkBeforeScan(JdVerifyResponse<Integer> result, UnloadScanRequest request) {
+    private boolean checkBeforeScan(JdVerifyResponse<UnLoadScanResponse> result, UnloadScanRequest request) {
+        //回调
+        unloadScanCheckOfCallback(result, request);
+        if (!result.codeSuccess()) {
+            return false;
+        }
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
             result.toCustomError(InvokeResult.CODE_HINT, "单号已扫描！");
@@ -975,6 +996,75 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         return true;
+    }
+
+    /**
+     * 卸车校验回调
+     * @param result
+     * @param request
+     * @return
+     */
+    private void unloadScanCheckOfCallback(JdVerifyResponse<UnLoadScanResponse> result,UnloadScanRequest request){
+        //需要判断当非拣运租户时在触发回调
+        String tenantCode = TenantContext.getTenantCode();
+        if(StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanCheckOfCallback(transferDto(request));
+            //返回 code 非成功时需要阻断服务，不运行继续执行
+            if (!callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                //提示类的提示语不放在这个，放在执行回调,这里保留代码。实际不返回
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(),Boolean.TRUE));
+            }
+        }
+    }
+
+    /**
+     * 卸车扫描回调
+     * @param result JdVerifyResponse对象，包含UnLoadScanResponse类型的响应
+     * @param request UnloadScanRequest对象，卸载扫描请求
+     * @return 无
+     */
+    private void unloadScanOfCallback(JdVerifyResponse<UnLoadScanResponse> result,UnloadScanRequest request){
+        //需要判断当非拣运租户时在触发回调
+        String tenantCode = TenantContext.getTenantCode();
+        if (StringUtils.isNotBlank(tenantCode) && !TenantEnum.TENANT_JY.getCode().equals(tenantCode)) {
+            String barCode = request.getBarCode();
+            InvokeWithMsgBoxResult<UnloadScanCallbackRespDto> callbackResult = jyCallbackJsfManager.unloadScanOfCallback(transferDto(request));
+            //返回 code 成功继续执行,不成功时不要阻断，不处理
+            if (callbackResult.isSuccess()) {
+                //返回个性服务标识
+                result.setSelfDomFlag(Boolean.TRUE);
+                result.setCode(callbackResult.getCode());
+                result.setMessage(callbackResult.getMessage());
+                result.addBox(SdkConvertAndroidUtil.convertMsg(callbackResult.getMsgBoxes(), Boolean.TRUE));
+                //data暂时没有
+                //result.setData(callbackResult.getData());
+            }
+        }
+    }
+    /**
+     * 将UnloadScanRequest转换为UnloadScanCallbackReqDto
+     * @param request 载入扫描请求对象
+     * @return callbackReqDto 卸载扫描回调请求对象
+     * @throws NullPointerException 如果request为空时
+     */
+    private UnloadScanCallbackReqDto transferDto(UnloadScanRequest request){
+        UnloadScanCallbackReqDto callbackReqDto = new UnloadScanCallbackReqDto();
+        callbackReqDto.setBarCode(request.getBarCode());
+        callbackReqDto.setScanType(request.getScanType());
+        callbackReqDto.setForceSubmit(request.getForceSubmit());
+        callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+        callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
+        if (request.getUser() != null) {
+            callbackReqDto.setUserCode(request.getUser().getUserCode());
+            callbackReqDto.setUserName(request.getUser().getUserName());
+        }
+        callbackReqDto.setOperateTime(new Date());
+        return callbackReqDto;
     }
 
     /**
@@ -1008,7 +1098,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return scanCount;
     }
 
-    private void calculateScanPackageCount(UnloadScanRequest request , JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto) {
+    private void calculateScanPackageCount(UnloadScanRequest request , JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
+        UnLoadScanResponse dataResult = result.getData() == null? new UnLoadScanResponse() : result.getData();
+
         String barCode = request.getBarCode();
         if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
             barCode = WaybillUtil.getWaybillCode(request.getBarCode());
@@ -1019,11 +1111,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (WaybillUtil.isPackageCode(barCode)) {
             waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
             scanCount = 1;
+            //运单包裹数
+            if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
+                dataResult.setScanWaybillPackSum(waybill.getGoodNumber());
+            }
         }
         else if (WaybillUtil.isWaybillCode(barCode)) {
             waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
             if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
                 scanCount = waybill.getGoodNumber();
+                //运单包裹数
+                dataResult.setScanWaybillPackSum(waybill.getGoodNumber());
             }
         }
         else if (BusinessHelper.isBoxcode(barCode)) {
@@ -1035,8 +1133,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
         }
         unloadScanContextDto.setWaybill(waybill);
-
-        result.setData(scanCount);
+        dataResult.setScanPackCount(scanCount);
+        result.setData(dataResult);
 
         //春节项目的特殊逻辑
         if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
@@ -1111,7 +1209,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, bizId);
     }
 
-    private void handleSpecialProductType(UnloadScanRequest request, JdVerifyResponse<Integer> result, UnloadScanContextDto unloadScanContextDto){
+    private void handleSpecialProductType(UnloadScanRequest request, JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto){
         try {
             final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
             if (!Objects.equals(barCodeType, BarCodeType.WAYBILL_CODE) && !Objects.equals(barCodeType, BarCodeType.PACKAGE_CODE)) {
