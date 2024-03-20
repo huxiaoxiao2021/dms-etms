@@ -1642,7 +1642,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 response.toFail("入参不能为空!");
                 return response;
             }
-            Waybill waybill = waybillService.getWaybillByWayCode(req.getBarCode());
+            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(req.getBarCode()));
             if(waybill == null){
                 response.toFail("运单信息为空!");
                 return response;
@@ -2015,7 +2015,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return;
         }
         DeliveredReqDTO reqDTO = new DeliveredReqDTO();
-        reqDTO.setWaybillCode(exTaskEntity.getBarCode());
+        reqDTO.setWaybillCode(WaybillUtil.getWaybillCode(exTaskEntity.getBarCode()));
         reqDTO.setUserCode(exTaskEntity.getHandlerErp());
         reqDTO.setSiteId(Objects.nonNull(exTaskEntity.getSiteCode())?exTaskEntity.getSiteCode().intValue():0);
         reqDTO.setSiteName(exTaskEntity.getSiteName());
