@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -99,6 +101,11 @@ public class UploadDataJsfRequest implements Serializable{
      * 操作人名称【可选，来源为自动分拣机时必填】
      */
     private String operatorName;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public Date getScannerTime() {
         return scannerTime;
@@ -243,6 +250,14 @@ public class UploadDataJsfRequest implements Serializable{
 
     public void setOperatorName(String operatorName) {
         this.operatorName = operatorName;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 
     @Override
