@@ -211,8 +211,12 @@
                     <artifactId>validation-api</artifactId>
                     <groupId>javax.validation</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
+                </exclusion>
             </exclusions>
-        </dependency>
+		</dependency>
 
         <dependency>
             <groupId>org.apache.santuario</groupId>
@@ -809,6 +813,10 @@
                     <artifactId>netty-all</artifactId>
                     <groupId>io.netty</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -1077,6 +1085,10 @@
                     <artifactId>commons-jexl</artifactId>
                     <groupId>org.apache.commons</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -1194,6 +1206,10 @@
                 <exclusion>
                     <artifactId>cxf-rt-transports-http</artifactId>
                     <groupId>org.apache.cxf</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1546,6 +1562,12 @@
             <groupId>com.jd.jspliter</groupId>
             <artifactId>jspliter-jmq</artifactId>
             <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -2130,6 +2152,10 @@
                 <exclusion>
                     <groupId>org.aspectj</groupId>
                     <artifactId>aspectjweaver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>profiler</artifactId>
+                    <groupId>com.jd.ump</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

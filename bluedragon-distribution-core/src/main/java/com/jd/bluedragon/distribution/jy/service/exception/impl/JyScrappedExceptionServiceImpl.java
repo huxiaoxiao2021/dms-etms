@@ -141,7 +141,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyScrappedExceptionServiceImpl.exceptionTaskCheckByExceptionType", mState = {JProEnum.TP})
     public JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req, Waybill waybill) {
         JdCResponse<Boolean> response = new JdCResponse<>();
-        String waybillCode = req.getBarCode();
+        String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
         //
         //校验生鲜单号 自营OR外单
         //根据运单获取waybillSign
@@ -265,7 +265,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
             JyExceptionScrappedPO po = new JyExceptionScrappedPO();
             po.setBizId(req.getBizId());
-            po.setWaybillCode(bizEntity.getBarCode());
+            po.setWaybillCode(WaybillUtil.getWaybillCode(bizEntity.getBarCode()));
             po.setSiteCode(req.getSiteId());
             po.setSiteName(baseStaffByErp.getSiteName());
             po.setExceptionType(req.getScrappedTypCode());

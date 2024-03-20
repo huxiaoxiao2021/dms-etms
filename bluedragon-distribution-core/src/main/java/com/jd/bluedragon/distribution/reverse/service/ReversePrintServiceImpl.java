@@ -1,44 +1,20 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.ReceiveManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
@@ -58,11 +34,7 @@ import com.jd.bluedragon.distribution.qualityControl.service.QualityControlServi
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
 import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
-import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
-import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
-import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
@@ -73,11 +45,9 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.java.utils.sdk.base.Result;
-import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
 import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
@@ -91,7 +61,6 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.SwitchWaybillResultDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.dto.WaybillSwitchDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
@@ -107,13 +76,22 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 逆向换单打印
@@ -317,7 +295,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             taskService.add(tTask, true);
 
             // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
-            this.sendDisposeAfterInterceptMsg(domain);
+            this.sendDisposeAfterInterceptMsgByWaybill(domain);
 
             //发送换单打印消息 三无使用 ，与亚国沟通也放在这里  减少频繁发送的问题
             ChangeOrderPrintMq changeOrderPrintMq = convert2PushPrintRecordDto(domain);
@@ -330,6 +308,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             //全量接单也是此逻辑 减少频繁发送的问题
             waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
+        } else {
+            if(WaybillUtil.isPackageCode(domain.getNewPackageCode())){
+                // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
+                this.sendDisposeAfterInterceptMsgByPackageCode(domain);
+            }
         }
 
         tTask.setKeyword1(domain.getNewCode());
@@ -612,8 +595,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * @author fanggang7
      * @time 2020-12-14 14:11:58 周一
      */
-    private Response<Boolean> sendDisposeAfterInterceptMsg(ReversePrintRequest reversePrintRequest){
-        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
+    private Response<Boolean> sendDisposeAfterInterceptMsgByWaybill(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsgByWaybill {}", JSON.toJSONString(reversePrintRequest));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 
@@ -631,6 +614,43 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
             log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
+            result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 发送消息
+     * @param reversePrintRequest 换单请求参数
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsgByPackageCode(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode {}", JSON.toJSONString(reversePrintRequest));
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            final String packageCode = WaybillUtil.genPackageCodeByPackNumAndPackIndex(reversePrintRequest.getOldCode(), WaybillUtil.getPackNumByPackCode(reversePrintRequest.getNewPackageCode()), WaybillUtil.getPackIndexByPackCode(reversePrintRequest.getNewPackageCode()));
+            if(StringUtils.isBlank(packageCode)){
+                log.warn("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode getOldPackageCode null {}", JSON.toJSONString(reversePrintRequest));
+                return result;
+            }
+            saveDisposeAfterInterceptMsgDto.setBarCode(packageCode);
+            saveDisposeAfterInterceptMsgDto.setPackageCode(packageCode);
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
+            saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(reversePrintRequest.getStaffId());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(reversePrintRequest.getStaffRealName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(reversePrintRequest.getSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(reversePrintRequest.getSiteName());
+            // log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
             result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;
