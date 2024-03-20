@@ -230,6 +230,11 @@ public class WeightVolumeEntity {
         return this;
     }
 
+    public WeightVolumeEntity operatorData(OperatorData operatorData){
+        this.operatorData = operatorData;
+        return this;
+    }
+
     public Integer getLongPackage() {
         return longPackage;
     }

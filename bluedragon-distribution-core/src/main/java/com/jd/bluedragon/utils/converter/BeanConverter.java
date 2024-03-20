@@ -137,11 +137,17 @@ public class BeanConverter {
 
 
 	public static OperatorData convertToOperatorDataForAuto(InspectionRequest requestBean) {
+		return convertToOperatorDataForAuto(requestBean.getMachineCode());
+	}
+
+	public static OperatorData convertToOperatorDataForAuto(String machineCode) {
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-		operatorData.setOperatorId(requestBean.getMachineCode());
+		operatorData.setOperatorId(machineCode);
 		return operatorData;
 	}
+
+
 	public static OperatorData convertToOperatorData(InspectionAS inspectionAs) {
 		if(inspectionAs.getOperatorData() != null) {
 			return inspectionAs.getOperatorData();
@@ -467,7 +473,13 @@ public class BeanConverter {
 		mqData.setOperateTime(entity.getOperateTime() == null ? new Date() : entity.getOperateTime());
 		mqData.setOperateSiteCode(entity.getOperateSiteCode());
 		JyOperateFlowData data = new JyOperateFlowData();
-		data.setOperatorData(entity.getOperatorData());
+		OperatorData operatorData = entity.getOperatorData();
+		if (operatorData == null || operatorData.getOperatorTypeCode() == null) {
+			if (StringUtils.isNotBlank(entity.getMachineCode())) {
+				operatorData = convertToOperatorDataForAuto(entity.getMachineCode());
+			}
+		}
+		data.setOperatorData(operatorData);
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("WeightVolumeEntity-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));

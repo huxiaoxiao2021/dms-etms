@@ -345,10 +345,10 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	public void sendWeightVolumeOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum) {
 		try {
 			// 组装操作流水实体
-			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
+			JyOperateFlowMqData weightVolumeFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
 			// 业务子类型
-			sortingCancelFlowMq.setOperateBizSubType(subTypeEnum.getCode());
-			sendMq(sortingCancelFlowMq);
+			weightVolumeFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			sendMq(weightVolumeFlowMq);
 		} catch (Exception e) {
 			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJson(entity), e);
 		}
