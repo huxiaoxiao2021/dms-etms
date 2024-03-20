@@ -41,7 +41,7 @@ public class BusinessInterceptConfigHelper {
     // 拦截报表设备【自动化】设备类型
     @Value("${businessIntercept.device.type.automatic}")
     private Integer interceptOperateDeviceTypeAutomatic;
-    // 拦截报表设备【dws】设备类型
+    // 拦截报表设备【打印客户端】设备类型
     @Value("${businessIntercept.device.type.printClient}")
     private Integer interceptOperateDeviceTypePrintClient;
     // 拦截报表设备【dws】设备类型
