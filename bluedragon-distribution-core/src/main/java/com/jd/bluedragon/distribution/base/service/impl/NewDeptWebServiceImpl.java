@@ -24,6 +24,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 	 * @param password 密码
 	 * @param loginVersion 客户端登录接口的版本
 	 */
+	@Override
 	public InvokeResult<UserInfo> verify(String username, String password, Byte loginVersion) {
         InvokeResult<UserInfo> result = new InvokeResult<>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
@@ -36,11 +37,11 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
             UserInfo userInfo = ssoService.verify(username, pwd, remoteIp);
             result.setData(userInfo);
 		}catch(SsoException e){
-            log.error("SsoException verify error,认证失败",e);
+			log.error("SsoException verify error,认证失败,具体原因:{}",e.getMessage());
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(e.getMessage());
 		}catch (UnknownHostException e) {
-			log.error("获取本地ip异常",e);
+			log.error("获取本地ip异常,具体原因:{}",e.getMessage());
 			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 			result.setMessage("验证失败!");
 		}
@@ -57,9 +58,4 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 		this.ssoService = ssoService;
 	}
 
-	public static void main(String args[]){
-		NewDeptWebServiceImpl impl = new NewDeptWebServiceImpl();
-        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456", (byte)1);
-		System.out.println(result);
-	}
 }
