@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.SearchPackageTaskReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.TaskDetailReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageTaskResp;
+import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -28,6 +29,7 @@ import com.jd.ql.basic.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -48,6 +50,10 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    @Qualifier("collectLoadingManger")
+    private CollectPackageManger collectPackageManger;
 
 
     @Override

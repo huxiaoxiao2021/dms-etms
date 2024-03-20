@@ -139,6 +139,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private static final Integer SEALING_BOX_LIMIT = 100;
 
     @Autowired
+    @Qualifier("collectPackageManger")
     private CollectPackageManger collectPackageManger;
 
     @Autowired

@@ -9,7 +9,6 @@ import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectLoadingGatewayService;
-import com.jd.bluedragon.external.gateway.service.JyCollectPackageGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;

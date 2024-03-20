@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
 
 
-@Service
+@Service("collectPackageManger")
 @Slf4j
 public class CollectPackageMangerImpl implements CollectPackageManger {
 
@@ -124,7 +124,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         return collectPackageFlowDto;
     }
 
-    private ApiDataQueryRequest buildQueryTaskFlowStatisticQueryParams(StatisticsUnderTaskQueryDto dto) {
+    public ApiDataQueryRequest buildQueryTaskFlowStatisticQueryParams(StatisticsUnderTaskQueryDto dto) {
         ApiDataQueryRequest apiDataQueryRequest = new ApiDataQueryRequest();
         apiDataQueryRequest.setApiName("CollectPackageAggFlow");
         apiDataQueryRequest.setApiGroupName(jyCollectPackageUdataApiGroupName);
@@ -162,7 +162,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         return listTaskStatisticDto;
     }
 
-    private ApiTopologyQueryResult callUdataQueryAPi(ApiDataQueryRequest queryParams) {
+    public ApiTopologyQueryResult callUdataQueryAPi(ApiDataQueryRequest queryParams) {
         log.info("CollectPackageManger invoke udata api request :{}", JsonHelper.toJson(queryParams));
         ApiTopologyQueryResult apiTopologyQueryResult = null;
         try {
@@ -226,7 +226,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
     }
 
 
-    private ApiDataQueryRequest buildListTaskStatisticUDataQueryParams(ListTaskStatisticQueryDto dto) {
+    public ApiDataQueryRequest buildListTaskStatisticUDataQueryParams(ListTaskStatisticQueryDto dto) {
         ApiDataQueryRequest apiDataQueryRequest = new ApiDataQueryRequest();
         apiDataQueryRequest.setApiName("CollectPackageAgg");
         apiDataQueryRequest.setApiGroupName(jyCollectPackageUdataApiGroupName);
@@ -269,7 +269,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         return statisticsUnderFlowQueryResp;
     }
 
-    private ApiDataQueryRequest buildListPackageUnderFlowUDataQueryParams(StatisticsUnderFlowQueryReq request) {
+    public ApiDataQueryRequest buildListPackageUnderFlowUDataQueryParams(StatisticsUnderFlowQueryReq request) {
         ApiDataQueryRequest apiDataQueryRequest = new ApiDataQueryRequest();
         apiDataQueryRequest.setApiName("CollectPackageDetail");
         apiDataQueryRequest.setApiGroupName(jyCollectPackageUdataApiGroupName);
