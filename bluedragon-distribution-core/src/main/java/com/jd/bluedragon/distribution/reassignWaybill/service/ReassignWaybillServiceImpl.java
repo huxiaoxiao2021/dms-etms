@@ -151,6 +151,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	@Autowired
 	private GoldShieldDataManager goldShieldDataManager;
 
+	/**
+	 * 反调度备注长度限制
+	 */
+	private static final Integer REMARK_LENGTH_LIMIT = 200;
+
 
 	private Boolean add(ReassignWaybill packTagPrint) {
 		long startTime=new Date().getTime();
@@ -1017,6 +1022,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		if(!ReassignWaybillReasonTypeEnum.exist(req.getReasonType())){
 			result.toFail("返调度原因类型不存在！");
+			return ;
+		}
+		if (StringUtils.isNotEmpty(req.getRemark()) && req.getRemark().length() > REMARK_LENGTH_LIMIT) {
+			result.toFail("返调度备注长度不能超过+ "+ REMARK_LENGTH_LIMIT + "！");
 			return ;
 		}
 	}
