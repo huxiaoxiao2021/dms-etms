@@ -252,6 +252,7 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 				String workTypeName = ResponsibleWorkTypeEnum.getNameByCode(responsibleInfo.getWorkType());
 				responsibleInfoVO.setWorkTypeName(workTypeName);
 				ResponsibleWorkTypeEnum workTaskTypeEnum = ResponsibleWorkTypeEnum.getByCode(responsibleInfo.getWorkType());
+				String idCard = null;
 				switch (workTaskTypeEnum){
 					//正式工
 					case FORMAL_WORKER:
@@ -276,13 +277,21 @@ public class WorkGridManagerReportServiceImpl implements WorkGridManagerReportSe
 						responsibleInfoVO.setResponsibleTypeName(SUPPLIER.getName());
 						responsibleInfoVO.setResponsibleName(responsibleInfo.getSupplierName());
 						responsibleInfoVO.setResponsibleCode(responsibleInfo.getSupplierId());
-						responsibleInfoVO.setIdCard(responsibleInfo.getIdCard());
+						idCard = responsibleInfo.getIdCard();
 						responsibleInfoVO.setOuterName(responsibleInfo.getName());
+						break;
 					case TEMPORARY_WORKERS: //临时工
 						responsibleInfoVO.setResponsibleTypeName(WORK_GRID_OWNER.getName());
 						responsibleInfoVO.setResponsibleCode(responsibleInfo.getGridOwnerErp());
-						responsibleInfoVO.setIdCard(responsibleInfo.getIdCard());
+						idCard = responsibleInfo.getIdCard();
+						break;
+					default:
+						logger.error("责任类型错误，bizId:{}", taskData.getBizId());
 						
+				}
+				if(StringUtils.isNotBlank(idCard)){
+					idCard = idCard.substring(0, 10) + "****" + idCard.substring(14, idCard.length());
+					responsibleInfo.setIdCard(idCard);
 				}
 				workGridManagerReportVo.setResponsibleInfo(responsibleInfoVO);
 				
