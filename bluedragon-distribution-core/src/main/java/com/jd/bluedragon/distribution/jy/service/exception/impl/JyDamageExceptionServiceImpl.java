@@ -178,8 +178,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
      *
      * @return
      */
-    private boolean checkDamageChangePackageRepair(String waybillCode) {
+    private boolean checkDamageChangePackageRepair(String barcode) {
 
+        String waybillCode = WaybillUtil.getWaybillCode(barcode);
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
             logger.warn("运单{}获取运单信息失败!", waybillCode);
@@ -264,7 +265,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
 
-            Waybill waybill = waybillService.getWaybillByWayCode(barCode);
+            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(barCode));
             if(waybill == null){
                 logger.warn("查询运单waybillSign失败!-{}", barCode);
                 throw new JyBizException("获取运单信息失败！");
@@ -489,7 +490,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         } else {//外单
             mq.setWaybillType(ASCPContants.WAYBILL_TYPE_OTHER);
         }
-        mq.setWaybillCode(entity.getBarCode());
+        mq.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
         //组装图片附件
         mq.setAttachmentAddr(assembleAttachmentAddr(entity));
         logger.info("组装发送给客服破损数据-{}",JSON.toJSONString(mq));
@@ -628,7 +629,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private void dealExpDamageWeightVolumeUpload(JyExceptionDamageEntity damageEntity, boolean before) {
         WeightVolumeEntity entity = new WeightVolumeEntity();
         entity.setBarCode(damageEntity.getBarCode());
-        entity.setWaybillCode(damageEntity.getBarCode());
+        entity.setWaybillCode(WaybillUtil.getWaybillCode(damageEntity.getBarCode()));
         entity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
         entity.setSourceCode(FromSourceEnum.EXP_DAMAGE);
         if (before) {

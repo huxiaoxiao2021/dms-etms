@@ -111,12 +111,6 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
      */
     protected abstract Response<Boolean> doHandle(SaveInterceptMsgDto msgDto);
 
-    @Value("${businessIntercept.pda.interceptCode.waybillCancel:}")
-    private String pdaInterceptCodeWaybillCancel;
-
-    @Value("${businessIntercept.automatic.interceptCode.waybillCancel:}")
-    private String automaticInterceptCodeWaybillCancel;
-
     /**
      * 获取应拦截生效时间
      *
@@ -130,8 +124,8 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
         result.toSucceed();
         result.setData(true);
 
-        List<String> pdaWaybillCancelInterceptCodeList = Arrays.asList(this.pdaInterceptCodeWaybillCancel.split(","));
-        List<String> automaticWaybillCancelInterceptCodeList = Arrays.asList(this.automaticInterceptCodeWaybillCancel.split(","));
+        List<String> pdaWaybillCancelInterceptCodeList = Arrays.asList(businessInterceptConfigHelper.getPdaInterceptCodeWaybillCancel().split(","));
+        List<String> automaticWaybillCancelInterceptCodeList = Arrays.asList(businessInterceptConfigHelper.getAutomaticInterceptCodeWaybillCancel().split(","));
         // 如果是取消类型的code，就查询一下运单取消记录
         if ((Objects.equals(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PDA), msgDto.getDeviceType()) && pdaWaybillCancelInterceptCodeList.contains(String.valueOf(msgDto.getInterceptCode())))
                 || (Objects.equals(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.AUTOMATIC), msgDto.getDeviceType()) && automaticWaybillCancelInterceptCodeList.contains(String.valueOf(msgDto.getInterceptCode())))

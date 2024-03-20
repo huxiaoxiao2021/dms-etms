@@ -365,7 +365,7 @@
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
 		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
-
+		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -734,6 +734,7 @@
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
 				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
+				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 			</list>
 		</property>
 	</bean>
