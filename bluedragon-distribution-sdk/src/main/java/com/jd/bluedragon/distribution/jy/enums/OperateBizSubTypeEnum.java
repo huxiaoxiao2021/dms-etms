@@ -30,6 +30,11 @@ public enum OperateBizSubTypeEnum {
 
 	ABNORMAL_HANDLE("abnormal_handle", "异常处理"),
 	ABNORMAL_REPORT_H5("abnormal_report_h5", "异常提报(新)"),
+
+	SORT_WEIGHT_VOLUME_PACKAGE("sortWeightVolumePackage", "自动化按包裹称重"),
+	SORT_WEIGHT_VOLUME_WAYBILL("sortWeightVolumeWaybill", "自动化按运单称重"),
+	SORT_WEIGHT_VOLUME_BOX("sortWeightVolumeBox", "自动化按箱称重"),
+	SORT_WEIGHT_VOLUME_HANDOVER("sortWeightVolumeHandover", "自动化按加盟商交接称重"),
 	;
 	
 	private OperateBizSubTypeEnum(String code, String name) {

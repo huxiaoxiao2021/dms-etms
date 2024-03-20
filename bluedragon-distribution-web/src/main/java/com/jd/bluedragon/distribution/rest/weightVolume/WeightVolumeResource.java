@@ -115,7 +115,7 @@ public class WeightVolumeResource {
                 .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
                 .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                 .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
-                .machineCode(condition.getMachineCode()).remark(remark);
+                .machineCode(condition.getMachineCode()).remark(remark).operatorData(condition.getOperatorData());
         entity.setOverLengthAndWeightEnable(condition.getOverLengthAndWeightEnable());
         entity.setOverLengthAndWeightTypes(condition.getOverLengthAndWeightTypes());
         InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
