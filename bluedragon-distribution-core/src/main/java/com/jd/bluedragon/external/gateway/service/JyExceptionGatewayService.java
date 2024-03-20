@@ -2,24 +2,11 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.DmsBarCode;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpScrappedDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpSignUserResp;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskStatisticsOfWaitReceiveDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyDamageExceptionToProcessCountDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionPackageTypeDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.JyExceptionScrappedTypeDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.ProcessingNumByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageEnum;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionCountDto;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
-import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 
 import java.util.List;
 
@@ -211,5 +198,34 @@ public interface JyExceptionGatewayService {
      * 破损耗材明细
      */
     JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables();
+
+
+    /**
+     * 获取质控异常原因枚举
+     *
+     * @return
+     */
+    JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
+
+    /**
+     * 获取拦截任务明细
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<JyExceptionInterceptDetailDto> getTaskDetailOfIntercept(ExpTaskCommonReq req);
+
+    /**
+     * 拦截任务处理
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<Boolean> processTaskOfIntercept(ExpInterceptTaskProcessReq req);
+
+    /**
+     * 拦截任务-上传重量体积
+     * @author fanggang7
+     * @time 2024-01-17 18:39:37 周三
+     */
+    JdCResponse<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req);
 
 }

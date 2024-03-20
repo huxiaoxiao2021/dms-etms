@@ -87,6 +87,12 @@ public class OperatorInfo implements Serializable {
      */
     private Integer flowFlag;
 
+
+    /**
+     * 业务操作流水表主键
+     */
+    private Long operateFlowId;
+
     public Integer getUserCode() {
         return userCode;
     }
@@ -215,4 +221,12 @@ public class OperatorInfo implements Serializable {
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
 	}
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
+    }
 }

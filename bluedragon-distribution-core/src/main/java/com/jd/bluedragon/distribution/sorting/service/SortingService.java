@@ -2,13 +2,18 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingQuery;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.sorting.dto.CancelSortingOffsiteDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.List;
 
@@ -82,6 +87,15 @@ public interface SortingService {
      * @return
      */
     List<Sorting> queryByCode2(Sorting sorting);
+
+
+    /**
+     * 据包裹号或者运单号查询箱子、create_site_code、receive_site_code
+     * 此方法查询集包记录，不校验是否发货，send_m是否存在记录
+     * @param sorting
+     * @return
+     */
+    List<Sorting> querySortingByCode(Sorting sorting);
 
     /** 执行取消文件操作  这里不再判断业务类型是正向还是逆向等  added by zhanglei */
     Boolean canCancel2(Sorting sorting);
@@ -240,4 +254,27 @@ public interface SortingService {
      * @return
      */
     List<Sorting> pageQueryByBoxCode(SortingQuery query);
+
+    /**
+     * 根据场地、包裹号查询箱号数据
+     * @param packageCode 包裹号
+     * @return 箱号数据
+     * @author fanggang7
+     * @time 2023-12-09 15:30:44 周六
+     */
+    SortingDto getLastSortingInfoByPackageCode(String packageCode);
+
+    /**
+     * 取消集包-当前操作场地和实际集包场地不同时取消集包
+     * @param cancelSortingOffsiteDto 异场地取消集包
+     * @return SortingResponse
+     */
+    SortingResponse doCancelSortingOffsite(CancelSortingOffsiteDto cancelSortingOffsiteDto);
+
+    int  deleteOldAndInsertNewSorting(List<Sorting> sortingList);
+
+
+    WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
+                                     BaseStaffSiteOrgDto receiveSite);
+
 }

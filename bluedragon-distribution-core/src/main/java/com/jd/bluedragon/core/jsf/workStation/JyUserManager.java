@@ -3,13 +3,14 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import java.util.List;
 
+import com.jdl.basic.api.domain.user.JyUser;
+import com.jdl.basic.api.domain.user.JyUserDto;
+import com.jdl.basic.api.domain.user.JyUserQueryDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.workStation.impl.JyUserManagerImpl;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.basic.api.domain.user.JyUser;
-import com.jdl.basic.api.domain.user.JyUserDto;
-import com.jdl.basic.api.domain.user.JyUserQueryDto;
+import com.jdl.basic.api.domain.user.*;
 import com.jdl.basic.common.utils.Result;
 
 /**
@@ -31,4 +32,9 @@ public interface JyUserManager {
 
     Result<JyUser> queryUserInfo(String erp);
 
+    JyUserDto getUserByErpOrIdNum(JyUserQueryDto queryDto);
+
+    Result<List<JyThirdpartyUser>> batchQueryJyThirdpartyUser(List<JyTpUserScheduleQueryDto> dtos);
+
+    JyUserDto querySiteLeader(Integer siteCode);
 }

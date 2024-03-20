@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JySanwuExceptionServi
 import com.jd.bluedragon.distribution.jy.service.exception.impl.JyScrappedExceptionServiceImpl;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
+import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
@@ -340,5 +341,47 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getConsumables", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<com.jd.bluedragon.distribution.jy.dto.Consumable>> getConsumables() {
         return jyDamageExceptionService.getConsumables();
+    }
+
+    @Override
+    public JdCResponse<List<AbnormalReasonResp>> getAbnormalReason() {
+        return jyContrabandExceptionService.getAbnormalReason();
+    }
+
+    /**
+     * 获取拦截任务明细
+     * @param req 请求入参
+     * @return 明细数据
+     * @author fanggang7
+     * @time 2024-01-14 17:37:50 周日
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.getTaskDetailOfIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<JyExceptionInterceptDetailDto> getTaskDetailOfIntercept(ExpTaskCommonReq req) {
+        return ResultConverter.convertResultToJdcResponse(jyExceptionService.getTaskDetailOfIntercept(req));
+    }
+
+    /**
+     * 拦截任务处理
+     * @param req 请求入参
+     * @author fanggang7
+     * @time 2024-01-14 17:37:50 周日
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.processTaskOfIntercept", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> processTaskOfIntercept(ExpInterceptTaskProcessReq req) {
+        return ResultConverter.convertResultToJdcResponse(jyExceptionService.processTaskOfIntercept(req));
+    }
+
+    /**
+     * 拦截任务-上传重量体积
+     * @param req 请求入参
+     * @author fanggang7
+     * @time 2024-01-14 17:37:50 周日
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionGatewayServiceImpl.processTaskOfContraband", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req) {
+        return ResultConverter.convertResultToJdcResponse(jyExceptionService.processTaskOfInterceptSubmitWeightVolume(req));
     }
 }

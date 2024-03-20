@@ -479,4 +479,25 @@ public interface WaybillSignConstants {
 	char CHAR_124_4 = '4'; //自营售后取件快递业务
 	char CHAR_124_5 = '5'; //自营售后取件快运业务
 	char CHAR_124_6 = '6'; //自营售后取件B2B业务
+
+	/**
+	 * 34
+	 */
+	int POSITION_34 = 34;
+	char CHAR_34_0 = '0';
+
+	/**
+	 * 19
+	 */
+	int POSITION_19 = 19;
+	char CHAR_19_2 = '2';
+
+
+	/**
+	 * 24-个性化运单
+	 */
+	int POSITION_24 = 24;
+	char CHAR_24_G = 'G';
+
+
 }

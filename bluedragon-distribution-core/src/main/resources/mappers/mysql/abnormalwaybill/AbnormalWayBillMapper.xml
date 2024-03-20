@@ -83,7 +83,7 @@
         </if>
     </sql>
 
-	<insert id="add" parameterType="abnormalWayBill">
+	<insert id="add" parameterType="abnormalWayBill" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO abnormal_waybill(
         <include refid="Base_Column_List"/>
         )

@@ -1231,7 +1231,6 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             sealTaskInfo.setVehicleNumber(unloadVehicle.getVehicleNumber());
             sealTaskInfo.setVehicleStatus(unloadVehicle.getVehicleStatus());
             sealTaskInfo.setVehicleStatusName(ValueNameEnumUtils.getNameByValue(VehicleStatusEnum.class, sealTaskInfo.getVehicleStatus()));
-            sealTaskInfo.setTransportCode(unloadVehicle.getTransWorkItemCode());
 
             // 查询积分排序
             if (request.getQueryRankOrder()) {
@@ -1313,6 +1312,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         sealTaskInfo.setLineType(sealCarMonitor.getLineType());
         sealTaskInfo.setLineTypeName(ValueNameEnumUtils.getNameByValue(LineTypeEnum.class, sealTaskInfo.getLineType()));
         sealTaskInfo.setTransBookCode(sealCarMonitor.getTransBookCode());
+        sealTaskInfo.setTransportCode(sealCarMonitor.getTransportCode());
         if (StringUtils.isNotBlank(sealCarMonitor.getSendCodeList())) {
             try {
                 sealTaskInfo.setBatchCodeList(Arrays.asList(sealCarMonitor.getSendCodeList().split(Constants.SEPARATOR_COMMA)));

@@ -957,6 +957,9 @@
     <bean id="jyBizTaskWorkGridManagerDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyWorkGridManagerResponsibleInfoDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerResponsibleInfoDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyWorkGridManagerCaseDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
@@ -978,6 +981,12 @@
     <bean id="jyExceptionContrabandDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionContrabandDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+    <bean id="jyExceptionInterceptDetailDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyExceptionInterceptDetailKvDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailKvDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
     <!--################################## jy_core 相关DAO END ############################################ -->
 
@@ -1005,5 +1014,23 @@
     </bean>
     <bean id="jyStatisticsSummaryDao" class="com.jd.bluedragon.distribution.jy.dao.summary.JySealStatisticsSummaryDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskPickingGoodDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskPickingGoodSubsidiaryDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyBizTaskPickingGoodSubsidiaryDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyPickingSendDestinationDetailDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendDestinationDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyPickingSendRecordDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendRecordDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyPickingTaskAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskAggsDao">
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
+    </bean>
+    <bean id="jyPickingTaskSendAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao">
+        <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
     </bean>
 </beans>

@@ -236,7 +236,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         if(siteCode == null){
             jdCResponse.toFail("场地编码为空，请退出重试!");
         }
-        deviceConfigInfoJsfService.findDeviceConfigListByCondition(siteCode.toString(), null);
+        //deviceConfigInfoJsfService.findDeviceConfigListByCondition(siteCode.toString(), null);
         BaseDmsAutoJsfResponse<Map<String, Boolean>> response =  deviceConfigInfoJsfService.getAutoMachineAndCheckCombinationBoard(siteCode);
         if(response.getStatusCode() != 200){
              jdCResponse.toFail("查询设备编码失败，请退出重试!");

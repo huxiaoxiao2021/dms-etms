@@ -750,5 +750,46 @@
         <property name="topic" value="${jmq.topic.exception.damageNoticKF}"/>
         <property name="timeout" value="3000"/>
     </bean>
+    <!--  拣运提货扫描  -->
+    <bean id="jyPickingGoodScanProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.scan}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运提货待提明细初始化  -->
+    <bean id="jyPickingGoodDetailInitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货待提明细初始化拆分  -->
+    <bean id="jyPickingGoodDetailInitSplitProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.detail.init.split}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货待提件数保持  -->
+    <bean id="jyPickingGoodSaveWaitScanItemNumProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.wait.scan.num}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运提货扫描箱号拆分包裹维度数据  -->
+    <bean id="jyPickingGoodSplitPackageProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.picking.good.scan.split.package}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  围栏到车包裹重试走自动验货逻辑  -->
+    <bean id="jyPackageArriveRetryAutoInspectionProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  循环物资进场自动验货箱维度数据  -->
+    <bean id="jyRecycleMaterialAutoInspectionBoxProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionBox}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  循环物资进场自动验货包裹维度数据  -->
+    <bean id="jyRecycleMaterialAutoInspectionPackageProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" />
+        <property name="timeout" value="1000" />
+    </bean>
 
 </beans>

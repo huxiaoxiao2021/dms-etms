@@ -162,7 +162,9 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             baseParamValidateService.checkPdaPage(request.getPageNo(), request.getPageSize());
 
             if(!JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_N.getCode().equals(request.getStatusCode())
-                    && !JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())) {
+                    && !JyAviationRailwaySendVehicleStatusEnum.TRUNK_LINE_SEAL_Y.getCode().equals(request.getStatusCode())
+                    && !JyAviationRailwaySendVehicleStatusEnum.SHUTTLE_SEAL_N.getCode().equals(request.getStatusCode())
+            ) {
                 return new JdCResponse<>(JdCResponse.CODE_FAIL, "查询状态不合法", null);
             }
             if(log.isInfoEnabled()) {
@@ -694,7 +696,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             return retJdCResponse(jyAviationRailwaySendSealService.aviationSendComplete(req));
         }catch (Exception ex) {
             log.error("空铁发货岗，发货任务完成={},errMsg={}", JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, JsonHelper.toJson(ex), null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁发货岗，发货任务完成异常！", null);//500+非自定义异常
         }
     }
 

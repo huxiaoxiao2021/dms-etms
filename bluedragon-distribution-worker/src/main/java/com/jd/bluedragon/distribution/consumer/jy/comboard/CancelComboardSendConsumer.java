@@ -2,14 +2,18 @@ package com.jd.bluedragon.distribution.consumer.jy.comboard;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -17,18 +21,23 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
+import com.jd.transboard.api.dto.RemoveBoardBoxDto;
+import com.jd.transboard.api.dto.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +66,12 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
     
     @Autowired
     protected WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BoxService boxService;
+
+    @Autowired
+    GroupBoardManager groupBoardManager;
     
     private static final Integer COMBOARD_SPLIT_NUM = 1024;
     
@@ -99,9 +114,45 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
                 virtualBoardService.sendWaybillTrace(barCode, operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                         dto.getBizSource().getValue());
+                checkIfNeedCancelInnerBox(barCode,dto,operatorInfo);
             }
         }
     }
+
+    private void checkIfNeedCancelInnerBox(String barCode,CancelComboardSendTaskDto dto,OperatorInfo operatorInfo) {
+        try {
+            if (BusinessUtil.isLLBoxcode(barCode)){
+                Box query =new Box();
+                query.setCode(barCode);
+                List<Box> boxes =boxService.listAllDescendantsByParentBox(query);
+                if (CollectionUtils.isNotEmpty(boxes)){
+                    List<String> barCodeList = new ArrayList<>();
+                    RemoveBoardBoxDto removeBoardBoxDto = new RemoveBoardBoxDto();
+                    removeBoardBoxDto.setSiteCode(dto.getSiteCode());
+                    removeBoardBoxDto.setOperatorErp(dto.getUserErp());
+                    removeBoardBoxDto.setOperatorName(dto.getUserName());
+                    removeBoardBoxDto.setBoardCode(dto.getBoardCode());
+                    removeBoardBoxDto.setBoxCodeList(barCodeList);
+                    for (Box box:boxes){
+                        barCodeList.add(box.getCode());
+                    }
+                    Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+                    if (removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+                        log.error("取消组板操作失败，接口参数：{}，异常返回结果：{}", JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+                        return;
+                    }
+                    for (Box box:boxes){
+                        virtualBoardService.sendWaybillTrace(box.getCode(), operatorInfo,dto.getOperatorData(), dto.getBoardCode(),
+                                dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
+                                dto.getBizSource().getValue());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("大箱取消组板拆分小箱取消异常",e);
+        }
+    }
+
     private void asyncSendComboardWaybillTrace(CancelComboardSendTaskDto request, String waybillCode) {
         // 获取运单包裹数
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);

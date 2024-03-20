@@ -6,7 +6,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
@@ -19,6 +21,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
+import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import javax.annotation.Resource;
 import java.util.Objects;
 
 /**
@@ -45,10 +51,17 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private PositionManager positionManager;
-	
+
+	@Resource
+	private TenantManager tenantManager;
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
+
+	@Autowired
+	private JyJobTypeManager jyJobTypeManager;
+
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
@@ -229,10 +242,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toFail("请扫描正确的人员码！");
 			return result;
 		}
+		ScanUserData scanUserData = new ScanUserData();
+
 		String scanUserCode = scanRequest.getScanUserCode();
 		String positionCode = scanRequest.getPositionCode();
 		Integer jobCode =  BusinessUtil.getJobCodeFromScanUserCode(scanUserCode);
 		String userCode = BusinessUtil.getUserCodeFromScanUserCode(scanUserCode);
+		scanUserData.setUserCode(userCode);
 		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
 				&& !JobTypeEnum.JOBTYPE4.getCode().equals(jobCode)
@@ -251,18 +267,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				return result;
 			}
 
-			String loginUserPin = getLoginUserPin(result, userCode);
+			result.setData(scanUserData);
+			ScanUserData scanUserDataNotJdSelf = getLoginUserInfo(result, userCode);
 			if(!result.getCode().equals(JdResponse.CODE_OK)){
 				return result;
 			}
-			userCode = loginUserPin;
+			if(scanUserDataNotJdSelf == null){
+				return result;
+			}
+			scanUserData.setUserId(scanUserDataNotJdSelf.getUserId());
+			scanUserData.setUserCode(scanUserDataNotJdSelf.getUserCode());
 		}
-		
+
 		//设置返回值对象
-		ScanUserData data = new ScanUserData();
-		data.setJobCode(jobCode);
-		data.setUserCode(userCode);
-		result.setData(data);
+		scanUserData.setJobCode(jobCode);
+		result.setData(scanUserData);
 
 		//已扫描岗位码，校验在岗状态
 		if(StringUtils.isNotBlank(positionCode)) {
@@ -271,7 +290,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				result.toConfirm(checkResult.getMessage());
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -283,30 +302,33 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	 * @param erpAccount ERP账户
 	 * @return 登录用户的PIN码
 	 */
-	private String getLoginUserPin(JdCResponse<ScanUserData> response, String erpAccount){
+	private ScanUserData getLoginUserInfo(JdCResponse<ScanUserData> response, String erpAccount){
+		ScanUserData scanUserData = new ScanUserData();
 		try{
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 入参-{}",erpAccount);
 			BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(erpAccount);
 			log.info("获取登录用户的PIN码 checkIDCardNoExists 出参-{}", JSON.toJSONString(baseStaff));
 			if(baseStaff == null || baseStaff.getStaffNo() == null){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-				return "";
+				return null;
 			}
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 入参-{}",baseStaff.getStaffNo());
 			BaseStaffSiteDTO staffInfo = baseMajorManager.queryBaseStaffByStaffId(baseStaff.getStaffNo());
 			log.info("获取登录用户的PIN码 queryBaseStaffByStaffId 出参-{}",JSON.toJSONString(staffInfo));
 			if(staffInfo== null ||org.apache.commons.lang.StringUtils.isBlank(staffInfo.getPin())){
-				response.setMessage("未获取达达人员数据，请检查青龙基础资料中是否存在员工信息!");
+				response.setMessage("未获取到人员数据，请检查青龙基础资料中是否存在员工信息!");
 				response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-				return "";
+				return null;
 			}
-			return Constants.PDA_THIRDPL_TYPE+staffInfo.getPin();
+			scanUserData.setUserId(baseStaff.getStaffNo());
+			scanUserData.setUserCode(Constants.PDA_THIRDPL_TYPE+staffInfo.getPin());
+			return scanUserData;
 		}catch (Exception e){
-			log.error("获取达达人员数据信息异常！{}",erpAccount,e);
-			response.setMessage("获取达达人员数据信息异常！{"+erpAccount+"}");
+			log.error("获取人员数据信息异常！{}",erpAccount,e);
+			response.setMessage("获取人员数据信息异常！{"+erpAccount+"}");
 			response.setCode(JdResponse.CODE_INTERNAL_ERROR);
-			return "";
+			return null;
 		}
 	}
 
@@ -339,6 +361,12 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			PositionData positionData = new PositionData();
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
+			
+			// 设置租户编码
+			JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(positionData.getSiteCode());
+			if(tenant != null){
+				positionData.setTenantCode(tenant.getBelongTenantCode());
+			}
 
 			//已扫描人员码，校验在岗状态
 			if(StringUtils.isNotBlank(scanRequest.getUserCode())) {
@@ -352,5 +380,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toError("查询岗位信息异常");
 		}
 		return result ;
+	}
+
+	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryAllJyJobType",
+		jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
+		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
+		result.toSucceed();
+		try {
+			List<JyJobType> list = jyJobTypeManager.getAllAvailable();
+			result.setData(list);
+		} catch (Exception e) {
+			result.toFail("查询所有拣运工种异常");
+			log.error("UserSignGatewayServiceImpl.queryAllJyJobType.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
+		}
+		return result;
 	}
 }

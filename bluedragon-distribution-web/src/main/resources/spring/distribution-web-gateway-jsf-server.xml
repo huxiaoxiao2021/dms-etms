@@ -12,6 +12,14 @@
     <bean id="simpleComplexSwitchGatewayFilter" class="com.jd.bluedragon.external.gateway.filter.SimpleComplexSwitchGatewayFilter" scope="prototype"/>
     <jsf:filter id="gatewayFilter" ref="simpleComplexSwitchGatewayFilter" providers="*" consumers=""/>
 
+    <!--接收app传入的租户编码信息-->
+    <bean id="appTenantJSFProviderFilter" class="com.jd.bluedragon.external.gateway.filter.AppTenantJSFProviderFilter" scope="prototype">
+        <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
+        <constructor-arg name="tenantAppConfigKey" value="tenantCodeStr"></constructor-arg>
+    </bean>
+    <jsf:filter id="appTenantProviderFilter" ref="appTenantJSFProviderFilter" providers="jsfJyUnloadVehicleGatewayService,jsfJySendVehicleGatewayService" consumers=""/>
+
+
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
                   interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"
@@ -405,6 +413,14 @@
                   ref="virtualBoardGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 分拣机装笼功能服务 -->
+    <bean id="deviceCageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceCageGatewayServiceImpl" />
+    <jsf:provider id="jsfDeviceCageGatewayServiceImpl"
+                  interface="com.jd.bluedragon.external.gateway.service.DeviceCageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="deviceCageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <!-- 人工抽检 -->
     <bean id="artificialSpotCheckGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ArtificialSpotCheckGatewayServiceImpl" />
@@ -703,6 +719,23 @@
                   interface="com.jd.bluedragon.external.gateway.service.QuestionnaireGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="questionnaireGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="tpCollectPackageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.store.TpCollectPackageGatewayServiceImpl" />
+    <!--  生成箱号-提供给外部调用（仓等）  -->
+    <jsf:provider id="tpCollectPackageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.store.TpCollectPackageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="tpCollectPackageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="jyAviationRailwayPickingGoodsGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyAviationRailwayPickingGoodsGatewayServiceImpl" />
+    <jsf:provider id="jsfJyAviationRailwayPickingGoodsGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyAviationRailwayPickingGoodsGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
 </beans>

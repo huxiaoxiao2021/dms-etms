@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.consumable.domain.ConsumableCodeEnums;
 import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
@@ -31,7 +32,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -161,7 +161,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     private boolean reformSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        SendDetail sendDetail = sendDetailService.findOneByWaybillCode(spotCheckContext.getReviewSiteCode(), spotCheckContext.getWaybillCode());
+        SendDetail param = new SendDetail();
+        param.setCreateSiteCode(spotCheckContext.getReviewSiteCode());
+        param.setPackageBarcode(spotCheckContext.getPackageCode());
+        param.setOperateTime(spotCheckContext.getOperateTime());
+        SendDetail sendDetail = sendDetailService.findOneByParams(param);
         if(sendDetail != null){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND_REFORM, sendDetail.getPackageBarcode()));
             return true;
@@ -259,19 +263,16 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 设置已抽检缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
-        SpotCheckIssueDetail summaryDto = assembleSummaryReform(spotCheckContext);
-        // 转换report对象
-        WeightVolumeSpotCheckDto weightVolumeSpotCheckDto = new WeightVolumeSpotCheckDto();
-        BeanUtils.copyProperties(summaryDto, weightVolumeSpotCheckDto);
-        spotCheckServiceProxy.insertOrUpdateProxyReform(weightVolumeSpotCheckDto);
+        WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto);
         // 抽检全程跟踪
         // spotCheckDealService.sendWaybillTrace(spotCheckContext);
     }
 
-    protected SpotCheckIssueDetail assembleSummaryReform(SpotCheckContext spotCheckContext) {
-        SpotCheckIssueDetail dto = new SpotCheckIssueDetail();
+    protected WeightVolumeSpotCheckDto assembleSummaryReform(SpotCheckContext spotCheckContext) {
+        WeightVolumeSpotCheckDto dto = new WeightVolumeSpotCheckDto();
         // 复核数据
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         dto.setReviewSource(SpotCheckSourceFromEnum.analysisCodeFromName(spotCheckContext.getSpotCheckSourceFrom()));
@@ -309,6 +310,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setContrastDutyType(spotCheckContrastDetail.getDutyType());
         dto.setContrastWeight(spotCheckContrastDetail.getContrastWeight());
         dto.setContrastVolume(spotCheckContrastDetail.getContrastVolume());
+        // 计费操作人ID
+        dto.setBillOperatorId(spotCheckContrastDetail.getBillOperatorId());
+        // 计费操作人erp或pin
+        dto.setBillOperatorErp(spotCheckContrastDetail.getBillOperatorErp());
         // 通用数据
         dto.setReviewDate(System.currentTimeMillis());
         dto.setWaybillCode(spotCheckContext.getWaybillCode());
@@ -450,7 +455,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setSpotCheckSourceFrom(spotCheckDto.getSpotCheckSourceFrom());
         spotCheckContext.setSpotCheckDimensionType(spotCheckDto.getDimensionType());
         spotCheckContext.setSpotCheckHandlerType(spotCheckDto.getSpotCheckHandlerType());
-        spotCheckContext.setOperateTime(new Date());
+        spotCheckContext.setOperateTime(Objects.isNull(spotCheckDto.getOperateTime()) ? new Date() : spotCheckDto.getOperateTime());
         spotCheckContext.setWaybillCode(waybillCode);
         spotCheckContext.setPackageCode(spotCheckDto.getBarCode());
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);

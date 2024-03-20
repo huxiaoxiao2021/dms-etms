@@ -60,10 +60,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
     Long UpgradeNotifyCount = 3l;//同一天同一网格，多少次后升级提醒网格长leader
 
-    ExecutorService executor = new ThreadPoolExecutor(10, 10,
-            1L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<Runnable>());
-
     private static final Logger logger = LoggerFactory.getLogger(ViolentSortingConsumer.class);
 
     @Autowired
@@ -140,9 +136,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                 }
             }
             Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
-            if(workGridResult != null && workGridResult.getData() != null){
-                generateViolentSortingTask(violentSortingDto, workGridResult.getData());
-            }
             // 根据网格查出设备编码
             /*List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
@@ -205,15 +198,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         } finally {
             Profiler.registerInfoEnd(info);
         }
-    }
-    
-    private void generateViolentSortingTask(ViolentSortingDto violentSortingDto, WorkGrid workGrid){
-        try {
-            executor.execute(()-> jyBizTaskWorkGridManagerService.generateViolentSortingTask(violentSortingDto, workGrid));
-        }catch (Exception e){
-            logger.error("生成异常检查任务-异常:",e);
-        }
-        
     }
 
     // 通知

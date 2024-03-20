@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1407,7 +1408,10 @@ public class UccPropertyConfiguration{
      * 传站拦截-- 大区黑名单
      */
     private String czOrgForbiddenList;
-
+    /**
+     * 旧版集包功能下线- 场地白名单
+     */
+    private String collectPackageSitePermitList;
 
     /**
      * 旧版集包功能下线- 场地黑名单
@@ -1418,6 +1422,27 @@ public class UccPropertyConfiguration{
      * 旧版集包功能下线-- 大区黑名单
      */
     private String collectPackageOrgForbiddenList;
+
+    /**
+     * 根据箱号类型下线旧版集包功能 白名单-配置的箱号类型 跳过校验
+     */
+    private String skipOffLineCheckByBoxTypeList;
+
+
+    public String getCollectPackageSitePermitList(){
+        return collectPackageSitePermitList;
+    }
+    public void setCollectPackageSitePermitList(String collectPackageSitePermitList) {
+        this.collectPackageSitePermitList = collectPackageSitePermitList;
+    }
+
+    public String getSkipOffLineCheckByBoxTypeList(){
+        return skipOffLineCheckByBoxTypeList;
+    }
+
+    public void setSkipOffLineCheckByBoxTypeList(String skipOffLineCheckByBoxTypeList) {
+        this.skipOffLineCheckByBoxTypeList = skipOffLineCheckByBoxTypeList;
+    }
 
     public String getCollectPackageSiteForbiddenList() {
         return collectPackageSiteForbiddenList;
@@ -1629,6 +1654,21 @@ public class UccPropertyConfiguration{
      * 接货仓发货岗任务列表创建时间查询条件前X小时
      */
     private Integer jyWarehouseTaskCreateTimeBeginHours;
+
+    /**
+     * 包裹非0重量体积拦截开关
+     */
+    private Boolean waybillZeroWeightInterceptSwitch;
+
+    /**
+     * 接货仓发货岗自建任务常用车型置顶
+     */
+    private String jyWarehouseManualTaskKeyVehicleTypes;
+
+    /**
+     * 自动化称重限制开关
+     */
+    private Boolean automaticWeightVolumeUpperCheckSwitch;
 
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
@@ -1898,6 +1938,127 @@ public class UccPropertyConfiguration{
     private boolean collectPackageTaskRefreshSwitch;
 
     private long jyCollectPackageInterceptBitCode;
+    /**
+     * 空铁提货岗任务查询时间范围
+     */
+    private Integer jyBizTaskPickingGoodTimeRange;
+
+    /**
+     * 提货任务待提件数为0的查询时间范围
+     */
+    private Integer pickingGoodTaskWaitScanEq0TimeRange;
+    /**
+     * 自建提货任务自动完成时间
+     */
+    private Integer pickingGoodTaskManualTimeRange;
+    /**
+     * 空铁提货岗流向最大数限制
+     */
+    private Integer sendFlowLimit;
+    /**
+     * 空铁提货岗计划到达时间查询范围
+     */
+    private Integer pickingPlanArriveTimeRange;
+    /**
+     * 空铁提货岗实际到达时间查询范围
+     */
+    private Integer pickingRealArriveTimeRange;
+    /**
+     * 空铁提货岗提货完成时间查询范围
+     */
+    private Integer pickingFinishTimeRange;
+    /**
+     * 围栏到达包裹自动验货条件不符合时重试消费的最大分钟数
+     */
+    private Integer packageArriveAutoInspectionRetryMinutes;
+    private Integer packageArriveAutoInspectionNullTaskRetryMinutes;
+    /**
+     * PDA卸车扫描和自动验货互斥开关
+     */
+    private Boolean pdaUnloadAndAutoInspectionRejectSwitch;
+    /**
+     * 操作流水新逻辑开关
+     */
+    private boolean operateFlowNewSwitch;
+
+    public Integer getPickingPlanArriveTimeRange() {
+        return pickingPlanArriveTimeRange;
+    }
+
+    public void setPickingPlanArriveTimeRange(Integer pickingPlanArriveTimeRange) {
+        this.pickingPlanArriveTimeRange = pickingPlanArriveTimeRange;
+    }
+
+    public Integer getPickingRealArriveTimeRange() {
+        return pickingRealArriveTimeRange;
+    }
+
+    public void setPickingRealArriveTimeRange(Integer pickingRealArriveTimeRange) {
+        this.pickingRealArriveTimeRange = pickingRealArriveTimeRange;
+    }
+
+    public Integer getPickingFinishTimeRange() {
+        return pickingFinishTimeRange;
+    }
+
+    public void setPickingFinishTimeRange(Integer pickingFinishTimeRange) {
+        this.pickingFinishTimeRange = pickingFinishTimeRange;
+    }
+
+    public Integer getSendFlowLimit() {
+        return sendFlowLimit;
+    }
+
+    public void setSendFlowLimit(Integer sendFlowLimit) {
+        this.sendFlowLimit = sendFlowLimit;
+    }
+
+    public Integer getPickingGoodTaskWaitScanEq0TimeRange() {
+        return pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public void setPickingGoodTaskWaitScanEq0TimeRange(Integer pickingGoodTaskWaitScanEq0TimeRange) {
+        this.pickingGoodTaskWaitScanEq0TimeRange = pickingGoodTaskWaitScanEq0TimeRange;
+    }
+
+    public Integer getPickingGoodTaskManualTimeRange() {
+        return pickingGoodTaskManualTimeRange;
+    }
+
+    public void setPickingGoodTaskManualTimeRange(Integer pickingGoodTaskManualTimeRange) {
+        this.pickingGoodTaskManualTimeRange = pickingGoodTaskManualTimeRange;
+    }
+
+    public Integer getJyBizTaskPickingGoodTimeRange() {
+        return jyBizTaskPickingGoodTimeRange;
+    }
+
+    public void setJyBizTaskPickingGoodTimeRange(Integer jyBizTaskPickingGoodTimeRange) {
+        this.jyBizTaskPickingGoodTimeRange = jyBizTaskPickingGoodTimeRange;
+    }
+
+    /**
+     * 存储仓打包明细 单个箱子的上限
+     */
+    private Integer storageBoxDetailMaxSizeLimit;
+
+    private boolean thanosSwitch;
+
+    public boolean getThanosSwitch(){
+        return thanosSwitch;
+    }
+
+    public void setThanosSwitch(boolean thanosSwitch) {
+        this.thanosSwitch = thanosSwitch;
+    }
+
+    public Integer getStorageBoxDetailMaxSizeLimit(){
+        return storageBoxDetailMaxSizeLimit;
+    }
+
+    public void setStorageBoxDetailMaxSizeLimit(Integer storageBoxDetailMaxSizeLimit) {
+        this.storageBoxDetailMaxSizeLimit = storageBoxDetailMaxSizeLimit;
+    }
 
     public long getJyCollectPackageInterceptBitCode(){
         return jyCollectPackageInterceptBitCode;
@@ -1920,6 +2081,37 @@ public class UccPropertyConfiguration{
 
 
     private Double jyAviationManualCreateSendTaskMaxBookingWeight;
+
+    /**
+     * 排班允许进入闸机误差小时数
+     */
+    private Integer allowEntryHours;
+
+    public Integer getAllowEntryHours() {
+        return allowEntryHours;
+    }
+
+    public void setAllowEntryHours(Integer allowEntryHours) {
+        this.allowEntryHours = allowEntryHours;
+    }
+
+    /**
+     * 特安作业区编码，逗号分隔
+     */
+    private String teanWorkAreaCodes;
+    private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链场地白名单
+     */
+    private String teanSiteIdWhiteListStr4InterceptFilter;
+    private List<Integer> teanSiteIdWhiteList4InterceptFilter = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链启用场地名单
+     */
+    private String teanSiteIdEnableListStr4InterceptFilter;
+    private List<Integer> teanSiteIdEnableList4InterceptFilter = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4360,5 +4552,167 @@ public class UccPropertyConfiguration{
 
     public void setJyWarehouseTaskCreateTimeBeginHours(Integer jyWarehouseTaskCreateTimeBeginHours) {
         this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
+    }
+
+    public Boolean getWaybillZeroWeightInterceptSwitch() {
+        return waybillZeroWeightInterceptSwitch;
+    }
+
+    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
+        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    }
+
+    public String getJyWarehouseManualTaskKeyVehicleTypes() {
+        return jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+    public void setJyWarehouseManualTaskKeyVehicleTypes(String jyWarehouseManualTaskKeyVehicleTypes) {
+        this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
+    }
+
+
+    public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
+        return automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
+        this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public String getTeanWorkAreaCodes() {
+        return teanWorkAreaCodes;
+    }
+
+    public void setTeanWorkAreaCodes(String teanWorkAreaCodes) {
+        this.teanWorkAreaCodes = teanWorkAreaCodes;
+        this.setTeanWorkAreaCodesList();
+    }
+
+    public List<String> getTeanWorkAreaCodesList() {
+        return teanWorkAreaCodesList;
+    }
+
+    public void setTeanWorkAreaCodesList() {
+        this.teanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanWorkAreaCodes)){
+            final String[] split = teanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanSiteIdWhiteListStr4InterceptFilter() {
+        return teanSiteIdWhiteListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdWhiteListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdWhiteList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdWhiteList4InterceptFilter() {
+        return teanSiteIdWhiteList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteList4InterceptFilter() {
+        this.teanSiteIdWhiteList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdWhiteListStr4InterceptFilter)){
+            this.teanSiteIdWhiteList4InterceptFilter = Arrays.stream(teanSiteIdWhiteListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdWhite4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdWhiteListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdWhiteList4InterceptFilter.contains(siteCode);
+    }
+
+    public String getTeanSiteIdEnableListStr4InterceptFilter() {
+        return teanSiteIdEnableListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdEnableListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdEnableList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdEnableList4InterceptFilter() {
+        return teanSiteIdEnableList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableList4InterceptFilter() {
+        this.teanSiteIdEnableList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdEnableListStr4InterceptFilter)){
+            this.teanSiteIdEnableList4InterceptFilter = Arrays.stream(teanSiteIdEnableListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdEnable4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdEnableListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
+    }
+
+    private boolean needCollectLoadingBoxflowCheck;
+    public boolean getNeedCollectLoadingBoxflowCheck() {
+        return needCollectLoadingBoxflowCheck;
+    }
+    public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
+        this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
+
+    public Integer getPackageArriveAutoInspectionRetryMinutes() {
+        return packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionRetryMinutes(Integer packageArriveAutoInspectionRetryMinutes) {
+        this.packageArriveAutoInspectionRetryMinutes = packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public Boolean getPdaUnloadAndAutoInspectionRejectSwitch() {
+        return pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public void setPdaUnloadAndAutoInspectionRejectSwitch(Boolean pdaUnloadAndAutoInspectionRejectSwitch) {
+        this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public Integer getPackageArriveAutoInspectionNullTaskRetryMinutes() {
+        return packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
+        this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    /**
+     * LL箱号内嵌箱号数量限制
+     */
+    private int LLContainBoxNumberLimit;
+
+    public int getLLContainBoxNumberLimit() {
+        return LLContainBoxNumberLimit;
+    }
+
+    public void setLLContainBoxNumberLimit(int LLContainBoxNumberLimit) {
+        this.LLContainBoxNumberLimit = LLContainBoxNumberLimit;
+    }
+
+    public boolean isOperateFlowNewSwitch() {
+        return operateFlowNewSwitch;
+    }
+
+    public void setOperateFlowNewSwitch(boolean operateFlowNewSwitch) {
+        this.operateFlowNewSwitch = operateFlowNewSwitch;
     }
 }

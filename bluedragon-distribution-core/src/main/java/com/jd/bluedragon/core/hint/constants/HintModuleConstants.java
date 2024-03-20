@@ -28,4 +28,9 @@ public class HintModuleConstants {
      */
     public static int BOARD_COMBINATION = 4;
 
+    /**
+     * 验货
+     */
+    public static int INSPECTION = 5;
+
 }

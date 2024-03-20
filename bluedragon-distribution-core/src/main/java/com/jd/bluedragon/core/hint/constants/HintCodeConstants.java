@@ -1029,7 +1029,7 @@ public class HintCodeConstants {
 
     // 此单禁止操作返调度，需由本营业部完成派送，如有疑问可进咚咚群咨询（10201566979）
     public static String TERMIANL_RE_SORT_DEWU_FORBID = "40022";
-    
+
 
     public static String JY_UNSEAL_WRONG_ORDER_MESSAGE = "70012";
 
@@ -1037,7 +1037,7 @@ public class HintCodeConstants {
      *  40023-此人在【网格名称，工序名称】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？
      */
     public static String CONFIRM_CHANGE_GW_FOR_SIGN = "40023";
-    public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";     
+    public static String CONFIRM_CHANGE_GW_FOR_SIGN_MSG = "此人在【%s】已签到，如果在新岗位签到，会自动签退原来岗位，结束原岗位的货量分摊，是否继续签到？";
     public static String CONFIRM_AUTO_SIGN_OUT_FOR_SIGN_MSG = "该人员已经完成人脸打卡离场，请确认是否再次签到！";
     
     
@@ -1049,7 +1049,7 @@ public class HintCodeConstants {
 
     public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
 
-    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
+    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到或工种已被停用，请联系网格负责人%s";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40027";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
@@ -1082,5 +1082,39 @@ public class HintCodeConstants {
 
     // 暴力分拣触发安灯量灯通知
     public static String VIOLENT_ANDON_JD_ME_CODE = "55701";
+
+    // "该包裹未识别到在当前分拣中心有操作记录，请先在该场地进行操作后再进行称重量方！"
+    public static String WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE = "40031";
+
+    // 非0重体包裹，分拣无法进行复重，如需修改包裹重量体积请通过抽检功能！（人工抽检可通过PDA或PC端http://dms.etms.jd.com/?code=CK_U7EHDAmcJNI_pQP3gFz3A0D-7ahSXW2VBFEC9D1g&state=-4C3Ku4n-HWGM7cYpVsfFwcys9RVknqZNBjhFYLXe9I
+    public static String WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE = "40032";
+    /**
+     * 非冷链专送运单，请勿操作弃件废弃
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP = "40034";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_SCRAP_MSG = "非冷链专送运单，请勿操作弃件废弃";
+    /**
+     * 订单为异常即报废单，不允许执行异常提报
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION = "40035";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG = "订单为异常即报废单，不允许执行异常提报";
+    /**
+     * 该运单为冷链专送订单异常即报废单，不可以操作逆向换单
+     */
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
+    public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
+
+    // 无残值货物，请操作报废！
+    public static String SCRAP_WAYBILL_INTERCEPT_HINT_CODE = "40033";
+
+    // 您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE = "40037";
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    // 您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
 }

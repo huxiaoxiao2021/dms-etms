@@ -1,14 +1,11 @@
 package com.jd.bluedragon.distribution.station.dao.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
+import com.jd.bluedragon.enums.EnvEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Repository;
@@ -120,14 +117,21 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@JProfiler(jKey = "dmsWeb.server.userSignRecordDao.querySignInMoreThanSpecifiedTime",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit) {
+    public List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList,
+		Date signInTimeStart, Date signInTime, List<Integer> siteCodeList, String env, Integer limit) {
         Map<String, Object> param = new HashMap<>();
         param.put("allSpecialJobCodeList",allSpecialJobCodeList);
         param.put("jobCodeHoursList",jobCodeHoursList);
         param.put("signInTimeStart", signInTimeStart);
         param.put("signInTime", signInTime);
         param.put("limit", limit);
-        return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
+		param.put("siteCodeList", siteCodeList);
+		if (Objects.equals(EnvEnum.UAT.getCode(), (env))){
+			param.put("env", 1);
+		}else{
+			param.put("env", 0);
+		}
+		return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
     }
 
     @Override
@@ -232,5 +236,19 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@Override
 	public UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryFirstExistGridRecord", query);
+	}
+
+	@Override
+	public int signOutTimeById(UserSignRecord userSignOutDto, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("param", userSignOutDto);
+		param.put("list", list);
+		param.put("jobCodeHoursDtoList", jobCodeHoursDtoList);
+		return this.getSqlSession().update(NAMESPACE + ".signOutTimeById", param);
+	}
+
+	@Override
+	public List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryByGridSign", query);
 	}
 }

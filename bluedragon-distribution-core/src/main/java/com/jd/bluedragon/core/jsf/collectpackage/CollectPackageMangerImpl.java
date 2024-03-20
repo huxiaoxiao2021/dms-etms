@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.jsf.collectpackage;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.collectpackage.request.StatisticsUnderFlowQueryReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
@@ -14,6 +15,8 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.udata.query.api.dto.ApiDataQueryRequest;
 import com.jd.udata.query.api.dto.ApiTopologyQueryResult;
 import com.jd.udata.query.api.service.ApiQueryService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
      * @return 统计结果对象
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.CollectPackageMangerImpl.queryTaskStatistic", mState = {JProEnum.TP, JProEnum.FunctionError})
     public StatisticsUnderTaskDto queryTaskStatistic(StatisticsUnderTaskQueryDto dto) {
         //校验统计查询入参
         checkStatisticsUnderTaskQueryDto(dto);
@@ -71,6 +75,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.CollectPackageMangerImpl.queryTaskFlowStatistic", mState = {JProEnum.TP, JProEnum.FunctionError})
     public StatisticsUnderTaskDto queryTaskFlowStatistic(StatisticsUnderTaskQueryDto dto) {
         //校验统计查询入参
         checkStatisticsUnderTaskQueryDto(dto);
@@ -146,6 +151,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.CollectPackageMangerImpl.listTaskStatistic", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ListTaskStatisticDto listTaskStatistic(ListTaskStatisticQueryDto dto) {
         // 校验查询多任务统计数据的入参
         checkListTaskStatisticQueryDto(dto);
@@ -214,11 +220,11 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         collectScanDtoList.add(haveScan);
 
 
-        CollectScanDto force =new CollectScanDto();
+        /*CollectScanDto force =new CollectScanDto();
         force.setType(CollectPackageExcepScanEnum.FORCE_SEND.getCode());
         force.setName(CollectPackageExcepScanEnum.FORCE_SEND.getName());
         force.setCount(udataTaskStatisticDto.getForceNum());
-        collectScanDtoList.add(force);
+        collectScanDtoList.add(force);*/
 
 
         statisticsUnderTaskDto.setExcepScanDtoList(collectScanDtoList);
@@ -254,6 +260,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.CollectPackageMangerImpl.listPackageUnderFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public StatisticsUnderFlowQueryResp listPackageUnderFlow(StatisticsUnderFlowQueryReq request) {
         checkStatisticsUnderFlowQueryReq(request);
 
@@ -278,7 +285,7 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         params.put("bizId", request.getBizId());
         params.put("endSiteId",request.getEndSiteId());
         params.put("pageSize",request.getPageSize());
-        params.put("pageNum",request.getPageNo());
+        params.put("pageNumber",request.getPageNo());
         apiDataQueryRequest.setParams(params);
         return apiDataQueryRequest;
     }

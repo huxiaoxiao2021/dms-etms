@@ -131,6 +131,16 @@ public class KvIndexDao extends BaseDao<KvIndex> {
         return result;
     }
 
+    public Integer batchAdd(List<KvIndex> entityList) {
+        CallerInfo info = Profiler.registerInfo("DMSDAO.KvIndexDao.batchAdd", false, true);
+        Integer result=0;
+        for (KvIndex entity :entityList){
+            result =result +addEntity(entity);
+        }
+        Profiler.registerInfoEnd(info);
+        return result;
+    }
+
     private Integer addEntity(KvIndex entity){
         if(null==entity||StringUtils.isBlank(entity.getKeyword())||StringUtils.isBlank(entity.getValue())){
             if(LOGGER.isWarnEnabled()){
@@ -229,8 +239,4 @@ public class KvIndexDao extends BaseDao<KvIndex> {
             return restList;
         }
 	}
-
-    public Integer updateByKey(KvIndex kvIndex) {
-        return this.getSqlSession().update(namespace + ".updateByKey", kvIndex);
-    }
 }

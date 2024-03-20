@@ -5,11 +5,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,7 +48,8 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             log.info("分拣PackageService任务doSorting:单号={},sendDList.size={}", sorting.getWaybillCode(), sendDList.size());
             //补发货
             getSortingService().fixSendDAndSendTrack(sorting, sendDList);
-
+            // 记录分拣节点操作流水
+            handleOperateFlow(sorting);
         }else if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
             // 取消分拣
             getSortingService().canCancel(sorting);
@@ -59,6 +63,26 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             getSortingService().add(sorting);
         }
     }
+
+    private void handleOperateFlow(SortingVO sorting) {
+        // 操作轨迹对象
+        WaybillStatus operateTrack = sorting.getWaybillStatus();
+        if (operateTrack == null) {
+            return;
+        }
+        operateTrack.setWaybillCode(sorting.getWaybillCode());
+        if (StringUtils.isNotBlank(sorting.getPackageCode())) {
+            operateTrack.setPackageCode(sorting.getPackageCode());
+        } else {
+            operateTrack.setPackageCode(sorting.getWaybillCode());
+        }
+        operateTrack.setBoxCode(sorting.getBoxCode());
+        // 记录操作流水
+        jyOperateFlowService.sendSoringOperateFlowData(sorting, operateTrack, OperateBizSubTypeEnum.SORTING);
+        // 发送操作轨迹
+        jyOperateFlowService.sendOperateTrack(operateTrack);
+    }
+
 
     /**
      * 验货异常比对表插入数据

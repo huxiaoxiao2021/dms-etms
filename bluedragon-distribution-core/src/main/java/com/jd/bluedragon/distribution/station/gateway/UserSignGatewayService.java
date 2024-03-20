@@ -8,6 +8,9 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
+
+import java.util.List;
 
 /**
  * 人员签到表--Service接口
@@ -108,7 +111,7 @@ public interface UserSignGatewayService {
 	 * @param query
 	 * @return
 	 */
-	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);	
+	JdCResponse<UserSignRecordData> queryLastUnSignOutRecordData(UserSignQueryRequest query);
 	/**
 	 * 签到前校验
 	 * @param userSignRequest
@@ -126,5 +129,12 @@ public interface UserSignGatewayService {
 	 * @param scanRequest
 	 * @return
 	 */
-	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);	
+	JdCResponse<PositionData> queryPositionDataForLogin(ScanForLoginRequest scanRequest);
+
+	/**
+	 * 查询所有的拣运工种信息
+	 * @param
+	 * @return
+	 */
+	JdCResponse<List<JyJobType>> queryAllJyJobType();
 }

@@ -30,4 +30,14 @@ public interface SpotCheckAppealJsfService {
      */
     Response<List<SpotCheckAppealAppendixResult>> findAppendixByBizId(SpotCheckAppealDto spotCheckAppealEntity);
 
+    /**
+     * 指定运单数据再发送(为终端修数专用)
+     */
+    Response<Void> dataSend(String waybillCodes);
+
+    /**
+     * 指定运单数据删除(为称重抽检软包体积超标功能优化脏数据专用)
+     */
+    Response<Void> dataDelete(String waybillCodes);
+
 }

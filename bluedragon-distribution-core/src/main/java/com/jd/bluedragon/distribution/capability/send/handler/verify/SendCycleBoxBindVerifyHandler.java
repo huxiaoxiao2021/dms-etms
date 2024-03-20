@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 * @Date: 2023/8/24
 * @Description:
 *      循环集包袋绑定逻辑，只有扫描箱号时处理
+ *
+ *     做需要绑定集包袋的校验 和 绑定集包袋时的两大类校验场景
 */
 @Service("sendCycleBoxBindVerifyHandler")
 public class SendCycleBoxBindVerifyHandler extends SendDimensionStrategyHandler {
@@ -36,6 +38,8 @@ public class SendCycleBoxBindVerifyHandler extends SendDimensionStrategyHandler 
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
+
+    private static String BIND_CYCLE_BOX_MSG = "请扫描或输入正确的集包袋！";
 
     /**
      * 循环集包袋绑定逻辑，只有扫描箱号时处理
@@ -84,9 +88,10 @@ public class SendCycleBoxBindVerifyHandler extends SendDimensionStrategyHandler 
             if (needBindMaterialBag) {
                 // 箱号未绑定集包袋
                 if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(box.getCode()))) {
-                    if (!BusinessUtil.isCollectionBag(materialCode) || BusinessUtil.isTrolleyCollectionBag(materialCode)) {
-                        context.getResponse().setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                        context.getResponse().addInterceptBox(0, "请扫描或输入正确的集包袋！");
+                    if (!BusinessUtil.isCollectionBag(materialCode)) {
+                        context.getResponse().getData().init(SendResult.CODE_CYCLE_BOX_BIND,BIND_CYCLE_BOX_MSG);
+                        context.getResponse().setCode(SendResult.CODE_CYCLE_BOX_BIND);
+                        context.getResponse().addInterceptBox(SendResult.CODE_CYCLE_BOX_BIND,BIND_CYCLE_BOX_MSG);
                         return false;
                     }
                 }
@@ -98,8 +103,10 @@ public class SendCycleBoxBindVerifyHandler extends SendDimensionStrategyHandler 
             // 箱号未绑定集包袋
             if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(box.getCode()))) {
                 if (!BusinessUtil.isLLBoxBindingCollectionBag(materialCode)) {
-                    context.getResponse().setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
-                    context.getResponse().addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
+                    context.getResponse().getData().init(SendResult.CODE_CYCLE_BOX_BIND,
+                            HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR));
+                    context.getResponse().setCode(SendResult.CODE_CYCLE_BOX_BIND);
+                    context.getResponse().addInterceptBox(SendResult.CODE_CYCLE_BOX_BIND,HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR));
                     return false;
                 }
             }

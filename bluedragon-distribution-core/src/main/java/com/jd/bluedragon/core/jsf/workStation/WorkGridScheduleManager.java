@@ -2,10 +2,7 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import com.jdl.basic.api.domain.schedule.WorkGridSchedule;
 import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
-import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
-import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
+import com.jdl.jy.flat.dto.schedule.*;
 
 import java.util.List;
 
@@ -20,4 +17,10 @@ public interface WorkGridScheduleManager {
 
 	List<ScheduleAggsDto> findListByGridKeyAndNature(DataScheduleNatureDto request);
 
+    /**
+     * 查询员工某天的排班记录
+     * @param queryDto
+     * @return
+     */
+    List<UserGridScheduleDto> getUserScheduleByCondition(UserGridScheduleQueryDto queryDto);
 }

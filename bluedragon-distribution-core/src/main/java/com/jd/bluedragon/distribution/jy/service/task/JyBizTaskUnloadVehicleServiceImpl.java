@@ -989,4 +989,15 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return new ArrayList<>();
     }
 
+    /**
+     * 根据BIZ_ID 更新其他业务数据
+     * @param entity
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.updateOfBusinessInfoById",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public int updateOfBusinessInfoById(JyBizTaskUnloadVehicleEntity entity) {
+        return jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+    }
+
 }

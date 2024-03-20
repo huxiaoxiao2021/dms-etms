@@ -11,7 +11,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
 import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.common.dto.CommonDto;
@@ -67,8 +66,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Autowired
     private RouteComputeUtil routeComputeUtil;
 
-    @Autowired
-    private VrsBNetQueryAPI vrsBNetQueryApi;
 
     @Autowired
     private TransferWaveMonitorAPI transferWaveMonitorAPI;
@@ -129,43 +126,8 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      */
     @Override
     public String queryRoutePredictDate(Integer configType, Integer bizzType, String startSiteNode, String toSiteNode, Date pickUpEndTime) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRoutePredictDate", Constants.UMP_APP_NAME_DMSWEB,false, true);
-        String resultDate = "";
-        try {
-
-            BaseDto baseDto = new BaseDto();
-            baseDto.setToken(vrsRouteTransferRelationApiToken);
-
-            BnetPerFormanceConfigJsfReq bnetPerFormanceConfigJsfReq = new BnetPerFormanceConfigJsfReq();
-            bnetPerFormanceConfigJsfReq.setConfigType(configType);
-            bnetPerFormanceConfigJsfReq.setBizzType(bizzType);
-            bnetPerFormanceConfigJsfReq.setNodeType(ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA);
-            bnetPerFormanceConfigJsfReq.setStartNode(startSiteNode);
-            bnetPerFormanceConfigJsfReq.setToNode(toSiteNode);
-            bnetPerFormanceConfigJsfReq.setPickUpEndTime(pickUpEndTime);
-            CommonDto<String> commonDto = vrsBNetQueryApi.queryPerformanceTime(baseDto, bnetPerFormanceConfigJsfReq);
-            if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData())) {
-                log.warn("查询远程路由时效信息失败,参数列表：configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
-                        ,configType,bizzType,startSiteNode, toSiteNode);
-                log.warn("查询远程路由时效信息失败，返回消息：{}" , JsonHelper.toJson(commonDto));
-                return null;
-            } else {
-                log.debug("查询远程路由时效成功：{},参数configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
-                        ,commonDto.getData(),configType,bizzType,startSiteNode, toSiteNode);
-                if (StringHelper.isNotEmpty(commonDto.getData())) {
-                    Date tempDate = PerformanceTimeUtil.parseToFormatDateMinute(pickUpEndTime, commonDto.getData());
-                    resultDate = PerformanceTimeUtil.format(tempDate, PerformanceTimeUtil.FORMAT_DATE);
-                }
-                return resultDate;
-            }
-        } catch (Exception e) {
-            Profiler.functionError(info);
-            log.error("查询远程路由时效信息异常,参数列表：configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
-                    ,configType,bizzType,startSiteNode, toSiteNode,e);
-            return null;
-        }finally {
-            Profiler.registerInfoEnd(info);
-        }
+        //2024年01月26日12:28:25 路由系统下线com.jd.etms.api.bnet.VrsBNetQueryAPI.queryPerformanceTime此接口，具体对接人联系zhangyalin15，hujianguo
+        return StringUtils.EMPTY;
     }
 
     /**

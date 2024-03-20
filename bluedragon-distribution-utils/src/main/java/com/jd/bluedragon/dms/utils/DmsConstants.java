@@ -97,6 +97,11 @@ public class DmsConstants {
     public static final Pattern RULE_CYCLE_BOX_REGEX = Pattern.compile("^AD(AD|[0-9]{2})[0-9]{12}$");
 
     /**
+     * 仓循环物资周转箱正则表达式
+     */
+    public static final Pattern RULE_CYCLE_TURNOVER_BOX_REGEX = Pattern.compile("^AZ[0-9]{13}$");
+
+    /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
     public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{15}T[0-9]{6}$|^B[0-9]{15}T[0-9]{7}$|^B[0-9]{21,23}$");
@@ -119,6 +124,8 @@ public class DmsConstants {
      * 站点类型-仓
      */
     public static final Integer SITE_TYPE_WMS = 900;
+    public static final Integer SITE_TYPE_AMS = 901;
+    public static final Integer SITE_TYPE_SPWMS = 903;
     /**
      * 站点类型-分拣中心
      */
@@ -510,6 +517,11 @@ public class DmsConstants {
         add("HK");
         add("MO");
     }};
+
+    /**
+     * 围板箱前缀
+     */
+    public static final String COLLECTION_AD02_PREFIX= "AD02";
     //authCode
     public static final String AUTH_CODE = "authCode";
     // verificationCode
@@ -537,11 +549,21 @@ public class DmsConstants {
     public static final String COLLECTION_AL_PREFIX = "AL";
 
     /**
-     * 围板箱前缀
+     * 仓周转箱循环物资前缀
      */
-    public static final String COLLECTION_AD02_PREFIX= "AD02";
+    public static final String COLLECTION_AZ_PREFIX = "AZ";
+
     /**
      * 航班号正则
      */
     public static final String FLIGHT_NUMBER_REGEX = "[0-9A-Z]{6}";
+    /**
+     * 定温送增值服务扩展字段编码
+     */
+    public static final String FIX_TEMPERATURE_RANGE_EXTEND = "temperatureRange";
+
+    /**
+     * 换单打印时指定KA商家
+     */
+    public static final List<String> KA_CUNSTOMER = Arrays.asList("021K221922","021K104578","021K193222");
 }

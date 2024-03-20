@@ -70,4 +70,14 @@ public interface JyWorkGridManagerGatewayService {
 	 */
 	JdCResponse<Boolean> updateTask4Uat(Map<String,Object> data);
 	
+
+	/**
+	 * 任务负责人信息
+	 * @param bizId
+	 * @return
+	 */
+	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId);
+
+	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId);
+	
 }

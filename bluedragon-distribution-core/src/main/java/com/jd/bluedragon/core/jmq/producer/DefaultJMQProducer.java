@@ -27,6 +27,13 @@ public class DefaultJMQProducer {
     @Qualifier("jmqProducerSpilt")
     private com.jd.jmq.client.producer.MessageProducer jmqProducer;
 
+    /**
+     * 不带uat标识的发送者
+     */
+    @Autowired
+    @Qualifier("dmsWebProducer")
+    private com.jd.jmq.client.producer.MessageProducer jmqWithoutUatFlagProducer;
+
     @Autowired
     private TaskService taskService;
 
@@ -120,6 +127,35 @@ public class DefaultJMQProducer {
     }
 
     /**
+     * 批量JMQ消息发送
+     *
+     * @param messages
+     * @throws JMQException
+     */
+    public void batchSendWithoutUatFlag(List<Message> messages) throws JMQException {
+        if (messages != null && !messages.isEmpty()) {
+            int size = messages.size();
+            if (size <= this.batchSize) {
+                jmqWithoutUatFlagProducer.send(messages, this.timeout);
+            } else {
+                int mod = size % this.batchSize;
+                int times = size / this.batchSize;
+                if (mod > 0) {
+                    times++;
+                }
+                for (int i = 0; i < times; i++) {
+                    int start = i * this.batchSize;
+                    int end = start + this.batchSize;
+                    if (end > size) {
+                        end = size;
+                    }
+                    jmqWithoutUatFlagProducer.send(messages.subList(start, end), this.timeout);
+                }
+            }
+        }
+    }
+
+    /**
      * 批量JMQ消息发送，发送时出现异常直接落库
      *
      * @param messages
@@ -127,6 +163,20 @@ public class DefaultJMQProducer {
     public void batchSendOnFailPersistent(List<Message> messages) {
         try {
             this.batchSend(messages);
+        } catch (Throwable ex) {
+            log.error("批量MQ发送失败，将进行消息队列持久化", ex);
+            this.batchPersistent(messages);
+        }
+    }
+
+    /**
+     * 批量JMQ消息发送，发送时出现异常直接落库
+     *
+     * @param messages
+     */
+    public void batchSendOnFailPersistentWithoutUatFlag(List<Message> messages) {
+        try {
+            this.batchSendWithoutUatFlag(messages);
         } catch (Throwable ex) {
             log.error("批量MQ发送失败，将进行消息队列持久化", ex);
             this.batchPersistent(messages);
@@ -205,5 +255,5 @@ public class DefaultJMQProducer {
 	public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
 	}
-    
+
 }

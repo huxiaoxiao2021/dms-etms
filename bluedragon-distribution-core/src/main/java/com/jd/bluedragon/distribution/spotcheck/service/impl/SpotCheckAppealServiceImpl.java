@@ -82,6 +82,16 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
     }
 
     @Override
+    public List<SpotCheckAppealEntity> batchFindByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.batchFindByWaybillCodes(spotCheckAppealEntity);
+    }
+
+    @Override
+    public int batchDeleteByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity) {
+        return spotCheckAppealDao.batchDeleteByWaybillCodes(spotCheckAppealEntity);
+    }
+
+    @Override
     public SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity) {
         return spotCheckAppealDao.findByBizId(spotCheckAppealEntity);
     }
@@ -109,14 +119,16 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
             // 查询配置信息-设备抽检申诉核对超时未确认时长
             SysConfig overTimeConfig = sysConfigService.findConfigContentByConfigName(Constants.SPOT_CHECK_APPEAL_TIME_OUT);
             if (overTimeConfig != null) {
-                logger.warn("dealSpotCheckAppealByNotConfirmAndOverTime|查询配置信息-设备抽检申诉核对超时未确认时长:content={}", overTimeConfig.getConfigContent());
+                if (logger.isInfoEnabled()) {
+                    logger.info("dealSpotCheckAppealByNotConfirmAndOverTime|查询配置信息-设备抽检申诉核对超时未确认时长:content={}", overTimeConfig.getConfigContent());
+                }
                 timeout = Integer.parseInt(overTimeConfig.getConfigContent());
             }
             // 超时日期
             Date overTimeDate = DateHelper.addHours(currentDate, -timeout);
             params.setCreateTime(overTimeDate);
             // 分批获取数据
-            for (int i = 1; i <= totalCount / pageSize; i++) {
+            for (int i = 1; i <= totalCount / pageSize; i ++) {
                 List<Long> overTimeList = spotCheckAppealDao.findListByNotConfirm(params);
                 if (CollectionUtils.isEmpty(overTimeList)) {
                     logger.warn("dealSpotCheckAppealByNotConfirmAndOverTime|根据条件查询设备抽检申诉核对超时未确认列表返回空:当前第{}页,params={}", i, JsonHelper.toJson(params));
@@ -173,6 +185,28 @@ public class SpotCheckAppealServiceImpl implements SpotCheckAppealService {
             messageList.add(message);
         }
         spotCheckIssueProducer.batchSendOnFailPersistent(messageList);
+    }
+
+    /**
+     * 批量通知称重再造系统
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealServiceImpl.batchNotifyRemakeSystem", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void batchNotifyRemakeSystemWithNoSplit(List<SpotCheckAppealEntity> entityList) {
+        List<Message> messageList = new ArrayList<>();
+        for (SpotCheckAppealEntity entity : entityList) {
+            // 组装消息text
+            SpotCheckIssueMQ spotCheckIssueMQ = createSpotCheckIssueMQ(entity);
+            // 组装消息实体
+            Message message = new Message();
+            // 业务主键：升级状态-运单号
+            String businessId = SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_UPGRADE.getCode() + spotCheckIssueMQ.getWaybillCode();
+            message.setBusinessId(businessId);
+            message.setTopic(spotCheckIssueProducer.getTopic());
+            message.setText(JsonHelper.toJson(spotCheckIssueMQ));
+            messageList.add(message);
+        }
+        spotCheckIssueProducer.batchSendOnFailPersistentWithoutUatFlag(messageList);
     }
 
     /**

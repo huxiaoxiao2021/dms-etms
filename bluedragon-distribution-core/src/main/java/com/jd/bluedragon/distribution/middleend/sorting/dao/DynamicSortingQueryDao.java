@@ -115,6 +115,16 @@ public class DynamicSortingQueryDao implements ISortingDao{
     }
 
     /**
+     * 根据运单号或者包裹号查询分拣明细
+     * 无发货校验，不关联send_m
+     * @param sorting
+     * @return
+     */
+    public List<Sorting> querySortingByCode(Sorting sorting){
+        return selectDao(sorting.getCreateSiteCode()).querySortingByCode(sorting);
+    }
+
+    /**
      * 根据批次号查询分拣明细
      *
      * @param sorting
@@ -177,6 +187,11 @@ public class DynamicSortingQueryDao implements ISortingDao{
     @Override
     public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
         return selectDao(request.getCreateSiteCode()).getPagePackageNoByBoxCode(request);
+    }
+
+    @Override
+    public Sorting findLastSortingByPackageCode(Sorting sorting) {
+        return selectDao(sorting.getCreateSiteCode()).findLastSortingByPackageCode(sorting);
     }
 }
 

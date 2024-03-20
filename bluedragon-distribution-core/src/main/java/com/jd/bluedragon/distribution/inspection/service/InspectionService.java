@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inspection.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
@@ -17,7 +18,6 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -220,5 +220,5 @@ public interface InspectionService {
 
 	InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum);
 
-	JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request);
+    JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(InspectionScanRequest request);
 }

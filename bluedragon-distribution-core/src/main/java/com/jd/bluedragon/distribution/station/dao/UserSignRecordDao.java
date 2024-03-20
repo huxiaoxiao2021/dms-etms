@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.domain.JobCodeHoursDto;
 import com.jd.bluedragon.distribution.station.domain.*;
@@ -110,7 +111,7 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
 	
-    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime, Integer limit);
+    List<Long> querySignInMoreThanSpecifiedTime(List<Integer> allSpecialJobCodeList,List<JobCodeHoursDto> jobCodeHoursList, Date signInTimeStart, Date signInTime,List<Integer> siteCodeList, String env, Integer limit);
     
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
@@ -210,5 +211,10 @@ public interface UserSignRecordDao {
 	UserSignRecord queryLastUnSignOutRecordIgnoreCase(List<String> list);
 
 	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
+
+	public int signOutTimeById(UserSignRecord param, List<Long> list, List<JobCodeHoursDto> jobCodeHoursDtoList) ;
+	
+	
+	List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
 	
 }

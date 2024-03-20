@@ -315,9 +315,7 @@
     <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
                   protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="${jsf.router.transferWaveMonitorAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
-                  protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="${jsf.router.vrsBNetQueryApi.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>
+
     <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="${jsf.router.vrsWaybillQueryAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>

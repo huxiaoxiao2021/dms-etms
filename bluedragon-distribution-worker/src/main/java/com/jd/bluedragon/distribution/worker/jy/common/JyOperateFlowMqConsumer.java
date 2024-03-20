@@ -1,6 +1,7 @@
 
 package com.jd.bluedragon.distribution.worker.jy.common;
 
+import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +42,18 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
                 return;
             }
             JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
-            if(jyOperateFlowMqData == null) {
+            if (logger.isInfoEnabled()) {
+                logger.info("JyOperateFlowMqConsumer:消息text={},jyOperateFlowMqData={}", message.getText(), JsonHelper.toJson(jyOperateFlowMqData));
+            }
+            if (jyOperateFlowMqData == null) {
                 logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
                 return;
             }
-            jyOperateFlowService.insert(BeanConverter.convertToJyOperateFlowDto(jyOperateFlowMqData));
+            JyOperateFlowDto jyOperateFlowDto = BeanConverter.convertToJyOperateFlowDto(jyOperateFlowMqData);
+            if (logger.isInfoEnabled()) {
+                logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJson(jyOperateFlowDto));
+            }
+            jyOperateFlowService.insert(jyOperateFlowDto);
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("JyOperateFlowMq-消费异常, 消息体:{}", message.getText(), e);

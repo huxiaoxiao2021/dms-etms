@@ -144,4 +144,15 @@ public class SendDetailServiceImpl implements SendDetailService {
         }
         return sendDatailDao.queryOneSendDatailBySendM(querySendDatail);
     }
+
+    @Override
+    public int deleteOldAndInsertNewSendD(List<SendDetail> sendDetailList) {
+        sendDatailDao.batchDelete(sendDetailList);
+        return sendDatailDao.batchAdd(sendDetailList);
+    }
+
+    @Override
+    public SendDetail findOneByParams(SendDetail param) {
+        return sendDatailDao.findOneByParams(param);
+    }
 }

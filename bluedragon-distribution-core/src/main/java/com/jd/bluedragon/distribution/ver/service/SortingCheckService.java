@@ -12,6 +12,18 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 public interface SortingCheckService {
 
     /**
+     * 验货校验
+     */
+    SortingJsfResponse inspectionCheck(PdaOperateRequest pdaOperateRequest);
+
+    /**
+     * 验货校验，并且有拦截是提交拦截信息
+     * @author fanggang7
+     * @time 2024-01-28 19:53:11 周日
+     */
+    SortingJsfResponse inspectionCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest);
+
+    /**
      * 分拣校验
      */
     SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest);

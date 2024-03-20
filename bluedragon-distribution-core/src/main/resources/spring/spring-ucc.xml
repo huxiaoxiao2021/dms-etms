@@ -318,6 +318,7 @@
 		<property name="forceCollectPackageSiteListStr" value="${forceCollectPackageSiteListStr:''}"/>
 		<property name="jyCollectPackageInterceptBitCode" value="${jyCollectPackageInterceptBitCode:2199023255033}"/>
 		<property name="collectPackageSiteForbiddenList" value="${collectPackageSiteForbiddenList:''}"/>
+		<property name="collectPackageOrgForbiddenList" value="${collectPackageOrgForbiddenList:''}"/>
 
 		<property name="superiorErpKV" value="${superiorErpKV:}"/>
 		<property name="sealSyncOpenCloseSendTaskSwitch" value="${sealSyncOpenCloseSendTaskSwitch:1}"/>
@@ -338,6 +339,33 @@
 		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
+		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
+		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
+		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
+		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
+		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
+		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
+		<!-- 空铁提货岗 -->
+		<property name="jyBizTaskPickingGoodTimeRange" value="${jyBizTaskPickingGoodTimeRange:7}"/>
+		<property name="pickingGoodTaskWaitScanEq0TimeRange" value="${pickingGoodTaskWaitScanEq0TimeRange:3}"/>
+		<property name="pickingGoodTaskManualTimeRange" value="${pickingGoodTaskManualTimeRange:1}"/>
+		<property name="sendFlowLimit" value="${sendFlowLimit:15}"/>
+		<property name="pickingPlanArriveTimeRange" value="${pickingPlanArriveTimeRange:2}"/>
+		<property name="pickingRealArriveTimeRange" value="${pickingRealArriveTimeRange:2}"/>
+		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
+
+		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
+		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
+		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
+		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
+		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
+		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -423,7 +451,6 @@
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
-				<value>uccPropertyConfiguration.newPrintHandoverListSwitch</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
 				<value>uccPropertyConfiguration.scrollQuerySize</value>
@@ -662,6 +689,8 @@
 				<value>uccPropertyConfiguration.forceCollectPackageSiteListStr</value>
 				<value>uccPropertyConfiguration.jyCollectPackageInterceptBitCode</value>
 				<value>uccPropertyConfiguration.collectPackageSiteForbiddenList</value>
+				<value>uccPropertyConfiguration.collectPackageOrgForbiddenList</value>
+				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
 				<value>uccPropertyConfiguration.superiorErpKV</value>
 				<value>uccPropertyConfiguration.sealSyncOpenCloseSendTaskSwitch</value>
 				<value>uccPropertyConfiguration.userSignIgnoreCaseSwitch</value>
@@ -681,6 +710,30 @@
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
+				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
+				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
+				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
+				<value>uccPropertyConfiguration.thanosSwitch</value>
+				<value>uccPropertyConfiguration.allowEntryHours</value>
+				<value>uccPropertyConfiguration.jyBizTaskPickingGoodTimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskWaitScanEq0TimeRange</value>
+				<value>uccPropertyConfiguration.pickingGoodTaskManualTimeRange</value>
+				<value>uccPropertyConfiguration.sendFlowLimit</value>
+				<value>uccPropertyConfiguration.pickingPlanArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingRealArriveTimeRange</value>
+				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
+				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
+				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
+				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
+				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
 			</list>
 		</property>
 	</bean>

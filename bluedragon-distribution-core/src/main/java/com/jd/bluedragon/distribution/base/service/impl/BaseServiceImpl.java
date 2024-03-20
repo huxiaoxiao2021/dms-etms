@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.dto.BaseStaffData;
 import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.constants.ConfigConstants;
 import com.jd.bluedragon.distribution.client.dto.ClientInitDataDto;
@@ -26,7 +27,7 @@ import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.utils.*;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -34,10 +35,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ql.basic.domain.Assort;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
@@ -53,6 +51,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -1037,380 +1036,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         return null;
     }
 
-    /**
-     * 获取全局功能管控配置
-     *
-     * @param funcUsageConfigRequestDto 请求参数
-     * @return 功能可用性结果
-     * @author fanggang7
-     * @time 2023-03-22 19:59:20 周三
-     */
-    @Override
-    public GlobalFuncUsageControlDto getGlobalFuncUsageControlConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getFuncUsageConfig param {}", JsonHelper.toJson(funcUsageConfigRequestDto));
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_GLOBAL_FUNC_USAGE_CONTROL + funcUsageConfigRequestDto.getSystemCode());
-        // 如果配置都为空，则直接返回空
-        if (sysConfig == null) {
-            return null;
-        }
-
-        GlobalFuncUsageControlDto globalFuncUsageControlDto = new GlobalFuncUsageControlDto();
-        final List<String> funcCodes = JSON.parseArray(sysConfig.getConfigContent(), String.class);
-        globalFuncUsageControlDto.setFuncCodes(funcCodes);
-
-        return globalFuncUsageControlDto;
-    }
-
-    /**
-     * 根据功能编码获取功能可用性配置结果
-     *
-     * @param funcUsageConfigRequestDto 请求参数
-     * @return 菜单可用性结果
-     * @author fanggang7
-     * @time 2022-04-11 16:47:33 周一
-     */
-    @Override
-    public FuncUsageProcessDto getFuncUsageConfig(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getFuncUsageConfig param {}", JsonHelper.toJson(funcUsageConfigRequestDto));
-
-        FuncUsageProcessDto funcUsageProcessDto = null;
-
-        final OperateUser operateUser = funcUsageConfigRequestDto.getOperateUser();
-        final int siteCode = operateUser.getSiteCode();
-
-        final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-        if(siteInfo == null){
-            return null;
-        }
-
-        // 人员白名单
-        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4UserErpResult = getWhiteFuncUsageByCodeConfig4UserErp(funcUsageConfigRequestDto);
-        if (whiteFuncUsageByCodeConfig4UserErpResult != null) {
-            if(whiteFuncUsageByCodeConfig4UserErpResult.isSuccess()){
-                return null;
-            } else {
-                if (whiteFuncUsageByCodeConfig4UserErpResult.getData() != null) {
-                    return whiteFuncUsageByCodeConfig4UserErpResult.getData().getProcess();
-                }
-            }
-        }
-
-        // 场地ID白名单
-        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4SpecificListResult = getWhiteFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
-        if (whiteFuncUsageByCodeConfig4SpecificListResult != null) {
-            if(whiteFuncUsageByCodeConfig4SpecificListResult.isSuccess()){
-                return null;
-            } else {
-                if (whiteFuncUsageByCodeConfig4SpecificListResult.getData() != null) {
-                    return whiteFuncUsageByCodeConfig4SpecificListResult.getData().getProcess();
-                }
-            }
-        }
-
-        // 场地类型白名单
-        final Result<FuncUsageConfigDto> whiteFuncUsageByCodeConfig4SiteTypeResult = getWhiteFuncUsageByCodeConfig4SiteType(funcUsageConfigRequestDto, siteInfo);
-        if (whiteFuncUsageByCodeConfig4SiteTypeResult != null) {
-            if(whiteFuncUsageByCodeConfig4SiteTypeResult.isSuccess()){
-                return null;
-            } else {
-                if (whiteFuncUsageByCodeConfig4SiteTypeResult.getData() != null) {
-                    return whiteFuncUsageByCodeConfig4SiteTypeResult.getData().getProcess();
-                }
-            }
-        }
-
-        // 人员黑名单
-        final FuncUsageProcessDto clientMenuUsageByCodeConfigByUserErp = getFuncUsageByCodeConfig4UserErp(funcUsageConfigRequestDto);
-        if (clientMenuUsageByCodeConfigByUserErp != null) {
-            return clientMenuUsageByCodeConfigByUserErp;
-        }
-
-        // 场地ID黑名单
-        final FuncUsageProcessDto clientMenuUsageByCodeConfig = getFuncUsageByCodeConfig4SpecificList(funcUsageConfigRequestDto);
-        if (clientMenuUsageByCodeConfig != null) {
-            return clientMenuUsageByCodeConfig;
-        }
-
-        // 场地类型黑名单
-        final FuncUsageProcessDto clientMenuUsageByCodeConfigBySiteType = getFuncUsageByCodeConfig4SiteType(funcUsageConfigRequestDto, siteInfo);
-        if (clientMenuUsageByCodeConfigBySiteType != null) {
-            return clientMenuUsageByCodeConfigBySiteType;
-        }
 
 
-        return funcUsageProcessDto;
-    }
-
-    /**
-     * 1. 未找到白名单数据 继续执行 false data = null
-     * 2. 有白名单数据
-     *     在白名单内
-     *         仅允许白名单 允许执行 true
-     *         非仅允许白名单 允许执行 true
-     *     不在白名单内
-     *         仅允许白名单 拦截 false data != null
-     *         非仅允许白名单 继续执行 false data = null
-     */
-    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4UserErp(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-        Result<FuncUsageConfigDto> result = Result.success();
-        if (StringUtils.isEmpty(funcUsageConfigRequestDto.getOperateUser().getUserCode())) {
-            return result.toFail();
-        }
-
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_ERP + funcUsageConfigRequestDto.getFuncCode());
-        if (sysConfig == null) {
-            return result.toFail("无白名单");
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            if (conditionConfig == null) {
-                // 仅允许白名单
-                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                    return result.setData(funcUsageConfigDto).toFail();
-                } else {
-                    continue;
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(conditionConfig.getUserErps()) && conditionConfig.getUserErps().contains(funcUsageConfigRequestDto.getOperateUser().getUserCode())
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)) {
-                return result.toSuccess();
-            }
-            // 仅允许白名单
-            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                return result.setData(funcUsageConfigDto).toFail();
-            }
-        }
-
-        return result.toFail();
-    }
-
-    /**
-     * 1. 未找到白名单数据 继续执行 false data = null
-     * 2. 有白名单数据
-     *     在白名单内
-     *         仅允许白名单 允许执行 true
-     *         非仅允许白名单 允许执行 true
-     *     不在白名单内
-     *         仅允许白名单 拦截 false data != null
-     *         非仅允许白名单 继续执行 false data = null
-     */
-    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-        Result<FuncUsageConfigDto> result = Result.success();
-
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_CODE + funcUsageConfigRequestDto.getFuncCode());
-        if (sysConfig == null) {
-            return result.toFail("无白名单");
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            if (conditionConfig == null) {
-                // 仅允许白名单
-                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                    return result.setData(funcUsageConfigDto).toFail();
-                } else {
-                    continue;
-                }
-            }
-
-            if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(funcUsageConfigRequestDto.getOperateUser().getSiteCode())
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis))){
-                return result.toSuccess();
-            }
-            // 仅允许白名单
-            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                return result.setData(funcUsageConfigDto).toFail();
-            }
-        }
-
-        return result.toFail();
-    }
-
-    /**
-     * 1. 未找到白名单数据 继续执行 false data = null
-     * 2. 有白名单数据
-     *     在白名单内
-     *         仅允许白名单 允许执行 true
-     *         非仅允许白名单 允许执行 true
-     *     不在白名单内
-     *         仅允许白名单 拦截 false data != null
-     *         非仅允许白名单 继续执行 false data = null
-     */
-    private Result<FuncUsageConfigDto> getWhiteFuncUsageByCodeConfig4SiteType(FuncUsageConfigRequestDto funcUsageConfigRequestDto, BaseSiteInfoDto siteInfo) {
-        Result<FuncUsageConfigDto> result = Result.success();
-
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_WHITE_BY_SITE_TYPE + funcUsageConfigRequestDto.getFuncCode());
-        if (sysConfig == null) {
-            return result.toFail("无白名单");
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            if (conditionConfig == null) {
-                // 仅允许白名单
-                if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                    return result.setData(funcUsageConfigDto).toFail();
-                } else {
-                    continue;
-                }
-            }
-
-            if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
-                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
-                return result.toSuccess();
-            }
-            if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
-                return result.toSuccess();
-            }
-            // 仅允许白名单
-            if(Objects.equals(funcUsageConfigDto.getOnlyAllowWhiteList(), Boolean.TRUE)){
-                return result.setData(funcUsageConfigDto).toFail();
-            }
-        }
-
-        return result.toFail();
-    }
-
-    /**
-     * 检查人员黑名单
-     */
-    private FuncUsageProcessDto getFuncUsageByCodeConfig4UserErp(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-        FuncUsageProcessDto funcUsageProcessDto = null;
-        if (StringUtils.isEmpty(funcUsageConfigRequestDto.getOperateUser().getUserCode())) {
-            return null;
-        }
-
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_BY_ERP + funcUsageConfigRequestDto.getFuncCode());
-        if (sysConfig == null) {
-            return null;
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            if (conditionConfig == null) {
-                return funcUsageConfigDto.getProcess();
-            }
-
-            if (CollectionUtils.isNotEmpty(conditionConfig.getUserErps()) && conditionConfig.getUserErps().contains(funcUsageConfigRequestDto.getOperateUser().getUserCode())
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)) {
-                return funcUsageConfigDto.getProcess();
-            }
-        }
-
-        return null;
-    }
-
-	/**
-     * 获取指定具体场地或区域的配置
-     */
-    public FuncUsageProcessDto getFuncUsageByCodeConfig4SpecificList(FuncUsageConfigRequestDto funcUsageConfigRequestDto) {
-
-        final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE_BY_SITE_CODE + funcUsageConfigRequestDto.getFuncCode());
-        // 如果配置都为空，则直接返回空
-        if (sysConfigByCode == null) {
-            return null;
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfigByCode.getConfigContent(), FuncUsageConfigDto.class);
-        if (CollectionUtils.isEmpty(funcUsageConfigDtos)) {
-            return null;
-        }
-        final OperateUser operateUser = funcUsageConfigRequestDto.getOperateUser();
-        final int siteCode = operateUser.getSiteCode();
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            // 没有条件表示全部匹配
-            if (conditionConfig == null) {
-                return funcUsageConfigDto.getProcess();
-            }
-
-            if((CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)
-            && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis))){
-                return funcUsageConfigDto.getProcess();
-            }
-        }
-
-
-        return null;
-    }
-
-    /**
-     * 获取指定具体场地类型的配置
-     */
-    public FuncUsageProcessDto getFuncUsageByCodeConfig4SiteType(FuncUsageConfigRequestDto funcUsageConfigRequestDto, BaseSiteInfoDto siteInfo) {
-        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_FUNC_USAGE + funcUsageConfigRequestDto.getFuncCode());
-        if (sysConfig == null) {
-            return null;
-        }
-
-        final List<FuncUsageConfigDto> funcUsageConfigDtos = JSON.parseArray(sysConfig.getConfigContent(), FuncUsageConfigDto.class);
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        for (FuncUsageConfigDto funcUsageConfigDto : funcUsageConfigDtos) {
-            final FuncUsageConditionConfigDto conditionConfig = funcUsageConfigDto.getCondition();
-            if (conditionConfig == null) {
-                return funcUsageConfigDto.getProcess();
-            }
-
-            if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
-                    && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
-                return funcUsageConfigDto.getProcess();
-            }
-            if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
-                    && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))
-                    && this.checkEffectiveTimeIsEffective(funcUsageConfigDto, currentTimeMillis)){
-                return funcUsageConfigDto.getProcess();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 比较生效时间
-     * @param funcUsageConfigDto 配置
-     * @param compareTimeMillis 比较时间
-     * @return 是否生效
-     */
-    private boolean checkEffectiveTimeIsEffective(FuncUsageConfigDto funcUsageConfigDto, long compareTimeMillis){
-        if (funcUsageConfigDto.getEffectiveTime() == null) {
-            return true;
-        }
-        // 计算生效时间
-        if(funcUsageConfigDto.getEffectiveTimeFormatStr() == null){
-            funcUsageConfigDto.setEffectiveTimeFormatStr(DateUtil.FORMAT_DATE_TIME);
-        }
-        final Date effectiveDate = DateUtil.parse(funcUsageConfigDto.getEffectiveTime(), funcUsageConfigDto.getEffectiveTimeFormatStr());
-        if(effectiveDate.getTime() < compareTimeMillis){
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 场地列表
@@ -1454,9 +1081,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
+    public Result<ClientInitDataDto> getAndroidInitData(DeviceInfo deviceInfo){
         log.info("BaseServiceImpl.selectSiteList param {}", JsonHelper.toJson(deviceInfo));
-        com.jd.dms.java.utils.sdk.base.Result<ClientInitDataDto> result = com.jd.dms.java.utils.sdk.base.Result.success();
+        Result<ClientInitDataDto> result = Result.success();
         final ClientInitDataDto clientInitDataDto = new ClientInitDataDto();
         result.setData(clientInitDataDto);
 
@@ -1472,6 +1099,38 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             }
         } catch (Exception e) {
             log.error("BaseServiceImpl.getAndroidInitData error ", e);
+            return result.toFail("接口异常");
+        }
+        return result;
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param userErpOrIdCard erp或者身份证号
+     * @return 用户数据
+     * @author fanggang7
+     * @time 2023-12-26 18:41:33 周四
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BaseServiceImpl.getAndroidInitData", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Result<BaseStaffData> getBaseStaffDataByErpOrIdCard(String userErpOrIdCard) {
+        log.info("BaseServiceImpl.getBaseStaffDataByErpOrIdCard param {}", userErpOrIdCard);
+        Result<BaseStaffData> result = Result.success();
+        try {
+            final BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userErpOrIdCard);
+            if (baseStaffSiteOrgDto != null) {
+                final BaseStaffData baseStaffData = new BaseStaffData();
+                BeanUtils.copyProperties(baseStaffData, baseStaffSiteOrgDto);
+                result.setData(baseStaffData);
+            } else {
+                final BaseStaff baseStaff = baseMajorManager.checkIDCardNoExists(userErpOrIdCard);
+                final BaseStaffData baseStaffData = new BaseStaffData();
+                BeanUtils.copyProperties(baseStaffData, baseStaff);
+                result.setData(baseStaffData);
+            }
+        } catch (Exception e) {
+            log.error("BaseServiceImpl.getBaseStaffDataByErpOrIdCard error ", e);
             return result.toFail("接口异常");
         }
         return result;

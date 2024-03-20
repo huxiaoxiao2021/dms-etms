@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
@@ -11,6 +10,7 @@ import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
@@ -100,6 +100,7 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
         spotCheckDto.setMachineCode(packWeightVO.getMachineCode());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+        spotCheckDto.setOperateTime(new Date(packWeightVO.getOperateTimeMillis()));
         return spotCheckDto;
     }
 }

@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -86,8 +88,9 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_CZ_LINE_TASK_MESSAGE;
+import static com.jd.bluedragon.Constants.Numbers.INTEGER_ZERO;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants.TEXT_ZERO;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -206,6 +209,12 @@ public class DeliveryResource {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJson(request));
         }
+
+        // 校验操作人信息
+        if (!checkOperator(request)) {
+            return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, SEND_CHECK_OPERATOR_MESSAGE);
+        }
+
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
@@ -230,7 +239,8 @@ public class DeliveryResource {
                 }else{
                     sendRequest.setBarCode(request.getBoxCode());
                 }
-                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+                sendRequest.setSendChainModeEnum(SendChainModeEnum.DEFAULT);//发货模式设置
+                JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
                 result.setData(response.getData());
@@ -287,6 +297,16 @@ public class DeliveryResource {
             log.info(JsonHelper.toJson(result));
         }
         return result;
+    }
+
+    private boolean checkOperator(PackageSendRequest request) {
+        if (StringUtils.isEmpty(request.getUserName())
+                || request.getUserCode() == null
+                || Objects.equals(request.getUserCode(), INTEGER_ZERO)) {
+            log.info("包裹{}未获取到发货人信息：{}", request.getBoxCode(),JsonHelper.toJson(request));
+            return false;
+        }
+        return true;
     }
 
     @Autowired
@@ -364,7 +384,8 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage(HintService.getHint(HintCodeConstants.SEND_CODE_ILLEGAL));
         }else{
-            if (forbid(result, receiveSiteCode)) return result;
+            // 2024年02月28日15:22:19 临时移除此限制，等待集约融合到分拣后在做限制 产品 马童文
+            //if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
@@ -469,7 +490,7 @@ public class DeliveryResource {
             String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
             String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
             if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
-                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setCode(RESULT_THIRD_ERROR_CODE);
                 result.setMessage("禁止逆向操作！");
                 return true;
             }

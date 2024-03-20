@@ -1613,6 +1613,11 @@ public class WaybillServiceImpl implements WaybillService {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
                 return result;
             }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
+                return result;
+            }
 
             //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
             if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
@@ -1694,11 +1699,14 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
-            //获取备件库信息 不允许返调度到备件库
-            PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
-            if(psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR);
-                return result;
+            // 操作人是退货组的不校验
+            if (!waybillForPreSortOnSiteRequest.getReturnGroupFlag()) {
+                //获取备件库信息 不允许返调度到备件库
+                PsStoreInfo psStoreInfo = baseMajorManager.selectBaseStoreByDmsSiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+                if (psStoreInfo != null && SITE_TYPE_SPWMS.equals(psStoreInfo.getDsmStoreType())) {
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_BACKUP_STORE_REVERSE_SCHEDULE_ERROR);
+                    return result;
+                }
             }
 
             // 获取站点信息-预分拣站点
@@ -1731,11 +1739,15 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
-            // 不能返调度到仓
-            if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2);
-                return result;
+            // 操作人是退货组的不校验
+            if (!waybillForPreSortOnSiteRequest.getReturnGroupFlag()) {
+                // 不能返调度到仓
+                if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR_2);
+                    return result;
+                }
             }
+
             //规则1
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
                     SiteTypeEnum.SORTING_CENTER.getCode().equals(userInfo.getSiteType())){
@@ -1765,6 +1777,11 @@ public class WaybillServiceImpl implements WaybillService {
             InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill, userInfo);
             if (!invokeResult.codeSuccess()) {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
+                return result;
+            }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
                 return result;
             }
 
@@ -1800,10 +1817,13 @@ public class WaybillServiceImpl implements WaybillService {
 //                return result;
 //            }
 
-            //检验调度站点信息是否是退货组
-            if(Objects.equals(Constants.SITE_RETURN_GROUP,siteOfSchedulingOnSite.getSortType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP);
-                return result;
+            // 操作人是退货组的不校验
+            if (!waybillForPreSortOnSiteRequest.getReturnGroupFlag()) {
+                //检验调度站点信息是否是退货组
+                if (Objects.equals(Constants.SITE_RETURN_GROUP, siteOfSchedulingOnSite.getSortType())) {
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_RETURN_GROUP);
+                    return result;
+                }
             }
 
             //校验 提报人所在场地类型为营业部、城配车队、集配站
@@ -1834,6 +1854,8 @@ public class WaybillServiceImpl implements WaybillService {
             waybillForPreSortOnSiteRequest.setProvinceAgencyName(operateSite.getProvinceAgencyName());
             waybillForPreSortOnSiteRequest.setAreaHubCode(operateSite.getAreaCode());
             waybillForPreSortOnSiteRequest.setAreaHubName(operateSite.getAreaName());
+            waybillForPreSortOnSiteRequest.setWaybillSign(waybill.getWaybillSign());
+            waybillForPreSortOnSiteRequest.setReceiveSiteCode(waybill.getOldSiteId());
             if(log.isInfoEnabled()){
                 log.info("waybillForPreSortOnSiteRequest-{}",JSON.toJSONString(waybillForPreSortOnSiteRequest));
             }

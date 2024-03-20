@@ -55,6 +55,28 @@
 			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER}, #{bizSource,jdbcType=INTEGER},
             #{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR})
     </insert>
+
+	<insert id="batchAdd">
+		INSERT INTO Sorting (
+		sorting_id, bsend_code , box_code, package_code, waybill_code, pickup_code,
+		sorting_type, create_site_code, receive_site_code,
+		create_user_code, create_user, update_user_code, update_user,
+		create_time, update_time, operate_time, is_cancel, excute_count, excute_time,
+		sorting_status, yn, spare_reason, is_loss, feature_type, biz_source,
+		operator_type_code,operator_id)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+		    (
+		#{item.id,jdbcType=BIGINT}, #{item.bsendCode,jdbcType=VARCHAR}, #{item.boxCode,jdbcType=VARCHAR}, #{item.packageCode,jdbcType=VARCHAR},
+		#{item.waybillCode,jdbcType=VARCHAR}, #{item.pickupCode,jdbcType=VARCHAR}, #{item.type,jdbcType=INTEGER},
+		#{item.createSiteCode,jdbcType=INTEGER}, #{item.receiveSiteCode,jdbcType=INTEGER},
+		#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+		#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+		NOW(), NOW(),#{item.operateTime,jdbcType=TIMESTAMP}, #{item.isCancel,jdbcType=INTEGER},
+		0, NOW(), 1, 1, #{item.spareReason,jdbcType=VARCHAR}, #{item.isLoss,jdbcType=INTEGER}, #{item.featureType,jdbcType=INTEGER}, #{item.bizSource,jdbcType=INTEGER},
+		#{item.operatorTypeCode,jdbcType=INTEGER},#{item.operatorId,jdbcType=VARCHAR})
+		</foreach>
+	</insert>
 	<select id="querySortingForUpdate" resultMap="sorting" parameterType="sorting">
 		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
 		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
@@ -299,6 +321,24 @@
 		AND m.yn=1
 		)
 	</select>
+
+	<!--按包裹取消分拣正向模块取数,此版本，不进行发货校验 -->
+	<select id="querySortingByCode" resultMap="sorting" parameterType="sorting">
+		SELECT
+		box_code, create_site_code, receive_site_code, package_code,
+		waybill_code, sorting_type, update_user_code, update_user, spare_reason
+		FROM sorting
+		WHERE create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			AND package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		AND is_cancel = 0
+		AND yn=1
+	</select>
+
 	<select id="querySortingForCanCancel2" resultMap="sorting" parameterType="sorting">
 		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
 		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
@@ -417,4 +457,31 @@
 		limit #{offset}, #{limit}
 	</select>
 
+	<!--查询场地最后一次分拣记录-->
+	<select id="findLastSortingByPackageCode" resultMap="sorting" parameterType="sorting">
+		SELECT box_code, package_code, waybill_code, pickup_code,
+			   create_site_code, receive_site_code,
+			   create_user_code, create_user,
+			   create_time, update_time, operate_time, is_cancel,
+			   sorting_status, yn, is_loss
+		FROM sorting
+		WHERE yn= 1
+		  AND is_cancel = 0
+		  AND package_code = #{packageCode}
+		  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		order by operate_time desc limit 1
+	</select>
+
+
+	<update id="batchDelete">
+		update sorting
+		set yn= 0,update_time =now()
+		WHERE create_site_code = #{list[0].createSiteCode,jdbcType=INTEGER}
+		and box_code =#{list[0].boxCode}
+		AND package_code IN
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item.packageCode,jdbcType=VARCHAR}
+		</foreach>
+		AND yn=1
+	</update>
 </mapper>

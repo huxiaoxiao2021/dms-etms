@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.box.domain;
 
+
 import java.util.Date;
+import java.util.List;
 
 public class Box {
 
@@ -28,6 +30,8 @@ public class Box {
 	public static final Integer BOX_STATUS_SEND = 5; // 发货完成
 	public static final Integer BOX_STATUS_DEPARTURE_PROCESSING = 6; // 发车处理中
 	public static final Integer BOX_STATUS_DEPARTURE = 7; // 发车完成
+
+	public static final Integer BOX_STATUS_SEALED = 8; // 封箱
 
 	public static final String TYPE_BC = "BC"; // 正向普通箱号
 	public static final String TYPE_BS = "BS"; // 正向奢侈品箱号
@@ -156,6 +160,17 @@ public class Box {
 	 */
 	private String materialCode;
 
+	private List<Box> children;
+
+	private List<Box> parent;
+
+	public List<Box> getChildren(){
+		return children;
+	}
+
+	public void setChildren(List<Box> children) {
+		this.children = children;
+	}
 
 	public String getMaterialCode() {
 		return materialCode;
@@ -462,5 +477,13 @@ public class Box {
 
     public void setBoxSource(String boxSource) {
         this.boxSource = boxSource;
+    }
+
+    public List<Box> getParent() {
+        return parent;
+    }
+
+    public void setParent(List<Box> parent) {
+        this.parent = parent;
     }
 }

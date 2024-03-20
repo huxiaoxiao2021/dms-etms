@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -135,7 +136,7 @@ public abstract class SortingCommonSerivce {
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
     @Autowired
-    private JyOperateFlowService jyOperateFlowService;
+    protected JyOperateFlowService jyOperateFlowService;
 
     @Autowired
     private KvIndexDao kvIndexDao;
@@ -230,6 +231,9 @@ public abstract class SortingCommonSerivce {
         }
         sorting.setCreateSite(createSite);
 
+        // 初始化分拣操作轨迹对象
+        WaybillStatus operateTrack = createWaybillStatus(sorting);
+        sorting.setWaybillStatus(operateTrack);
 
         //已箱号目的地为准（未定位到什么样的入口会有目的地和箱号目的地不一致的数据）
         if(StringUtils.isNotBlank(sorting.getBoxCode()) && BusinessUtil.isBoxcode(sorting.getBoxCode())){
@@ -241,42 +245,50 @@ public abstract class SortingCommonSerivce {
 
     }
 
+    private WaybillStatus createWaybillStatus(SortingVO  sorting) {
+        Integer createSiteCode = sorting.getCreateSiteCode();
+        Integer receiveSiteCode = sorting.getReceiveSiteCode();
+        BaseStaffSiteOrgDto createSite = null;
+        BaseStaffSiteOrgDto receiveSite = null;
+        try {
+            createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+            receiveSite = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        } catch (Exception e) {
+            this.log.error("查询始发目的站点异常；{}",JsonHelper.toJson(sorting),e);
+        }
+        if (createSite == null)
+            createSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(createSiteCode));
+
+        if (receiveSite == null)
+            receiveSite = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(receiveSiteCode));
+
+        if (createSite == null || receiveSite == null) {
+            this.log.warn("创建站点或接收站点信息为空.");
+            this.log.warn("创建站点：{}" , createSiteCode);
+            this.log.warn("接收站点：{}" , receiveSiteCode);
+            return null;
+        }
+        return sortingService.parseWaybillStatus(sorting, createSite, receiveSite);
+    }
+
     private void after(SortingVO sorting) {
         if(sorting.getSortingType() != SortingVO.SORTING_TYPE_WAYBILL_SPLIT
                 && sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
-            if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)) {
-                //非 运单转换成的分批包裹任务才执行
-                sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingCommonSerivce#after");
-                //快退
-                notifyBlocker(sorting);
-                backwardSendMQ(sorting);
-                //更新运单状态
-                sortingService.addSortingAdditionalTask(sorting);
+            //非 运单转换成的分批包裹任务才执行
+            sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingCommonSerivce#after");
+            //快退
+            notifyBlocker(sorting);
+            backwardSendMQ(sorting);
+            //更新运单状态
+            sortingService.addSortingAdditionalTask(sorting);
 
-                // 写包裹和箱号关系
-                this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
-
-                // 分拣发送循环集包袋MQ
-                pushCycleMaterialMessage(sorting);
-                //发送操作流水mq
-                sendSortingFlowMq(sorting);
-            }
-            if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
-                // 取消分拣，删除包谷与箱的绑定关系
-                this.logicDelPackageCodeAssociateBoxCodeKvIndex(sorting);
-            }
+            // 分拣发送循环集包袋MQ
+            pushCycleMaterialMessage(sorting);
+            // 写包裹和箱号关系
+            this.writePackageCodeAssociateBoxCodeKvIndex(sorting);
         }
 
     }
-    /**
-     * 发送操作流水mq
-     * @param sorting
-     */
-	private void sendSortingFlowMq(SortingVO sorting) {
-	    JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
-	    sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
-		jyOperateFlowService.sendMq(sortingFlowMq);
-	}
     private void pushCycleMaterialMessage(SortingVO sorting) {
         BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
         mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());
@@ -478,21 +490,14 @@ public abstract class SortingCommonSerivce {
      * 写包裹和箱号关系到kv_index表中
      */
     private void writePackageCodeAssociateBoxCodeKvIndex(SortingVO sorting){
+        if(sorting.getCreateSiteCode() == null){
+            return;
+        }
         final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
         KvIndex kvIndex = new KvIndex();
         kvIndex.setKeyword(kvKey);
-        kvIndex.setValue(sorting.getBoxCode());
+        kvIndex.setValue(sorting.getCreateSiteCode().toString());
         kvIndexDao.add(kvIndex);
     }
 
-    /**
-     * 写包裹和箱号关系到kv_index表中
-     */
-    private void logicDelPackageCodeAssociateBoxCodeKvIndex(SortingVO sorting){
-        final String kvKey = getPackageCodeAssociateBoxCodeKvIndexKey(sorting.getPackageCode());
-        KvIndex kvIndexUpdate = new KvIndex();
-        kvIndexUpdate.setKeyword(kvKey);
-        kvIndexUpdate.setValue(Constants.EMPTY_FILL);
-        kvIndexDao.updateByKey(kvIndexUpdate);
-    }
 }

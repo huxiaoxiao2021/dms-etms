@@ -60,7 +60,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
-import com.jd.dbs.util.CollectionUtils;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -81,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicReq;
 import com.jdl.basic.api.domain.vehicle.VehicleVolumeDicResp;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -695,11 +695,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.checkTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq reqcuest) {
+    public InvokeResult<TransportResp> checkTransCode(CheckTransportReq request) {
         TransportResp transportResp = new TransportResp();
         InvokeResult<TransportResp> invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
-            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(reqcuest.getTransportCode());
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newSealVehicleService.getTransportResourceByTransCode(request.getTransportCode());
             if (commonDto == null) {
                 invokeResult.setCode(SERVER_ERROR_CODE);
                 invokeResult.setMessage("查询运力信息结果为空");
@@ -707,7 +707,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
                 TransportResourceDto data = commonDto.getData();
-                if(Objects.isNull(data.getStartNodeId()) || reqcuest.getCurrentOperate().getSiteCode() != data.getStartNodeId()) {
+                if(Objects.isNull(data.getStartNodeId()) || request.getCurrentOperate().getSiteCode() != data.getStartNodeId()) {
                     invokeResult.error(String.format("运力编码始发地[%s]非当前场地", data.getStartNodeName()));
                     return invokeResult;
                 }
@@ -720,10 +720,15 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 transportResp.setTransWayName(data.getTransWayName());
                 transportResp.setTransType(data.getTransType());
                 transportResp.setTransTypeName(data.getTransTypeName());
-                if (reqcuest.getEndSiteId().equals(endNodeId)) {
+                if (request.getEndSiteId().equals(endNodeId)) {
                     invokeResult.setCode(RESULT_SUCCESS_CODE);
                     invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
                     invokeResult.setData(transportResp);
+                } else if(Boolean.FALSE.equals(request.getTemporaryTransferSwitch())) {
+                    //不校验中转属性逻辑
+                    invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVE_DIFF_ERROR);
+                    return invokeResult;
                 } else {
                     //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                     BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
@@ -744,7 +749,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             } else {
                 invokeResult.setCode(SERVER_ERROR_CODE);
                 invokeResult.setMessage("查询运力信息出错！");
-                log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", reqcuest.getTransportCode(), commonDto.getMessage());
+                log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", request.getTransportCode(), commonDto.getMessage());
                 return invokeResult;
             }
         } catch (Exception e) {
@@ -1612,7 +1617,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             jySendSealCodeEntity.setCreateUserName(sealCarReq.getUser().getUserName());
             entityList.add(jySendSealCodeEntity);
         }
-        //航空摆渡发车关注流向维度数据  todo zcf 批次号模型怎么兼容
+        //航空摆渡发车关注流向维度数据  todo  批次号模型怎么兼容
         if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(sealCarReq.getPost())) {
             for (String sealCode : sealCarReq.getScanSealCodes()) {
                 JySendSealCodeEntity jySendSealCodeEntity = new JySendSealCodeEntity();

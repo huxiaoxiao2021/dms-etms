@@ -2,10 +2,11 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalReasonResp;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
 
+import java.util.List;
 import java.util.Map;
-
 /**
  * @Author: ext.xuwenrui
  * @Date: 2023/8/15 10:18
@@ -13,6 +14,14 @@ import java.util.Map;
  */
 
 public interface JyContrabandExceptionService {
+
+    /**
+     * 获取质控异常原因枚举
+     *
+     * @return
+     */
+    JdCResponse<List<AbnormalReasonResp>> getAbnormalReason();
+
     JdCResponse<Boolean> processTaskOfContraband(ExpContrabandReq req);
 
     /**

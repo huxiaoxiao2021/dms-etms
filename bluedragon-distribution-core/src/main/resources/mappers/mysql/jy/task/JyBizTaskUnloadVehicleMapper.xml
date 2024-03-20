@@ -52,6 +52,8 @@
         <result property="priorityFraction" column="priority_fraction"/>
         <result property="priorityFlag" column="priority_flag"/>
         <result property="onlyUnloadNoLoad" column="only_unload_no_load"/>
+        <result property="autoInspectionFlag" column="auto_inspection_flag"/>
+        <result property="autoInspectionStartTime" column="auto_inspection_start_time"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -106,7 +108,9 @@
         te_an_flag,
         priority_fraction,
         priority_flag,
-        only_unload_no_load
+        only_unload_no_load,
+        auto_inspection_flag,
+        auto_inspection_start_time
     </sql>
 
 
@@ -792,6 +796,12 @@
             </if>
             <if test="onlyUnloadNoLoad != null">
                 only_unload_no_load =#{onlyUnloadNoLoad},
+            </if>
+            <if test="autoInspectionFlag != null">
+                auto_inspection_flag =#{autoInspectionFlag},
+            </if>
+            <if test="autoInspectionStartTime != null">
+                auto_inspection_start_time =#{autoInspectionStartTime},
             </if>
         </set>
         <where>

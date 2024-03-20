@@ -533,10 +533,25 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.baseMajorManagerImpl.getBaseStaffIgnoreIsResignByStaffIdNoCache", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByStaffIdNoCache(Integer userId) {
+        return basicPrimaryWS.getBaseStaffIgnoreIsResignByStaffId(userId);
+    }
+
+    @Override
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffByErpNoCache", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp) {
         return basicPrimaryWS.getBaseStaffByErp(erp);
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffByErpCache", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffByErpCache@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public BaseStaffSiteOrgDto getBaseStaffByErpCache(String erp) {
+        return basicPrimaryWS.getBaseStaffByErp(erp);
+    }
+
 
     @Override
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffIgnoreIsResignByErp", mState = {JProEnum.TP, JProEnum.FunctionError})

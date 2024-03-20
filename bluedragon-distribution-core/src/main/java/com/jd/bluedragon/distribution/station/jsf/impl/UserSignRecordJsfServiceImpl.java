@@ -136,4 +136,9 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 		return Result.success();
 	}
 
+	@Override
+	public Result<Integer> autoHandleSignInRecord() {
+		return userSignRecordService.autoHandleSignInRecord();
+	}
+
 }

@@ -5,10 +5,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.working.WorkingConfigJsfService;
 import com.jd.dms.wb.report.api.working.dto.WorkingActionDto;
+import com.jd.dms.wb.report.sdk.api.outsource.OutSourceProvisionQueryApi;
+import com.jd.dms.wb.report.sdk.model.vo.working.data.SupplierVO;
 import com.jd.tys.api.common.dto.Result;
 import com.jd.tys.api.outsource.dto.OutsourceCountRuleDto;
 import com.jd.tys.api.outsource.dto.OutsourceCountRuleResultDto;
 import com.jd.tys.api.outsource.ws.OutsourceCountRuleServiceWS;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,8 @@ public class WorkingConfigProxy {
 
     @Autowired
     private OutsourceCountRuleServiceWS outsourceCountRuleServiceWS;
+    @Autowired
+    private OutSourceProvisionQueryApi outSourceProvisionQueryApi;
 
     @JProfiler(jKey = "DMSWEB.WorkingConfigProxy.queryDMSWorkingConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<WorkingActionDto> queryDMSWorkingConfig(Integer siteId, Integer workingPositionAttr) {
@@ -68,5 +73,28 @@ public class WorkingConfigProxy {
             return Collections.emptyList();
         }
         return result.getData().getCountRuleDtos();
+    }
+
+    @JProfiler(jKey = "DMSWEB.WorkingConfigProxy.querySupplierBySiteCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<SupplierVO> querySupplierBySiteCode(Integer siteId) {
+        log.info("根据场地id查询外包计提配置外包商信息,siteId:{}", siteId);
+        com.jd.dms.wb.report.sdk.model.base.BaseEntity<List<SupplierVO>> listBaseEntity =
+                null;
+        try {
+            listBaseEntity = outSourceProvisionQueryApi.querySupplierBySiteCode(siteId);
+        } catch (Exception e) {
+            log.error("根据场地id查询外包计提配置外包商信息异常,siteId:{}", siteId, e);
+            return null;
+        }
+        if(listBaseEntity == null){
+            log.info("根据场地id查询外包计提配置外包商信息,方法返回值为空,siteId:{}", siteId);
+            return null;
+        }
+        if(CollectionUtils.isEmpty(listBaseEntity.getData())){
+            log.info("根据场地id查询外包计提配置外包商信息,未查到外包商信息,siteId:{}", siteId);
+            return null;
+        }
+        log.info("根据场地id查询外包计提配置外包商信息,查到外包商数量，siteId:{},count:{}", siteId, listBaseEntity.getData().size());
+        return listBaseEntity.getData();
     }
 }

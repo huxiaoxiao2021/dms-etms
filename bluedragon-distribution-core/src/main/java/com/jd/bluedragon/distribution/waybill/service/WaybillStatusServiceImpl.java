@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -90,6 +91,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private TerminalManager terminalManager;
+
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -369,11 +373,32 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
+			// 发送操作轨迹
+			sendOperateTrack(waybillStatus);
 		}
         if(log.isInfoEnabled()){
             log.info("回传运单消息体：{}",JsonHelper.toJson(params));
         }
 		return params;
+	}
+
+	/**
+	 * 发送操作轨迹
+	 * 按理说验货、分拣、发货三个节点都应该使用这个方法，并且此消息中要存放jy_operate_flow表的主键flowId，
+	 * 当按照运单分拣的时候，发送全程跟踪只按运单调用了一次，jy_operate_flow表却存放的是包裹维度，导致使用本方法时不知道放哪个flowId，所以目前写在了doSorting方法里
+	 * 验货和发货都拆成了包裹维度，不存在此问题
+	 * 之后新增节点时，可以参照此场景决定代码放在何处
+	 */
+	private void sendOperateTrack(WaybillStatus waybillStatus) {
+		// 操作码
+		Integer operateType = waybillStatus.getOperateType();
+		// 如果是验货、发货、配送异常、收货
+		if (WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_INSPECTION.equals(operateType)
+				|| WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(operateType)
+				|| WaybillStatus.WAYBILL_TRACK_QC.equals(operateType)
+				|| WaybillStatus.WAYBILL_TRACK_SH.equals(operateType)) {
+			jyOperateFlowService.sendOperateTrack(waybillStatus);
+		}
 	}
 
 	private String resultToString(Long taskId, Result result, String message) {
@@ -705,6 +730,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
                 this.log.info("向运单系统回传全程跟踪，取消发货：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
+				// 发送操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 //                this.taskService.doDone(task);
                 task.setYn(0);
             }
@@ -805,6 +832,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					toWaybillStatus(tWaybillStatus, bdTraceDto);
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
+					// 发送操作轨迹
+					jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				} else {
 					log.warn("取消分拣全程跟踪失败，包裹号没空！");
 				}
@@ -978,6 +1007,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		// left：包裹号，right：运单号
 		List<ImmutablePair<String, String>> list = new ArrayList<>();
 		if (BusinessUtil.isBoxcode(boxOrPackageCode)){
+			tWaybillStatus.setBoxCode(boxOrPackageCode);
 			// 箱号处理
 			String boxCode = tWaybillStatus.getPackageCode();
 			// 1.查询分拣sorting
@@ -1013,6 +1043,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			toWaybillStatus(tWaybillStatus, bdTraceDto);
 			bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 			waybillQueryManager.sendBdTrace(bdTraceDto);
+			// 发送操作轨迹
+			jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 		}
 	}
 

@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.WaybillSignConstants.*;
 
 /**
  * @author tangchunqing
@@ -103,6 +104,21 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         return isMatchBoxCode(s);
+    }
+
+    public static Boolean isLLBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("LL")){
+            return true;
+        }
+        return false;
+    }
+
+
+    public static Boolean isWMSBoxcode(String s) {
+        if (isBoxcode(s) && s.startsWith("BW")){
+            return true;
+        }
+        return false;
     }
     public static Boolean isStoreCode(String s) {
         if (StringUtils.isEmpty(s)) {
@@ -1998,7 +2014,20 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15) ||
+                isWmsTurnoverBox(materialCode);
+    }
+
+    /**
+     * 判断是否是仓周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
     }
 
     /**
@@ -2765,7 +2794,7 @@ public class BusinessUtil {
         }
         return BusinessUtil.isSignChar(waybillSign,40,'2')
                 && BusinessUtil.isSignChar(waybillSign,54,'0')
-                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9')
+                && BusinessUtil.isSignInChars(waybillSign,80,'0', '1', '2', '9', 'D')
                 && BusinessUtil.isSignChar(waybillSign,89,'0');
     }
 
@@ -2837,20 +2866,30 @@ public class BusinessUtil {
     /**
      * 纯配(53=2)&&冷链生鲜单子
      * 冷链卡班、冷链卡班小票、冷链城配、冷链专送
-     * 冷链卡班和冷链小票（WBS54位=2&&80位=7）、冷链城配（wbs54位=2&&80位=6）、冷链专送（wbs54位=2&&31位=G）
+     * 冷链卡班和冷链小票（WBS54位=2&&80位=7）、冷链城配（wbs54位=2&&80位=6）
      * @param waybillSign
      * @return
      */
     public static boolean isExternalPureDeliveryAndColdFresh(String waybillSign){
-        if(!isSignInChars(waybillSign,53,'0', '2')){
+        if(!isSignInChars(waybillSign,53,'2')){
             return false;
         }
         if(!isColdChainWaybill(waybillSign)){
             return false;
         }
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
-                || isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6)
-                || isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_G);
+                || isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6);
+
+    }
+
+    /**
+     * 纯配(53=2)
+     * 冷链专送（31位=G）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureDeliveryColdDelivery(String waybillSign){
+        return isSignInChars(waybillSign,53,'2') && isColdDelivery(waybillSign);
     }
 
     /**
@@ -3107,8 +3146,8 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfFresh(String sendPay) {
-        return isSignInChars(sendPay, SendPayConstants.POSITION_2, 
-                SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
+        return isSignInChars(sendPay, SendPayConstants.POSITION_2,
+                SendPayConstants.CHAR_2_4, SendPayConstants.CHAR_2_5, SendPayConstants.CHAR_2_6, SendPayConstants.CHAR_2_7, SendPayConstants.CHAR_2_8, SendPayConstants.CHAR_2_9);
     }
 
     /**
@@ -3121,5 +3160,45 @@ public class BusinessUtil {
             return false;
         }
         return flightNumber.matches(FLIGHT_NUMBER_REGEX);
+    }
+
+    /**
+     * 判断是否是冷链专送且异常即报废
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isColdChainExpressScrap(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+    }
+
+    public static boolean isScrapWaybill(String waybillSign) {
+        if (StringUtils.isEmpty(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,POSITION_19,CHAR_19_2);
+    }
+
+    /**
+     * CTC逆向单判断 waybillsign40=0且29=8且61!=0
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCTCReverseWaybill(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign,POSITION_40,CHAR_40_0)
+                && BusinessUtil.isSignChar(waybillSign,POSITION_29,CHAR_29_8)
+                && !BusinessUtil.isSignChar(waybillSign,POSITION_61, CHAR_61_0);
+    }
+    /**
+     * 判断场地是不是:仓库 备件库 售后
+     */
+    public static boolean isReverseSite(Integer siteType){
+        if (siteType == null){
+            return false;
+        }
+        if (SITE_TYPE_WMS.equals(siteType) || SITE_TYPE_AMS.equals(siteType) || SITE_TYPE_SPWMS.equals(siteType)){
+            return true;
+        }
+        return false;
     }
 }

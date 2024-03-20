@@ -45,6 +45,7 @@
         <fusionds-lib.version>1.4.1</fusionds-lib.version>
         <abnormal-portal-api.version>1.3.0-java8-SNAPSHOT</abnormal-portal-api.version>
         <laf.client.version>1.4.0</laf.client.version>
+		<workbench-report-sdk.version>1.0.0-UAT-SNAPSHOT</workbench-report-sdk.version>
     </properties>
 
     <dependencies>
@@ -123,6 +124,10 @@
                 <exclusion>
                     <groupId>com.jd.jim.cli</groupId>
                     <artifactId>jim-cli-config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.jd.etms.waybill</groupId>
+                    <artifactId>etms-waybillcode-rule</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1808,60 +1813,61 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- 质控 -->
-        <dependency>
-            <groupId>com.jd.wl</groupId>
-            <artifactId>data.qc.abnormal.jsf.jar</artifactId>
-            <version>1.0.7-pda-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.aspectj</groupId>
-                    <artifactId>aspectjrt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.aspectj</groupId>
-                    <artifactId>aspectjweaver</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jboss.resteasy</groupId>
-                    <artifactId>resteasy-jaxrs</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-clients</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-core</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-dataformat-cbor</artifactId>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-dataformat-smile</artifactId>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jackson-dataformat-yaml</artifactId>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>tms-basic-client</artifactId>
-                    <groupId>com.jd.tms.basic</groupId>
-                </exclusion>
+		<!-- 质控 -->
+		<dependency>
+			<groupId>com.jd.wl</groupId>
+			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
+			<version>1.4.3-SNAPSHOT</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.resteasy</groupId>
+					<artifactId>resteasy-jaxrs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-core</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-cbor</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-smile</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-yaml</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>tms-basic-client</artifactId>
+					<groupId>com.jd.tms.basic</groupId>
+				</exclusion>
                 <exclusion>
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
@@ -2151,48 +2157,52 @@
             <!-- 测试环境1.0.0-TEST-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.jd.merchant</groupId>
-            <artifactId>platform-api</artifactId>
-            <!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jd.cp.wbms</groupId>
-            <artifactId>cp-wbms-client</artifactId>
-            <version>${cp-wbms-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>hibernate-validator</artifactId>
-                    <groupId>org.hibernate.validator</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>validation-api</artifactId>
-                    <groupId>javax.validation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.jd.dms.wb</groupId>
-            <artifactId>workbench-report-api</artifactId>
-            <version>1.0.0-UAT-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jd.dms.wb</groupId>
-                    <artifactId>dms-workbench-utils-sdk</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jd.tys</groupId>
-            <artifactId>workbench-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
+		<dependency>
+			<groupId>com.jd.merchant</groupId>
+			<artifactId>platform-api</artifactId>
+			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.cp.wbms</groupId>
+			<artifactId>cp-wbms-client</artifactId>
+			<version>${cp-wbms-client.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>workbench-report-api</artifactId>
+			<version>1.0.8-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.dms.wb</groupId>
+					<artifactId>dms-workbench-utils-sdk</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>workbench-report-sdk</artifactId>
+			<version>${workbench-report-sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
 
         <dependency>
             <groupId>com.jd.dms.wb</groupId>
@@ -2288,7 +2298,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>automatic-platform-sdk</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.41-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -2749,16 +2759,21 @@
         </dependency>
 
 		<dependency>
-			<groupId>vd-service-sdk</groupId>
-			<artifactId>vd-service-sdk</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>udata</groupId>
 			<artifactId>udata-jsf-interface</artifactId>
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>vd-service-sdk</groupId>
+			<artifactId>vd-service-sdk</artifactId>
+		</dependency>
+
+		<!--拣运租户组件-->
+		<dependency>
+			<groupId>com.jdl.sorting.tech</groupId>
+			<artifactId>tenant-jsf-filter-sdk</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>

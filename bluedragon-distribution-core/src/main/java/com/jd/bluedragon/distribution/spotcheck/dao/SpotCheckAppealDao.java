@@ -42,6 +42,16 @@ public interface SpotCheckAppealDao {
     List<SpotCheckAppealEntity> batchFindByIds(SpotCheckAppealEntity spotCheckAppealEntity);
 
     /**
+     * 根据waybillCode列表批量查找
+     */
+    List<SpotCheckAppealEntity> batchFindByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity);
+
+    /**
+     * 根据waybillCode列表批量删除
+     */
+    int batchDeleteByWaybillCodes(SpotCheckAppealEntity spotCheckAppealEntity);
+
+    /**
      * 根据bizId查找
      */
     SpotCheckAppealEntity findByBizId(SpotCheckAppealEntity spotCheckAppealEntity);

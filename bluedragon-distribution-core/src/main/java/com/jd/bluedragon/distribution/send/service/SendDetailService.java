@@ -71,4 +71,8 @@ public interface SendDetailService {
     public boolean checkSendIsExist(String sendCode);
 
     SendDetail queryOneSendDatailBySendM(SendDetail param);
+
+    int deleteOldAndInsertNewSendD(List<SendDetail> sendDetailList);
+
+    SendDetail findOneByParams(SendDetail param);
 }

@@ -15,6 +15,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -31,17 +32,18 @@ import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.qualityControl.AbnormalBizSourceEnum;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.qualityControl.domain.abnormalReportRecordMQ;
-import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -86,8 +88,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SITE_WHITE_LIST;
 import static com.jd.bluedragon.Constants.EXCHANGE_WAYBILL_PRINT_LIMIT_1_SWITCH;
+import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -163,6 +167,10 @@ public class QualityControlService {
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
+
 
     /**
      * 协商再投状态校验
@@ -281,7 +289,17 @@ public class QualityControlService {
             log.info("checkCanSubmit match {} {}", request.getQcValue(), request.getDistCenterID());
             String waybillCode=WaybillUtil.getWaybillCode(request.getQcValue());
             // 获取原单数据
-            String oldWaybillCode = getOldWaybillCode(waybillCode);
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null
+                    && BusinessUtil.isColdChainExpressScrap(baseEntity.getData().getWaybill().getWaybillSign())){
+                return result.toFail(HintService.getHint(HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION_MSG, HintCodeConstants.COLD_CHAIN_EXPRESS_SCRAP_NO_SUBMIT_EXCEPTION));
+            }
+            String oldWaybillCode = getOldWaybillCode(baseEntity);
             // 只针对分拣系统， 理赔拦截和取消订单拦截只能换单一次
             if (Objects.equals(QualityControlInletEnum.DMS_SORTING.getCode(), request.getInletFlag())
                     && StringUtils.isEmpty(oldWaybillCode)
@@ -292,6 +310,17 @@ public class QualityControlService {
             // ucc开关
             if(!dmsConfigManager.getPropertyConfig().matchExceptionSubmitCheckSite(request.getDistCenterID())){
                 return result;
+            }
+            // 报废运单拦截
+            if (StringUtils.isNotEmpty(waybillCode)) {
+                Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
+                if (waybill != null && StringUtils.isNotEmpty(waybill.getWaybillSign())) {
+                    // waybillSign的19位等于2是报废运单 拦截
+                    String waybillSign = waybill.getWaybillSign();
+                    if (isScrapWaybill(waybillSign)) {
+                        return result.toFail(HintService.getHint(SCRAP_WAYBILL_INTERCEPT_HINT_CODE));
+                    }
+                }
             }
             final List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
             if(!StringUtils.isEmpty(oldWaybillCode) || CollectionUtils.isNotEmpty(waybillCancelList)){
@@ -402,7 +431,10 @@ public class QualityControlService {
             } else {
                 toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
             }
-            abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
+
+            // 保存异常处理记录
+            convert2AbnormalWayBills(sendDetails, request);
+
         } catch (Exception ex) {
             log.error("分拣中心异常节点推全程跟踪、质控发生异常。" , ex);
             return TaskResult.REPEAT;
@@ -431,8 +463,9 @@ public class QualityControlService {
 
             QualityControl qualityControl = convert2QualityControl(sendDetail.getWaybillCode(), request, boxCode);
             log.info("分拣中心异常页面发质控和全程跟踪开始，消息体：{}" , JsonHelper.toJson(qualityControl));
+
             // 更新运单状态
-            updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode());
+            updateWaybillStatus(sendDetail, request, operateSite);
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
@@ -464,7 +497,7 @@ public class QualityControlService {
             // QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
             // log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
             // 更新运单状态
-            updateWaybillStatus(waybillCode, request, operateSite, null);
+            updateWaybillStatus(sendDetail, request, operateSite);
             //异常处理 节点发MQ 换新单
             log.info("执行自营换新单 convert2ExchangeNewWaybill exchangeOwnWaybill ");
             OwnReverseTransferDomain domain = convert2ExchangeNewWaybill(waybillCode, request);
@@ -495,7 +528,11 @@ public class QualityControlService {
      * @param request
      * @param operateSite
      */
-    private void updateWaybillStatus(String waybillCode, QualityControlRequest request,BaseStaffSiteOrgDto operateSite, String boxCode){
+    private void updateWaybillStatus(SendDetail sendDetail, QualityControlRequest request, BaseStaffSiteOrgDto operateSite) {
+
+        String waybillCode = sendDetail.getWaybillCode();
+        String boxCode = sendDetail.getBoxCode();
+
         Task tTask = new Task();
         tTask.setBoxCode(boxCode);
 
@@ -539,6 +576,17 @@ public class QualityControlService {
         }
 
         tWaybillStatus.setPackageCode(waybillCode); //异常 节点运单只接收运单维度
+
+        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
+            // 透传操作流水主键
+            sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            if (log.isInfoEnabled()) {
+                log.info("convert2AbnormalWayBills|配送异常生成主键:sendDetail={}", JsonHelper.toJson(sendDetail));
+            }
+            tWaybillStatus.setOperateFlowId(sendDetail.getOperateFlowId());
+            // 发送操作轨迹
+            jyOperateFlowService.sendOperateTrack(tWaybillStatus);
+        }
 
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
 
@@ -629,8 +677,12 @@ public class QualityControlService {
      * @param request
      * @return
      */
-    private List<AbnormalWayBill> convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request){
-        List<AbnormalWayBill> list = new ArrayList<AbnormalWayBill>(sendDetails.size());
+    private void convert2AbnormalWayBills(List<SendDetail> sendDetails, QualityControlRequest request) {
+        OperateBizSubTypeEnum operateBizSubTypeEnum = null;
+        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
+            operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_HANDLE;
+        }
+
         for (SendDetail sendDetail : sendDetails){
             AbnormalWayBill abnormalWayBill = new AbnormalWayBill();
             abnormalWayBill.setWaybillCode(sendDetail.getWaybillCode());
@@ -658,9 +710,22 @@ public class QualityControlService {
             } else {
                 abnormalWayBill.setWaveBusinessId(request.getWaveBusinessId());
             }
-            list.add(abnormalWayBill);
+            abnormalWayBill.setOperateFlowId(sendDetail.getOperateFlowId());
+            abnormalWayBill.setOperatorData(request.getOperatorData());
+            if (log.isInfoEnabled()) {
+                log.info("convert2AbnormalWayBills|发送配送异常流水:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill));
+            }
+
+            // 执行插入
+            abnormalWayBillService.insertAbnormalWayBill(abnormalWayBill);
+
+            // 只有异常处理和异常提报(新)需要处理
+            if (operateBizSubTypeEnum != null) {
+                // 记录配送异常操作流水
+                jyOperateFlowService.sendAbnormalOperateFlowData(abnormalWayBill, operateBizSubTypeEnum);
+            }
+
         }
-        return list;
     }
 
     public void convertThenAddTask(QualityControlRequest request) throws Exception {
@@ -775,7 +840,7 @@ public class QualityControlService {
             if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
                 return result;
             }
-            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffIgnoreIsResignByErp(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
                 log.error("handleQcReportConsume 未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
@@ -805,6 +870,9 @@ public class QualityControlService {
                 qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
+                // 设置菜单来源
+                qualityControlRequest.setBizSource(AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType());
+
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
@@ -914,6 +982,8 @@ public class QualityControlService {
                 qualityControlRequest.setAbnormalReasonThirdName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
+                // 设置菜单来源
+                qualityControlRequest.setBizSource(AbnormalBizSourceEnum.ABNORMAL_OUT_CALL.getType());
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
@@ -1129,14 +1199,8 @@ public class QualityControlService {
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
-    private  String getOldWaybillCode(String waybillCode){
+    private String getOldWaybillCode(BaseEntity<BigWaybillDto> baseEntity){
         //根据运单号校验是否存在原单号(是否是逆向单)，如果是 则可以正常提交异常处理，否则进行拦截校验
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillE(true);
-        wChoice.setQueryWaybillM(true);
-        wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() !=null && baseEntity.getData().getWaybill().getWaybillExt() !=null) {
             WaybillExt waybillExt=baseEntity.getData().getWaybill().getWaybillExt();
             if(StringUtils.isNotBlank(waybillExt.getOldWaybillCode())){

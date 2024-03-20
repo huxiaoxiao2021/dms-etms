@@ -37,6 +37,11 @@ public class UserSignRecordData implements Serializable {
 	 */
 	private Integer siteCode;
 
+    /**
+     * 用户ID
+     */
+    private Integer userId;
+
 	/**
 	 * 员工ERP|拼音|身份证号
 	 */
@@ -85,6 +90,11 @@ public class UserSignRecordData implements Serializable {
 	 * 关联：work_station业务主键
 	 */
 	private String refStationKey;
+
+	/**
+	 * ref：work_grid业务主键 场地网格业务主键
+	 */
+	private String refWorkGridKey;
 
 	/**
 	 * 创建人ERP
@@ -265,7 +275,16 @@ public class UserSignRecordData implements Serializable {
 	public void setSiteCode(Integer siteCode) {
 		this.siteCode = siteCode;
 	}
-	public String getUserCode() {
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getUserCode() {
 		return userCode;
 	}
 	public void setUserCode(String userCode) {
@@ -325,6 +344,15 @@ public class UserSignRecordData implements Serializable {
 	public void setRefStationKey(String refStationKey) {
 		this.refStationKey = refStationKey;
 	}
+
+	public String getRefWorkGridKey() {
+		return refWorkGridKey;
+	}
+
+	public void setRefWorkGridKey(String refWorkGridKey) {
+		this.refWorkGridKey = refWorkGridKey;
+	}
+
 	public String getCreateUser() {
 		return createUser;
 	}

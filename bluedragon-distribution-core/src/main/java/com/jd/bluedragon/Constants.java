@@ -1199,6 +1199,25 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
 
     /**
+     * 全程跟踪状态 发货
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEND = "16";
+
+    /**
+     * 全程跟踪状态 封车
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEAL_CAR = "-450";
+
+    /**
+     * 分拣中心收货
+     */
+    public static final String WAYBILL_TRACE_STATE_RECEIVE_WAYBILL = "-170";
+
+    /**
+     * 全程跟踪状态 分拣
+     * */
+    public static final String WAYBILL_TRACE_STATE_SORTING = "13";
+    /**
      * 全程跟踪状态 分拣验货
      * */
     public static final String WAYBILL_TRACE_STATE_INSPECTION_BY_CENTER = "10";
@@ -1236,6 +1255,11 @@ public class Constants {
      * 运单状态  异常退回
      */
     public static final String WAYBILLTRACE_EX_RETURN = "-3040";
+
+    /**
+     * 运单状态  解封车
+     */
+    public static final String WAYBILLTRACE_UN_SEAL_CAR = "-460";
     /**
      * 运单状态  清关失败
      */
@@ -1632,7 +1656,7 @@ public class Constants {
     /**
      * 常量值：-1
      * */
-    public static final Integer  NEGATIVE_NUMBER_ONE = -1;
+    public static final Integer NEGATIVE_NUMBER_ONE = -1;
     /**
      * 常量值：2
      * */
@@ -1656,6 +1680,11 @@ public class Constants {
      * 常量值：1000
      * */
     public static final int CONSTANT_ONE_THOUSAND = 1000;
+
+    /**
+     * 常量值：20
+     * */
+    public static final int  CONSTANT_NUMBER_TWENTY = 20;
 
     /**
      * 组板转移标识
@@ -1747,6 +1776,11 @@ public class Constants {
      * 数字：1
      */
     public static final Integer NUMBER_ONE = 1;
+
+    /**
+     * 数字：2
+     */
+    public static final Integer NUMBER_TWO = 2;
 
     /**
      * 数字：3
@@ -2412,5 +2446,75 @@ public class Constants {
      * 装车评价大压小/重压轻/木压纸
      */
     public static final Integer DIMENSION_800 = 800;
+
+
+    /**
+     * 运单返调度审批配置 新
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_NEW = "reassignWaybill.province.area.approval.config.new";
+
+    /**
+     * 运单返调度审批版本配置
+     */
+    public static final String  REASSIGN_WAYBILL_PROVINCE_AREA_APPROVAL_CONFIG_FLOW_VERSION_NEW = "reassignWaybill.province.area.approval.config.flow.version.new";
+
+    /**
+     * win_pda下线
+     */
+    public static final String SYS_CONFIG_WIN_PDA_OFFLINE = "win_pda_offline";
+
+
+    /**
+     * android_pda下线
+     */
+    public static final String SYS_CONFIG_ANDROID_PDA_OFFLINE = "android_pda_offline";
+
+    /**
+     * 自动签退任务-开关
+     */
+    public static final String SYS_CONFIG_AUTO_SIGN_OUT_SWITCH = "auto.sign.out.switch";
+
+    /**
+     * 自动签退任务-扫描场地范围
+     */
+    public static final String SYS_CONFIG_AUTO_SIGN_OUT_SITE_CODE = "auto.sign.out.site.code";
+    /**
+     * 返调度退仓站点协助配送关系配置
+     */
+    public static final String  REASSIGN_WAYBILL_STORE_SITE_CONFIG = "reassign.waybill.store.site.config";
+
+    /**
+     * 空铁提货岗流向模板号前缀 AVIATION_RAIL各取前两字母
+     */
+    public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
+
+    public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+    /**
+     *  配置信息-基于排班自动签退试用场地列表
+     */
+    public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
+
+    /**
+     * 排班开始日期前1小时
+     * */
+    public static final Integer SCHEDULE_BEFORE_ONE_HOUR = -1;
+
+    /**
+     * 签到开始日期前1天
+     * */
+    public static final Integer SIGN_BEFORE_ONE_DAY = -1;
+
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
 
 }

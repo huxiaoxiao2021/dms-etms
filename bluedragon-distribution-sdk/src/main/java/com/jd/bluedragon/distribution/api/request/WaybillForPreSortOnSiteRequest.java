@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
 
+import java.util.List;
+
 public class WaybillForPreSortOnSiteRequest extends JdRequest {
     //erp
     private String erp;
@@ -42,6 +44,18 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
      */
     private Integer reasonType;
 
+
+    /**
+     * 操作员工是否为退货组标识
+     */
+    private Boolean returnGroupFlag;
+
+    private String waybillSign;
+
+    /**
+     * 运单目的地
+     */
+    private Integer receiveSiteCode;
 
     public String getErp() {
         return erp;
@@ -113,5 +127,29 @@ public class WaybillForPreSortOnSiteRequest extends JdRequest {
 
     public void setReasonType(Integer reasonType) {
         this.reasonType = reasonType;
+    }
+
+    public Boolean getReturnGroupFlag() {
+        return returnGroupFlag;
+    }
+
+    public void setReturnGroupFlag(Boolean returnGroupFlag) {
+        this.returnGroupFlag = returnGroupFlag;
+    }
+
+    public String getWaybillSign() {
+        return waybillSign;
+    }
+
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
     }
 }

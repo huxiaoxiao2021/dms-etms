@@ -75,6 +75,10 @@ public class ExpTaskDto implements Serializable {
      */
     private Integer processingStatus;
 
+    /**
+     * 任务子状态名称
+     */
+    private String processingStatusDesc;
 
     /**
      * 特殊标识
@@ -191,10 +195,6 @@ public class ExpTaskDto implements Serializable {
         this.imageUrls = imageUrls;
     }
 
-    public boolean isSaved() {
-        return saved;
-    }
-
     public Integer getTimeOut() {
         return timeOut;
     }
@@ -243,6 +243,13 @@ public class ExpTaskDto implements Serializable {
         this.processingStatus = processingStatus;
     }
 
+    public String getProcessingStatusDesc() {
+        return processingStatusDesc;
+    }
+
+    public void setProcessingStatusDesc(String processingStatusDesc) {
+        this.processingStatusDesc = processingStatusDesc;
+    }
 
     public String getSpecialFlag() {
         return specialFlag;

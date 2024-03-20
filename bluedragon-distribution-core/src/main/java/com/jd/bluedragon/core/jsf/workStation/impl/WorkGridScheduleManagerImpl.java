@@ -11,10 +11,7 @@ import com.jdl.basic.api.domain.schedule.WorkGridScheduleRequest;
 import com.jdl.basic.api.service.schedule.WorkGridScheduleJsfService;
 import com.jdl.jy.flat.api.schedule.ScheduleJSFService;
 import com.jdl.jy.flat.base.ServiceResult;
-import com.jdl.jy.flat.dto.schedule.DataScheduleNatureDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleAggsDto;
-import com.jdl.jy.flat.dto.schedule.ScheduleDetailDto;
-import com.jdl.jy.flat.dto.schedule.UserGridScheduleQueryDto;
+import com.jdl.jy.flat.dto.schedule.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,4 +81,22 @@ public class WorkGridScheduleManagerImpl implements WorkGridScheduleManager {
         return result;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "WorkGridScheduleManagerImpl.getUserScheduleByCondition", mState={JProEnum.TP,JProEnum.FunctionError})
+    @Override
+    public List<UserGridScheduleDto> getUserScheduleByCondition(UserGridScheduleQueryDto queryDto) {
+        ServiceResult<List<UserGridScheduleDto>> result = scheduleJSFService.listScheduleByUserUniqueCodeAndDate(queryDto);
+        if (result == null) {
+            log.error("WorkGridScheduleManagerImpl.getUserScheduleByCondition 返回结果为空！");
+            return null;
+        }
+        if (result.retFail()) {
+            log.error("WorkGridScheduleManagerImpl.getUserScheduleByCondition 调用失败  message{}！", result.getMessage());
+            return null;
+        }
+        if (result.getData() == null) {
+            log.error("WorkGridScheduleManagerImpl.getUserScheduleByCondition 返回data为null");
+            return null;
+        }
+        return result.getData();
+    }
 }

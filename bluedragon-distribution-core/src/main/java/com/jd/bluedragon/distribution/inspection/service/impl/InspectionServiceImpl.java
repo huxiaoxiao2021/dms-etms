@@ -4,11 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.AssertQueryManager;
@@ -28,7 +31,6 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
-import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
@@ -39,7 +41,6 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
-import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
@@ -63,11 +64,12 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.router.RouterService;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -85,13 +87,14 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
+import com.jdl.basic.common.utils.DateUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -195,8 +198,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     private BaseService baseService;
     
     @Autowired
-    private JyOperateFlowService jyOperateFlowService;    
-    
+    private JyOperateFlowService jyOperateFlowService;
+
+    @Autowired
+    private SortingCheckService sortingCheckService;
 
 	public boolean isExists(Integer Storeid) {
 		int value = (null == Storeid) ? 0 : Storeid.intValue();
@@ -1357,23 +1362,53 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         inspection.setOperatorData(operatorData);
     }
     @Override
-    public JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request) {
+    public JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(InspectionScanRequest request) {
         JdVerifyResponse<InspectionCheckResultDto> response = new JdVerifyResponse<>();
         response.toSuccess();
 
         String barCode = request.getBarCode();
 
         // 加盟商余额校验
-        checkAllianceMoney(response, request);
+        checkAllianceMoney(request, response);
 
         // 暂存校验
         tempStorageCheck(request, response);
 
+        // 易冻品校验
+        easyFreezeCheck(request, response);
+
+        // 特保单校验
+        luxurySecurityCheck(request, response);
+
+        // 特安单校验
+        TEANCheck(request, response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
-        hintCheckRequest.setCreateSiteCode(request.getCreateSiteCode());
+        hintCheckRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         hintCheckRequest.setNewInspectionCheck(true);
+
+        try {
+            if (BarCodeType.WAYBILL_CODE.equals(BusinessUtil.getBarCodeType(request.getBarCode()))
+                    || BarCodeType.PACKAGE_CODE.equals(BusinessUtil.getBarCodeType(request.getBarCode()))) {
+                final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
+                final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
+                if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
+                    if(interceptResult.getCode().equals(SortingResponse.CODE_29467)){
+                        response.toFail(interceptResult.getMessage());
+                        response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
+                        return response;
+                    } else {
+                        response.addPromptBox(interceptResult.getCode(), interceptResult.getMessage());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("InspectionServiceImpl_checkBeforeInspection {}", JsonHelper.toJson(request));
+            // response.toError("系统异常");
+            // return response;
+        }
 
         JdCResponse<InspectionCheckResultDto> hintCheckResult = hintCheck(hintCheckRequest);
         if (!Objects.equals(hintCheckResult.getCode(), com.jd.bluedragon.distribution.wss.dto.BaseEntity.CODE_SUCCESS)) {
@@ -1389,55 +1424,53 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
             if (StringUtils.isNotBlank(hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage())) {
                 response.addWarningBox(0, hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage());
             }
-
-            // 拦截校验
-            checkWaybillCancel(request, response);
         }
 
         return response;
     }
 
-    /**
-     * 加盟商余额校验
-     * @param response
-     * @param request
-     * @return
-     */
-    private void checkAllianceMoney(JdVerifyResponse<InspectionCheckResultDto> response, com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request) {
-        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-        if (StringUtils.isNotBlank(waybillCode)) {
-            if (!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
-                if (!allianceBusiDeliveryDetailService.checkMoney(waybillCode)) {
-                    response.addWarningBox(0, InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
-                }
-            }
+    private PdaOperateRequest getPdaOperateRequest4InspectionRequest(InspectionScanRequest inspectionScanRequest) {
+        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+        final CurrentOperate currentOperate = inspectionScanRequest.getCurrentOperate();
+        final User user = inspectionScanRequest.getUser();
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setReceiveSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setBoxCode(inspectionScanRequest.getBarCode());
+        pdaOperateRequest.setPackageCode(inspectionScanRequest.getBarCode());
+        pdaOperateRequest.setBusinessType(inspectionScanRequest.getBusinessType());
+        pdaOperateRequest.setOperateUserCode(user.getUserCode());
+        pdaOperateRequest.setOperateUserName(user.getUserName());
+        pdaOperateRequest.setOperateTime(DateUtil.formatDateTime(currentOperate.getOperateTime()));
+        pdaOperateRequest.setOperateType(inspectionScanRequest.getOperateType());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.INSPECTION);
+        final com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = currentOperate.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
         }
+        return pdaOperateRequest;
     }
 
-    /**
-     * 暂存校验
-     * @param request
-     * @param response
-     */
-    private void tempStorageCheck(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
-        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-        if (StringUtils.isBlank(waybillCode)) {
-            return;
+    private PdaOperateRequest getPdaOperateRequest4InspectionRequest(InspectionRequest inspectionRequest) {
+        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+        pdaOperateRequest.setReceiveSiteCode(inspectionRequest.getReceiveSiteCode());
+        pdaOperateRequest.setCreateSiteCode(inspectionRequest.getSiteCode());
+        pdaOperateRequest.setBoxCode(inspectionRequest.getBoxCode());
+        pdaOperateRequest.setPackageCode(inspectionRequest.getPackageBarcode());
+        pdaOperateRequest.setBusinessType(inspectionRequest.getBusinessType());
+        pdaOperateRequest.setOperateUserCode(inspectionRequest.getUserCode());
+        pdaOperateRequest.setOperateUserName(inspectionRequest.getUserName());
+        pdaOperateRequest.setOperateTime(inspectionRequest.getOperateTime());
+        pdaOperateRequest.setOperateType(inspectionRequest.getOperateType());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.INSPECTION);
+        final OperatorData operatorData = inspectionRequest.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
         }
-
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> tempStorageResult = storagePackageMService.checkIsNeedStorage(waybillCode, request.getCreateSiteCode());
-        if (tempStorageResult.getCode() == 201) {
-            if (tempStorageResult.getData()) {
-                response.addWarningBox(0, tempStorageResult.getMessage());
-            }
-            else {
-                response.addPromptBox(0, tempStorageResult.getMessage());
-            }
-        }
-        else if (response.getCode() == JdCResponse.CODE_FAIL
-                || response.getCode() == JdCResponse.CODE_ERROR) {
-            response.addWarningBox(0, tempStorageResult.getMessage());
-        }
+        return pdaOperateRequest;
     }
 
     public JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request) {
@@ -1500,6 +1533,36 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         return jdCResponse;
     }
 
+    private void checkWaybillCancel(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
+        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+        final User user = request.getUser();
+        final CurrentOperate currentOperate = request.getCurrentOperate();
+        pdaOperateRequest.setPackageCode(request.getBarCode());
+        pdaOperateRequest.setBusinessType(request.getBusinessType());
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
+        pdaOperateRequest.setOperateUserCode(user.getUserCode());
+        pdaOperateRequest.setOperateUserName(user.getUserName());
+        pdaOperateRequest.setOperateTime(DateUtil.formatDateTime(currentOperate.getOperateTime()));
+        pdaOperateRequest.setOperateType(request.getOperateType());
+
+        JdCancelWaybillResponse cancelWaybillResponse = waybillService.dealCancelWaybill(pdaOperateRequest);
+        if (!Objects.equals(JdResponse.CODE_SUCCESS, cancelWaybillResponse.getCode())) {
+            response.addWarningBox(0, cancelWaybillResponse.getMessage());
+        }
+    }
+
+    private void easyFreezeCheck(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        //易冻品校验
+        Date operateTime = request.getCurrentOperate().getOperateTime();
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> easyFreezeResult
+                = waybillService.checkEasyFreeze(request.getBarCode(), operateTime, request.getCurrentOperate().getSiteCode());
+        log.info("checkBeforeInspection -易冻品校验结果-{}",JSON.toJSONString(easyFreezeResult));
+        if(easyFreezeResult != null && easyFreezeResult.getData()){
+            response.addWarningBox(0, easyFreezeResult.getMessage());
+        }
+    }
+
     private void checkWaybillCancel(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setPackageCode(request.getBarCode());
@@ -1515,5 +1578,77 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         if (!Objects.equals(JdResponse.CODE_SUCCESS, cancelWaybillResponse.getCode())) {
             response.addWarningBox(0, cancelWaybillResponse.getMessage());
         }
+    }
+
+    /**
+     * 暂存校验
+     * @param request
+     * @param response
+     */
+    private void tempStorageCheck(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        if (StringUtils.isBlank(waybillCode)) {
+            return;
+        }
+
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> tempStorageResult = storagePackageMService.checkIsNeedStorage(waybillCode, request.getCurrentOperate().getSiteCode());
+        if (tempStorageResult.getCode() == 201) {
+            if (tempStorageResult.getData()) {
+                response.addWarningBox(0, tempStorageResult.getMessage());
+            }
+            else {
+                response.addPromptBox(0, tempStorageResult.getMessage());
+            }
+        }
+        else if (response.getCode() == JdCResponse.CODE_FAIL
+                || response.getCode() == JdCResponse.CODE_ERROR) {
+            response.addWarningBox(0, tempStorageResult.getMessage());
+        }
+    }
+
+    /**
+     * 加盟商余额校验
+     * @param response
+     * @param request
+     * @return
+     */
+    private void checkAllianceMoney(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        if (StringUtils.isNotBlank(waybillCode)) {
+            if (!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
+                if (!allianceBusiDeliveryDetailService.checkMoney(waybillCode)) {
+                    response.addWarningBox(0, InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
+                }
+            }
+        }
+    }
+
+    /**
+     * 特保单校验
+     * @param request
+     * @param response
+     */
+    private void luxurySecurityCheck(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getCurrentOperate().getSiteCode(),
+                request.getBarCode(), "");
+        log.info("checkBeforeInspection -特保单校验结果-{}", JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
+        }
+        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
+    }
+
+    private void TEANCheck(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        try{
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> teanResult = waybillService.checkTEANWaybillCondition(request.getBarCode());
+            log.info("卸车扫描TEANCheck -特安单校验结果-{}", JSON.toJSONString(teanResult));
+            if(teanResult != null && teanResult.getData()){
+                response.addWarningBox(teanResult.getCode(), teanResult.getMessage());
+            }
+            log.info("卸车扫描TEANCheck -结果-response {}",JSON.toJSONString(response));
+        }catch (Exception e){
+            log.error("TEANCheck 异常-param-{}", JsonHelper.toJson(request),e);
+        }
+
     }
 }

@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.slf4j.Logger;
@@ -68,7 +69,7 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      */
     @Override
     public boolean doPackHandler(SendOfCAContext context) {
-        return packOrWaybillHandler(context);
+        return packOrWaybillHandler(context,sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_PACKAGE));
     }
 
     /**
@@ -78,7 +79,7 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      */
     @Override
     public boolean doWaybillHandler(SendOfCAContext context) {
-        return packOrWaybillHandler(context);
+        return packOrWaybillHandler(context,sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_WAYBILL));
     }
 
     /**
@@ -108,9 +109,17 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
     public boolean doBoardHandler(SendOfCAContext context) {
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
         sortingCheck.setBoard(context.getBoard());
+        //老校验忽略校验使用
+        if(context.getRequest().getValidateIgnore() != null){
+            sortingCheck.setValidateIgnore(context.getRequest().getValidateIgnore());
+        }
         //加载按板处理校验链
         SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck,Boolean.TRUE,
                 sortingCheckService.matchJyDeliveryFilterChain(SendKeyTypeEnum.BY_BOARD));
+        // 存储校验链返回的code编码提供给外部调用者做特殊处理
+        context.getResponse().getData().setOldFilterChainCode(response.getCode());
+        context.getResponse().getData().setOldFilterChainMsg(response.getMessage());
+
         if (!response.getCode().equals(JdResponse.CODE_OK)) {
             if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                 context.getResponse().getData().init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), Constants.NUMBER_ZERO);
@@ -127,10 +136,17 @@ public class SendOldChainVerifyHandler extends SendDimensionStrategyHandler {
      * @param context
      * @return
      */
-    private boolean packOrWaybillHandler(SendOfCAContext context){
+    private boolean packOrWaybillHandler(SendOfCAContext context, FilterChain filterChain){
         SortingCheck sortingCheck = deliveryService.getSortingCheck(context.getRequestTurnToSendM());
+        //老校验忽略校验使用
+        if(context.getRequest().getValidateIgnore() != null){
+            sortingCheck.setValidateIgnore(context.getRequest().getValidateIgnore());
+        }
         // 按包裹或者运单发货分拣校验
-        SortingJsfResponse response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
+        SortingJsfResponse response = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, Boolean.TRUE, filterChain);
+        // 存储校验链返回的code编码提供给外部调用者做特殊处理
+        context.getResponse().getData().setOldFilterChainCode(response.getCode());
+        context.getResponse().getData().setOldFilterChainMsg(response.getMessage());
 
         if (!response.getCode().equals(JdResponse.CODE_OK)) {
             //如果校验不OK

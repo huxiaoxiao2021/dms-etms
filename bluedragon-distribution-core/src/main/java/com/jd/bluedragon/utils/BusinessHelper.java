@@ -1248,4 +1248,13 @@ public class BusinessHelper {
         }
         return WaybillFlowTypeEnum.MAINLAND;
     }
+
+    /**
+     * 判断是否保温箱运单
+     * @param waybillSign 运单标识
+     * @return 如果是BWX运单返回true，否则返回false
+     */
+    public static boolean isBwxWaybill(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_24, WaybillSignConstants.CHAR_24_G);
+    }
 }

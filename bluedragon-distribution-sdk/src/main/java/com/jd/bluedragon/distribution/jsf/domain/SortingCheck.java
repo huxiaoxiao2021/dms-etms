@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jsf.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.board.domain.Board;
 
 /**
@@ -75,7 +76,10 @@ public class SortingCheck {
      */
     private Board board;
 
-
+    /**
+     * 操作人数据
+     */
+    private OperatorData operatorData;
 
 
     public Integer getOperateType() {
@@ -204,5 +208,13 @@ public class SortingCheck {
 
     public void setBoard(Board board) {
         this.board = board;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

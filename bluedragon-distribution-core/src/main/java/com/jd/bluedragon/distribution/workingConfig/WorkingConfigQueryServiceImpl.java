@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.workingConfig;
 
-import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.wb.report.api.working.dto.WorkingActionDto;
+import com.jd.dms.wb.report.sdk.model.vo.working.data.SupplierVO;
 import com.jd.tys.api.outsource.dto.OutsourceCountRuleDto;
-import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +58,10 @@ public class WorkingConfigQueryServiceImpl implements WorkingConfigQueryService{
             return Collections.emptyMap();
         }
         return Collections.emptyMap();
+    }
+
+    @Override
+    public List<SupplierVO> querySupplierBySiteCode(Integer siteId) {
+        return workingConfigProxy.querySupplierBySiteCode(siteId);
     }
 }

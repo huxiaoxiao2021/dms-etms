@@ -22,17 +22,20 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxMaterialBindFlagEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
-import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.distribution.box.domain.*;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -43,7 +46,9 @@ import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -148,6 +153,12 @@ public class BoxServiceImpl implements BoxService {
     private Map<String,String> sortingBoxSubTypeMap;
     @Resource(name="siteBoxSubTypeMap")
     private Map<String,String> siteBoxSubTypeMap;
+
+    @Autowired
+    private BoxMaterialRelationService boxMaterialRelationService;
+
+	@Autowired
+	BoxRelationService boxRelationService;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -822,13 +833,48 @@ public class BoxServiceImpl implements BoxService {
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
 
 		// 打印客户端创建 并且是首次打印 推送箱号打印消息
-		if (checkIfReleasedForSite(request.getCreateSiteCode()) && BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
+		if (BoxSystemTypeEnum.PRINT_CLIENT.getCode().equals(systemType)) {
 			pushBoxPrintMq(availableBoxes);
 		}
 
         this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
     }
+
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.genBoxWithoutSiteInfo", mState = {JProEnum.TP})
+	public BoxResponse genBoxWithoutSiteInfo(BoxRequest request) {
+		checkBoxRequerst(request);
+		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		List<Box> boxes = batchAddNew(toBox(request), request.getSystemType());
+		assembleBoxCodes(boxes, response);
+		return response;
+	}
+
+	private static void assembleBoxCodes(List<Box> boxes, BoxResponse response) {
+		if (CollectionUtils.isNotEmpty(boxes)){
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i< boxes.size(); i++){
+				if (ObjectHelper.isNotNull(boxes.get(i)) && ObjectHelper.isNotNull(boxes.get(i).getCode())) {
+					sb.append(boxes.get(i).getCode());
+				}
+				if (i< boxes.size()-1) {
+					sb.append(Constants.SEPARATOR_COMMA);
+				}
+			}
+			response.setBoxCodes(sb.toString());
+		}
+	}
+
+	private static void checkBoxRequerst(BoxRequest request) {
+		Assert.notNull(request, "request must not be null");
+		Assert.notNull(request.getType(), "request type must not be null");
+		Assert.notNull(request.getQuantity(), "request quantity must not be null");
+		if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
+			Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
+		}
+	}
 
 	private void pushBoxPrintMq(List<Box> availableBoxes) {
 		if (CollectionUtils.isEmpty(availableBoxes)) {
@@ -1073,14 +1119,257 @@ public class BoxServiceImpl implements BoxService {
 		return list;
 	}
 
-	private List<Integer> buildSiteForbiddenList(String collectPackageSiteForbiddenList) {
-		List<Integer> list =new ArrayList<>();
-		if (collectPackageSiteForbiddenList.contains(",")){
-			list = Arrays.asList(collectPackageSiteForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+    private List<Integer> buildSiteForbiddenList(String collectPackageSiteForbiddenList) {
+        List<Integer> list =new ArrayList<>();
+        if (collectPackageSiteForbiddenList.contains(",")){
+            list = Arrays.asList(collectPackageSiteForbiddenList.split(",")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+        }
+        else {
+            list.add(Integer.valueOf(collectPackageSiteForbiddenList));
+        }
+        return list;
+    }
+
+
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.BoxServiceImpl.updateBox", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BoxResponse updateBox(UpdateBoxReq request) {
+		BoxResponse response = new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		if (checkBoxIfCanUpdate(request,response)){
+			execUpdateBox(request,response);
 		}
-		else {
-			list.add(Integer.valueOf(collectPackageSiteForbiddenList));
+        upsertBoxMaterialRelation4WmsBoxUsageInline(request);
+		return response;
+	}
+
+    private void upsertBoxMaterialRelation4WmsBoxUsageInline(UpdateBoxReq request){
+        // 绑定物资关系
+        StoreBoxDetail storeBoxDetail = new StoreBoxDetail();
+        storeBoxDetail.setBoxCode(request.getBoxCode());
+        storeBoxDetail.setMaterialCode(request.getMaterialCode());
+        storeBoxDetail.setCreateSiteCode(request.getCreateSiteCode());
+        storeBoxDetail.setOperateUserErp(request.getUserErp());
+        storeBoxDetail.setOperateUserErp(request.getUserErp());
+        final Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsageResult = upsertBoxMaterialRelation4WmsBoxUsage(storeBoxDetail);
+        if (!upsertBoxMaterialRelation4WmsBoxUsageResult.isSuccess()) {
+            log.error("updateBox upsertBoxMaterialRelation4WmsBoxUsageInline upsertBoxMaterialRelation4WmsBoxUsage fail {} {}", JsonHelper.toJson(upsertBoxMaterialRelation4WmsBoxUsageResult), JsonHelper.toJson(request));
+            // throw new RuntimeException("处理箱号绑定物资失败！");
+        }
+    }
+
+    /**
+     * 更新箱号绑定物资关系
+     * @param request 请求入参
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-02-24 13:00:58 周六
+     */
+    public Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request) {
+        Result<Boolean> result = Result.success();
+        try {
+            if(StringUtils.isBlank(request.getMaterialCode())){
+                return result;
+            }
+            // 增加保存箱号绑定物资
+            final BoxMaterialRelation boxMaterialRelation = new BoxMaterialRelation();
+            boxMaterialRelation.setBoxCode(request.getBoxCode());
+            boxMaterialRelation.setMaterialCode(request.getMaterialCode());
+            boxMaterialRelation.setSiteCode(request.getCreateSiteCode());
+            boxMaterialRelation.setOperatorErp(request.getOperateUserErp());
+            boxMaterialRelation.setBindFlag(BoxMaterialBindFlagEnum.BIND.getCode());
+            return boxMaterialRelationService.upsertBoxMaterialRelationBind(boxMaterialRelation);
+        } catch (Exception e) {
+            result.toFail("系统异常");
+            log.error("BoxServiceImpl.upsertBoxMaterialRelation4WmsBoxUsage {}", JsonHelper.toJson(request), e);
+        }
+        return result;
+    }
+
+	/**
+	 * 校验箱号信息是否能更新
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private boolean checkBoxIfCanUpdate(UpdateBoxReq request, BoxResponse response) {
+		Box box =boxDao.findBoxByCode(request.getBoxCode());
+		if (ObjectHelper.isEmpty(box)){
+			response.toError("未找到对应的箱号！");
+			return false;
 		}
-		return list;
+		request.setBoxId(box.getId());
+
+		if (ObjectHelper.isEmpty(request.getCreateSiteCode())){
+			BaseResult<PsStoreInfo>  result =basicPrimaryWS.getStoreByCky2Id(request.getStoreInfo().getStoreType(),request.getStoreInfo().getCky2(),request.getStoreInfo().getStoreId(),"dms");
+			if (ObjectHelper.isEmpty(result) || ObjectHelper.isEmpty(result.getData())
+					|| ObjectHelper.isEmpty(result.getData().getDmsSiteId()) || ObjectHelper.isEmpty(result.getData().getDmsStoreName())){
+				response.toError("未获取到仓对应的基础资料场地信息！");
+				return false;
+			}
+			request.setCreateSiteCode(result.getData().getDmsSiteId());
+			request.setCreateSiteName(result.getData().getDmsStoreName());
+		}
+
+		if (checkBoxIsSent(request.getBoxCode(),request.getCreateSiteCode())){
+			response.toError("该箱号已经发货，禁止变更！");
+			return false;
+		}
+
+
+		if (ObjectHelper.isEmpty(request.getReceiveSiteName())){
+			BaseStaffSiteOrgDto baseStaffSiteOrgDto =basicPrimaryWS.getBaseSiteBySiteId(request.getReceiveSiteCode());
+			if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getSiteName())){
+				response.toError("未获取到目的场地信息！");
+				return false;
+			}
+			request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
+		}
+
+		return true;
+	}
+
+	/**
+	 * 执行箱号信息变更
+	 * @param request
+	 * @param response
+	 */
+	private void execUpdateBox(UpdateBoxReq request, BoxResponse response) {
+		Box box =new Box();
+		box.setId(request.getBoxId());
+		box.setCode(request.getBoxCode());
+		box.setCreateSiteCode(request.getCreateSiteCode());
+		box.setCreateSiteName(request.getCreateSiteName());
+		box.setReceiveSiteCode(request.getReceiveSiteCode());
+		box.setReceiveSiteName(request.getReceiveSiteName());
+		box.setCreateUser(request.getUserName());
+		box.setCreateUserCode(request.getUserCode());
+		box.setTransportType(request.getTransportType());
+		box.setMixBoxType(request.getMixBoxType());
+
+		int rs =boxDao.updateById(box);
+		if (rs >0){
+			if (syncCacheDataFail(response, box)) {
+				return;
+			}
+			response.toSucceed("更新箱号信息成功！");
+			return;
+		}
+		response.toError("更新箱号信息失败！");
+	}
+
+	private boolean syncCacheDataFail(BoxResponse response, Box box) {
+		boolean success =jimdbCacheService.del(getCacheKey(box.getCode()));
+		if (!success){
+			boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + box.getCode());
+				response.toError("更新箱号失败！");
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	@Override
+	public List<Box> listAllDescendantsByParentBox(Box parent) {
+		return listAllDescendantsByParentBox(parent,null);
+	}
+
+	public List<Box> listAllDescendantsByParentBox(Box parent,Integer level) {
+		if (ObjectHelper.isEmpty(level)){
+			level = 0;
+		}
+		if (level >= Constants.BOX_NESTED_MAX_DEPTH){
+			return Collections.emptyList();
+		}
+		if (ObjectHelper.isEmpty(parent) || ObjectHelper.isEmpty(parent.getCode())) {
+			return Collections.emptyList();
+		}
+		InvokeResult<List<BoxRelation>>  rs = boxRelationService.getRelationsByBoxCode(parent.getCode());
+		if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())){
+			return Collections.emptyList();
+		}
+
+		List<Box> boxList =assembleBoxList(rs.getData());
+		for (Box box : boxList){
+			box.setChildren(listAllDescendantsByParentBox(box,level+1));
+		}
+		return boxList;
+	}
+
+	private List<Box> assembleBoxList(List<BoxRelation> boxRelationList) {
+		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
+		{
+			Box box =new  Box();
+			box.setCode(boxRelation.getRelationBoxCode());
+			box.setType(BoxTypeV2Enum.getFromCode(boxRelation.getRelationBoxCode().substring(0,2)).getCode());
+			return box;
+		}).collect(Collectors.toList());
+		return boxes;
+	}
+
+	@Override
+	public List<Box> listSonBoxesByParentBox(Box parent) {
+		if (ObjectHelper.isEmpty(parent) || ObjectHelper.isEmpty(parent.getCode())) {
+			return Collections.emptyList();
+		}
+		InvokeResult<List<BoxRelation>>  rs = boxRelationService.getRelationsByBoxCode(parent.getCode());
+		if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())){
+			return Collections.emptyList();
+		}
+
+		List<Box> boxList =assembleBoxList(rs.getData());
+		return boxList;
+	}
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    @Override
+    public List<Box> listAllParentBox(Box box){
+        return listAllParentBox(box, null);
+    }
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @param level 嵌套层数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    public List<Box> listAllParentBox(Box box, Integer level) {
+        if (ObjectHelper.isEmpty(level)){
+            level = 0;
+        }
+        if (level >= Constants.BOX_NESTED_MAX_DEPTH){
+            return Collections.emptyList();
+        }
+        if (ObjectHelper.isEmpty(box) || ObjectHelper.isEmpty(box.getCode())) {
+            return Collections.emptyList();
+        }
+        final BoxRelation boxRelationParam = new BoxRelation();
+        boxRelationParam.setRelationBoxCode(box.getCode());
+        InvokeResult<List<BoxRelation>> rs = boxRelationService.queryBoxRelation(boxRelationParam);
+        if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())) {
+            return Collections.emptyList();
+        }
+
+        List<Box> boxList = assembleBoxList(rs.getData());
+        for (Box boxItem : boxList) {
+            boxItem.setParent(listAllParentBox(box, level + 1));
+        }
+        return boxList;
+    }
+
+	@Override
+	public boolean saveBoxBindRelation(BoxBindDto containerBindDto) {
+		return false;
 	}
 }
