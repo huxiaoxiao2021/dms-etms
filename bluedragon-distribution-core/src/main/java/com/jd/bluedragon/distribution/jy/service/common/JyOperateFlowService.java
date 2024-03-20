@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.transboard.api.dto.BoardBoxResult;
 
@@ -92,5 +93,10 @@ public interface JyOperateFlowService {
      * 发送配送异常操作流水
      */
     void sendAbnormalOperateFlowData(AbnormalWayBill abnormalWayBill, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
+     * 发送称重操作流水
+     */
+    void sendWeightVolumeOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
 
 }

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,11 +138,17 @@ public class BeanConverter {
 
 
 	public static OperatorData convertToOperatorDataForAuto(InspectionRequest requestBean) {
+		return convertToOperatorDataForAuto(requestBean.getMachineCode());
+	}
+
+	public static OperatorData convertToOperatorDataForAuto(String machineCode) {
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-		operatorData.setOperatorId(requestBean.getMachineCode());
+		operatorData.setOperatorId(machineCode);
 		return operatorData;
 	}
+
+
 	public static OperatorData convertToOperatorData(InspectionAS inspectionAs) {
 		if(inspectionAs.getOperatorData() != null) {
 			return inspectionAs.getOperatorData();
@@ -448,6 +455,35 @@ public class BeanConverter {
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("abnormalWayBill-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
+	/**
+	 * 对象转换为数据库实体
+	 * @param jyOperateFlow
+	 * @return
+	 */
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(WeightVolumeEntity entity) {
+		if (entity == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(entity.getBarCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.WEIGHT_VOLUME.getCode());
+		mqData.setOperateKey(entity.getBarCode());
+		mqData.setOperateTime(entity.getOperateTime() == null ? new Date() : entity.getOperateTime());
+		mqData.setOperateSiteCode(entity.getOperateSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		OperatorData operatorData = entity.getOperatorData();
+		if (operatorData == null || operatorData.getOperatorTypeCode() == null) {
+			if (StringUtils.isNotBlank(entity.getMachineCode())) {
+				operatorData = convertToOperatorDataForAuto(entity.getMachineCode());
+			}
+		}
+		data.setOperatorData(operatorData);
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("WeightVolumeEntity-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
 		}
 		return mqData;
 	}
