@@ -406,7 +406,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		bindBoardRequest.setOperatorInfo(operatorInfo);
 		com.jd.bluedragon.common.dto.base.request.OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
 		OperatorData destOperatorData = new OperatorData();
-		BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		if (originOperatorData != null) {
+			BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		}
 		bindBoardRequest.setOperatorData(destOperatorData);
 		return bindBoardRequest;
 	}
