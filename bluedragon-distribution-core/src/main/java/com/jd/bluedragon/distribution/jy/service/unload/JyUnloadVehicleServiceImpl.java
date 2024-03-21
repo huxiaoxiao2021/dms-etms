@@ -694,6 +694,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
         }
         if (waybillCode == null) {
+            log.warn("handleMoreLocalOrOutScan|运单号为空:barCode={}", JsonHelper.toJson(request));
             return;
         }
         // 判断是否本场地

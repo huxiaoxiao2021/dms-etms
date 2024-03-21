@@ -214,14 +214,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     public JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request) {
         JdVerifyResponse<UnLoadScanResponse> response = new JdVerifyResponse<>();
         response.toSuccess();
-
+        this.fillUnloadField(request);
         if (!checkBeforeScan(response, request)) {
-            return response;
-        }
-
-        // 扫描前校验拦截结果
-        if (!checkBarInterceptResult(response, request)) {
-            // 失败直接返回
             return response;
         }
 
