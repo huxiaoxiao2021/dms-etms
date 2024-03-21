@@ -693,6 +693,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 waybillCode = list.get(0).getWaybillCode();
             }
         }
+        if (waybillCode == null) {
+            return;
+        }
         // 判断是否本场地
         if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
             unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);

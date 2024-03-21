@@ -13,6 +13,7 @@ public enum OperateBizTypeEnum {
 	BOARD("board","组板"),
 	UNSEAL("unseal","解封车"),
 	ABNORMAL_DELIVERY("abnormal_waybill","配送异常"),
+	WEIGHT_VOLUME("weight_volume", "称重"),
     ;
 	
 	private OperateBizTypeEnum(String code, String name) {

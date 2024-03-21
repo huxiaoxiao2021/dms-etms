@@ -38,7 +38,11 @@ public class OperatorData implements Serializable{
      * 岗位码
      */
     private String positionCode;
-	
+	/**
+	 * 业务来源
+	 */
+	private Integer bizSource;
+
 	public Integer getOperatorTypeCode() {
 		return operatorTypeCode;
 	}
@@ -89,4 +93,12 @@ public class OperatorData implements Serializable{
     public void setPositionCode(String positionCode) {
         this.positionCode = positionCode;
     }
+
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
+	}
 }
