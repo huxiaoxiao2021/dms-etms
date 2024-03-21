@@ -40,4 +40,9 @@ public interface SpotCheckAppealJsfService {
      */
     Response<Void> dataDelete(String waybillCodes);
 
+    /**
+     * 根据分区键查询库和表下标
+     */
+    Response<String> getDbIndexAndTableIndex(String operateBizKey);
+
 }

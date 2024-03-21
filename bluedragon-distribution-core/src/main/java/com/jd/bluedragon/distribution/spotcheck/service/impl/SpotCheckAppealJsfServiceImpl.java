@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealResult;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -266,6 +267,26 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         } catch (Exception e) {
             logger.error("dataDelete|指定运单数据删除出现异常,e=", e);
             response.toError("服务端异常");
+        }
+        return response;
+    }
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.getDbIndexAndTableIndex", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<String> getDbIndexAndTableIndex(String operateBizKey) {
+        Response<String> response = new Response<>();
+        response.toSucceed();
+        try {
+            if (StringUtils.isBlank(operateBizKey)) {
+                response.toError("operateBizKey不能为空");
+                return response;
+            }
+            int dbIndex = DmsJddlUtils.getDbInstanceIndex(operateBizKey.hashCode());
+            int tableIndex = DmsJddlUtils.getDbPartitionIndex(operateBizKey.hashCode());
+            String result = "拆分库" + (dbIndex + 1) + "," + "表名:bd_dms_spl" + tableIndex;
+            response.setData(result);
+        } catch (Exception e) {
+            logger.error("getDbIndexAndTableIndex|根据分区键查询库和表下标出现异常:request={},e=", JsonHelper.toJson(operateBizKey), e);
+            response.toError();
         }
         return response;
     }
