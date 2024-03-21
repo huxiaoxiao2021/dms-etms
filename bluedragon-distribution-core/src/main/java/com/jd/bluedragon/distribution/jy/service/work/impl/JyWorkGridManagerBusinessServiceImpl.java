@@ -1334,8 +1334,8 @@ public class JyWorkGridManagerBusinessServiceImpl implements JyWorkGridManagerBu
 			result.toFail("网格无效或网格下无工序,请先配置");
 			return result;
 		}
-		
-		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(workStationGrids, taskData.getProcessBeginTime());
+		Date beginTime = new Date(taskData.getViolenceSortInfoData().getOperateTime());
+		List<BaseUserSignRecordVo> userSignRecords = getWorkStationGridJobSignRecordList(workStationGrids, beginTime);
 		if(CollectionUtils.isEmpty(userSignRecords)){
 			result.toFail("该任务所在网格无签到数据！");
 			return result;
