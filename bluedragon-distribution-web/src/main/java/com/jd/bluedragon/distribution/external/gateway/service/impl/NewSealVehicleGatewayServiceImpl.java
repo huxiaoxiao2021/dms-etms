@@ -226,8 +226,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 校验任务简码与运力编号是否匹配
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getAndCheckTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<TransportInfoDto> getAndCheckTransportCode(CheckTransportCodeRequest request) {
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.findAndCheckTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<TransportInfoDto> findAndCheckTransportCode(CheckTransportCodeRequest request) {
         JdCResponse<TransportInfoDto> jdCResponse = new JdCResponse<>();
         NewSealVehicleRequest param = new NewSealVehicleRequest();
 
