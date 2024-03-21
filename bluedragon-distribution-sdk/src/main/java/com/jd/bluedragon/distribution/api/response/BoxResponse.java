@@ -30,6 +30,11 @@ public class BoxResponse extends JdResponse {
     public static final Integer CODE_PACKAGE_BOX = 20108;
     public static final String MESSAGE_CODE_PACKAGE_BOX = "该包裹已集包，请使用箱号组板";
 
+    public static final Integer CODE_NO_BOX_END_SITE = 20109;
+    public static final String MESSAGE_NO_BOX_END_SITE = "未获取到箱号目的地！";
+
+    public static final Integer CODE_TC_BOX_END_SITE_TYPE_NOT_MATCH = 20110;
+    public static final String MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH = "TC开头的箱号，目的地只能是 备件库、仓储、退货组、逆向仓、售后仓!";
     /**
      * 全局唯一ID
      */
