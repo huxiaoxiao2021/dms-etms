@@ -319,7 +319,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
         } else {
             if(WaybillUtil.isPackageCode(domain.getNewPackageCode())){
-                // 发送拦截报表  与方刚沟通只需要发送原运单维度的消息即可，所以调整到这里，减少频繁发送的问题
+                // 发送拦截报表 按包裹换单打印时处理
                 this.sendDisposeAfterInterceptMsgByPackageCode(domain);
             }
         }
