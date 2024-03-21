@@ -4,6 +4,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.warehouse.send;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class SendScanRes extends SendScanResponse implements Serializable {
 
@@ -33,6 +34,14 @@ public class SendScanRes extends SendScanResponse implements Serializable {
     public static final String MSG_NULL_FLOW_FORCE_SEND = "当前单据流向[%s]，未匹配到混扫任务信息，请确认是否强发！";
 
     /**
+     * 强发逻辑
+     * 两种场景： （1）有流向提示，（2）无流向提示
+     */
+    public static final int FORCE_SEND_CODE = 3001;
+    public static final String FORCE_SEND_MSG_EXIST_FLOW = "此单流向[%s]不在混扫任务，请选择流向";
+    public static final String FORCE_SEND_MSG_NULL_FLOW = "此单没有路由，请选择流向";
+
+    /**
      * 异常提示框
      * 提示框
      */
@@ -47,7 +56,18 @@ public class SendScanRes extends SendScanResponse implements Serializable {
     private String unfocusedDetailBizId;
     private Long unfocusedNextSiteCode;
     private String unfocusedNextSiteName;
-
+    /**
+     * 需要强发校验的标识
+     */
+    private Boolean checkForceSendFlag;
+    /**
+     * 需要校验强发时的话术
+     */
+    private String checkForceSendMsg;
+    /**
+     * 当前已添加的混扫任务流向
+     */
+    private List<MixScanTaskDetailDto> mixScanTaskDetailDtoList;
 
 
     public Long getNextSiteCode() {
@@ -88,5 +108,29 @@ public class SendScanRes extends SendScanResponse implements Serializable {
 
     public void setUnfocusedBizId(String unfocusedBizId) {
         this.unfocusedBizId = unfocusedBizId;
+    }
+
+    public Boolean getCheckForceSendFlag() {
+        return checkForceSendFlag;
+    }
+
+    public void setCheckForceSendFlag(Boolean checkForceSendFlag) {
+        this.checkForceSendFlag = checkForceSendFlag;
+    }
+
+    public String getCheckForceSendMsg() {
+        return checkForceSendMsg;
+    }
+
+    public void setCheckForceSendMsg(String checkForceSendMsg) {
+        this.checkForceSendMsg = checkForceSendMsg;
+    }
+
+    public List<MixScanTaskDetailDto> getMixScanTaskDetailDtoList() {
+        return mixScanTaskDetailDtoList;
+    }
+
+    public void setMixScanTaskDetailDtoList(List<MixScanTaskDetailDto> mixScanTaskDetailDtoList) {
+        this.mixScanTaskDetailDtoList = mixScanTaskDetailDtoList;
     }
 }

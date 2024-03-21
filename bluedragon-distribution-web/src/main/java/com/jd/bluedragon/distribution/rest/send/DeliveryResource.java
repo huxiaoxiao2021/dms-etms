@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -237,7 +239,8 @@ public class DeliveryResource {
                 }else{
                     sendRequest.setBarCode(request.getBoxCode());
                 }
-                JdVerifyResponse<SendResult>  response = sendOfCapabilityAreaService.doSend(sendRequest);
+                sendRequest.setSendChainModeEnum(SendChainModeEnum.DEFAULT);//发货模式设置
+                JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
                 result.setData(response.getData());
