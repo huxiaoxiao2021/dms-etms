@@ -33,6 +33,13 @@ public interface NewSealVehicleGatewayService {
 
     JdCResponse checkTransportCode(CheckTransportCodeRequest request);
 
+    /**
+     * 干支任务校验运力个任务简码信息，校验成功返回运力基础数据
+     * @param request
+     * @return
+     */
+    JdCResponse<TransportInfoDto> getAndCheckTransportCode(CheckTransportCodeRequest request);
+
     JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
     JdCResponse<SealVehicleResponseData>  newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest);
