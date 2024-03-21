@@ -38,7 +38,7 @@ public interface NewSealVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<TransportInfoDto> getAndCheckTransportCode(CheckTransportCodeRequest request);
+    JdCResponse<TransportInfoDto> findAndCheckTransportCode(CheckTransportCodeRequest request);
 
     JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
