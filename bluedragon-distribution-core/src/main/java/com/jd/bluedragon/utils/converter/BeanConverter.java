@@ -144,6 +144,7 @@ public class BeanConverter {
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(machineCode);
+		operatorData.setMachineCode(machineCode);
 		return operatorData;
 	}
 
@@ -163,7 +164,8 @@ public class BeanConverter {
 		}
         OperatorData operatorData = new OperatorData();
         operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        operatorData.setOperatorId(inspectionAs.getMachineCode());        
+        operatorData.setOperatorId(inspectionAs.getMachineCode());
+		operatorData.setMachineCode(inspectionAs.getMachineCode());
 		return operatorData;
 	}
 	public static OperatorData convertToOperatorData(CenConfirm cenConfirm) {
@@ -220,6 +222,7 @@ public class BeanConverter {
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(request.getMachineCode());
+		operatorData.setMachineCode(request.getMachineCode());
 		return operatorData;
 	}	
 	public static OperatorData convertToOperatorData(BoardCommonRequest request) {
@@ -274,6 +277,7 @@ public class BeanConverter {
 		OperatorData operatorData = new OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(dto.getMachineCode());
+		operatorData.setMachineCode(dto.getMachineCode());
 		return operatorData;
 	}
 	public static com.jd.bluedragon.common.dto.base.request.OperatorData convertToPdaOperatorDataForAuto(
@@ -284,6 +288,7 @@ public class BeanConverter {
 		com.jd.bluedragon.common.dto.base.request.OperatorData operatorData = new com.jd.bluedragon.common.dto.base.request.OperatorData();
 		operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
 		operatorData.setOperatorId(request.getMachineCode());
+		operatorData.setMachineCode(request.getMachineCode());
 		return operatorData;
 	}
 	/**
