@@ -14,10 +14,12 @@ import com.jd.bluedragon.distribution.spotcheck.entity.SpotCheckAppealResult;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealJsfService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckAppealService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.jddl.DmsJddlUtils;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -196,7 +198,26 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         }
     }
 
-
+    @Override
+    @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.getDbIndexAndTableIndex", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<String> getDbIndexAndTableIndex(String operateBizKey) {
+        Response<String> response = new Response<>();
+        response.toSucceed();
+        try {
+            if (StringUtils.isBlank(operateBizKey)) {
+                response.toError("operateBizKey不能为空");
+                return response;
+            }
+            int dbIndex = DmsJddlUtils.getDbInstanceIndex(operateBizKey.hashCode());
+            int tableIndex = DmsJddlUtils.getDbPartitionIndex(operateBizKey.hashCode());
+            String result = "拆分库" + (dbIndex + 1) + "," + "表名:bd_dms_spl" + tableIndex;
+            response.setData(result);
+        } catch (Exception e) {
+            logger.error("getDbIndexAndTableIndex|根据分区键查询库和表下标出现异常:request={},e=", JsonHelper.toJson(operateBizKey), e);
+            response.toError();
+        }
+        return response;
+    }
 
 
 }

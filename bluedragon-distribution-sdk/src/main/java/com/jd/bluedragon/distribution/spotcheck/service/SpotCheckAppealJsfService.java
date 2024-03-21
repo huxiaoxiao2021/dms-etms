@@ -30,4 +30,9 @@ public interface SpotCheckAppealJsfService {
      */
     Response<List<SpotCheckAppealAppendixResult>> findAppendixByBizId(SpotCheckAppealDto spotCheckAppealEntity);
 
+    /**
+     * 根据分区键查询库和表下标
+     */
+    Response<String> getDbIndexAndTableIndex(String operateBizKey);
+
 }
