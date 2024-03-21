@@ -682,6 +682,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		violenceSortInfoData.setProcessInstanceId(violentSortingDto.getProcessInstanceId());
 		violenceSortInfoData.setGridKeys(String.join(",", workGridKeys));
 		violenceSortInfoData.setId(violentSortingDto.getId());
+		violenceSortInfoData.setOperateTime(violentSortingDto.getCreateTime());
 		return JsonHelper.toJson(violenceSortInfoData);
 	}
 	
