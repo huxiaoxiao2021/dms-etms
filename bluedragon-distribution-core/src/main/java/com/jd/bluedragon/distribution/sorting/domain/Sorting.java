@@ -452,6 +452,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setBizSource(request.getBizSource());
         
         OperatorData operatorData = BeanConverter.convertToOperatorData(request);
+        operatorData.setBizSource(request.getBizSource());
         sorting.setOperatorTypeCode(operatorData.getOperatorTypeCode());
         sorting.setOperatorId(operatorData.getOperatorId());
         sorting.setOperatorData(operatorData);

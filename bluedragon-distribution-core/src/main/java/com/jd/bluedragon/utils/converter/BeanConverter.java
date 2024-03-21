@@ -191,6 +191,7 @@ public class BeanConverter {
         OperatorData operatorData = new OperatorData();
         operatorData.setOperatorId(request.getOperatorId());
         operatorData.setOperatorTypeCode(request.getOperatorTypeCode());
+		operatorData.setBizSource(request.getBizSource());
 		return operatorData;
 	}	
 	public static OperatorData convertToOperatorData(SendM tSendM) {
@@ -209,6 +210,7 @@ public class BeanConverter {
         OperatorData operatorData = new OperatorData();
         operatorData.setOperatorId(tSendDetail.getOperatorId());
         operatorData.setOperatorTypeCode(tSendDetail.getOperatorTypeCode());
+		operatorData.setBizSource(tSendDetail.getBizSource());
 		return operatorData;
 	}
 	public static OperatorData convertToOperatorDataForAuto(BindBoardRequest request) {
@@ -362,7 +364,11 @@ public class BeanConverter {
 		mqData.setOperateTime(tSendDetail.getOperateTime());
 		mqData.setOperateSiteCode(tSendDetail.getCreateSiteCode());
 		JyOperateFlowData data = new JyOperateFlowData();
-		data.setOperatorData(tSendDetail.getOperatorData());
+		OperatorData operatorData = tSendDetail.getOperatorData();
+		if (operatorData != null && tSendDetail.getBizSource() != null) {
+			operatorData.setBizSource(tSendDetail.getBizSource());
+		}
+		data.setOperatorData(operatorData);
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("tSendDetail-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
@@ -385,7 +391,11 @@ public class BeanConverter {
 		mqData.setOperateTime(sorting.getOperateTime());
 		mqData.setOperateSiteCode(sorting.getCreateSiteCode());
 		JyOperateFlowData data = new JyOperateFlowData();
-		data.setOperatorData(sorting.getOperatorData());
+		OperatorData operatorData = sorting.getOperatorData();
+		if (operatorData != null && sorting.getBizSource() != null) {
+			operatorData.setBizSource(sorting.getBizSource());
+		}
+		data.setOperatorData(operatorData);
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
 			log.debug("soring-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
