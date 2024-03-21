@@ -31,6 +31,11 @@ public class SendRequest extends PackageSendRequest {
     private String opeUserErp;
 
     /**
+     * 执行老校验链中可以不在提醒的逻辑使用
+     */
+    private ValidateIgnore validateIgnore;
+
+    /**
      * 发货链处理模式
      */
     private SendChainModeEnum sendChainModeEnum;
@@ -39,11 +44,6 @@ public class SendRequest extends PackageSendRequest {
      * 是否使用自定义操作时间，使用基本类型模式不使用，不使用时操作时间为服务器时间。
      */
     private boolean useCustomOperateTime;
-
-    /**
-     * 执行老校验链中可以不在提醒的逻辑使用
-     */
-    private ValidateIgnore validateIgnore;
 
     public String getBarCode() {
         return barCode;
@@ -69,6 +69,14 @@ public class SendRequest extends PackageSendRequest {
         this.opeUserErp = opeUserErp;
     }
 
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
+    }
+
     public SendChainModeEnum getSendChainModeEnum() {
         return sendChainModeEnum;
     }
@@ -86,12 +94,4 @@ public class SendRequest extends PackageSendRequest {
     }
 
 
-
-    public ValidateIgnore getValidateIgnore() {
-        return validateIgnore;
-    }
-
-    public void setValidateIgnore(ValidateIgnore validateIgnore) {
-        this.validateIgnore = validateIgnore;
-    }
 }

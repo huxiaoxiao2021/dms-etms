@@ -126,14 +126,14 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
+    DepartureService departureService;
+
+
+    @Autowired
     SysConfigService sysConfigService;
 
     @Autowired
     private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
-
-
-    @Autowired
-    DepartureService departureService;
 
     /**
      * 冷链验货校验

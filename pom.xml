@@ -74,7 +74,7 @@
 		<!--		kafka版本-->
 		<jdq4-sdk-version>1.0.0-SNAPSHOT</jdq4-sdk-version>
 		<vd-service-sdk.version>1.4.5-SNAPSHOT</vd-service-sdk.version>
-		<tenant-jsf-filter-sdk.version>1.0.1-SORTING-RELEASE</tenant-jsf-filter-sdk.version>
+		<tenant-jsf-filter-sdk.version>1.0.2-SORTING-RELEASE</tenant-jsf-filter-sdk.version>
     </properties>
 
 	<dependencies>
