@@ -1956,6 +1956,10 @@ public class UccPropertyConfiguration{
      * PDA卸车扫描和自动验货互斥开关
      */
     private Boolean pdaUnloadAndAutoInspectionRejectSwitch;
+    /**
+     * 操作流水新逻辑开关
+     */
+    private boolean operateFlowNewSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -4613,6 +4617,14 @@ public class UccPropertyConfiguration{
 
     public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
         this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public boolean isOperateFlowNewSwitch() {
+        return operateFlowNewSwitch;
+    }
+
+    public void setOperateFlowNewSwitch(boolean operateFlowNewSwitch) {
+        this.operateFlowNewSwitch = operateFlowNewSwitch;
     }
 
     public String getInterceptExceptionSiteIdEnableListStr() {

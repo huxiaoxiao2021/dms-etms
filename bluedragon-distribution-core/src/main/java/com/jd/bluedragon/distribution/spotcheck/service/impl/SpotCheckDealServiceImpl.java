@@ -711,10 +711,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return false;
         }
         StandardResultAndDutyBodyDTO reportInfo = commonDTO.getData();
-        // 填充第二次核对数据
-        fillSecondContrastData(spotCheckDto, reportInfo);
         // 复核体积取第一次的核对体积
         spotCheckDto.setReviewVolume(spotCheckDto.getContrastVolume());
+        // 填充第二次核对数据
+        fillSecondContrastData(spotCheckDto, reportInfo);
         // 复核长宽高清空
         spotCheckDto.setReviewLWH(Constants.EMPTY_FILL);
         // 未超标或体积超标，不下发，只更新抽检统计报表

@@ -9,12 +9,15 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
+
+    private Logger logger = LoggerFactory.getLogger(SendDatailDao.class);
 
     public static final String namespace = SendDatailDao.class.getName();
     private Integer createSiteCode;
@@ -104,12 +109,18 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     public boolean updateSendDatail(SendDetail SendDatail) {
+        if(logger.isInfoEnabled()){
+            logger.info("updateSendDatail {}", JsonHelper.toJson(SendDatail));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateSendDatail",
                 SendDatail) > 0;
     }
 
     public boolean cancelSendDatail(SendDetail sendDetial) {
         sendDetial.setCreateTime(sendDetial.getOperateTime());
+        if(logger.isInfoEnabled()){
+            logger.info("cancelSendDatail {}", JsonHelper.toJson(sendDetial));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".cancelSendDatail",
                 sendDetial) > 0;
     }
@@ -124,44 +135,68 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 
     public boolean updatewaybillCodeStatus(SendDetail sendDetial) {
         sendDetial.setCreateTime(sendDetial.getOperateTime());
+        if(logger.isInfoEnabled()){
+            logger.info("updatewaybillCodeStatus {}", JsonHelper.toJson(sendDetial));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".UpdatewaybillCodeStatus",
                 sendDetial) > 0;
     }
 
     public boolean updateSendStatusByPackage(SendDetail sendDetial) {
         sendDetial.setCreateTime(sendDetial.getOperateTime());
+        if(logger.isInfoEnabled()){
+            logger.info("updateSendStatusByPackage {}", JsonHelper.toJson(sendDetial));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateSendStatusByPackage",
                 sendDetial) > 0;
     }
 
     public boolean updateWeight(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("updateWeight {}", JsonHelper.toJson(sendDetail));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateWeight", sendDetail) > 0;
     }
 
     public Boolean canCancel(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("canCancel {}", JsonHelper.toJson(sendDetail));
+        }
         Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancel",
                 sendDetail);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public Boolean canCancel2(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("canCancel2 {}", JsonHelper.toJson(sendDetail));
+        }
         Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancel2",
                 sendDetail);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public Boolean canCancelFuzzy(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("canCancelFuzzy {}", JsonHelper.toJson(sendDetail));
+        }
         Integer count = this.getSqlSession().update(SendDatailDao.namespace + ".canCancelFuzzy",
                 sendDetail);
         return count > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public Integer updateCancel(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("updateCancelStasus {}", JsonHelper.toJson(sendDetail));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateCancelStasus",
                 sendDetail);
     }
 
     public Integer updateCancelBatch(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("updateCancelBatch {}", JsonHelper.toJson(sendDetail));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateCancelBatch",
                 sendDetail);
     }
@@ -214,6 +249,9 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     public Integer updatePackageNum(SendDetail sendDetail) {
+        if(logger.isInfoEnabled()){
+            logger.info("updatePackageNum {}", JsonHelper.toJson(sendDetail));
+        }
         return this.getSqlSession().update(SendDatailDao.namespace + ".updatePackageNum",
                 sendDetail);
     }
@@ -225,6 +263,9 @@ public class SendDatailDao extends BaseDao<SendDetail> {
             sendDetail.setCreateSiteCode(createSiteCode);
             if (null == createSiteCode) //为null说明不是合法的批次号,直接返回空List
                 return 0;
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("cancelDelivery {}", JsonHelper.toJson(sendDetail));
         }
         return this.getSqlSession().update(SendDatailDao.namespace + ".cancelDelivery",
                 sendDetail);

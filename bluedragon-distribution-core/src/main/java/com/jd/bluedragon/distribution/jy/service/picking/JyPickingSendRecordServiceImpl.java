@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.jy.dto.pickinggood.JyPickingGoodScanDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
-import com.jd.bluedragon.distribution.jy.service.common.CommonService;
+import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -46,7 +46,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
     @Autowired
     private JyAviationRailwayPickingGoodsCacheService pickingGoodsCacheService;
     @Autowired
-    private CommonService commonService;
+    private RouterService routerService;
     @Autowired
     @Qualifier(value = "jyPickingGoodSaveWaitScanItemNumProducer")
     private DefaultJMQProducer jyPickingGoodSaveWaitScanItemNumProducer;
@@ -117,7 +117,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                 if (Boolean.TRUE.equals(paramDto.getScanIsBoxType())) {
                     insertEntity.setWaitScanCode(paramDto.getBoxCode());
                     insertEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
-                    BoxNextSiteDto boxNextSiteDto = commonService.getRouteNextSiteByBox(paramDto.getPickingSiteId().intValue(), paramDto.getBoxCode());
+                    BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(paramDto.getPickingSiteId().intValue(), paramDto.getBoxCode());
                     if (!Objects.isNull(boxNextSiteDto)) {
                         insertEntity.setInitNextSiteId(boxNextSiteDto.getNextSiteId().longValue());
                         insertEntity.setBoxInitFlowKey(boxNextSiteDto.getBoxConfirmNextSiteKey());
@@ -125,7 +125,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                 } else {
                     insertEntity.setWaitScanCode(paramDto.getPackageCode());
                     insertEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-                    BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
+                    BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
                     if (!Objects.isNull(dto)) {
                         insertEntity.setInitNextSiteId(dto.getSiteCode().longValue());
                     }
@@ -147,7 +147,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     if (Boolean.TRUE.equals(paramDto.getScanIsBoxType())) {
                         updateEntity.setWaitScanCode(paramDto.getBoxCode());
                         updateEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_BOX);
-                        BoxNextSiteDto boxNextSiteDto = commonService.getRouteNextSiteByBox(paramDto.getPickingSiteId().intValue(), paramDto.getBoxCode());
+                        BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(paramDto.getPickingSiteId().intValue(), paramDto.getBoxCode());
                         if (!Objects.isNull(boxNextSiteDto)) {
                             updateEntity.setInitNextSiteId(boxNextSiteDto.getNextSiteId().longValue());
                             updateEntity.setBoxInitFlowKey(boxNextSiteDto.getBoxConfirmNextSiteKey());
@@ -155,7 +155,7 @@ public class JyPickingSendRecordServiceImpl implements JyPickingSendRecordServic
                     } else {
                         updateEntity.setWaitScanCode(paramDto.getPackageCode());
                         updateEntity.setWaitScanCodeType(JyPickingSendRecordEntity.SCAN_PACKAGE);
-                        BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
+                        BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(paramDto.getPickingSiteId().intValue(), WaybillUtil.getWaybillCode(paramDto.getPackageCode()));
                         if (!Objects.isNull(dto)) {
                             updateEntity.setInitNextSiteId(dto.getSiteCode().longValue());
                         }

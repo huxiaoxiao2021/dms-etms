@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -17,6 +19,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.jmq.common.message.Message;
 import com.jd.transboard.api.dto.AddBoardBoxes;
+import com.jd.transboard.api.dto.BoardBoxResult;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
 
@@ -45,6 +49,9 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
 
     @Autowired
     GroupBoardManager groupBoardManager;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
     
     @Override
     public void consume(Message message) throws Exception {
@@ -83,13 +90,22 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
         addBoardBoxes.setSiteCode(dto.getStartSiteId());
         addBoardBoxes.setSiteName(dto.getStartSiteName());
         addBoardBoxes.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
-        Response<Integer> response = groupBoardManager.addBoxesToBoard(addBoardBoxes);
+        Response<BoardBoxResult> response = groupBoardManager.addBoxesToBoardReturnId(addBoardBoxes);
         if (response.getCode() != ResponseEnum.SUCCESS.getIndex()) {
             log.error("异步执行大宗组板"+response.getMesseage()!=null?response.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
             return;
         }
-        for (String packageCode:packageList){
+        // 记录组板操作流水
+        jyOperateFlowService.sendBoardOperateFlowData(dto, response.getData(), OperateBizSubTypeEnum.JY_BOARD_WAYBILL_SCAN);
+        // <包裹号, 操作流水表主键>
+        Map<String, Long> map = dto.getOperateFlowMap();
+
+        for (String packageCode : packageList) {
+            // 操作流水表业务主键
+            Long operateFlowId = map.get(packageCode);
             dto.setBarCode(packageCode);
+            dto.setOperateFlowId(operateFlowId);
+            // 发送全程跟踪
             sendComboardWaybillTrace(dto);
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
@@ -108,6 +124,7 @@ public class WaybillComboardConsumer extends MessageBaseConsumer  {
         operatorInfo.setOperateTime(dto.getOperateTime());
         operatorInfo.setOperatorTypeCode(dto.getOperatorTypeCode());
         operatorInfo.setOperatorId(dto.getOperatorId());
+        operatorInfo.setOperateFlowId(dto.getOperateFlowId());
         return operatorInfo;
     }
 

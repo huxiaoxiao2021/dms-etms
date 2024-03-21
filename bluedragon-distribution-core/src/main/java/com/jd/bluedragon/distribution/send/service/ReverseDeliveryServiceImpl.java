@@ -150,6 +150,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				dSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
 				dSendDatail.setUpdateTime(new Date());
 				dSendDatail.setIsCancel(2);
+				dSendDatail.setOperatorData(tSendM.getOperatorData());
+				dSendDatail.setOperatorId(tSendM.getOperatorId());
+				dSendDatail.setOperatorTypeCode(tSendM.getOperatorTypeCode());
 			}
 			deliveryService.updateWaybillStatus(tlist);
 		}
@@ -171,6 +174,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		tSendDatail.setCreateUser(tSendM.getUpdaterUser());
 		tSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
 		tSendDatail.setUpdateTime(new Date());
+		tSendDatail.setOperatorData(tSendM.getOperatorData());
+		tSendDatail.setOperatorId(tSendM.getOperatorId());
+		tSendDatail.setOperatorTypeCode(tSendM.getOperatorTypeCode());
 		tlist.add(tSendDatail);
 		deliveryService.updateWaybillStatus(tlist);
 	}

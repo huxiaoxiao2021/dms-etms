@@ -6,6 +6,7 @@ package com.jd.bluedragon.distribution.station.enums;
  * @author hujiping
  * @date 2022/5/7 4:29 PM
  */
+@Deprecated
 public enum BusinessLineTypeEnum {
 
     BUSINESS_FJ_CENTER("1", "分拣中心"),

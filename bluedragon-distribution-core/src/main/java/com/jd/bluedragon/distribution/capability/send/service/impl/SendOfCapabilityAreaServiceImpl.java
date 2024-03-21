@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.capability.send.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.capability.send.domain.SendChainEnum;
 import com.jd.bluedragon.distribution.capability.send.domain.SendOfCAContext;
 import com.jd.bluedragon.distribution.capability.send.exce.SendOfCapabilityAreaException;
 import com.jd.bluedragon.distribution.capability.send.factory.SendOfCapabilityAreaFactory;
 import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.distribution.api.request.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -18,9 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -37,7 +33,6 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
     @Autowired
     private SendOfCapabilityAreaFactory sendOfCapabilityAreaFactory;
 
-
     /**
      * 发货
      *
@@ -47,9 +42,10 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
      *
      * 特别注意：针对返回值场景，中的JdVerifyResponse 的 msgBox 可自行根据使用场景在处理逻辑中直接处理，也可以等待SendRespMsgBoxHandler统一处理，但切记修改时需要考虑调入入口
      *
-     * 具体设计文档参考: https://joyspace.jd.com/teams/DDWcQ85zjo0cDVQIMjFJ/vOOnoOJMJZ3yfs3QrhJi
+     * 具体设计文档参考: https://joyspace.jd.com/pages/e3iWMKLnM6x6fljFqcq1
      *
      * @param request
+     *
      * @return
      */
     @Override
@@ -57,20 +53,14 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
     public JdVerifyResponse<SendResult> doSend(SendRequest request) {
         //基础参数校验 构建出参
         JdVerifyResponse<SendResult> response = paramCheck(request);
-
-        //构建入参
-        SendOfCAContext context = new SendOfCAContext();
-        context.setRequest(request);
-        context.setResponse(response);
-        context.setBarCode(request.getBarCode());
+        //构建上下文
+        SendOfCAContext context = makeContext(request,response);
         try {
             if(response.codeSuccess()){
                 //调用执行逻辑
-                sendOfCapabilityAreaFactory.getSendHandlerChain(
-                                        SendBizSourceEnum.getEnum(request.getBizSource()))
+                sendOfCapabilityAreaFactory.getSendHandlerChain(request.getSendChainModeEnum())
                         .handle(context);
             }
-
         }catch (SendOfCapabilityAreaException e){
             //仅仅捕获自定义异常
             logger.error("SendOfCapabilityAreaServiceImpl.doSend error! msg:{},req:{}",e.getMessage(),JsonHelper.toJson(request),e);
@@ -85,7 +75,19 @@ public class SendOfCapabilityAreaServiceImpl implements ISendOfCapabilityAreaSer
         return response;
     }
 
-
+    /**
+     * 构建上下文
+     * @param request
+     * @param response
+     * @return
+     */
+    private SendOfCAContext makeContext(SendRequest request,JdVerifyResponse<SendResult> response){
+        SendOfCAContext context = new SendOfCAContext();
+        context.setRequest(request);
+        context.setResponse(response);
+        context.setBarCode(request.getBarCode());
+        return context;
+    }
 
     /**
      * 基础参数校验
