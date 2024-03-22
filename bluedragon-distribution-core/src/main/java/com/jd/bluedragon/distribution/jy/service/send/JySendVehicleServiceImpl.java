@@ -65,6 +65,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -168,7 +169,6 @@ import com.jd.tms.workbench.dto.*;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
-import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -428,7 +428,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private WorkGridManager workGridManager;
 
     @Autowired
-    private IVirtualBoardService virtualBoardService;
+    private IVirtualBoardJsfManager virtualBoardJsfManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2878,7 +2878,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private Boolean getBoardCode(String boxCode, int siteCode, JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
         // 根据包裹号或运单号找到板号
-        final Response<Board> boardResult = virtualBoardService.getBoardByBarCode(boxCode, siteCode);
+        final Response<Board> boardResult = virtualBoardJsfManager.getBoardByBarCode(boxCode, siteCode);
         if (!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())) {
             log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(boardResult));
             response.toFail("根据包裹或运单号查找板号数据异常");

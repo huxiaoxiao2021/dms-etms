@@ -128,4 +128,17 @@ public class VirtualBoardJsfManagerImpl implements IVirtualBoardJsfManager {
     public Response<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
         return virtualBoardJsfService.getBoxCountByBoardCode(boardCode);
     }
+
+    /**
+     * 获取根据条形码和站点代码获取板子
+     * @param boxCode 箱子条形码
+     * @param siteCode 站点代码
+     * @return 响应包含板子的对象
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardJsfManagerImpl.getBoardByBarCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Board> getBoardByBarCode(String boxCode, Integer siteCode){
+        return virtualBoardJsfService.getBoardByBarCode(boxCode,siteCode);
+    }
+
 }
