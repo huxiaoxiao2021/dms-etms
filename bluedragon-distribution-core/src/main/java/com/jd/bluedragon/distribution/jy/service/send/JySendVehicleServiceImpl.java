@@ -168,6 +168,7 @@ import com.jd.tms.workbench.dto.*;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
+import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -425,6 +426,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WorkGridManager workGridManager;
+
+    @Autowired
+    private IVirtualBoardService virtualBoardService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2850,7 +2854,43 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
             request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_BOARD.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOARD_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或运单号或板号！");
+                return false;
+            }
+            //按板并扫描的是包裹号或运单号
+            if (Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
+                return getBoardCode(request.getBarCode(),siteCode,response,request);
+            }
+        }
+        return true;
+    }
 
+    /**
+     * 根据包裹或运单号查找板号
+     *
+     * @param boxCode
+     * @param siteCode
+     * @param response
+     * @param request
+     * @return
+     */
+    private Boolean getBoardCode(String boxCode, int siteCode, JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
+        // 根据包裹号或运单号找到板号
+        final Response<Board> boardResult = virtualBoardService.getBoardByBarCode(boxCode, siteCode);
+        if (!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())) {
+            log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(boardResult));
+            response.toFail("根据包裹或运单号查找板号数据异常");
+            return false;
+        }
+        final Board board = boardResult.getData();
+        if (board == null) {
+            response.toFail("根据包裹或运单号未找到对应板数据");
+            return false;
+        }
+        log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",siteCode,siteCode, board.getCode());
+        request.setBarCode(board.getCode());
         return true;
     }
 
