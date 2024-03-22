@@ -362,7 +362,7 @@
 		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
-
+		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -710,6 +710,7 @@
 				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
+				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 			</list>
 		</property>
 	</bean>
