@@ -353,6 +353,9 @@ public class InvokeResult<T> implements Serializable {
     public static final Integer WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE = 3078;
     public static final String WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE = "分拣上报成功，质控系统提交失败！";
 
+    public static final Integer WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE = 3079;
+    public static final String WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE = "此单为寄付单据，无法进行复重操作！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
