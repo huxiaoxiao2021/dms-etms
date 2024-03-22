@@ -72,7 +72,6 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
-import static com.jd.bluedragon.utils.BusinessHelper.isJFWaybill;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.*;
 
