@@ -1140,6 +1140,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Override
     public InvokeResult<Void> waybillJFWeightIntercept(Waybill waybill) {
         InvokeResult<Void> result = new InvokeResult<>();
+        // 拦截开关
+        if (!dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
+            return result;
+        }
         if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
             return result;
         }
