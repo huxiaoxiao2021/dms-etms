@@ -4758,4 +4758,17 @@ public class UccPropertyConfiguration{
         }
         return this.interceptExceptionSiteIdEnableList.contains(siteCode);
     }
+
+    /**
+     * 寄付运单称重拦截开关
+     */
+    private boolean waybillJFWeightInterceptSwitch;
+
+    public boolean getWaybillJFWeightInterceptSwitch() {
+        return waybillJFWeightInterceptSwitch;
+    }
+
+    public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
+        this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
+    }
 }
