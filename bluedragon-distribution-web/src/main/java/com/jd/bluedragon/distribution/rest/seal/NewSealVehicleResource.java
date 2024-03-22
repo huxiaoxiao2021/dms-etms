@@ -521,7 +521,8 @@ public class NewSealVehicleResource {
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
                     Integer endNodeId = vtsDto.getData().getEndNodeId();
                     if (sealCarPreRequest.getCreateSiteCode() != null
-                            && SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarPreRequest.getSealCarSource())
+                            //不关心线路类型，只要是空忒运力T开头都不校验，空铁运力返回没有endNodeId
+//                            && SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarPreRequest.getSealCarSource())
                             && newsealVehicleService.isAirTransport(vtsDto.getData())
                             && transportCode.startsWith("T")) {
                         Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
