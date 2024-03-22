@@ -235,7 +235,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setTransWorkItemCode(request.getTransWorkItemCode());
 
         TransWorkItemResponse workItemResponse = newSealVehicleResource.checkTransportCode(param);
-        if(JdResponse.CODE_OK.equals(workItemResponse)) {
+        if(JdResponse.CODE_OK.equals(workItemResponse.getCode())) {
             return this.getTransportCode(param.getTransportCode());
         }else {
             jdCResponse.setCode(workItemResponse.getCode());
