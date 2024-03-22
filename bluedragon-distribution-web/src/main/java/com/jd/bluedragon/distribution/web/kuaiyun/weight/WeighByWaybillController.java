@@ -60,8 +60,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
+import static com.jd.bluedragon.utils.BusinessHelper.isJFWaybill;
 
 /**
  * 运单称重
@@ -163,17 +164,17 @@ public class WeighByWaybillController extends DmsBaseController {
         }
 
         // 寄付运单称重拦截
-        if(WaybillUtil.isWaybillCode(vo.getCodeStr()) || WaybillUtil.isPackageCode(vo.getCodeStr())){
+        if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
+                && (WaybillUtil.isWaybillCode(vo.getCodeStr()) || WaybillUtil.isPackageCode(vo.getCodeStr()))){
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
             if(waybill == null){
                 checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
                 checkData.setVerifyMessage("未获取到运单信息!");
                 return result;
             }
-            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(waybill);
-            if (!jfResult.codeSuccess()) {
-                checkData.setVerifyCode(jfResult.getCode());
-                checkData.setVerifyMessage(jfResult.getMessage());
+            if (isJFWaybill(waybill)) {
+                checkData.setVerifyCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
+                checkData.setVerifyMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return result;
             }
         }
@@ -642,15 +643,15 @@ public class WeighByWaybillController extends DmsBaseController {
         }
 
         // 寄付运单称重拦截
-        if(WaybillUtil.isWaybillCode(waybillWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(waybillWeightVO.getCodeStr())){
+        if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
+                && (WaybillUtil.isWaybillCode(waybillWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(waybillWeightVO.getCodeStr()))){
             Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(waybillWeightVO.getCodeStr()));
             if(waybill == null){
                 waybillWeightVO.setErrorMessage("未获取都运单信息!");
                 return false;
             }
-            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(waybill);
-            if (!jfResult.codeSuccess()) {
-                waybillWeightVO.setErrorMessage(jfResult.getMessage());
+            if (isJFWaybill(waybill)) {
+                waybillWeightVO.setErrorMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return false;
             }
         }

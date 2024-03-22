@@ -63,6 +63,7 @@ import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.WAYBIL
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
+import static com.jd.bluedragon.utils.BusinessHelper.isJFWaybill;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 
 /**
@@ -323,12 +324,12 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
 
         // 寄付运单拦截
-        if (Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
-                || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType())) {
-            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(weightVolumeContext.getWaybill());
-            if (!jfResult.codeSuccess()) {
-                result.setCode(jfResult.getCode());
-                result.setMessage(jfResult.getMessage());
+        if ((Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
+                || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType()))
+                && dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
+            if (isJFWaybill(weightVolumeContext.getWaybill())) {
+                result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
+                result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return;
             }
         }

@@ -1131,28 +1131,4 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         return result;
     }
-
-    /**
-     * 寄付运单称重拦截
-     * @param waybill
-     * @return InvokeResult<Void>
-     */
-    @Override
-    public InvokeResult<Void> waybillJFWeightIntercept(Waybill waybill) {
-        InvokeResult<Void> result = new InvokeResult<>();
-        // 拦截开关
-        if (!dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
-            return result;
-        }
-        if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
-            return result;
-        }
-        // 如果是寄付运单，进行拦截
-        if (isJFWaybill(waybill.getWaybillSign())) {
-            result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
-            result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
-            return result;
-        }
-        return result;
-    }
 }

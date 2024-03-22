@@ -1200,10 +1200,13 @@ public class BusinessHelper {
 
     /**
      * 判断是否寄付运单
-     * @param waybillSign 运单标识
+     * @param waybill 运单
      * @return 如果是返回true，否则返回false
      */
-    public static boolean isJFWaybill(String waybillSign) {
-        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_3);
+    public static boolean isJFWaybill(Waybill waybill) {
+        if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
+            return true;
+        }
+        return BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_3);
     }
 }

@@ -73,11 +73,4 @@ public interface DMSWeightVolumeService {
 
     Result<Boolean> checkAndUpload(WeightVolumeCondition condition);
 
-    /**
-     * 寄付运单称重拦截
-     * @param entity
-     * @return
-     */
-    InvokeResult<Void> waybillJFWeightIntercept(Waybill entity);
-
 }
