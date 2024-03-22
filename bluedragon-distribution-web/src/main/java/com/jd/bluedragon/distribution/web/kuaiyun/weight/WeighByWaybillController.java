@@ -35,6 +35,7 @@ import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
@@ -161,6 +162,21 @@ public class WeighByWaybillController extends DmsBaseController {
             return result;
         }
 
+        // 寄付运单称重拦截
+        if(WaybillUtil.isWaybillCode(vo.getCodeStr()) || WaybillUtil.isPackageCode(vo.getCodeStr())){
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
+            if(waybill == null){
+                checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
+                checkData.setVerifyMessage("未获取到运单信息!");
+                return result;
+            }
+            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(waybill);
+            if (!jfResult.codeSuccess()) {
+                checkData.setVerifyCode(jfResult.getCode());
+                checkData.setVerifyMessage(jfResult.getMessage());
+                return result;
+            }
+        }
     	InvokeResult<Boolean> verifyResult = this.verifyWaybillReality(vo.getCodeStr());
     	if(verifyResult != null) {
     		checkData.setIsExists(verifyResult.getData());
@@ -625,6 +641,19 @@ public class WeighByWaybillController extends DmsBaseController {
             return false;
         }
 
+        // 寄付运单称重拦截
+        if(WaybillUtil.isWaybillCode(waybillWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(waybillWeightVO.getCodeStr())){
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(waybillWeightVO.getCodeStr()));
+            if(waybill == null){
+                waybillWeightVO.setErrorMessage("未获取都运单信息!");
+                return false;
+            }
+            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(waybill);
+            if (!jfResult.codeSuccess()) {
+                waybillWeightVO.setErrorMessage(jfResult.getMessage());
+                return false;
+            }
+        }
         //存在性校验
         InvokeResult<Boolean> verifyWaybillRealityResult = verifyWaybillReality(waybillWeightVO.getCodeStr());
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){

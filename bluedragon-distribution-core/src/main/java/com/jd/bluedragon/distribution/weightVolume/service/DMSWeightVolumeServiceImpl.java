@@ -72,6 +72,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
+import static com.jd.bluedragon.utils.BusinessHelper.isJFWaybill;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.*;
 
@@ -1127,6 +1128,26 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         } catch (IllegalArgumentException e) {
             result.toFail("上传重量体积异常");
             logger.error("DMSWeightVolumeServiceImpl.checkAndUpload exception {}", JsonHelper.toJson(condition), e);
+        }
+        return result;
+    }
+
+    /**
+     * 寄付运单称重拦截
+     * @param waybill
+     * @return InvokeResult<Void>
+     */
+    @Override
+    public InvokeResult<Void> waybillJFWeightIntercept(Waybill waybill) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
+            return result;
+        }
+        // 如果是寄付运单，进行拦截
+        if (isJFWaybill(waybill.getWaybillSign())) {
+            result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
+            result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
+            return result;
         }
         return result;
     }

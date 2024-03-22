@@ -322,6 +322,17 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             return;
         }
 
+        // 寄付运单拦截
+        if (Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
+                || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType())) {
+            InvokeResult<Void> jfResult = weightVolumeService.waybillJFWeightIntercept(weightVolumeContext.getWaybill());
+            if (!jfResult.codeSuccess()) {
+                result.setCode(jfResult.getCode());
+                result.setMessage(jfResult.getMessage());
+                return;
+            }
+        }
+
         if(!WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(weightVolumeContext.getBusinessType())
                 && commonCheckIntercept(weightVolumeContext, result)){
             return;
