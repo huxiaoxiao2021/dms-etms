@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -342,6 +343,20 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		}
 	}
 
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendWeightVolumeOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendWeightVolumeOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData weightVolumeFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
+			// 业务子类型
+			weightVolumeFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			sendMq(weightVolumeFlowMq);
+		} catch (Exception e) {
+			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJson(entity), e);
+		}
+	}
+
 	private Long sendBoardCore(BindBoardRequest bindBoardRequest, BoardBoxResult boardBoxResult, OperateBizSubTypeEnum subTypeEnum) {
 		try {
 			// 组装操作流水实体
@@ -394,7 +409,9 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		bindBoardRequest.setOperatorInfo(operatorInfo);
 		com.jd.bluedragon.common.dto.base.request.OperatorData originOperatorData = request.getCurrentOperate().getOperatorData();
 		OperatorData destOperatorData = new OperatorData();
-		BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		if (originOperatorData != null) {
+			BeanUtils.copyProperties(originOperatorData, destOperatorData);
+		}
 		bindBoardRequest.setOperatorData(destOperatorData);
 		return bindBoardRequest;
 	}

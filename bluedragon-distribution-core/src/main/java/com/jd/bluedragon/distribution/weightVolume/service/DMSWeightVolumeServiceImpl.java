@@ -595,11 +595,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 logger.info("零称重量方 运费临时欠款，需要拦截，运单号{}",waybillCode);
                 return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;
             }
-            //纯配外单 冷链专送
-            if(BusinessUtil.isPureDeliveryColdDelivery(waybillSign)){
-                logger.info("零称重量方 纯配外单 冷链专送，需要拦截，运单号{}",waybillCode);
-                return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
-            }
             /*************纯配外单 统一拦截场景结束******************/
 
             if(BusinessUtil.isCInternet(waybillSign)){
