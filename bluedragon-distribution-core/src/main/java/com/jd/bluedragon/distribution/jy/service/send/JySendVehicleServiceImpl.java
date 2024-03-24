@@ -3714,7 +3714,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         BigDecimal finalScannedWeight = sendAgg.getTotalScannedWeight();
         Integer finalScannedCount = sendAgg.getTotalScannedCount();
         //获取同派车单下-其余场地（非本场地）的已经封车任务统计数据
-        if (!taskSend.manualCreatedTask()){
+        if (!taskSend.manualCreatedTask() && StringUtils.isNotBlank(taskSend.getTransWorkCode())){
             JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
             condition.setTransWorkCode(taskSend.getTransWorkCode());
             List<JyBizTaskSendVehicleEntity> sendVehicleEntityList =taskSendVehicleService.findByTransWork(condition);
@@ -3733,7 +3733,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        BigDecimal loadRate = null;
+        BigDecimal loadRate = BigDecimal.ZERO;
         try {
             VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
             vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
@@ -3741,7 +3741,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             if (ObjectHelper.isEmpty(vehicleVolumeDicResp) && (ObjectHelper.isEmpty(basicVehicleType) || ObjectHelper.isEmpty(basicVehicleType.getWeight()))){
                 log.info("未获取到车辆的容量数据和承载重量数据,无法计算装车进度:{}",JsonHelper.toJson(taskSend));
-                return null;
+                return loadRate;
             }
 
             loadRate = vehicleVolumeDicResp == null ?
