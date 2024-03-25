@@ -1714,6 +1714,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (ObjectHelper.isNotNull(invokeResult) && !invokeResult.codeSuccess()){
             throw new JyBizException("取消装笼失败！");
         }
+
+        CancelCollectPackageDto dto =assembleCancelCollectPackageDto(request);
+        jyBizTaskCollectPackageService.deleteJyCollectPackageRecord(dto);
     }
 
     private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
