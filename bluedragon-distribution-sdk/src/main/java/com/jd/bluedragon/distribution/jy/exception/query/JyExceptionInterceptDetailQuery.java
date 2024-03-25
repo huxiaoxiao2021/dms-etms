@@ -45,6 +45,12 @@ public class JyExceptionInterceptDetailQuery extends BaseQuery implements Serial
      * 运单号
      */
     private String waybillCode;
+
+    /**
+     * 换单号新单号
+     */
+    private String waybillCodeNew;
+
     /**
      * 箱号
      */
@@ -128,6 +134,14 @@ public class JyExceptionInterceptDetailQuery extends BaseQuery implements Serial
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public String getWaybillCodeNew() {
+        return waybillCodeNew;
+    }
+
+    public void setWaybillCodeNew(String waybillCodeNew) {
+        this.waybillCodeNew = waybillCodeNew;
     }
 
     public String getBoxCode() {
