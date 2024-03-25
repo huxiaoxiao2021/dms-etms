@@ -645,7 +645,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 签到日期前一天
 		String yesterday = DateHelper.formatDate(DateUtils.addDays(signDate, Constants.SIGN_BEFORE_ONE_DAY));
 
-		// 查询指定网格下指定人员指定日期的排班记录
+		// 查询指定人员指定日期的排班记录
 		List<UserGridScheduleDto> totalScheduleList = findScheduleListByCondition(yesterday, userSignRecord);
 		// 如果没有排班
 		if (CollectionUtils.isEmpty(totalScheduleList)) {
