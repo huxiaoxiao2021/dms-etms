@@ -37,6 +37,7 @@
                 <entry key="10003" value="补打"/>
                 <entry key="10004" value="拆包"/>
                 <entry key="10005" value="逆向发货"/>
+                <entry key="10006" value="补打新单号"/>
             </map>
         </property>
         <!-- 拦截后处理节点与拦截类型对应关系 -->
@@ -47,6 +48,7 @@
                         <value>-10001</value>
                         <value>10001</value>
                         <value>10005</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
                 <entry key="10002">
@@ -59,24 +61,28 @@
                     <util:list>
                         <value>-10003</value>
                         <value>10001</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
                 <entry key="10004">
                     <util:list>
                         <value>-10004</value>
                         <value>10001</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
                 <entry key="10005">
                     <util:list>
                         <value>-10005</value>
                         <value>10001</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
                 <entry key="10006">
                     <util:list>
                         <value>-10006</value>
                         <value>10001</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
                 <entry key="10007">
@@ -89,6 +95,14 @@
                     <util:list>
                         <value>-10008</value>
                         <value>10001</value>
+                        <value>10006</value>
+                    </util:list>
+                </entry>
+                <entry key="10009">
+                    <util:list>
+                        <value>-10009</value>
+                        <value>10001</value>
+                        <value>10006</value>
                     </util:list>
                 </entry>
             </util:map>

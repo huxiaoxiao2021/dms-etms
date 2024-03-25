@@ -71,6 +71,10 @@ public enum BusinessInterceptDisposeNodeEnum {
      * 逆向发货
      */
     REJECT_RECEIVE(10005, "逆向发货"),
+    /**
+     * 补打新单号
+     */
+    REPRINT_NEW_WAYBILL(10006, "补打新单号"),
     ;
 
     public static Map<Integer, String> ENUM_MAP;
