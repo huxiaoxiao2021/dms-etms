@@ -1039,6 +1039,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             response.setMessage(String.format(SendScanRes.MSG_NULL_FLOW_FORCE_SEND, getNextSiteName));
             //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code值不变，新的强发逻辑走结果集中的强发标识
             response.getData().setCheckForceSendFlag(true);
+            response.getData().setNextSiteMismatchingFlag(true);
             response.getData().setCheckForceSendMsg(String.format(SendScanRes.FORCE_SEND_MSG_EXIST_FLOW, getNextSiteName));
             return;
         }
