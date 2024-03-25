@@ -1493,11 +1493,17 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
     private void boxflowCheck(CollectPackageReq request) {
+        Box outBox = boxService.findBoxByCode(request.getBoxCode());
+        Box innerBox = boxService.findBoxByCode(request.getBarCode());
+
+        request.setEndSiteId(Long.valueOf(innerBox.getReceiveSiteCode()));
+        request.setEndSiteName(innerBox.getReceiveSiteName());
+        request.setBoxReceiveId(Long.valueOf(outBox.getReceiveSiteCode()));
+        request.setBoxReceiveName(outBox.getReceiveSiteName());
+
         if (!dmsConfigManager.getPropertyConfig().getNeedCollectLoadingBoxflowCheck()){
             return;
         }
-        Box outBox = boxService.findBoxByCode(request.getBoxCode());
-        Box innerBox = boxService.findBoxByCode(request.getBarCode());
         if (ObjectHelper.isNotNull(outBox)  && ObjectHelper.isNotNull(innerBox)
                 && !ObjectUtils.equals(outBox.getReceiveSiteCode(), innerBox.getReceiveSiteCode())) {
             throw new JyBizException("箱号目的地不一致");
