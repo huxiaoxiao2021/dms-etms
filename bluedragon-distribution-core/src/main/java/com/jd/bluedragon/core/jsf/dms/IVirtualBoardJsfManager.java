@@ -99,5 +99,5 @@ public interface IVirtualBoardJsfManager {
      * @param siteCode 站点编号
      * @return 板信息响应
      */
-    Response<Board> getBoardByBarCode(String boxCode, Integer siteCode);
+    Board getBoardByBarCode(String boxCode, Integer siteCode);
 }

@@ -2878,19 +2878,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private Boolean getBoardCode(String boxCode, int siteCode, JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
         // 根据包裹号或运单号找到板号
-        final Response<Board> boardResult = virtualBoardJsfManager.getBoardByBarCode(boxCode, siteCode);
-        if (!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())) {
-            log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(boardResult));
-            response.toFail("根据包裹或运单号查找板号数据异常");
-            return false;
-        }
-        final Board board = boardResult.getData();
-        if (board == null) {
+        Board boardResult = virtualBoardJsfManager.getBoardByBarCode(boxCode, siteCode);
+        if(boardResult == null || StringUtils.isBlank(boardResult.getCode())) {
             response.toFail("根据包裹或运单号未找到对应板数据");
             return false;
         }
-        log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",siteCode,siteCode, board.getCode());
-        request.setBarCode(board.getCode());
+        log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",boxCode,siteCode, boardResult.getCode());
+        request.setBarCode(boardResult.getCode());
         return true;
     }
 
