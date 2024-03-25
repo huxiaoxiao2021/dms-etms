@@ -56,12 +56,14 @@ public class RBoxFilter implements Filter {
                 // 去掉奢侈品箱号类型校验
                 /*throw new SortingCheckException(SortingResponse.CODE_29007,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_FORWARD_LUXURY_WAYBILL, request.getFuncModule()));*/
-            } else if (BoxHelper.isOrdinaryForWarehouse(request.getBox())
+            }
+            //去掉逆向箱号校验
+            /*else if (BoxHelper.isOrdinaryForWarehouse(request.getBox())
                     && !SiteHelper.isWarehouse(rule2.getContent(), request.getsReceiveSiteSubType())
                     && !BusinessUtil.isBizSite(sReceiveSiteType)) {
                 throw new SortingCheckException(SortingResponse.CODE_29004,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_REVERSE, request.getFuncModule()));
-            }
+            }*/
             // 去掉奢侈品箱号类型校验
             /*else if (BoxHelper.isLuxuryForWarehouse(request.getBox())
                     && !SiteHelper.isWarehouse(rule2.getContent(), request.getsReceiveSiteSubType())) {

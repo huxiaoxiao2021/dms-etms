@@ -4627,6 +4627,19 @@ public class UccPropertyConfiguration{
         this.operateFlowNewSwitch = operateFlowNewSwitch;
     }
 
+    /**
+     * 寄付运单称重拦截开关
+     */
+    private boolean waybillJFWeightInterceptSwitch;
+
+    public boolean getWaybillJFWeightInterceptSwitch() {
+        return waybillJFWeightInterceptSwitch;
+    }
+
+    public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
+        this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
+    }
+
     public String getInterceptExceptionSiteIdEnableListStr() {
         return interceptExceptionSiteIdEnableListStr;
     }
