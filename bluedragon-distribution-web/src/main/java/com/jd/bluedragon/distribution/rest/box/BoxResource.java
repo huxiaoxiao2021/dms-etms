@@ -268,7 +268,7 @@ public class BoxResource {
             request.setType(boxSubTypeEnum.getParentTypeCode());
             //校验箱号类型与目的地站点类型是否匹配
             BoxResponse boxResponse = checkBoxEndSiteMatch(request);
-            if (BoxResponse.CODE_OK.equals(boxResponse.getCode())) {
+            if (!BoxResponse.CODE_OK.equals(boxResponse.getCode())) {
                 return boxResponse;
             }
         }
