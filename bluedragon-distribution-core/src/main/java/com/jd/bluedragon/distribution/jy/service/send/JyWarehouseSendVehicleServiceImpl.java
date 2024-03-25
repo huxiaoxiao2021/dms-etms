@@ -42,6 +42,7 @@ import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
+import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
@@ -175,6 +176,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private BaseMajorManager baseMajorManager;
     @Autowired
     private JySendTransferLogService jySendTransferLogService;
+
+    private void logInfo(String message, Object... objects) {
+        if (log.isInfoEnabled()) {
+            log.info(message, objects);
+        }
+    }
+    private void logWarn(String message, Object... objects) {
+        if (log.isWarnEnabled()) {
+            log.warn(message, objects);
+        }
+    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.fetchSendVehicleTaskPage",
@@ -1135,9 +1147,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request) {
 
         if (BusinessUtil.isBoxcode(request.getBarCode())) {
-            return fetchNextSiteIdByBox(request);
+            return this.fetchNextSiteIdByBox(request);
         }else if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
-            return fetchNextSiteIdByWaybillOrPackage(request);
+            return this.fetchNextSiteIdByWaybillOrPackage(request);
         }else {
             return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "只支持扫描包裹、运单和箱号");
         }
@@ -1415,16 +1427,52 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private InvokeResult<List<Integer>> fetchNextSiteIdByBox(SendScanReq request) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByBox:获取箱号下一流向：";
         InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
-        if(log.isInfoEnabled()) {
-            log.info("{},参数={}", methodDesc, JsonHelper.toJson(request));
-        }
+        logInfo("{},参数={}", methodDesc, JsonHelper.toJson(request));
+
         Box box = boxService.findBoxByCode(request.getBarCode());
         if (box == null) {
             result.setMessage(HintService.getHint(HintCodeConstants.BOX_NOT_EXIST));
             result.setCode(BoxResponse.CODE_BOX_NOT_FOUND);
             return result;
         }
-        result.setData(Arrays.asList(box.getReceiveSiteCode()));
+
+        List<Integer> nextSiteIdList = new ArrayList<>();
+        if(Objects.nonNull(box.getReceiveSiteCode())) {
+            nextSiteIdList.add(box.getReceiveSiteCode());
+        }
+
+        //路由场景
+        if (JySendFlowConfigEnum.ROUTER.getCode() == (request.getOperateType())) {
+            BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
+            if(Objects.nonNull(boxNextSiteDto) && Objects.nonNull(boxNextSiteDto.getNextSiteId())) {
+                nextSiteIdList.add(boxNextSiteDto.getNextSiteId());
+                logInfo("{}获取箱号{}路由下一跳为{}，依赖单号为{}", methodDesc, request.getBarCode(), boxNextSiteDto.getNextSiteId(), boxNextSiteDto.getBoxConfirmNextSiteKey());
+            }
+        } else {
+            List<String> waybillCodes = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(request.getBarCode(), 3);
+            if(CollectionUtils.isNotEmpty(waybillCodes)) {
+                SendScanReq requestTemp = new SendScanReq();
+                org.springframework.beans.BeanUtils.copyProperties(request, requestTemp);
+                String waybillCode = waybillCodes.get(0);
+                requestTemp.setBarCode(waybillCode);
+                InvokeResult<List<Integer>> nextSiteBySendRuleRes = this.fetchNextSiteIdByWaybillOrPackage(requestTemp);
+                logInfo("{}根据箱{}内运单{}获取箱流向为{}", methodDesc, request.getBarCode(), waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes));
+                if(!nextSiteBySendRuleRes.codeSuccess()) {
+                    result.customMessage(nextSiteBySendRuleRes.getCode(), nextSiteBySendRuleRes.getMessage());
+                    return result;
+                }
+                if(CollectionUtils.isNotEmpty(nextSiteBySendRuleRes.getData())) {
+                    nextSiteIdList.addAll(nextSiteBySendRuleRes.getData());
+                }
+            }
+        }
+
+        if(CollectionUtils.isEmpty(nextSiteIdList)) {
+            logWarn("{}根据箱号获取流向为空, req={}", methodDesc, JsonHelper.toJson(request));
+            result.customMessage(SendScanRes.FORCE_SEND_CODE, SendScanRes.FORCE_SEND_MSG_NULL_FLOW);
+            return result;
+        }
+        result.setData(nextSiteIdList);
         return result;
     }
 
