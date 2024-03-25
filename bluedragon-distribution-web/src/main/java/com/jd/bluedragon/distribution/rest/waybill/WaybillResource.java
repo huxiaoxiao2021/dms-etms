@@ -241,9 +241,6 @@ public class WaybillResource {
 	@Autowired
 	private WaybillCancelService waybillCancelService;
 
-	@Autowired
-	private LDOPManager lDOPManager;
-
 	/**
      * 根据运单号获取运单包裹信息接口
      *
@@ -2744,7 +2741,7 @@ public class WaybillResource {
 	public InvokeResult<List<PackDTO>> getWaybillPackageList(@PathParam("deliveryId") String deliveryId) {
 		log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
 		InvokeResult<List<PackDTO>> result = new InvokeResult<>();
-		ResultObject<List<PackDTO>> resultObject = lDOPManager.getPackLists(deliveryId);
+		ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
 		if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
 			log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
 			result.error("getWaybillPackageList 查询不到包裹");
