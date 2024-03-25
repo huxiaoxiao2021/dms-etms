@@ -174,7 +174,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 场地申诉已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行申诉
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
             if (!DateHelper.isDateMoreThanDaysAgo(permissions.getAppealClosureDate(), closeDay)) {
-                response.toError("当前场地申诉已经被关闭！");
+                response.toError("当前场地申诉权限已被暂时关闭7天！");
                 response.setData(Boolean.FALSE);
                 return response;
             } else {
@@ -432,7 +432,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      *
      * @param res 评价记录申诉响应对象
      */
-    private void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
+    public void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
         if (CollectionUtils.isEmpty(updatePassDto.getDimensionCodeList())) {
             return;
         }
