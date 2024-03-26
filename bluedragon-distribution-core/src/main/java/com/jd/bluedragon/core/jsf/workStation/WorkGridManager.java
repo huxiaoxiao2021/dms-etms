@@ -19,6 +19,13 @@ public interface WorkGridManager {
      * @return
      */
     Result<WorkGrid> queryByWorkGridKey(String businessKey);
+
+    /**
+     * 根据业务主键查询
+     * @param workGridKey
+     * @return
+     */
+    Result<WorkGrid> queryByWorkGridKeyWithCache(String workGridKey);
     /**
      * 线上化任务扫描-查询站点列表
      * @param workGridQuery
