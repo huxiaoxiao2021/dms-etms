@@ -279,15 +279,14 @@
         </foreach>
     </update>
 
-    <select id="getAppealRejectCount" parameterType="Long" resultType="java.lang.Integer">
-        SELECT count(id)
-        FROM jy_evaluate_record_appeal
-        WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result = 2
-    </select>
-
-    <select id="getCheckAppealCount" parameterType="Long" resultType="java.lang.Integer">
-        SELECT count(id)
-        FROM jy_evaluate_record_appeal
-        WHERE yn = 1 and target_site_code = #{loadSiteCode} and appeal_result in (1 , 2)
+    <select id="getAppealCount" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto" resultType="java.lang.Integer">
+        SELECT COUNT(*) as total_count
+        FROM (
+            select count(id) from jy_evaluate_record_appeal t
+            where yn=1 and appeal_result = #{appealResult}
+            and target_site_code = #{targetSiteCode}
+            and update_time >= #{updateTime}
+            group by t.target_biz_id ,t.source_biz_id
+        ) AS subquery
     </select>
 </mapper>

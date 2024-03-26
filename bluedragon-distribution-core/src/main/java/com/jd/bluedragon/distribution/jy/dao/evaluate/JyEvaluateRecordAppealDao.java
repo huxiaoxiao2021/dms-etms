@@ -63,20 +63,11 @@ public class JyEvaluateRecordAppealDao extends BaseDao<JyEvaluateRecordAppealEnt
     }
 
     /**
-     * 获取申诉被拒绝的次数
-     * @param loadSiteCode 装车站点代码
+     * 根据申诉结果获取申诉数量
+     * @param dto 装车站点代码
      * @return 申诉被拒绝的次数
      */
-    public Integer getAppealRejectCount(Long loadSiteCode) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".getAppealRejectCount", loadSiteCode);
-    }
-
-    /**
-     * 获取申诉被审核的数据
-     * @param loadSiteCode 装车站点代码
-     * @return 申诉驳回数量
-     */
-    public Integer getCheckAppealCount(Long loadSiteCode) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".getCheckAppealCount", loadSiteCode);
+    public Integer getAppealCount(JyEvaluateRecordAppealDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".getAppealCount", dto);
     }
 }

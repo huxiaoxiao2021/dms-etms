@@ -5,6 +5,9 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.EvaluateTargetReq;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
+import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
 import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -23,6 +26,9 @@ public class JyEvaluateServiceImplTest {
 
     @Autowired
     private JyEvaluateService jyEvaluateService;
+
+    @Autowired
+    private JyEvaluateAppealServiceImpl appealService;
 
     @Test
     public void testDimensionOptions() {
@@ -110,6 +116,29 @@ public class JyEvaluateServiceImplTest {
                 "}";
         EvaluateTargetReq req = JsonHelper.fromJson(str, EvaluateTargetReq.class);
         jyEvaluateService.saveTargetEvaluate(req);
+    }
+
+    @Test
+    public void testCheck() {
+        String str = "{\"targetBizId\":\"SST24032500000093\",\"sourceBizId\":\"SC24032500039725\",\"targetSiteCode\":40240,\"sourceSiteCode\":910,\"appealList\":[{\"id\":32,\"opinion\":1},{\"id\":33,\"opinion\":2},{\"id\":34,\"opinion\":1}]}";
+        JyEvaluateRecordAppealRes req = JsonHelper.fromJson(str, JyEvaluateRecordAppealRes.class);
+        Response<Boolean> booleanResponse = appealService.checkAppeal(req);
+
+    }
+
+    @Test
+    public void testQuery() {
+        String str = "{\"targetBizId\":\"SST24032500000088\",\"sourceBizId\":\"SC24032500039721\",\"siteCode\":40240}";
+        JyEvaluateRecordAppealDto req = JsonHelper.fromJson(str, JyEvaluateRecordAppealDto.class);
+        Response<List<JyEvaluateRecordAppealDto>> detailByCondition = appealService.getDetailByCondition(req);
+
+    }
+
+    @Test
+    public void testCount() {
+        Response<Integer> appealRejectCount = appealService.getAppealRejectCount(40240L);
+        System.out.println(JsonHelper.toJson(appealRejectCount));
+
     }
 
 }

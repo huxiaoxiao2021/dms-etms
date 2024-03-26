@@ -361,8 +361,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      * @param res 评估记录申诉响应
      */
     private void updateSiteEvaluateAndAppeal(JyEvaluateRecordAppealRes res) {
-        // 统计场地审核次数>3,下游乱评价，关闭下游未来7天的评价权限
-        Integer checkAppealCount = jyEvaluateRecordAppealDao.getCheckAppealCount(res.getTargetSiteCode());
+        // 统计场地审核通过次数>3,下游乱评价，关闭下游未来7天的评价权限
+        JyEvaluateRecordAppealDto dto = getJyEvaluateRecordAppealDto(res.getTargetSiteCode(), EvaluateAppealResultStatusEnum.PASS.getCode());
+        Integer checkAppealCount = jyEvaluateRecordAppealDao.getAppealCount(dto);
         if (Objects.nonNull(checkAppealCount) && checkAppealCount > Constants.APPEAL_COUNT_NUM) {
             JyEvaluateAppealPermissionsEntity permissions =
                 jyEvaluateAppealPermissionsDao.queryByCondition(res.getSourceSiteCode().intValue());
@@ -380,7 +381,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             }
         }
         // 统计场地审核中驳回次数>3,申诉人乱申诉，关闭上游游未来7天的申诉权限
-        Integer appealRejectCount = jyEvaluateRecordAppealDao.getAppealRejectCount(res.getTargetSiteCode());
+        JyEvaluateRecordAppealDto appealDto =
+            getJyEvaluateRecordAppealDto(res.getTargetSiteCode(), EvaluateAppealResultStatusEnum.REJECT.getCode());
+        Integer appealRejectCount = jyEvaluateRecordAppealDao.getAppealCount(appealDto);
         if (Objects.nonNull(appealRejectCount) && appealRejectCount > Constants.APPEAL_COUNT_NUM) {
             JyEvaluateAppealPermissionsEntity permissions =
                 jyEvaluateAppealPermissionsDao.queryByCondition(res.getTargetSiteCode().intValue());
@@ -396,6 +399,21 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                 jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
             }
         }
+    }
+
+    /**
+     * 获取评价记录申诉数据传输对象
+     * @param targetSiteCode 场地编码
+     * @param appealResult 申诉结果
+     * @return 评价记录申诉数据传输对象
+     */
+    private static JyEvaluateRecordAppealDto getJyEvaluateRecordAppealDto(Long targetSiteCode, Integer appealResult) {
+        JyEvaluateRecordAppealDto dto = new JyEvaluateRecordAppealDto();
+        dto.setTargetSiteCode(targetSiteCode);
+        dto.setAppealResult(appealResult);
+        Date date = DateHelper.addDate(new Date(), -7);
+        dto.setUpdateTime(date);
+        return dto;
     }
 
     public JyEvaluateAppealPermissionsEntity buildUpdatePermissionsEntity(JyEvaluateAppealPermissionsEntity permissions,
@@ -587,13 +605,15 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         Response<Integer> response = new Response<>();
         response.toSucceed();
         if (Objects.isNull(loadSiteCode)) {
-            response.toError("待审核的数据为空！");
+            response.toError("查询的场地数据为空！");
             return response;
         }
 
         Integer integer = null;
         try {
-            integer = jyEvaluateRecordAppealDao.getAppealRejectCount(loadSiteCode);
+            JyEvaluateRecordAppealDto appealDto =
+                getJyEvaluateRecordAppealDto(loadSiteCode, EvaluateAppealResultStatusEnum.REJECT.getCode());
+            integer = jyEvaluateRecordAppealDao.getAppealCount(appealDto);
         } catch (Exception e) {
             log.error("JyEvaluateAppealServiceImpl.getAppealRejectCount 根据场地编码查询驳回申诉条数异常,入参:{}",
                 loadSiteCode, e);
