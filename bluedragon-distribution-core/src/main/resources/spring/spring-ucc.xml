@@ -363,6 +363,7 @@
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
 		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
 		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
+		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -712,6 +713,7 @@
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
 				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 			</list>
 		</property>
