@@ -2048,7 +2048,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public String getBizId(BusinessInterceptReport businessInterceptReport) {
-        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkStationGridKey(), businessInterceptReport.getOperateTime());
+        return String.format(JyExceptionBusinessInterceptTaskConstants.BIZ_ID_TEMPLATE, businessInterceptReport.getSiteCode(), businessInterceptReport.getPackageCode(), businessInterceptReport.getInterceptType(), businessInterceptReport.getOperateWorkGridKey(), businessInterceptReport.getOperateTime());
     }
 
     /**
