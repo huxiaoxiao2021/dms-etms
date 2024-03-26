@@ -2087,6 +2087,12 @@ public class UccPropertyConfiguration{
     private List<String> teanWorkAreaCodesList = new ArrayList<>();
 
     /**
+     * 特安及其他混扫作业区编码，逗号分隔
+     */
+    private String teanMixScanWorkAreaCodes;
+    private List<String> teanMixScanWorkAreaCodesList = new ArrayList<>();
+
+    /**
      * 特安作业区拦截链场地白名单
      */
     private String teanSiteIdWhiteListStr4InterceptFilter;
@@ -4515,6 +4521,33 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanMixScanWorkAreaCodes() {
+        return teanMixScanWorkAreaCodes;
+    }
+
+    public void setTeanMixScanWorkAreaCodes(String teanMixScanWorkAreaCodes) {
+        this.teanMixScanWorkAreaCodes = teanMixScanWorkAreaCodes;
+    }
+
+    public List<String> getTeanMixScanWorkAreaCodesList() {
+        return teanMixScanWorkAreaCodesList;
+    }
+
+    public void setTeanMixScanWorkAreaCodesList() {
+        this.teanMixScanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanMixScanWorkAreaCodes)){
+            final String[] split = teanMixScanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanMixScanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanMixScanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanMixScanWorkAreaCodesList, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanMixScanWorkAreaCodesList.contains(workAreaCode);
     }
 
     public String getTeanSiteIdWhiteListStr4InterceptFilter() {

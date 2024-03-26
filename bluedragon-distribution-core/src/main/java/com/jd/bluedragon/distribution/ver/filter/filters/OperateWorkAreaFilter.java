@@ -19,7 +19,6 @@ import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
-import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class OperateWorkAreaFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext filterContext, FilterChain chain) throws Exception {
-        logger.info("do filter process...");
+        logger.info("OperateWorkAreaFilter do filter process...");
 
         final PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
 
@@ -66,24 +65,31 @@ public class OperateWorkAreaFilter implements Filter {
             if(!checkWaybillVasResult.isSuccess()){
                 logger.error("OperateWorkAreaFilter_doFilter checkWaybillVas fail filterContext {} {}", JsonHelper.toJson(filterContext), JsonHelper.toJson(checkWaybillVasResult));
             } else {
+                // 查看网格作业区信息
+                // 没有签到网格码
+                if (StringUtils.isBlank(pdaOperateRequest.getWorkStationGridKey())) {
+                    Profiler.registerInfoEnd(info);
+                    throw new SortingCheckException(SortingResponse.CODE_29466, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
+                }
+
+                final WorkStationGrid workStationGrid = this.getWorkStationGrid(pdaOperateRequest.getWorkStationGridKey());
+                // 网格查找作业区为空
+                if (workStationGrid == null) {
+                    Profiler.registerInfoEnd(info);
+                    throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
+                }
                 if (checkWaybillVasResult.getData()) {
-                    // 查看网格作业区信息
-                    // 没有签到网格码
-                    if (StringUtils.isBlank(pdaOperateRequest.getWorkStationGridKey())) {
-                        Profiler.registerInfoEnd(info);
-                        throw new SortingCheckException(SortingResponse.CODE_29466, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
-                    }
-
-                    final WorkStationGrid workStationGrid = this.getWorkStationGrid(pdaOperateRequest.getWorkStationGridKey());
-                    // 网格查找作业区为空
-                    if (workStationGrid == null) {
-                        Profiler.registerInfoEnd(info);
-                        throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE));
-                    }
-
                     // 不是特安作业区
-                    if (!dmsConfigManager.getPropertyConfig().isTeanWorkAreaCode(workStationGrid.getAreaCode())) {
+                    if (!dmsConfigManager.getPropertyConfig().isTeanWorkAreaCode(workStationGrid.getAreaCode())
+                            && !dmsConfigManager.getPropertyConfig().isTeanMixScanWorkAreaCode(workStationGrid.getAreaCode())) {
+                        Profiler.registerInfoEnd(info);
                         throw new SortingCheckException(SortingResponse.CODE_29467, HintService.getHint(HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE));
+                    }
+                } else {
+                    // 非特安运单，不能在特安作业区扫描
+                    if (dmsConfigManager.getPropertyConfig().isTeanWorkAreaCode(workStationGrid.getAreaCode())) {
+                        Profiler.registerInfoEnd(info);
+                        throw new SortingCheckException(SortingResponse.CODE_29468, HintService.getHint(HintCodeConstants.NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT, HintCodeConstants.NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE));
                     }
                 }
             }
@@ -94,10 +100,9 @@ public class OperateWorkAreaFilter implements Filter {
     }
 
     private WorkStationGrid getWorkStationGrid(String workStationGridKey) {
-        final WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
-        workStationGridQuery.setBusinessKey(workStationGridKey);
-        final com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridQuery);
+        final com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryWorkStationGridByBusinessKeyWithCache(workStationGridKey);
         if (!workStationGridResult.isSuccess()) {
+            logger.error("OperateWorkAreaFilter queryWorkStationGridByBusinessKeyWithCache fail {}", JsonHelper.toJson(workStationGridKey));
             return null;
         }
         return workStationGridResult.getData();
