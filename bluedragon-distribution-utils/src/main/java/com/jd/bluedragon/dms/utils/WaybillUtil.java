@@ -361,4 +361,18 @@ public class WaybillUtil {
     public static boolean isEconomicNet(String waybillCode) {
         return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.ENOCOMIC_WAYBILL_CODE);
     }
+
+    /**
+     * 根据运单号、包裹总数、包裹序号生成包裹号
+     * @param waybillCode 运单号
+     * @param packNum 包裹总数
+     * @param packIndex 包裹序号
+     * @return 包裹号
+     */
+    public static String genPackageCodeByPackNumAndPackIndex(String waybillCode, Integer packNum, Integer packIndex) {
+        if(waybillCode == null || packNum == null || packIndex == null){
+            return null;
+        }
+        return new StringBuilder(waybillCode).append("-").append(packIndex).append("-").append(packNum).append("-").toString();
+    }
 }
