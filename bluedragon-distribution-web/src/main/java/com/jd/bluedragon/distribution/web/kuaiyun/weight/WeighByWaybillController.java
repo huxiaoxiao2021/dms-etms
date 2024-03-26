@@ -27,16 +27,13 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -62,7 +59,7 @@ import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
-import static com.jd.bluedragon.utils.BusinessHelper.isJFWaybill;
+import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
 
 /**
  * 运单称重
@@ -172,7 +169,7 @@ public class WeighByWaybillController extends DmsBaseController {
                 checkData.setVerifyMessage("未获取到运单信息!");
                 return result;
             }
-            if (isJFWaybill(waybill)) {
+            if (isJfWaybill(waybill)) {
                 checkData.setVerifyCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 checkData.setVerifyMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return result;
@@ -650,7 +647,7 @@ public class WeighByWaybillController extends DmsBaseController {
                 waybillWeightVO.setErrorMessage("未获取都运单信息!");
                 return false;
             }
-            if (isJFWaybill(waybill)) {
+            if (isJfWaybill(waybill)) {
                 waybillWeightVO.setErrorMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return false;
             }

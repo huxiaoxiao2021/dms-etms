@@ -245,6 +245,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.findPickingAgg",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
+        logInfo("findPickingAgg提货岗统计bizId.size={}", CollectionUtils.isEmpty(bizIdList) ? 0 : bizIdList.size());
         List<PickingSendGoodAggsDto> res = this.waitPickingInitTotalNum(bizIdList, siteId, sendNextSiteId);
         res.forEach(pickingSendDto -> {
             Integer handoverScanTotalNum = this.getRealPickingHandoverScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId);

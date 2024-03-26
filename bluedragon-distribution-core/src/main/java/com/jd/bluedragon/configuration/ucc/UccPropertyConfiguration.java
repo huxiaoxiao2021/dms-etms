@@ -4733,6 +4733,27 @@ public class UccPropertyConfiguration{
         this.operateFlowNewSwitch = operateFlowNewSwitch;
     }
 
+    /**
+     * 寄付运单称重拦截开关
+     */
+    private boolean waybillJFWeightInterceptSwitch;
+
+    public boolean getWaybillJFWeightInterceptSwitch() {
+        return waybillJFWeightInterceptSwitch;
+    }
+
+    public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
+        this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
+    }
+
+    public Boolean getPdaSilentUpdateSwitch() {
+        return pdaSilentUpdateSwitch;
+    }
+
+    public void setPdaSilentUpdateSwitch(Boolean pdaSilentUpdateSwitch) {
+        this.pdaSilentUpdateSwitch = pdaSilentUpdateSwitch;
+    }
+
     public String getInterceptExceptionSiteIdEnableListStr() {
         return interceptExceptionSiteIdEnableListStr;
     }
@@ -4764,24 +4785,4 @@ public class UccPropertyConfiguration{
         return this.interceptExceptionSiteIdEnableList.contains(siteCode);
     }
 
-    /**
-     * 寄付运单称重拦截开关
-     */
-    private boolean waybillJFWeightInterceptSwitch;
-
-    public boolean getWaybillJFWeightInterceptSwitch() {
-        return waybillJFWeightInterceptSwitch;
-    }
-
-    public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
-        this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
-    }
-
-    public Boolean getPdaSilentUpdateSwitch() {
-        return pdaSilentUpdateSwitch;
-    }
-
-    public void setPdaSilentUpdateSwitch(Boolean pdaSilentUpdateSwitch) {
-        this.pdaSilentUpdateSwitch = pdaSilentUpdateSwitch;
-    }
 }
