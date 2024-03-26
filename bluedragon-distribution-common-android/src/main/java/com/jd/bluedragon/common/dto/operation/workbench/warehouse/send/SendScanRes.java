@@ -74,6 +74,10 @@ public class SendScanRes extends SendScanResponse implements Serializable {
      * 流向不匹配
      */
     private Boolean nextSiteMismatchingFlag;
+    /**
+     * 过期的流向场地ID
+     */
+    private Integer expiredNextSiteId;
 
 
     public Long getNextSiteCode() {
@@ -146,5 +150,13 @@ public class SendScanRes extends SendScanResponse implements Serializable {
 
     public void setNextSiteMismatchingFlag(Boolean nextSiteMismatchingFlag) {
         this.nextSiteMismatchingFlag = nextSiteMismatchingFlag;
+    }
+
+    public Integer getExpiredNextSiteId() {
+        return expiredNextSiteId;
+    }
+
+    public void setExpiredNextSiteId(Integer expiredNextSiteId) {
+        this.expiredNextSiteId = expiredNextSiteId;
     }
 }
