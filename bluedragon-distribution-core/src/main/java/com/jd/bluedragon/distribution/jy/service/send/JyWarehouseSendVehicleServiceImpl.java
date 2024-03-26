@@ -1456,12 +1456,14 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                 String waybillCode = waybillCodes.get(0);
                 requestTemp.setBarCode(waybillCode);
                 InvokeResult<List<Integer>> nextSiteBySendRuleRes = this.fetchNextSiteIdByWaybillOrPackage(requestTemp);
-                logInfo("{}根据箱{}内运单{}获取箱流向为{}", methodDesc, request.getBarCode(), waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes));
                 if(!nextSiteBySendRuleRes.codeSuccess()) {
+                    logInfo("{}根据箱{}内运单{}按龙门架方式获取流向失败，res={},request={}", methodDesc, request.getBarCode(),
+                            waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes), JsonHelper.toJson(request));
                     result.customMessage(nextSiteBySendRuleRes.getCode(), nextSiteBySendRuleRes.getMessage());
                     return result;
                 }
                 if(CollectionUtils.isNotEmpty(nextSiteBySendRuleRes.getData())) {
+                    logInfo("{}根据箱{}内运单{}获取箱流向为{}", methodDesc, request.getBarCode(), waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes));
                     nextSiteIdList.addAll(nextSiteBySendRuleRes.getData());
                 }
             }
