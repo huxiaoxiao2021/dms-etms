@@ -1243,7 +1243,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @param waybillExt
      * @return
      */
-    private String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
+    public String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
         //第三步 查运单的托寄物
         if (waybillExt != null && org.apache.commons.lang.StringUtils.isNotEmpty(waybillExt.getConsignWare())) {
             StringBuilder name = new StringBuilder();

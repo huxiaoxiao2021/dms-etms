@@ -1610,4 +1610,9 @@
                        groupRouter="jySendCallbackJsfServiceGroupRouter">
     </jsf:consumerGroup>
 
+
+    <!--中台接口试算接口-->
+    <jsf:consumer id="operationSignQueryApiJsfService" interface="com.jd.lbcc.rule.api.OperationSignQueryApi"
+                  protocol="jsf" alias="${jsf.lbcc.rule.alias}" timeout="${jsf.lbcc.rule.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

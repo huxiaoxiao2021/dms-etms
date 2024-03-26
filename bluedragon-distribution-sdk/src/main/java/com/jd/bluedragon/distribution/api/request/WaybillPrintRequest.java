@@ -179,6 +179,17 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Boolean useAmazon;
 
+	/**
+	 * 托寄物名称，目前仅用于件型试算场景
+	 */
+	private String consignWare;
+
+	/**
+	 * 包裹总数，，目前仅用于件型试算场景 只有终端揽收场景按运单揽收时传入
+	 */
+	private Integer packageCount;
+
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -507,5 +518,21 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setUseAmazon(Boolean useAmazon) {
 		this.useAmazon = useAmazon;
+	}
+
+	public String getConsignWare() {
+		return consignWare;
+	}
+
+	public void setConsignWare(String consignWare) {
+		this.consignWare = consignWare;
+	}
+
+	public Integer getPackageCount() {
+		return packageCount;
+	}
+
+	public void setPackageCount(Integer packageCount) {
+		this.packageCount = packageCount;
 	}
 }
