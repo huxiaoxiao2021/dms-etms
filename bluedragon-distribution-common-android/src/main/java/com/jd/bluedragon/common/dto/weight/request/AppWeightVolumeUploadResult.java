@@ -15,18 +15,6 @@ public class AppWeightVolumeUploadResult implements Serializable {
      * 校验结果
      */
     private Boolean checkResult;
-    /**
-     * 超重标识
-     */
-    private Boolean overLengthAndWeightFlag;
-    /**
-     * 需要确认标识
-     */
-    private Boolean needConfirm;
-    /**
-     * 是否已有-超重信息
-     */
-    private Boolean hasOverLengthAndWeight = Boolean.FALSE;
 
     //========================================================
 
@@ -36,29 +24,5 @@ public class AppWeightVolumeUploadResult implements Serializable {
 
     public void setCheckResult(Boolean checkResult) {
         this.checkResult = checkResult;
-    }
-
-    public Boolean getOverLengthAndWeightFlag() {
-        return overLengthAndWeightFlag;
-    }
-
-    public void setOverLengthAndWeightFlag(Boolean overLengthAndWeightFlag) {
-        this.overLengthAndWeightFlag = overLengthAndWeightFlag;
-    }
-
-    public Boolean getNeedConfirm() {
-        return needConfirm;
-    }
-
-    public void setNeedConfirm(Boolean needConfirm) {
-        this.needConfirm = needConfirm;
-    }
-
-    public Boolean getHasOverLengthAndWeight() {
-        return hasOverLengthAndWeight;
-    }
-
-    public void setHasOverLengthAndWeight(Boolean hasOverLengthAndWeight) {
-        this.hasOverLengthAndWeight = hasOverLengthAndWeight;
     }
 }
