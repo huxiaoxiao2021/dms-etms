@@ -1263,7 +1263,7 @@ public class BusinessHelper {
      * @param waybill 运单
      * @return 如果是返回true，否则返回false
      */
-    public static boolean isJFWaybill(Waybill waybill) {
+    public static boolean isJfWaybill(Waybill waybill) {
         if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
             return true;
         }
