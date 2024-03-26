@@ -100,7 +100,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      */
     private Result<Void> checkBusinessParam4ConsumeDmsBusinessInterceptReport(BusinessInterceptReport businessInterceptReport){
         Result<Void> result = Result.success();
-        if (StringUtils.isBlank(businessInterceptReport.getOperateWorkStationGridKey()) ||
+        if (StringUtils.isBlank(businessInterceptReport.getOperateWorkStationGridKey()) &&
                 StringUtils.isBlank(businessInterceptReport.getOperateWorkGridKey())) {
             return result.toFail("操作所在网格信息为空，不处理", businessParamCheckNoWorkStationGrid4ConsumeDmsBusinessInterceptReportCode);
         }
