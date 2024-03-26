@@ -387,11 +387,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (CollectionUtils.isNotEmpty(packageEntityList)){
             for (JyCollectPackageEntity entity : packageEntityList){
                 if (ObjectHelper.isNotNull(entity.getBoxCode()) && entity.getBoxCode().equals(request.getBoxCode())){
-                    throw new JyBizException("该包裹已经在此箱号中,请勿重复集包！");
+                    throw new JyBizException("该包裹/箱已经在此箱号中,请勿重复集包！");
                 }else if (ObjectHelper.isNotNull(entity.getCreateTime())) {
                     Date createTime = entity.getCreateTime();
                     if (System.currentTimeMillis() - createTime.getTime() <=  dmsConfigManager.getPropertyConfig().getReComboardTimeLimit() * 3600L * 1000L) {
-                        throw new JyBizException("该包裹已经在"+entity.getBoxCode()+"中集包，如需重新集包，请在新版取消后再重新集包！");
+                        throw new JyBizException("该包裹/箱子已经在"+entity.getBoxCode()+"中集包，如需重新集包，请在新版取消后再重新集包！");
                     }
                 }
             }
@@ -1506,6 +1506,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
 
     private void collectBoxBizCheck(CollectPackageReq request) {
+        //重复集箱校验
+        reCollectCheck(request);
         //外层箱的已发货校验
         sendCheck(request);
         //内外箱子的流向一致性校验
