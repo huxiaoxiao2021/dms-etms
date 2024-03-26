@@ -655,22 +655,24 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         List<JyEvaluateRecordAppealDto> entityList) {
         ArrayList<JyAttachmentDetailEntity> jyAttachmentDetailEntities = new ArrayList<>();
         for (JyEvaluateRecordAppealDto request : entityList) {
-            for (String url : request.getImgUrlList()) {
-                JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
-                annexEntity.setBizId(request.getTargetBizId());
-                annexEntity.setSiteCode(request.getSiteCode());
-                annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
-                annexEntity.setCreateUserErp(request.getCreateUserErp());
-                annexEntity.setUpdateUserErp(request.getUpdateUserErp());
-                annexEntity.setAttachmentUrl(url);
-                Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.SECOND, 1);
-                annexEntity.setCreateTime(calendar.getTime());
-                annexEntity.setUpdateTime(new Date());
-                annexEntity.setBizType(JyAttachmentBizTypeEnum.EVALUATE_RECORD_APPEAL.getCode());
-                annexEntity.setBizSubType(request.getDimensionCode().toString());
+            if (CollectionUtils.isNotEmpty(request.getImgUrlList())){
+                for (String url : request.getImgUrlList()) {
+                    JyAttachmentDetailEntity annexEntity = new JyAttachmentDetailEntity();
+                    annexEntity.setBizId(request.getTargetBizId());
+                    annexEntity.setSiteCode(request.getSiteCode());
+                    annexEntity.setAttachmentType(JyAttachmentTypeEnum.PICTURE.getCode());
+                    annexEntity.setCreateUserErp(request.getCreateUserErp());
+                    annexEntity.setUpdateUserErp(request.getUpdateUserErp());
+                    annexEntity.setAttachmentUrl(url);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.SECOND, 1);
+                    annexEntity.setCreateTime(calendar.getTime());
+                    annexEntity.setUpdateTime(new Date());
+                    annexEntity.setBizType(JyAttachmentBizTypeEnum.EVALUATE_RECORD_APPEAL.getCode());
+                    annexEntity.setBizSubType(request.getDimensionCode().toString());
 
-                jyAttachmentDetailEntities.add(annexEntity);
+                    jyAttachmentDetailEntities.add(annexEntity);
+                }
             }
         }
         return jyAttachmentDetailEntities;
