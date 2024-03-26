@@ -1250,6 +1250,30 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             log.info("===================={} 成功完成批量取消集包消息发送第{}页 待取消包裹{}============================", request.getBoxCode(),pageNo,JsonHelper.toJson(msg));
             pageNo++;
         }
+
+        //查询内嵌箱号
+        Box boxQuery =new Box();
+        boxQuery.setCode(request.getBoxCode());
+        List<Box> boxList =boxService.listSonBoxesByParentBox(boxQuery);
+        if (CollectionUtils.isNotEmpty(boxList)){
+            BatchCancelCollectPackageMqDto msg = assembleBatchCancelCollectBoxMqDto(boxList, request);
+            batchCancelCollectPackageProduce.sendOnFailPersistent(request.getBoxCode(),JsonHelper.toJson(msg));
+            log.info("===================={} 成功完成批量取消集箱消息--取消箱子{}============================", request.getBoxCode(),JsonHelper.toJson(msg));
+        }
+    }
+
+    private BatchCancelCollectPackageMqDto assembleBatchCancelCollectBoxMqDto(List<Box> boxList, CancelCollectPackageReq request) {
+        BatchCancelCollectPackageMqDto batchCancelCollectPackageMqDto = new BatchCancelCollectPackageMqDto();
+        batchCancelCollectPackageMqDto.setBizId(request.getBizId());
+        batchCancelCollectPackageMqDto.setBoxCode(request.getBoxCode());
+        batchCancelCollectPackageMqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+        batchCancelCollectPackageMqDto.setSiteName(request.getCurrentOperate().getSiteName());
+        batchCancelCollectPackageMqDto.setUpdateUserErp(request.getUser().getUserErp());
+        batchCancelCollectPackageMqDto.setUpdateUserName(request.getUser().getUserName());
+        batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
+        List<String> packageList = boxList.stream().map(box -> box.getCode()).collect(Collectors.toList());
+        batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
+        return batchCancelCollectPackageMqDto;
     }
 
     private BatchCancelCollectPackageMqDto assembleBatchCancelCollectPackageMqDto(List<Sorting> sortingList, CancelCollectPackageReq request) {
@@ -1707,14 +1731,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
-    private void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+    public void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
         BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
         InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
         log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
         if (ObjectHelper.isNotNull(invokeResult) && !invokeResult.codeSuccess()){
             throw new JyBizException("取消装笼失败！");
         }
-
         CancelCollectPackageDto dto =assembleCancelCollectPackageDto(request);
         jyBizTaskCollectPackageService.deleteJyCollectPackageRecord(dto);
     }

@@ -104,4 +104,12 @@ public interface JyCollectPackageService {
      * @return
      */
     InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
+
+
+    /**
+     * 执行取消集箱
+     * @param request
+     * @param response
+     */
+    void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response);
 }
