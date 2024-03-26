@@ -739,7 +739,6 @@
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
-				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 			</list>
 		</property>
 	</bean>
