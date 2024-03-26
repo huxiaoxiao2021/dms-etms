@@ -17,5 +17,4 @@ public interface ColdChainReverseManager {
     ColdChainReverseRequest makeColdChainReverseRequest(ExchangeWaybillDto exchangeWaybillDto);
     DmsWaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage);
 
-    Boolean checkIsNeedConfirmed(String waybillCode);
 }
