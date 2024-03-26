@@ -118,6 +118,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealService.submitAppeal", mState = {
         JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> submitAppeal(JyEvaluateRecordAppealAddDto addDto) {
+        if (log.isInfoEnabled()){
+            log.info("JyEvaluateAppealServiceImpl.submitAppeal 入参：{}", JsonHelper.toJson(addDto));
+        }
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         if (Objects.isNull(addDto) || CollectionUtils.isEmpty(addDto.getJyEvaluateRecordAppealDtoList())) {
@@ -250,6 +253,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealService.getDetailByCondition", mState = {
         JProEnum.TP, JProEnum.FunctionError})
     public Response<List<JyEvaluateRecordAppealDto>> getDetailByCondition(JyEvaluateRecordAppealDto condition) {
+        if (log.isInfoEnabled()){
+            log.info("JyEvaluateAppealServiceImpl.getDetailByCondition 入参：{}", JsonHelper.toJson(condition));
+        }
         Response<List<JyEvaluateRecordAppealDto>> response = new Response<>();
         response.toSucceed();
         List<JyEvaluateRecordAppealEntity> list = null;
@@ -274,6 +280,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateAppealService.checkAppeal", mState = {
         JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> checkAppeal(JyEvaluateRecordAppealRes res) {
+        if (log.isInfoEnabled()){
+            log.info("JyEvaluateAppealServiceImpl.checkAppeal 入参：{}", JsonHelper.toJson(res));
+        }
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         if (res == null || res.getAppealList().isEmpty()) {
@@ -361,8 +370,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 场地评价和申诉权限记录为空，初始化记录，关闭场地评价权限，申诉权限开启
             if (Objects.isNull(permissions)) {
                 JyEvaluateAppealPermissionsEntity entity =
-                    buildPermissionsEntity(res, Constants.EVALUATE_APPEAL_PERMISSIONS_1, null,
-                        Constants.EVALUATE_APPEAL_PERMISSIONS_0, new Date(), res.getSourceSiteCode());
+                    buildPermissionsEntity(res, Constants.EVALUATE_APPEAL_PERMISSIONS_0, new Date(),
+                        Constants.EVALUATE_APPEAL_PERMISSIONS_1, null, res.getSourceSiteCode());
                 jyEvaluateAppealPermissionsDao.insert(entity);
             } else {
                 // 关闭场地评价权限
@@ -378,8 +387,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 场地评价和申诉权限记录为空，初始化记录，关闭场地申诉权限，评价权限开启
             if (Objects.isNull(permissions)) {
                 JyEvaluateAppealPermissionsEntity entity =
-                    buildPermissionsEntity(res, Constants.EVALUATE_APPEAL_PERMISSIONS_0, new Date(),
-                        Constants.EVALUATE_APPEAL_PERMISSIONS_1, null, res.getTargetSiteCode());
+                    buildPermissionsEntity(res, Constants.EVALUATE_APPEAL_PERMISSIONS_1, null,
+                        Constants.EVALUATE_APPEAL_PERMISSIONS_0, new Date(), res.getTargetSiteCode());
                 jyEvaluateAppealPermissionsDao.insert(entity);
             } else {
                 // 关闭场地申诉权限
@@ -483,9 +492,15 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateDto);
         }
         if (CollectionUtils.isNotEmpty(updatePassDto.getIdList())) {
+            if (log.isInfoEnabled()){
+                log.info("JyEvaluateAppealServiceImpl.dbUpdate 入参：updatePassDto：{}", JsonHelper.toJson(updatePassDto));
+            }
             jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updatePassDto);
         }
         if (CollectionUtils.isNotEmpty(updateRejectDto.getIdList())) {
+            if (log.isInfoEnabled()){
+                log.info("JyEvaluateAppealServiceImpl.dbUpdate 入参：updateRejectDto：{}", JsonHelper.toJson(updateRejectDto));
+            }
             jyEvaluateRecordAppealDao.batchUpdateStatusByIds(updateRejectDto);
         }
     }
@@ -513,17 +528,22 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             } else {
                 Integer opinion = idMap.get(entity.getId());
                 if (opinion != null) {
-                    if (opinion.equals(Constants.CONSTANT_NUMBER_ONE)) {
+                    if (Objects.equals(opinion, Constants.CONSTANT_NUMBER_ONE)) {
                         updatePassDto.getIdList().add(entity.getId());
                         updatePassDto.getDimensionCodeList().add(entity.getDimensionCode());
                         updatePassDto.setSourceBizId(entity.getSourceBizId());
                         updatePassDto.setTargetBizId(entity.getTargetBizId());
-                    } else if (opinion.equals(Constants.CONSTANT_NUMBER_TWO)) {
+                    } else if (Objects.equals(opinion, Constants.CONSTANT_NUMBER_TWO)) {
                         updateRejectDto.getIdList().add(entity.getId());
                         updateRejectDto.getDimensionCodeList().add(entity.getDimensionCode());
                     }
                 }
             }
+        }
+        if (log.isInfoEnabled()){
+            log.info("JyEvaluateAppealServiceImpl.getUpdatedDataList 参数组装结果：idMap:{},"
+                + "updateDto:{}, updatePassDto:{}, updateRejectDto:{}", JsonHelper.toJson(idMap),
+                JsonHelper.toJson(updateDto), JsonHelper.toJson(updatePassDto), JsonHelper.toJson(updateRejectDto));
         }
     }
 
@@ -594,7 +614,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      */
     private ArrayList<JyEvaluateRecordAppealDto> getJyEvaluateRecordAppealDtos(List<JyEvaluateRecordAppealEntity> list,
         List<JyAttachmentDetailEntity> entities) {
-        if (CollectionUtils.isEmpty(list) || CollectionUtils.isEmpty(entities)) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         // 组装不满意项和图片

@@ -213,7 +213,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
         // 判断场地评价权限是否关闭
         if (Objects.nonNull(permissions) && Objects.equals(permissions.getEvaluate(),
-            Constants.EVALUATE_APPEAL_PERMISSIONS_0)) {
+            Constants.EVALUATE_APPEAL_PERMISSIONS_0) && Objects.nonNull(permissions.getEvaluateClosureDate())) {
             // 场地评价已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行评价
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
             if (!DateHelper.isDateMoreThanDaysAgo(permissions.getEvaluateClosureDate(), closeDay)) {
