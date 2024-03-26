@@ -59,7 +59,7 @@ import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
-import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
+import static com.jd.bluedragon.utils.BusinessHelper.*;
 
 /**
  * 运单称重
@@ -169,7 +169,7 @@ public class WeighByWaybillController extends DmsBaseController {
                 checkData.setVerifyMessage("未获取到运单信息!");
                 return result;
             }
-            if (isJfWaybill(waybill)) {
+            if (isJfWaybill(waybill) && productSolutionIsExist(waybill) && weightingProductCodeCheck(waybill)) {
                 checkData.setVerifyCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 checkData.setVerifyMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return result;
@@ -647,7 +647,7 @@ public class WeighByWaybillController extends DmsBaseController {
                 waybillWeightVO.setErrorMessage("未获取都运单信息!");
                 return false;
             }
-            if (isJfWaybill(waybill)) {
+            if (isJfWaybill(waybill) && productSolutionIsExist(waybill) && weightingProductCodeCheck(waybill)) {
                 waybillWeightVO.setErrorMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return false;
             }

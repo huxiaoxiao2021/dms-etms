@@ -47,7 +47,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
+import static com.jd.bluedragon.utils.BusinessHelper.*;
 
 /**
  * <p>
@@ -310,7 +310,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         if ((Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
                 || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType()))
                 && dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
-            if (isJfWaybill(weightVolumeContext.getWaybill())) {
+            if (isJfWaybill(weightVolumeContext.getWaybill())
+                    && !productSolutionIsExist(weightVolumeContext.getWaybill())
+                    && weightingProductCodeCheck(weightVolumeContext.getWaybill())) {
                 result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return;
