@@ -19,6 +19,7 @@ import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +101,10 @@ public class OperateWorkAreaFilter implements Filter {
     }
 
     private WorkStationGrid getWorkStationGrid(String workStationGridKey) {
-        final com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryWorkStationGridByBusinessKeyWithCache(workStationGridKey);
+        final WorkStationGridQuery workStationGridQuery = new WorkStationGridQuery();
+        workStationGridQuery.setBusinessKey(workStationGridKey);
+        final com.jdl.basic.common.utils.Result<WorkStationGrid> workStationGridResult = workStationGridManager.queryByGridKey(workStationGridQuery);
         if (!workStationGridResult.isSuccess()) {
-            logger.error("OperateWorkAreaFilter queryWorkStationGridByBusinessKeyWithCache fail {}", JsonHelper.toJson(workStationGridKey));
             return null;
         }
         return workStationGridResult.getData();
