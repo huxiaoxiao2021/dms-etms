@@ -133,6 +133,7 @@ public class WeightAndVolumeGatewayServiceImpl implements WeightAndVolumeGateway
         // 操作类型
         condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
         condition.setTotalVolumeFlag(true);
+        condition.setOperateTime(request.getOperateTime() != null ? request.getOperateTime().getTime() :new Date().getTime());
         JdResult<WeightVolumeUploadResult> jdCResponseResult = dmsWeightVolumeService.checkBeforeUpload(condition);
         //校验成功，上传处理
         if(jdCResponseResult != null
