@@ -2469,7 +2469,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             List<Integer> excludeZeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.PROCESSING.getCode()));
                             if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                                 // 完结已有任务
-                                this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                                // 判断拦截处理操作时间是否晚于任务处理时间，解决系统延迟问题
+                                if(currentSiteSamePackageTaskExist.getProcessBeginTime() != null && currentSiteSamePackageTaskExist.getProcessBeginTime().getTime() < businessInterceptDisposeRecord.getDisposeTime()){
+                                    this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
+                                }
                             }
                         }
                     }
@@ -2767,6 +2770,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 // 0重量的不设置为处理中
                 bizTaskExceptionUpdate.setStatus(JyExpStatusEnum.PROCESSING.getCode());
                 assembleJyBizExceptionTaskProcessingStatus(jyExceptionInterceptDetailExist, bizTaskExceptionUpdate);
+                bizTaskExceptionUpdate.setProcessBeginTime(currentDate);
                 bizTaskExceptionUpdate.setUpdateUserErp(user.getUserErp());
                 bizTaskExceptionUpdate.setUpdateUserName(user.getUserName());
                 bizTaskExceptionUpdate.setUpdateTime(currentDate);
