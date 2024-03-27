@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.businessIntercept.config;
 
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
 import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,7 +98,7 @@ public class BusinessInterceptConfig {
     /**
      * 异常岗需要处理的拦截类型
      */
-    private List<String> exceptionJobNeedHandleInterceptTypeNode = new ArrayList<>();
+    private List<String> exceptionJobNeedHandleInterceptTypeNodeList = new ArrayList<>();
 
     /**
      * 根据拦截返回码判断是否需要处理
@@ -237,5 +236,13 @@ public class BusinessInterceptConfig {
 
     public List<Integer> getRecallDisposeNodeList() {
         return recallDisposeNodeList;
+    }
+
+    public List<String> getExceptionJobNeedHandleInterceptTypeNodeList() {
+        return exceptionJobNeedHandleInterceptTypeNodeList;
+    }
+
+    public void setExceptionJobNeedHandleInterceptTypeNodeList(List<String> exceptionJobNeedHandleInterceptTypeNodeList) {
+        this.exceptionJobNeedHandleInterceptTypeNodeList = exceptionJobNeedHandleInterceptTypeNodeList;
     }
 }

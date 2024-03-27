@@ -2072,7 +2072,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (!dmsConfigManager.getPropertyConfig().isInterceptExceptionSiteIdEnable(businessInterceptReport.getSiteCode())) {
                 return result;
             }
-            if(!businessInterceptConfig.getInterceptTypeNodeConfig().containsKey(String.valueOf(businessInterceptReport.getInterceptType()))){
+            if(!businessInterceptConfig.getExceptionJobNeedHandleInterceptTypeNodeList().contains(String.valueOf(businessInterceptReport.getInterceptType()))){
                 return result;
             }
             final Boolean exists = redisClientOfJy.exists(concurrencyCacheKey);
