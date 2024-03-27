@@ -22,7 +22,7 @@
             </map>
         </property>
         <!-- 拦截异常岗需要关注的拦截类型 -->
-        <property name="exceptionJobNeedHandleInterceptTypeNode">
+        <property name="exceptionJobNeedHandleInterceptTypeNodeList">
             <util:list>
                 <value>10001</value>
                 <value>10002</value>
