@@ -252,6 +252,11 @@ public class DmsConstants {
      * 快运产品-特惠专配（fr-m-0004)\fr-m-0002)
      */
     public static final String PRODUCT_TYPE_KY_0017 = "fr-m-0017";
+
+    /**
+     * 快运产品-快运零担 fr-m-0017
+     */
+    public static final String PRODUCT_TYPE_KY_0006 = "fr-m-0006";
     /**
      * 工种类型
      */

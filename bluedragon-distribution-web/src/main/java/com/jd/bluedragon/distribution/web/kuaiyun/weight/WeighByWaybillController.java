@@ -33,6 +33,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
@@ -59,7 +60,7 @@ import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
-import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
+import static com.jd.bluedragon.utils.BusinessHelper.*;
 
 /**
  * 运单称重
@@ -163,13 +164,14 @@ public class WeighByWaybillController extends DmsBaseController {
         // 寄付运单称重拦截
         if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
                 && (WaybillUtil.isWaybillCode(vo.getCodeStr()) || WaybillUtil.isPackageCode(vo.getCodeStr()))){
-            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
-            if(waybill == null){
+            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
+            if(baseEntity == null || baseEntity.getData() == null){
                 checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
                 checkData.setVerifyMessage("未获取到运单信息!");
                 return result;
             }
-            if (isJfWaybill(waybill)) {
+            Waybill waybill = baseEntity.getData();
+            if (isJfWaybill(waybill) && productSolutionIsExist(waybill) && weightingProductCodeCheck(waybill)) {
                 checkData.setVerifyCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 checkData.setVerifyMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return result;
@@ -642,12 +644,13 @@ public class WeighByWaybillController extends DmsBaseController {
         // 寄付运单称重拦截
         if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
                 && (WaybillUtil.isWaybillCode(waybillWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(waybillWeightVO.getCodeStr()))){
-            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(waybillWeightVO.getCodeStr()));
-            if(waybill == null){
+            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByWaybillCode(WaybillUtil.getWaybillCode(waybillWeightVO.getCodeStr()));
+            if(baseEntity == null || baseEntity.getData() == null){
                 waybillWeightVO.setErrorMessage("未获取都运单信息!");
                 return false;
             }
-            if (isJfWaybill(waybill)) {
+            Waybill waybill = baseEntity.getData();
+            if (isJfWaybill(waybill) && productSolutionIsExist(waybill) && weightingProductCodeCheck(waybill)) {
                 waybillWeightVO.setErrorMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return false;
             }

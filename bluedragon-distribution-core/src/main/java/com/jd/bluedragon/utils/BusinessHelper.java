@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_KY_0017;
+
 
 public class BusinessHelper {
 
@@ -1269,4 +1272,30 @@ public class BusinessHelper {
         }
         return BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_3);
     }
+
+    /**
+     * 校验运单是否为 特快重货、特快零担、特惠专配、快运零担
+     * @param waybill
+     * @return
+     */
+    public static boolean weightingProductCodeCheck(Waybill waybill) {
+        if (waybill.getWaybillExt() == null || com.jd.common.util.StringUtils.isEmpty(waybill.getWaybillExt().getProductType())) {
+            return false;
+        }
+        String productType = waybill.getWaybillExt().getProductType();
+        return PRODUCT_TYPE_KY_001.equals(productType)
+                || PRODUCT_TYPE_KY_0004.equals(productType)
+                || PRODUCT_TYPE_KY_0006.equals(productType)
+                || PRODUCT_TYPE_KY_0017.equals(productType);
+    }
+
+    /**
+     * 是否存在解决方案编码判断
+     * @param waybill
+     * @return
+     */
+    public static boolean productSolutionIsExist(Waybill waybill) {
+        return waybill.getWaybillExt() == null || com.jd.common.util.StringUtils.isEmpty(waybill.getWaybillExt().getProductSolutionID());
+    }
+
 }
