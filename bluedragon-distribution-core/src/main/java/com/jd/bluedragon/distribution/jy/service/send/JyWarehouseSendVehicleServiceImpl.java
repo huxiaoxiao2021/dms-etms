@@ -1482,7 +1482,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param request
      * @return
      */
-    private InvokeResult<List<Integer>> fetchNextSiteIdByBox(SendScanReq request) {
+    private InvokeResult<List<Integer>>     fetchNextSiteIdByBox(SendScanReq request) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByBox:获取箱号下一流向：";
         InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
         logInfo("{},参数={}", methodDesc, JsonHelper.toJson(request));
