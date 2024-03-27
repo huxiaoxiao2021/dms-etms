@@ -2072,6 +2072,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (!dmsConfigManager.getPropertyConfig().isInterceptExceptionSiteIdEnable(businessInterceptReport.getSiteCode())) {
                 return result;
             }
+            if(!businessInterceptConfig.getInterceptTypeNodeConfig().containsKey(String.valueOf(businessInterceptReport.getInterceptType()))){
+                return result;
+            }
             final Boolean exists = redisClientOfJy.exists(concurrencyCacheKey);
             if(Objects.equals(exists, Boolean.TRUE)){
                 return result.toFail("上一个相同场地包裹数据还未处理完成，请稍后再试");
