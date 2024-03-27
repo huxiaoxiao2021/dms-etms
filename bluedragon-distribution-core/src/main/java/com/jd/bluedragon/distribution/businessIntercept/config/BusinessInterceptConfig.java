@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.businessIntercept.config;
 
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -226,11 +227,12 @@ public class BusinessInterceptConfig {
      * @time 2024-01-21 14:42:12 周日
      */
     public List<Integer> getDisposeNodeListByInterceptType(Integer interceptType){
-        List<Integer> needHandleInterceptTypeList = new ArrayList<>();
         // 根据配置，拦截类型 - 处理节点 关系，得到要更新的拦截类型数据范围
         Map<String, List<String>> interceptTypeAssocDisposeNodeConfigMap = this.getInterceptTypeAssocDisposeNodeConfig();
         final List<String> disposeNodeStrList = interceptTypeAssocDisposeNodeConfigMap.get(interceptType.toString());
-        return disposeNodeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
+        return Optional.ofNullable(disposeNodeStrList)
+                .map(list -> list.stream().map(Integer::parseInt).collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
     }
 
     public List<Integer> getRecallDisposeNodeList() {
