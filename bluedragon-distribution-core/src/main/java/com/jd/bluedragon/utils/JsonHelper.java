@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.type.JavaType;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,6 +180,19 @@ public class JsonHelper {
             }
         return null;
     }
+
+    public static <T> T parseObject(String json, TypeReference<T> type) {
+        if (json == null){
+            return null;
+        }
+        try {
+            return objectMapperMs.readValue(json, type);
+        } catch (Exception e) {
+            JsonHelper.log.warn("objectMapperMs-Jackson反序列化异常");
+        }
+        return null;
+    }
+
 
     public static <T> T jsonToArrayWithDateFormatOne(String json, Class<T> responseType) {
         try {
