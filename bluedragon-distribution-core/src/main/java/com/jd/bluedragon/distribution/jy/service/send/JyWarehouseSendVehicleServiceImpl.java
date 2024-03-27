@@ -1094,7 +1094,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     response.getData().setExpiredNextSiteId(lastForceSendNextSite);
                     JyGroupSortCrossDetailEntity forceSendDetailEntity = this.findForceSendDetailEntity(request, lastForceSendNextSite);
                     if(Objects.nonNull(forceSendDetailEntity)) {
-                        List<Long> receiveSiteIdList = new ArrayList<>(Arrays.asList(lastForceSendNextSite.longValue()));
+                        List<Long> receiveSiteIdList = new ArrayList<>(Arrays.asList(nextSite.getSiteCode().longValue()));
                         request.getValidateIgnore().getValidateIgnoreRouterCondition().setReceiveSiteIdList(receiveSiteIdList);
                         return forceSendDetailEntity;
                     }
