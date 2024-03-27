@@ -2470,7 +2470,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                             if (excludeZeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                                 // 完结已有任务
                                 // 判断拦截处理操作时间是否晚于任务处理时间，解决系统延迟问题
-                                if(currentSiteSamePackageTaskExist.getProcessBeginTime() != null && currentSiteSamePackageTaskExist.getProcessBeginTime().getTime() < businessInterceptDisposeRecord.getDisposeTime()){
+                                if(currentSiteSamePackageTaskExist.getProcessBeginTime() != null && currentSiteSamePackageTaskExist.getProcessBeginTime().getTime() <= businessInterceptDisposeRecord.getDisposeTime()){
                                     this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
                                 }
                             }
