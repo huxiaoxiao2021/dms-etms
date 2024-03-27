@@ -39,7 +39,6 @@ public class SendScanReq extends SendScanRequest {
      */
     private String lastDetailBizId;
 
-
     public String getMixScanTaskCode() {
         return mixScanTaskCode;
     }

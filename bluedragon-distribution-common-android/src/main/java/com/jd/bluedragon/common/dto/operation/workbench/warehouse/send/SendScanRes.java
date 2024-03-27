@@ -78,7 +78,10 @@ public class SendScanRes extends SendScanResponse implements Serializable {
      * 过期的流向场地ID
      */
     private Integer expiredNextSiteId;
-
+    /**
+     * 识别流向失败系统触发自动强发标识
+     */
+    private Boolean sysAutoForceSendFlag;
 
     public Long getNextSiteCode() {
         return nextSiteCode;
@@ -158,5 +161,13 @@ public class SendScanRes extends SendScanResponse implements Serializable {
 
     public void setExpiredNextSiteId(Integer expiredNextSiteId) {
         this.expiredNextSiteId = expiredNextSiteId;
+    }
+
+    public Boolean getSysAutoForceSendFlag() {
+        return sysAutoForceSendFlag;
+    }
+
+    public void setSysAutoForceSendFlag(Boolean sysAutoForceSendFlag) {
+        this.sysAutoForceSendFlag = sysAutoForceSendFlag;
     }
 }
