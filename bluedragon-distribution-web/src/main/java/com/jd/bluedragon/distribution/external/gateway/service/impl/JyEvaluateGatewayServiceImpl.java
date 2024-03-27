@@ -65,6 +65,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             }
             Boolean flag = jyEvaluateService.checkIsEvaluate(request);
             result.setData(flag);
+        }  catch (JyBizException e) {
+            LOGGER.warn("checkIsEvaluate|查询目标评价与否接口自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            result.setCode(e.getCode());
+            result.setMessage(e.getMessage());
+            return result;
         } catch (Exception e) {
             LOGGER.error("checkIsEvaluate|查询目标评价与否接口出现异常:request={}", JsonHelper.toJson(request), e);
             result.toError("服务器异常");
@@ -123,11 +128,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             }
             jyEvaluateService.saveTargetEvaluate(request);
         } catch (JyBizException e) {
-            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
-            LOGGER.error("saveTargetEvaluate|创建评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.setCode(REFRESH_CODE);
             result.setMessage(e.getMessage());
             return result;
@@ -167,11 +172,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             }
             jyEvaluateService.updateTargetEvaluate(request);
         } catch (JyBizException e) {
-            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
-            LOGGER.error("updateTargetEvaluate|修改评价目标基础信息出错:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.setCode(REFRESH_CODE);
             result.setMessage(e.getMessage());
             return result;
