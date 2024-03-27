@@ -311,7 +311,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType()))
                 && dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
             if (isJfWaybill(weightVolumeContext.getWaybill())
-                    && !productSolutionIsExist(weightVolumeContext.getWaybill())
+                    && productSolutionIsExist(weightVolumeContext.getWaybill())
                     && weightingProductCodeCheck(weightVolumeContext.getWaybill())) {
                 result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
