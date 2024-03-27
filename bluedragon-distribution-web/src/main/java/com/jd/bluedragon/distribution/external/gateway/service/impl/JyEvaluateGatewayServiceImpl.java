@@ -67,7 +67,6 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             result.setData(flag);
         }  catch (JyBizException e) {
             LOGGER.warn("checkIsEvaluate|查询目标评价与否接口自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
-            result.setCode(e.getCode());
             result.setMessage(e.getMessage());
             return result;
         } catch (Exception e) {
