@@ -4,26 +4,23 @@ import com.jd.bluedragon.common.dto.collectpackage.request.BindCollectBagReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.SearchPackageTaskReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.TaskDetailReq;
-import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageResp;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageTaskDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageTaskResp;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.CollectPackageManger;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
+import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +30,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THIRD_ERROR_CODE;
-import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
 @Service("jyCollectLoadingService")
 @Slf4j
@@ -176,6 +167,23 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
             return jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         }else {
             throw new JyBizException("暂不支持改类型的任务检索方式!");
+        }
+    }
+
+
+    @Override
+    public void calculateCollectStatistic(CollectPackageTaskDto taskDto) {
+        StatisticsUnderTaskQueryDto queryDto =new StatisticsUnderTaskQueryDto();
+        queryDto.setBizId(taskDto.getBizId());
+        StatisticsUnderTaskDto statisticsUnderTaskDto = getCollectPackageManger().queryTaskStatistic(queryDto);
+        if (ObjectHelper.isNotNull(statisticsUnderTaskDto) && ObjectHelper.isNotNull(statisticsUnderTaskDto.getCollectStatisticDto())){
+            CollectStatisticDto collectStatisticDto = statisticsUnderTaskDto.getCollectStatisticDto();
+            taskDto.setScanCount(collectStatisticDto.getTotalScanCount());
+            taskDto.setPackageScanCount(collectStatisticDto.getPackageScanCount());
+            taskDto.setBoxScanCount(collectStatisticDto.getBoxScanCount());
+            taskDto.setInterceptCount(collectStatisticDto.getTotalInterceptCount());
+            taskDto.setPackageInterceptCount(collectStatisticDto.getPackageInterceptCount());
+            taskDto.setBoxInterceptCount(collectStatisticDto.getBoxInterceptCount());
         }
     }
 }

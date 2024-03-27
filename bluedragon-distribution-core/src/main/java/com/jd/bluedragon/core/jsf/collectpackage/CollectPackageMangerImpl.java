@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.jsf.collectpackage;
 import com.jd.bluedragon.common.dto.collectpackage.request.StatisticsUnderFlowQueryReq;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectStatisticDto;
 import com.jd.bluedragon.common.dto.collectpackage.response.StatisticsUnderFlowQueryResp;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.*;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
@@ -121,6 +122,8 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
             collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getScannedNum());
         }
         collectPackageFlowDto.setCount(udataTaskFlowStatisticDto.getScannedNum());
+        collectPackageFlowDto.setPackageCount(udataTaskFlowStatisticDto.getScannedPackageNum());
+        collectPackageFlowDto.setBoxCount(udataTaskFlowStatisticDto.getScannedBoxNum());
         return collectPackageFlowDto;
     }
 
@@ -213,6 +216,16 @@ public class CollectPackageMangerImpl implements CollectPackageManger {
         haveScan.setCount(udataTaskStatisticDto.getScannedNum());
         collectScanDtoList.add(haveScan);
 
+
+        CollectStatisticDto collectStatisticDto =new CollectStatisticDto();
+        collectStatisticDto.setTotalScanCount(udataTaskStatisticDto.getTotalNum());
+        collectStatisticDto.setPackageScanCount(udataTaskStatisticDto.getScannedPackageNum());
+        collectStatisticDto.setBoxScanCount(udataTaskStatisticDto.getScannedBoxNum());
+
+        collectStatisticDto.setTotalInterceptCount(udataTaskStatisticDto.getInterceptNum());
+        collectStatisticDto.setPackageInterceptCount(udataTaskStatisticDto.getInterceptPackageNum());
+        collectStatisticDto.setBoxInterceptCount(udataTaskStatisticDto.getInterceptBoxNum());
+        statisticsUnderTaskDto.setCollectStatisticDto(collectStatisticDto);
 
         /*CollectScanDto force =new CollectScanDto();
         force.setType(CollectPackageExcepScanEnum.FORCE_SEND.getCode());

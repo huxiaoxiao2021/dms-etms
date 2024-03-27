@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.jsf.collectpackage.dto;
 
 import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackageFlowDto;
+import com.jd.bluedragon.common.dto.collectpackage.response.CollectStatisticDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CollectScanDto;
 
 import java.util.List;
@@ -29,6 +30,19 @@ public class StatisticsUnderTaskDto {
      */
     List<CollectPackageFlowDto> collectPackageFlowDtoList;
 
+
+    /**
+     * 统计指标
+     */
+    CollectStatisticDto collectStatisticDto;
+
+    public CollectStatisticDto getCollectStatisticDto() {
+        return collectStatisticDto;
+    }
+
+    public void setCollectStatisticDto(CollectStatisticDto collectStatisticDto) {
+        this.collectStatisticDto = collectStatisticDto;
+    }
 
     public String getBizId() {
         return bizId;
