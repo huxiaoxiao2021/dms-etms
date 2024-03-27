@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -13,6 +15,8 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -22,6 +26,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
+import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -32,8 +37,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
+
+import static com.jd.bluedragon.Constants.*;
+import static com.jd.bluedragon.Constants.Numbers.INTEGER_ZERO;
+import static com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill.SEPARATOR_APPEND;
+import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_FENCE;
+import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_GATEWAY;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_TWO;
 
 /**
  * @ClassName InspectionPackageConsumer
@@ -70,6 +82,14 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private SortingService sortingService;
+
+    @Autowired
+    private BoxService boxService;
+
+    public static final String  EXTEND_PARAM_KEY = "traceWriteType";
 
     @Override
     public void consume(Message message) throws Exception {
@@ -191,6 +211,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
         else {
             WaybillStatus tWaybillStatus = cenConfirmService.createWaybillStatus(cenConfirm, bDto, rDto);
+            setRemarkAndExtendParamMap(tWaybillStatus, cenConfirm);
             if (cenConfirmService.checkFormat(tWaybillStatus, cenConfirm.getType())) {
                 // 添加到task表
                 taskService.add(cenConfirmService.toTask(tWaybillStatus, cenConfirm.getOperateType()));
@@ -201,6 +222,46 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
             }
 
         }
+    }
+
+    private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm) {
+        Map<String, Object> extendParamMap =  tWaybillStatus.getExtendParamMap();
+        if (Objects.isNull(extendParamMap)) {
+            extendParamMap = new HashMap<>();
+        }
+        if (ELECTRONIC_FENCE.getCode().equals(cenConfirm.getBizSource())) {
+            tWaybillStatus.setRemark(
+                    String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK,
+                            StringUtils.isEmpty(cenConfirm.getVehicleNumber())? "" : cenConfirm.getVehicleNumber()));
+            extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ONE);
+        }else if (ELECTRONIC_GATEWAY.getCode().equals(cenConfirm.getBizSource())) {
+            String boxCodeStr = getBoxCodeStr(cenConfirm.getPackageBarcode());
+            tWaybillStatus.setRemark(String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
+            extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_TWO);
+        }else {
+            tWaybillStatus.setRemark(String.format(TRACE_INSPECTION_REMARK, tWaybillStatus.getCreateSiteName()));
+            extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ZERO);
+        }
+    }
+
+    /**
+     * 获取包裹关联箱号
+     * @param packageCode
+     * @return
+     */
+    private String getBoxCodeStr(String packageCode) {
+        SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(packageCode);
+        if (sortingDto == null || org.apache.commons.lang.StringUtils.isEmpty(sortingDto.getBoxCode())) {
+            return "";
+        }
+        StringBuilder boxCodeStr = new StringBuilder(sortingDto.getBoxCode());
+        Box boxQuery = new Box();
+        boxQuery.setCode(sortingDto.getBoxCode());
+        List<Box> boxes = boxService.listAllParentBox(boxQuery);
+        for (Box box : boxes) {
+            boxCodeStr.append(SEPARATOR_APPEND).append(box.getCode());
+        }
+        return boxCodeStr.toString();
     }
 
     /**

@@ -2457,4 +2457,18 @@ public class Constants {
      */
     public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
 
+    /**
+     * 电子围栏验货 全程跟踪话术
+     */
+    public static final String ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK = "整车验货 (车牌号：%s)";
+
+    /**
+     * 电子网关验货 全程跟踪话术
+     */
+    public static final String ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK = "整容验货（容器号：%s）";
+
+    /**
+     * 人工验货全程跟踪话术
+     */
+    public static final String TRACE_INSPECTION_REMARK = "%s场地已验货";
 }
