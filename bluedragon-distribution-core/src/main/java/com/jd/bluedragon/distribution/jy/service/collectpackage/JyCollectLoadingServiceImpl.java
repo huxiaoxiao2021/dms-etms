@@ -55,6 +55,10 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
     @Qualifier("collectLoadingManger")
     private CollectPackageManger collectPackageManger;
 
+    @Override
+    public CollectPackageManger getCollectPackageManger() {
+        return this.collectPackageManger;
+    }
 
     @Override
     public void collectPackageBizCheck(CollectPackageReq request) {

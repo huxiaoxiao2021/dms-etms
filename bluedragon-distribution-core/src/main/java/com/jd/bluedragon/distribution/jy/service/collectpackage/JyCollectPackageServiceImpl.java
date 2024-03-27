@@ -152,6 +152,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     BoxRelationService boxRelationService;
 
 
+    public CollectPackageManger getCollectPackageManger(){
+        return this.collectPackageManger;
+    }
+
     /**
      * 集包
      *
@@ -792,7 +796,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         ListTaskStatisticDto listTaskStatisticDto = null;
         try{
-            listTaskStatisticDto = collectPackageManger.listTaskStatistic(queryDto);
+            listTaskStatisticDto = getCollectPackageManger().listTaskStatistic(queryDto);
         }catch (Exception e) {
             log.info("查询统计数据异常：{}", JsonHelper.toJson(queryDto));
             return aggMap;
@@ -1316,12 +1320,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         //查询任务的扫描类型统计数据
         StatisticsUnderTaskQueryDto taskQueryDto =assembleStatisticsUnderTaskQueryDto(request);
-        StatisticsUnderTaskDto taskStatistics =collectPackageManger.queryTaskStatistic(taskQueryDto);
+        StatisticsUnderTaskDto taskStatistics =getCollectPackageManger().queryTaskStatistic(taskQueryDto);
 
         if (ObjectHelper.isNotNull(taskStatistics)){
             //查询任务流向的聚合统计数据
             StatisticsUnderTaskQueryDto taskFlowQueryDto = assembleStatisticsUnderTaskQueryDto(request);
-            StatisticsUnderTaskDto taskFlowStatistic =collectPackageManger.queryTaskFlowStatistic(taskFlowQueryDto);
+            StatisticsUnderTaskDto taskFlowStatistic =getCollectPackageManger().queryTaskFlowStatistic(taskFlowQueryDto);
             //封装返回数据
             StatisticsUnderTaskQueryResp statisticsUnderTaskQueryResp =converToStatisticsUnderTaskQueryResp(taskStatistics,taskFlowStatistic);
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,statisticsUnderTaskQueryResp);
@@ -1386,7 +1390,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     public InvokeResult<StatisticsUnderFlowQueryResp> queryStatisticsUnderFlow(StatisticsUnderFlowQueryReq request) {
         checkStatisticsUnderFlowQueryReq(request);
         StatisticsUnderFlowQueryReq statisticsUnderFlowQueryReq =assembleStatisticsUnderFlowQueryReq(request);
-        StatisticsUnderFlowQueryResp statisticsUnderFlowQueryResp =collectPackageManger.listPackageUnderFlow(statisticsUnderFlowQueryReq);
+        StatisticsUnderFlowQueryResp statisticsUnderFlowQueryResp =getCollectPackageManger().listPackageUnderFlow(statisticsUnderFlowQueryReq);
         if (ObjectHelper.isNotNull(statisticsUnderFlowQueryResp)){
             return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,statisticsUnderFlowQueryResp);
         }
