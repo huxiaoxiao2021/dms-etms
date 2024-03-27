@@ -1495,12 +1495,11 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
 
         List<Integer> nextSiteIdList = new ArrayList<>();
-        if(Objects.nonNull(box.getReceiveSiteCode())) {
-            nextSiteIdList.add(box.getReceiveSiteCode());
-        }
-
         //路由场景
         if (JySendFlowConfigEnum.ROUTER.getCode() == (request.getOperateType())) {
+            if(Objects.nonNull(box.getReceiveSiteCode())) {
+                nextSiteIdList.add(box.getReceiveSiteCode());
+            }
             BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
             if(Objects.nonNull(boxNextSiteDto) && Objects.nonNull(boxNextSiteDto.getNextSiteId())) {
                 nextSiteIdList.add(boxNextSiteDto.getNextSiteId());
@@ -1520,9 +1519,18 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     result.customMessage(nextSiteBySendRuleRes.getCode(), nextSiteBySendRuleRes.getMessage());
                     return result;
                 }
+                boolean existBoxReceiveSiteIdFlag =  false;
                 if(CollectionUtils.isNotEmpty(nextSiteBySendRuleRes.getData())) {
                     logInfo("{}根据箱{}内运单{}获取箱流向为{}", methodDesc, request.getBarCode(), waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes));
-                    nextSiteIdList.addAll(nextSiteBySendRuleRes.getData());
+                    for(Integer nextSiteIdTemp : nextSiteBySendRuleRes.getData()) {
+                        if(Objects.nonNull(nextSiteBySendRuleRes) && nextSiteIdTemp.equals(box.getReceiveSiteCode())) {
+                            existBoxReceiveSiteIdFlag = true;
+                        }
+                        nextSiteIdList.add(nextSiteIdTemp);
+                    }
+                }
+                if(!existBoxReceiveSiteIdFlag) {
+                    nextSiteIdList.add(box.getReceiveSiteCode());
                 }
             }
         }
