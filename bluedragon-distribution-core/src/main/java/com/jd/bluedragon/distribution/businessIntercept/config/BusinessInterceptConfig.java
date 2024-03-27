@@ -96,6 +96,11 @@ public class BusinessInterceptConfig {
     private List<Integer> needReprintWaybillInterceptTypeList = new ArrayList<>();
 
     /**
+     * 异常岗需要处理的拦截类型
+     */
+    private List<String> exceptionJobNeedHandleInterceptTypeNode = new ArrayList<>();
+
+    /**
      * 根据拦截返回码判断是否需要处理
      *
      * @param businessInterceptReport 拦截内容
