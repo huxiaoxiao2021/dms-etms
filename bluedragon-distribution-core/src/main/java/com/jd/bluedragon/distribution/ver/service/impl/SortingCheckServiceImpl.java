@@ -714,7 +714,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 filterContext.setWaybillVasDtos( waybillVasInfos.getData());
             }
             // 初始化运单基础信息
-            WaybillCache waybillCache = this.waybillCacheService.getNoCache(filterContext.getWaybillCode());
+            WaybillCache waybillCache = this.waybillCacheService.getNoCache(WaybillUtil.getWaybillCode(boardCombinationRequest.getBoxOrPackageCode()));
             filterContext.setWaybillCache(waybillCache);
         }
         return filterContext;
