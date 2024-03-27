@@ -42,13 +42,13 @@ public enum TransTypeEnum {
     public static final List<Integer> AR_TYPE;
 
     static {
-        LINGDAN_TYPE = new ArrayList<>();
+        LINGDAN_TYPE = new ArrayList<Integer>();
         LINGDAN_TYPE.add(ROAD_LINGDAN.getType());
         LINGDAN_TYPE.add(COLD_CHAIN_LINGDAN.getType());
         LINGDAN_TYPE.add(ROAD_LINDGDAN_PANEL.getType());
         LINGDAN_TYPE.add(RAILWAY_LINGDAN.getType());
 
-        AR_TYPE = new ArrayList<>();
+        AR_TYPE = new ArrayList<Integer>();
         LINGDAN_TYPE.add(AVIATION.getType());
         LINGDAN_TYPE.add(RAILWAY_ZHENGCHE.getType());
         LINGDAN_TYPE.add(RAILWAY_LINGDAN.getType());
