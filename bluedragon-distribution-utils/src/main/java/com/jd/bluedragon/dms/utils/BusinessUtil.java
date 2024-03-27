@@ -2852,6 +2852,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 纯配(53=2)
+     * 冷链专送（31位=G）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureDeliveryColdDelivery(String waybillSign){
+        return isSignInChars(waybillSign,53,'2') && isColdDelivery(waybillSign);
+    }
+
+    /**
      *  自营生鲜 新逻辑
      * sendpay第338位为1（且sendpay第2位为4或5或6或7或8或9）
      */

@@ -1769,6 +1769,11 @@ public class Constants {
     public static final Integer NUMBER_ONE = 1;
 
     /**
+     * 数字：2
+     */
+    public static final Integer NUMBER_TWO = 2;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
@@ -2427,7 +2432,7 @@ public class Constants {
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
 
     /**
-     *  配置信息-基于排班自动签退试用场地列表
+     * 配置信息-基于排班自动签退试用场地列表
      */
     public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
 
@@ -2446,4 +2451,15 @@ public class Constants {
      * 箱号嵌套最大允许的层级
      */
     public static final int BOX_NESTED_MAX_DEPTH = 2;
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
+
+    /**
+     * 配置信息-司机到达B2B业务类型列表
+     */
+    public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
+
 }

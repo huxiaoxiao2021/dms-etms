@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 
 import java.io.Serializable;
@@ -34,6 +35,13 @@ public class JyTaskSendDetailFirstSendDto implements Serializable {
      */
     private OperateUser operateUser;
 
+    /**
+     * 绑定的小组
+     */
+    private String groupCode;
+
+    private OperatorData operatorData;
+
     public JyTaskSendDetailFirstSendDto() {
     }
 
@@ -67,5 +75,21 @@ public class JyTaskSendDetailFirstSendDto implements Serializable {
 
     public void setOperateUser(OperateUser operateUser) {
         this.operateUser = operateUser;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

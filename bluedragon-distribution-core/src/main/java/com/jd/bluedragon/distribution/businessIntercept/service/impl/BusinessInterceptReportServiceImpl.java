@@ -61,7 +61,7 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
                 }
             }
             businessOperateInterceptActionSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
-            log.info("BusinessInterceptReportServiceImpl sendInterceptMsg full param: {}", JSON.toJSONString(msgDto));
+            log.info("BusinessInterceptReportServiceImpl sendInterceptMsg topic: {} full param: {}", businessOperateInterceptActionSendProducer.getTopic(), JSON.toJSONString(msgDto));
         } catch (Exception e) {
             log.error("BusinessInterceptReportServiceImpl sendInterceptMsg exception {}", e.getMessage(), e);
             result.toError("发送拦截消息异常");
@@ -91,7 +91,7 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
                 }
             }
             disposeActionAfterInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
-            log.info("BusinessInterceptReportServiceImpl sendDisposeAfterInterceptMsg full param: {}", JSON.toJSONString(msgDto));
+            log.info("BusinessInterceptReportServiceImpl sendDisposeAfterInterceptMsg topic: {} full param: {}", disposeActionAfterInterceptSendProducer.getTopic(), JSON.toJSONString(msgDto));
         } catch (Exception e) {
             log.error("BusinessInterceptReportServiceImpl sendDisposeAfterInterceptMsg exception {}", e.getMessage(), e);
             result.toError("发送拦截消息异常");

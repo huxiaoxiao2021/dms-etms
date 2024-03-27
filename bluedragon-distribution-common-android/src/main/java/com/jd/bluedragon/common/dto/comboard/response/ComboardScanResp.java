@@ -47,6 +47,11 @@ public class ComboardScanResp implements Serializable {
      */
     private boolean interceptFlag;
 
+    /**
+     * com_board_box表业务主键
+     */
+    private String operateKey;
+
 
     public boolean getInterceptFlag() {
         return interceptFlag;
@@ -126,5 +131,13 @@ public class ComboardScanResp implements Serializable {
 
     public void setScanDetailCount(Integer scanDetailCount) {
         this.scanDetailCount = scanDetailCount;
+    }
+
+    public String getOperateKey() {
+        return operateKey;
+    }
+
+    public void setOperateKey(String operateKey) {
+        this.operateKey = operateKey;
     }
 }

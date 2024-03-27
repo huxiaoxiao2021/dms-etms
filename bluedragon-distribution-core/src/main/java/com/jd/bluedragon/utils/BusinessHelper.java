@@ -1197,4 +1197,16 @@ public class BusinessHelper {
     public static boolean isBwxWaybill(String waybillSign) {
         return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_24, WaybillSignConstants.CHAR_24_G);
     }
+
+    /**
+     * 判断是否寄付运单
+     * @param waybill 运单
+     * @return 如果是返回true，否则返回false
+     */
+    public static boolean isJfWaybill(Waybill waybill) {
+        if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
+            return true;
+        }
+        return BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_3);
+    }
 }

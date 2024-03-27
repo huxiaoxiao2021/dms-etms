@@ -293,7 +293,7 @@
       </foreach>
     </if>
     and create_time > #{createTime}
-    order by ts desc
+    order by id desc
     limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
   </select>
 

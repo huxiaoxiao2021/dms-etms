@@ -1,28 +1,32 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ServiceMessage;
+import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
-import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
-import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
-import com.jd.bluedragon.distribution.api.request.PackageCodeRequest;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
-import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldChain.enums.ColdSendResultCodeNum;
 import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -41,10 +45,7 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
@@ -52,7 +53,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +65,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THIRD_ERROR_CODE;
 import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION;
 
 /**
@@ -123,6 +124,17 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    DepartureService departureService;
+
+
+    @Autowired
+    SysConfigService sysConfigService;
+
+    @Autowired
+    private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
+
     /**
      * 冷链验货校验
      *
@@ -504,6 +516,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     @Override
+    @Deprecated
     @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendAndInspectionOfPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo) {
         if (log.isInfoEnabled()) {
@@ -982,6 +995,23 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult>();
         try {
 
+            //切换新服务
+            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(request.getSiteCode()))){
+                log.info("冷链发货 启用新模式 {}",request.getBoxCode());
+                //新接口
+                SendRequest sendRequest = new SendRequest();
+                BeanUtils.copyProperties(request,sendRequest);
+                sendRequest.setBarCode(request.getBoxCode());
+                sendRequest.setIsCancelLastSend(Boolean.FALSE);//不需要取消上次发货
+                sendRequest.setSendChainModeEnum(SendChainModeEnum.DEFAULT);//发货模式设置
+                JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
+                result.setCode(response.getCode());
+                result.setMessage(response.getMessage());
+                result.setData(response.getData());
+                return result;
+            }
+            log.info("冷链发货 继续使用旧模式 {}",request.getBoxCode());
+
             // 校验批次号
             com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> chkResult = sendCodeService.validateSendCodeEffective(request.getSendCode());
             if (!chkResult.codeSuccess()) {
@@ -1127,5 +1157,113 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         List<SendM> list = new ArrayList<>(1);
         list.add(sendM);
         return list;
+    }
+
+    /**
+     * 检查批次号是否发车
+     * @param request 发送请求
+     * @return 发送结果
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.checkSendCodeStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public InvokeResult<ColdSendResult> checkSendCodeStatus(SendCheckVO request) {
+        InvokeResult<ColdSendResult> result = new InvokeResult<>();
+        result.success();
+        if(request == null || StringUtils.isBlank(request.getSendCode())) {
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE, "批次号不能为空");
+            return result;
+        }
+        String sendCode = request.getSendCode();
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        //批次号是否符合编码规范，不合规范直接返回参数错误
+        if(receiveSiteCode == null){
+            result.parameterError(HintService.getHint(HintCodeConstants.SEND_CODE_ILLEGAL));
+        }
+        if(forbid(result, receiveSiteCode)) {
+            return result;
+        }
+        try {
+            ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
+            if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {
+                //已被封车
+                result.setData(new ColdSendResult(2, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED)));
+            } else if(ServiceResultEnum.SUCCESS.equals(data.getResult())){
+                //未被封车
+                BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
+                result.setData(new ColdSendResult(1, siteName));
+            }else{
+                result.parameterError(data.getErrorMsg());
+            }
+        } catch (Exception ex) {
+            result.error(ex);
+            log.error("发货校验批次号异常：{}",sendCode, ex);
+        }
+        log.info("ColdChainExternalService,checkSendCodeStatus，入参:{},结果:{}",JsonHelper.toJson(request),JsonHelper.toJson(result));
+        return result;
+    }
+
+    /**
+     * 一车一单操作增加提示，如果操作逆向则阻断
+     * @param result 返回结果
+     * @param receiveSiteCode 目的站点号
+     * @return
+     */
+    private boolean forbid(InvokeResult result, Integer receiveSiteCode) {
+        BaseStaffSiteOrgDto bDto = null;
+        try {
+            bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        } catch (Exception e) {
+            this.log.error("一车一单发货通过站点ID获取基础资料失败:{}",receiveSiteCode,e);
+            return false;
+        }
+        Integer siteType=0;
+        if (null != bDto) {
+            siteType = bDto.getSiteType();
+            //售后
+            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
+            //仓储
+            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
+            //备件库退货
+            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+            if(siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)){
+                result.setCode(RESULT_THIRD_ERROR_CODE);
+                result.setMessage("禁止逆向操作！");
+                return true;
+            }
+        }else{
+            this.log.warn("一车一单发获取站点信息为空：{}" , receiveSiteCode);
+        }
+        return false;
+    }
+
+
+    /**
+     * 获取运输计划
+     * @param request 发货检查VO
+     * @return 返回调用结果列表
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.getTransPlan", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public InvokeResult<List<TransPlanResult>> getTransPlan(SendCheckVO request) {
+        InvokeResult<List<TransPlanResult>> result = new InvokeResult<>();
+        result.success();
+        if(request == null || request.getReceiveSiteCode() == null) {
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE, "目的场地不能为空");
+            return result;
+        }
+        if(request.getSiteCode() == null) {
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE, "当前操作场地不能为空");
+            return result;
+        }
+        List<TransPlanDetailResult> resultList = coldChainSendService.getTransPlanDetail(request.getSiteCode(), request.getReceiveSiteCode());
+        if (resultList != null) {
+            String dataStr = JsonHelper.toJson(resultList);
+            result.setData(JsonHelper.jsonToList(dataStr, TransPlanResult.class));
+        } else {
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_GET_TRANSPLAN_ERROR, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_GET_TRANSPLAN_ERROR);
+        }
+        log.info("ColdChainExternalService,getTransPlan，入参:{},结果:{}",JsonHelper.toJson(request),JsonHelper.toJson(result));
+        return result;
     }
 }

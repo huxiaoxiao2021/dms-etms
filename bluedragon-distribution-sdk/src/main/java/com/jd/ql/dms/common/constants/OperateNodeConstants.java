@@ -29,4 +29,7 @@ public class OperateNodeConstants {
 
     // 称重节点
     public static final int MEASURE_WEIGHT = 6;
+
+    // 组板节点
+    public static final int COMBINE_BOARD = 7;
 }

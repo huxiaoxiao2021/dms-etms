@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class BusinessInterceptConfigHelper {
 
+    // 拦截报表操作节点【验货】类型
+    @Value("${businessIntercept.operate.node.inspection}")
+    private Integer interceptOperateNodeInspection;
     // 拦截报表操作节点【分拣】类型
     @Value("${businessIntercept.operate.node.sorting}")
     private Integer interceptOperateNodeSorting;
@@ -28,6 +31,9 @@ public class BusinessInterceptConfigHelper {
     // 拦截报表操作节点【称重】类型
     @Value("${businessIntercept.operate.node.measureWeight}")
     private Integer interceptOperateNodeMeasureWeight;
+    // 拦截报表操作节点【组板】类型
+    @Value("${businessIntercept.operate.node.combineBoard}")
+    private Integer interceptOperateNodeCombineBoard;
 
     // 拦截报表设备【PDA】类型
     @Value("${businessIntercept.device.type.pda}")
@@ -35,7 +41,7 @@ public class BusinessInterceptConfigHelper {
     // 拦截报表设备【自动化】设备类型
     @Value("${businessIntercept.device.type.automatic}")
     private Integer interceptOperateDeviceTypeAutomatic;
-    // 拦截报表设备【dws】设备类型
+    // 拦截报表设备【打印客户端】设备类型
     @Value("${businessIntercept.device.type.printClient}")
     private Integer interceptOperateDeviceTypePrintClient;
     // 拦截报表设备【dws】设备类型
@@ -64,6 +70,9 @@ public class BusinessInterceptConfigHelper {
 
     public Integer getOperateNodeByConstants(Integer operateNode){
         switch (operateNode){
+            case OperateNodeConstants.INSPECTION: {
+                return interceptOperateNodeInspection;
+            }
             case OperateNodeConstants.SORTING: {
                 return interceptOperateNodeSorting;
             }
@@ -75,6 +84,9 @@ public class BusinessInterceptConfigHelper {
             }
             case OperateNodeConstants.MEASURE_WEIGHT: {
                 return interceptOperateNodeMeasureWeight;
+            }
+            case OperateNodeConstants.COMBINE_BOARD: {
+                return interceptOperateNodeCombineBoard;
             }
             default:
                 return interceptOperateNodeSorting;
@@ -153,6 +165,14 @@ public class BusinessInterceptConfigHelper {
     public BusinessInterceptConfigHelper setInterceptOperateNodeMeasureWeight(Integer interceptOperateNodeMeasureWeight) {
         this.interceptOperateNodeMeasureWeight = interceptOperateNodeMeasureWeight;
         return this;
+    }
+
+    public Integer getInterceptOperateNodeCombineBoard() {
+        return interceptOperateNodeCombineBoard;
+    }
+
+    public void setInterceptOperateNodeCombineBoard(Integer interceptOperateNodeCombineBoard) {
+        this.interceptOperateNodeCombineBoard = interceptOperateNodeCombineBoard;
     }
 
     public Integer getInterceptOperateDeviceTypePda() {

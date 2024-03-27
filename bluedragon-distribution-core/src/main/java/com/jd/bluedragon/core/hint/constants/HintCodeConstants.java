@@ -1105,4 +1105,13 @@ public class HintCodeConstants {
      */
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
+
+    // 您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE = "40037";
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    // 您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
 }

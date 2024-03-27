@@ -353,9 +353,18 @@
 		<property name="pickingFinishTimeRange" value="${pickingFinishTimeRange:2}"/>
 		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
+		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
+		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
-
-
+		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
+		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
+		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
+		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -694,7 +703,18 @@
 				<value>uccPropertyConfiguration.pickingFinishTimeRange</value>
 				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
 				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
+				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
+				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
+				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 			</list>
 		</property>
 	</bean>

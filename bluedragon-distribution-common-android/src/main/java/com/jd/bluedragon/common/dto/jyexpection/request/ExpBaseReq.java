@@ -6,6 +6,8 @@ public class ExpBaseReq implements Serializable {
 
     // 用户ERP
     private String userErp;
+    // 用户ID
+    private Integer userId;
 
     private Integer siteId;
 
@@ -18,6 +20,14 @@ public class ExpBaseReq implements Serializable {
 
     public void setUserErp(String userErp) {
         this.userErp = userErp;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getSiteId() {

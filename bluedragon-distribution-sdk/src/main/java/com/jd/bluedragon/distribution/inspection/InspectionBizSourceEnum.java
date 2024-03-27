@@ -74,7 +74,11 @@ public enum InspectionBizSourceEnum {
 
         COLD_CHAIN_SEND_INSPECTION(46, "无任务揽收自动验货"),
 
-        DPRH(47, "德邦融合")
+        DPRH(47, "德邦融合"),
+
+        ELECTRONIC_FENCE(48, "电子围栏验货"),
+        ELECTRONIC_GATEWAY(49, "电子网关验货"),
+
     ;
 
         /**

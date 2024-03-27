@@ -7,10 +7,10 @@ import com.jd.bluedragon.distribution.jy.constants.PickingGoodTaskDetailInitServ
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.CalculateWaitPickingItemNumDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.PickingGoodTaskDetailInitDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.service.common.CommonService;
 import com.jd.bluedragon.distribution.jy.service.picking.JyPickingTaskAggsService;
 import com.jd.bluedragon.distribution.jy.service.picking.factory.PickingGoodDetailInitServiceFactory;
 import com.jd.bluedragon.distribution.jy.service.picking.template.AviationPickingGoodTaskInit;
+import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -54,8 +54,7 @@ public class PickingGoodDetailInitByTmsSealInfoServiceImpl implements PickingGoo
     @Autowired
     private JyPickingTaskAggsService jyPickingTaskAggsService;
     @Autowired
-    private CommonService commonService;
-
+    private RouterService routerService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -173,7 +172,7 @@ public class PickingGoodDetailInitByTmsSealInfoServiceImpl implements PickingGoo
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             Integer nextSiteId = waybillRouteMap.get(waybillCode);
             if(Objects.isNull(nextSiteId)) {
-                BaseStaffSiteOrgDto dto = commonService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
+                BaseStaffSiteOrgDto dto = routerService.getRouteNextSiteByWaybillCode(initDto.getPickingSiteId().intValue(), waybillCode);
                 if (!Objects.isNull(dto) && !Objects.isNull(dto.getSiteCode())) {
                     nextSiteId = dto.getSiteCode();
                     waybillRouteMap.put(waybillCode, nextSiteId);

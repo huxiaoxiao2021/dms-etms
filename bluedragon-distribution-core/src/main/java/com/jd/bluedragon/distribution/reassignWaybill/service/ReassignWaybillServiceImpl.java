@@ -65,6 +65,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -834,6 +835,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			log.info("printInfo -{}",printInfo);
 		}
 
+		JdResult<Boolean> jdResult = JsonHelper.parseObject(printInfo, new TypeReference<JdResult<Boolean>>() {});
+		if (jdResult != null && !JdResult.CODE_SUC.equals(jdResult.getCode())) {
+			return jdResult;
+		}
 		ReassignWaybillRequest request = bulidReassignWaybillRequest(printInfo, req);
 		return backScheduleAfter(request);
 	}

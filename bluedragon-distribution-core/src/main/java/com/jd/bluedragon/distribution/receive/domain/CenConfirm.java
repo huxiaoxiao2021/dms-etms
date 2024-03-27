@@ -80,7 +80,11 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
     /**
      * 操作信息对象
      */
-	private OperatorData operatorData;	
+	private OperatorData operatorData;
+	/**
+	 * 操作流水表主键
+	 */
+	private Long operateFlowId;
 
 	public CenConfirm() {
 		super();
@@ -393,5 +397,13 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
+	}
+
+	public Long getOperateFlowId() {
+		return operateFlowId;
+	}
+
+	public void setOperateFlowId(Long operateFlowId) {
+		this.operateFlowId = operateFlowId;
 	}
 }

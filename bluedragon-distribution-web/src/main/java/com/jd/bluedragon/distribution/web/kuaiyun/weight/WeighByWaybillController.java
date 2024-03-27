@@ -27,15 +27,13 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeUploadResult;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -59,8 +57,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_FAST_TRANSPORT;
+import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
 
 /**
  * 运单称重
@@ -161,6 +160,21 @@ public class WeighByWaybillController extends DmsBaseController {
             return result;
         }
 
+        // 寄付运单称重拦截
+        if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
+                && (WaybillUtil.isWaybillCode(vo.getCodeStr()) || WaybillUtil.isPackageCode(vo.getCodeStr()))){
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
+            if(waybill == null){
+                checkData.setVerifyCode(RESULT_PARAMETER_ERROR_CODE_WEIGHT_FALI);
+                checkData.setVerifyMessage("未获取到运单信息!");
+                return result;
+            }
+            if (isJfWaybill(waybill)) {
+                checkData.setVerifyCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
+                checkData.setVerifyMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
+                return result;
+            }
+        }
     	InvokeResult<Boolean> verifyResult = this.verifyWaybillReality(vo.getCodeStr());
     	if(verifyResult != null) {
     		checkData.setIsExists(verifyResult.getData());
@@ -625,6 +639,19 @@ public class WeighByWaybillController extends DmsBaseController {
             return false;
         }
 
+        // 寄付运单称重拦截
+        if(dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()
+                && (WaybillUtil.isWaybillCode(waybillWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(waybillWeightVO.getCodeStr()))){
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(waybillWeightVO.getCodeStr()));
+            if(waybill == null){
+                waybillWeightVO.setErrorMessage("未获取都运单信息!");
+                return false;
+            }
+            if (isJfWaybill(waybill)) {
+                waybillWeightVO.setErrorMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
+                return false;
+            }
+        }
         //存在性校验
         InvokeResult<Boolean> verifyWaybillRealityResult = verifyWaybillReality(waybillWeightVO.getCodeStr());
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){

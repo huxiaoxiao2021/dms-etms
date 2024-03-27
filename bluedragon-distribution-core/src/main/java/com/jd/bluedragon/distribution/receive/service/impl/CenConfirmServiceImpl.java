@@ -163,6 +163,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			cenConfirm.setOperatorTypeCode(inspection.getOperatorTypeCode());
 			cenConfirm.setOperatorId(inspection.getOperatorId());
 			cenConfirm.setOperatorData(inspection.getOperatorData());
+			cenConfirm.setOperateFlowId(inspection.getOperateFlowId());
 		} else {
 			// 收货表中只抽取大件包裹数据
 			cenConfirm
@@ -185,6 +186,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			cenConfirm.setOperateUser(receive.getCreateUser());
 			cenConfirm.setOperateUserCode(receive.getCreateUserCode());
 			cenConfirm.setInspectionTime(receive.getCreateTime());
+			cenConfirm.setOperatorData(receive.getOperatorData());
+			cenConfirm.setOperateFlowId(receive.getOperateFlowId());
 		}
 		return cenConfirm;
 	}
@@ -335,6 +338,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		tWaybillStatus.setBoxCode(cenConfirm.getBoxCode());
 		tWaybillStatus.setRemark(cenConfirm.getExceptionType());
 		tWaybillStatus.setOperatorData(BeanConverter.convertToOperatorData(cenConfirm));
+		tWaybillStatus.setOperateFlowId(cenConfirm.getOperateFlowId());
 		return tWaybillStatus;
 	}
 	

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 /**
  * <p>
@@ -68,4 +69,6 @@ public interface DMSWeightVolumeService {
      * @return
      */
     InvokeResult<Void> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
+
+    Result<Boolean> checkAndUpload(WeightVolumeCondition condition);
 }

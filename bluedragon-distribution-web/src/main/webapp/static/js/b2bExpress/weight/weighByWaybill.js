@@ -33,6 +33,7 @@
     const JP_FORBID_WEIGHT = 204; // 集配场地揽收后禁止称重
     const WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE = 40032;
     const WAYBILL_ZERO_WEIGHT_NOT_IN_CODE = 40031;
+    const WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE = 3079;
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
@@ -135,7 +136,8 @@
                     }else if(res.data.verifyCode === JP_FORBID_WEIGHT){
                         $.messager.alert('提示', res.data.verifyMessage,'error');
                     }else if (res.data.verifyCode == WAYBILL_ZERO_WEIGHT_NOT_IN_CODE
-                        || res.data.verifyCode == WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE) {
+                        || res.data.verifyCode == WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE
+                        || res.data.verifyCode == WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE) {
                         $.messager.alert('提示', res.data.verifyMessage,'error');
                     }else {
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
@@ -334,7 +336,9 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                     return ;
                 }
 
-                if (res.code === WAYBILL_ZERO_WEIGHT_NOT_IN_CODE || res.code === WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE) {
+                if (res.code === WAYBILL_ZERO_WEIGHT_NOT_IN_CODE
+                    || res.code === WAYBILL_ZERO_WEIGHT_INTERCEPT_CODE
+                    || res.code === WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE) {
                     $.messager.alert('提示', verifyMessage,'error');
                     return ;
                 }

@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -50,6 +51,9 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
 
     @Autowired
     private CenConfirmService cenConfirmService;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     @Override
     protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
@@ -169,6 +173,11 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
             if (BusinessHelper.checkIntNumRange(packages.size())) {
                 for (DeliveryPackageD pack : packages) {
                     request.setPackageBarcode(pack.getPackageBarcode());
+                    // 透传操作流水表主键
+                    request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
+                    }
                     inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
                 }
             }
@@ -176,6 +185,11 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
             if (StringUtils.isBlank(request.getWaybillCode())
                     && !WaybillUtil.isSurfaceCode(request.getPackageBarcode())) {
                 request.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
+            }
+            // 透传操作流水表主键
+            request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
             }
             inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
         }

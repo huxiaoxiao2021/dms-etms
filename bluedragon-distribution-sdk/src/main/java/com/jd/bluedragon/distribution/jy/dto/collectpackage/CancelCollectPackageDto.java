@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.collectpackage;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,6 +26,10 @@ public class CancelCollectPackageDto implements Serializable {
      * 是否跳过取消集包之前的检查条件，默认为：false    false-不跳过  true-跳过
      */
     private Boolean skipSendCheck;
+    /**
+     * 操作数据对象
+     */
+    private OperatorData operatorData;
 
     public String getBizId() {
         return bizId;
@@ -111,5 +117,13 @@ public class CancelCollectPackageDto implements Serializable {
 
     public void setSkipSendCheck(Boolean skipSendCheck) {
         this.skipSendCheck = skipSendCheck;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

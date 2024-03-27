@@ -277,9 +277,6 @@ public class SortingServiceImpl implements SortingService {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
 			this.sendSortingCancelWaybillTrace(sorting);
-            JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
-            sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
-			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 		}
 		return result;
 	}
@@ -313,10 +310,13 @@ public class SortingServiceImpl implements SortingService {
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			sendDetail.setBoxCode(sorting.getBoxCode());
 		}
+		sendDetail.setOperatorData(sorting.getOperatorData());
+		sendDetail.setOperatorId(sorting.getOperatorId());
+		sendDetail.setOperatorTypeCode(sorting.getOperatorTypeCode());
 		return sendDetail;
 	}
 
-    private WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
+    public WaybillStatus parseWaybillStatus(Sorting sorting, BaseStaffSiteOrgDto createSite,
                                              BaseStaffSiteOrgDto receiveSite) {
 
         WaybillStatus waybillStatus = new WaybillStatus();
@@ -456,7 +456,6 @@ public class SortingServiceImpl implements SortingService {
 	public boolean taskToSorting(List<Sorting> sortings) {
 		CallerInfo callerInfo = Profiler.registerInfo("DMSWORKER.SortingService.taskToSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
-		List<JyOperateFlowMqData> sortingFlowMqList = new ArrayList<>();
 		for (Sorting sorting : sortings) {
 			if(log.isDebugEnabled()) {
 				log.debug("taskToSorting:{},{}",sorting.getPackageCode(), JsonHelper.toJson(sorting));
@@ -467,14 +466,10 @@ public class SortingServiceImpl implements SortingService {
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
 				// 添加发货记录 FIXME:非主线任务
 				sendDList.add(this.addSendDetail(sorting));
-	            JyOperateFlowMqData sortingFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
-	            sortingFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING.getCode());
-	            sortingFlowMqList.add(sortingFlowMq);
 			} else if (sorting.getIsCancel().equals(SORTING_CANCEL)) {// 离线取消分拣
 				return this.canCancel(sorting);
 			}
 		}
-		jyOperateFlowService.sendMqList(sortingFlowMqList);
 		this.fixSendDAndSendTrack(sortings.get(0), sendDList);
 		Profiler.registerInfoEnd(callerInfo);
 		return true;
@@ -1192,9 +1187,6 @@ public class SortingServiceImpl implements SortingService {
 			//发送取消建箱全程跟踪，MQ
 			sorting.setCreateSiteCode(currentSiteCode);
 			this.sendSortingCancelWaybillTrace(sorting);
-			JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
-			sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
-			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 		}
 		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
 			// 更新三方验货异常比对表，由少验修改为正常
@@ -1482,6 +1474,9 @@ public class SortingServiceImpl implements SortingService {
 			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
 			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
 	        waybillStatus.setOperatorData(BeanConverter.convertToOperatorData(sorting));
+
+			// 记录取消建箱全称跟踪
+			jyOperateFlowService.sendSoringOperateFlowData(sorting, waybillStatus, OperateBizSubTypeEnum.SORTING_CANCEL);
 	        
 			Task task = new Task();
 			task.setTableName(Task.TABLE_NAME_POP);
@@ -1526,6 +1521,9 @@ public class SortingServiceImpl implements SortingService {
 				eachSorting.setOperateTime(sorting.getOperateTime());
 				eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
 				eachSorting.setUpdateUser(sorting.getUpdateUser());
+				eachSorting.setOperatorData(sorting.getOperatorData());
+				eachSorting.setOperatorId(sorting.getOperatorId());
+				eachSorting.setOperatorTypeCode(sorting.getOperatorTypeCode());
 				canCancel |= canCancel2(eachSorting);
 			}
 		}
@@ -1560,6 +1558,9 @@ public class SortingServiceImpl implements SortingService {
             eachSorting.setOperateTime(cancelSortingOffsiteDto.getOperateTime());
             eachSorting.setUpdateUserCode(cancelSortingOffsiteDto.getUpdateUserCode());
             eachSorting.setUpdateUser(cancelSortingOffsiteDto.getUpdateUser());
+			eachSorting.setOperatorData(cancelSortingOffsiteDto.getOperatorData());
+			eachSorting.setOperatorId(cancelSortingOffsiteDto.getOperatorId());
+			eachSorting.setOperatorTypeCode(cancelSortingOffsiteDto.getOperatorTypeCode());
             canCancel |= canCancelOffsite(eachSorting, cancelSortingOffsiteDto.getCurrentSiteCode());
         }
 
@@ -1808,14 +1809,15 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-			//校验特安单
-			sortingJsfResponse = checkTeAnWaybillSorting(pdaOperateRequest);
-			if (sortingJsfResponse.getCode() != 200) {
-				return sortingJsfResponse;
-			}
 			pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
 			//调用web分拣验证校验链
 			sortingJsfResponse = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
+			if (sortingJsfResponse.getCode() != 200) {
+				return sortingJsfResponse;
+			}
+
+			//校验特安单
+			sortingJsfResponse = checkTeAnWaybillSorting(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}

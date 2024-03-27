@@ -22,16 +22,14 @@ public enum BoxTypeV2Enum {
 
     private String name;
 
+    public static Map<String, String> ENUM_MAP;
+
+    public static List<String> ENUM_LIST;
 
     /**
      * 支持内嵌的箱号类型
      */
     private List<String> supportEmbeddedTypes;
-
-    public static Map<String, String> ENUM_MAP;
-
-    public static List<String> ENUM_LIST;
-
 
     BoxTypeV2Enum(String code, String name,List<String> supportEmbeddedTypes) {
         this.code = code;
