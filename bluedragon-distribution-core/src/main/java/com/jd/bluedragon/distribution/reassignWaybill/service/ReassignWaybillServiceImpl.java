@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.sysConfig.response.StoreSiteConfigDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ExpressDispatchServiceManager;
 import com.jd.bluedragon.core.base.FlowServiceManager;
+import com.jd.bluedragon.core.base.GoldShieldDataManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
@@ -60,6 +61,9 @@ import com.jd.lsb.flow.domain.HistoryApprove;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.data.api.model.jsf.WaybillMonitorDto;
+import com.jd.ql.data.api.model.jsf.WaybillMonitorQuery;
+import com.jd.ql.data.api.model.web.GoldShieldResult;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -144,6 +148,14 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	private Cluster redisClientOfJy;
 
 	private Integer CHECKER_LIMIT = 3;
+
+	@Autowired
+	private GoldShieldDataManager goldShieldDataManager;
+
+	/**
+	 * 反调度备注长度限制
+	 */
+	private static final Integer REMARK_LENGTH_LIMIT = 200;
 
 
 	private Boolean add(ReassignWaybill packTagPrint) {
@@ -550,6 +562,25 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					result.toFail("协助退仓站点id错误，请核实反调度目的地，如有疑问，请联系bjhaoye!");
 					return result;
 				case JUDGMENT_REASSIGN:
+					// 获取判责场地
+					WaybillMonitorQuery query = new WaybillMonitorQuery();
+					query.setWaybillCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+					query.setSystemCode(SYS_DMS);
+					GoldShieldResult<WaybillMonitorDto> goldShieldResult = goldShieldDataManager.queryGsMonitorInfo(query);
+					if (goldShieldResult == null || CollectionUtils.isEmpty(goldShieldResult.getDatas())) {
+						result.setData(Boolean.FALSE);
+						result.toFail("无判责结果！");
+						return result;
+					}
+					for (WaybillMonitorDto waybillMonitorDto : goldShieldResult.getDatas()) {
+						// 判责站点和预分拣站点相同，直接执行反调度
+						if (Objects.equals(String.valueOf(req.getSiteOfSchedulingOnSiteCode()), waybillMonitorDto.getResponsibleUnits())) {
+							return returnPack(req);
+						}
+					}
+					result.setData(Boolean.FALSE);
+					result.toFail("反调度站点与判责结果不一致！");
+					return result;
 				case OTHER:
 					//逻辑删除未审核通过的申请记录 / 取消OA申请单
 					dealOldReassignWaybillApprovalRecord(req);
@@ -727,6 +758,9 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				mainColList.add("证明图片:" + url);
 			}
 		}
+		if (StringUtils.isNotEmpty(mq.getRemark())) {
+			mainColList.add("备注:" + mq.getRemark());
+		}
 
 		oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST, mainColList);
 		if(log.isInfoEnabled()){
@@ -813,6 +847,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		recordMQ.setSubmitTime(DateHelper.formatDateTime(record.getSubmitTime()));
 		recordMQ.setReturnGroupFlag(req.getReturnGroupFlag());
 		recordMQ.setPhotoUrlList(req.getPhotoUrlList());
+		recordMQ.setRemark(req.getRemark());
 		if(log.isInfoEnabled()){
 			log.info("返调度审批异步消息发送!-{}",JSON.toJSONString(recordMQ) );
 		}
@@ -992,6 +1027,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		}
 		if(!ReassignWaybillReasonTypeEnum.exist(req.getReasonType())){
 			result.toFail("返调度原因类型不存在！");
+			return ;
+		}
+		if (StringUtils.isNotEmpty(req.getRemark()) && req.getRemark().length() > REMARK_LENGTH_LIMIT) {
+			result.toFail("返调度备注长度不能超过+ "+ REMARK_LENGTH_LIMIT + "！");
 			return ;
 		}
 	}
