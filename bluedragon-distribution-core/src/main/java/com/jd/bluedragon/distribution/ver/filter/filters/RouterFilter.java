@@ -5,7 +5,9 @@ import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnoreRouterCondition;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
@@ -19,15 +21,17 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
-import com.jd.dms.java.utils.sdk.base.Result;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
-import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by xumei3 on 2018/3/21.
@@ -38,6 +42,9 @@ public class RouterFilter implements Filter {
     private static final String WAYBILL_ROUTER_SPLITER = "\\|";
     private static final String RULE_ROUTER = "1122";
     private static final String SWITCH_ON = "1";
+
+    //非空即为开启
+    private static final String AIR_WAYBILL_ROUTE_CHECK_SWITCH = "air.waybill.route.check.switch";
 
     @Autowired
     private SiteService siteService;
@@ -50,13 +57,19 @@ public class RouterFilter implements Filter {
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        /* 判断如果是填航空仓订单则直接进行返回，不进行下面的下一跳校验 */
-        if (WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) {
-            chain.doFilter(request,chain);
-            return;
+        SysConfig funcConfig = sysConfigService.findConfigContentByConfigName(AIR_WAYBILL_ROUTE_CHECK_SWITCH);
+        if(Objects.nonNull(funcConfig) && StringUtils.isNotBlank(funcConfig.getConfigContent())) {
+            /* 判断如果是填航空仓订单则直接进行返回，不进行下面的下一跳校验 */
+            if (WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) {
+                chain.doFilter(request,chain);
+                return;
+            }
         }
 
         //发货目的地为德邦虚拟分拣中心的不校验
