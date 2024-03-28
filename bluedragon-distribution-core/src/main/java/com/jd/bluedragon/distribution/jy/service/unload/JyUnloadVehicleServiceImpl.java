@@ -1061,7 +1061,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         callbackReqDto.setBarCode(request.getBarCode());
         if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())){
             callbackReqDto.setScanType(Constants.NUMBER_ONE);
-        }else if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())){
+        }else if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
             callbackReqDto.setScanType(Constants.NUMBER_TWO);
         }else {
             //兜底，默认扫描逻辑
