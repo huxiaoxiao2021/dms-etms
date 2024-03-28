@@ -207,9 +207,15 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_TKS_FLAG = "T";
     /**
-     * 产品名-特惠送
+     * 产品名-京东标快
      */
-    public static final String PRODUCT_NAME_THS = "特惠送";
+    public static final String PRODUCT_NAME_JDBK = "京东标快";
+
+    /**
+     * 产品名-京东标快次晨
+     */
+    public static final String PRODUCT_NAME_BK_CC= "标快次晨";
+
     /**
      * 产品名-函速达
      */
@@ -227,9 +233,9 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_CJJR = "城际即日";
     /**
-     * 产品名-生鲜特惠
+     * 产品名-生鲜标快
      */
-    public static final String PRODUCT_NAME_SXTH = "生鲜特惠";
+    public static final String PRODUCT_NAME_SXTH = "生鲜标快";
     /**
      * 产品名-生鲜特快
      */
@@ -249,17 +255,17 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_SXZS = "生鲜专送";
     /**
-     * 产品名-特快送
+     * 产品名-京东特快
      */
-    public static final String PRODUCT_NAME_TKS = "特快送";
+    public static final String PRODUCT_NAME_TKS = "京东特快";
     /**
-     * 产品名-特快送即日
+     * 产品名-特快即日
      */
-    public static final String PRODUCT_NAME_TKSJR = "特快送即日";
+    public static final String PRODUCT_NAME_TKSJR = "特快即日";
     /**
-     * 产品名-特快送次晨
+     * 产品名-特快次晨
      */
-    public static final String PRODUCT_NAME_TKSCC = "特快送次晨";
+    public static final String PRODUCT_NAME_TKSCC = "特快次晨";
     /**
      * 产品名-京准达
      */
