@@ -18,7 +18,7 @@ public class StevedoringMerchant implements Serializable {
     /**
      * 装卸商名称
      */
-    private Long merchantName;
+    private String merchantName;
 
     public String getMerchantCode() {
         return merchantCode;
@@ -28,11 +28,11 @@ public class StevedoringMerchant implements Serializable {
         this.merchantCode = merchantCode;
     }
 
-    public Long getMerchantName() {
+    public String getMerchantName() {
         return merchantName;
     }
 
-    public void setMerchantName(Long merchantName) {
+    public void setMerchantName(String merchantName) {
         this.merchantName = merchantName;
     }
 }
