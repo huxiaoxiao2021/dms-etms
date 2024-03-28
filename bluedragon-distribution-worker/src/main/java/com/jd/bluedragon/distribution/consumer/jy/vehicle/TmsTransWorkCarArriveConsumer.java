@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
@@ -17,7 +17,6 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
-import com.jd.tms.jdi.dto.CommonDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -25,11 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -60,6 +57,9 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.tmsTransWorkCarArriveConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -103,6 +103,11 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             //不存在因无封车编码  无法继续创建任务 部分数据需要进入重试队列等待重试
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 不存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
+            }
+            // 由于B2B类型的派车任务不封车也不解封车，为了避免大量无效调用运输接口，此处将B2B类型过滤掉
+            if (sysConfigService.getStringListConfig(Constants.TMS_ARRIVE_B2B_BUSINESS_TYPE).contains(String.valueOf(mqBody.getBusinessType()))) {
+                logger.warn("TmsTransWorkCarArriveConsumer|B2B业务类型执行到达状态,不存在对应卸车任务,丢弃:{}", JsonHelper.toJson(mqBody));
+                return;
             }
             //获取派车任务对应数据的目的地类型，如果是分拣的则进入重试，反之直接丢弃
             BigQueryOption queryOption = new BigQueryOption();
@@ -158,6 +163,11 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
          */
         private Integer operateType;
 
+        /**
+         * 业务类型
+         */
+        private Integer businessType;
+
         public String getTransWorkItemCode() {
             return transWorkItemCode;
         }
@@ -180,6 +190,14 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
         public void setOperateType(Integer operateType) {
             this.operateType = operateType;
+        }
+
+        public Integer getBusinessType() {
+            return businessType;
+        }
+
+        public void setBusinessType(Integer businessType) {
+            this.businessType = businessType;
         }
     }
 }
