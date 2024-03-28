@@ -291,7 +291,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
         // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)
         if (exceedOverPeriod(request, sealCarDto)) {
-            throw new JyBizException("601-距离解封车已超过6小时，禁止提交评价");
+            throw new JyBizException("距离解封车已超过6小时，禁止提交评价");
         }
 
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
