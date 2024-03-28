@@ -2056,6 +2056,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是围板箱
+     * @param materialCode
+     * @return
+     */
+    public static boolean isPalletBoxCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return (materialCode.toUpperCase().startsWith(COLLECTION_AD02_PREFIX) && materialCode.length() == 16);
+    }
+
+    /**
      * 判断是否无人车配送，sendpay第307位=1
      *
      * @param sendPay

@@ -51,6 +51,16 @@ public class JyBizTaskCollectPackageQuery implements Serializable {
 
     private String updateUserName;
 
+    private List<String> supportBoxTypes;
+
+    public List<String> getSupportBoxTypes() {
+        return supportBoxTypes;
+    }
+
+    public void setSupportBoxTypes(List<String> supportBoxTypes) {
+        this.supportBoxTypes = supportBoxTypes;
+    }
+
     public int getOffset() {
         return offset;
     }

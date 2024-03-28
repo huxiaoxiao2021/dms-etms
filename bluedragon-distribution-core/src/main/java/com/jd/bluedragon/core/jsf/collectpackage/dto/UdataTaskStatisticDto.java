@@ -13,5 +13,12 @@ public class UdataTaskStatisticDto {
     private Integer forceNum;
     private Integer scannedNum;
     private Integer totalNum;
+    private Integer interceptPackageNum;
+    private Integer interceptBoxNum;
+    private Integer forcePackageNum;
+    private Integer forceBoxNum;
+    private Integer scannedPackageNum;
+    private Integer scannedBoxNum;
+
 
 }

@@ -82,4 +82,11 @@ public interface JyBizTaskCollectPackageService {
      * @return
      */
     boolean createTaskAndFlowInfo(JyBizTaskCollectPackageEntity newTask, JyBizTaskCollectPackageEntity oldTask);
+
+
+    /**
+     * 删除集包操作记录 jy_collect_package
+     * @param dto
+     */
+    void deleteJyCollectPackageRecord(CancelCollectPackageDto dto);
 }

@@ -251,7 +251,7 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         return conf;
     }
 
-    private void deleteJyCollectPackageRecord(CancelCollectPackageDto dto) {
+    public void deleteJyCollectPackageRecord(CancelCollectPackageDto dto) {
         JyCollectPackageEntity query = new JyCollectPackageEntity();
         query.setBizId(dto.getBizId());
         query.setBoxCode(dto.getBoxCode());

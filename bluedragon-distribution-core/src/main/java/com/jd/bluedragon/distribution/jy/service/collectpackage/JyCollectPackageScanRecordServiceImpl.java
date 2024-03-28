@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.jy.dao.collectpackage.JyCollectPackageDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class JyCollectPackageScanRecordServiceImpl implements JyCollectPackageScanRecordService{
 
@@ -23,5 +25,10 @@ public class JyCollectPackageScanRecordServiceImpl implements JyCollectPackageSc
     @Override
     public JyCollectPackageEntity queryJyCollectPackageRecord(JyCollectPackageEntity query) {
         return jyCollectPackageDao.queryJyCollectPackageRecord(query);
+    }
+
+    @Override
+    public List<JyCollectPackageEntity> listJyCollectPackageRecord(JyCollectPackageEntity query) {
+        return jyCollectPackageDao.listJyCollectPackageRecord(query);
     }
 }

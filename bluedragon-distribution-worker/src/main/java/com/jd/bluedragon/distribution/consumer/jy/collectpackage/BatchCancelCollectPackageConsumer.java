@@ -1,16 +1,25 @@
 package com.jd.bluedragon.distribution.consumer.jy.collectpackage;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.collectpackage.request.CancelCollectPackageReq;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.collectNew.JyScanCollectMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.BatchCancelCollectPackageMqDto;
 import com.jd.bluedragon.distribution.jy.dto.collectpackage.CancelCollectPackageDto;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
+import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +31,10 @@ public class BatchCancelCollectPackageConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
+
+    @Autowired
+    @Qualifier("jyCollectPackageService")
+    JyCollectPackageService jyCollectPackageService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -43,11 +56,38 @@ public class BatchCancelCollectPackageConsumer extends MessageBaseConsumer {
         }
 
         if (CollectionUtils.isNotEmpty(mqBody.getPackageCodeList())){
-            for (String packageCode:mqBody.getPackageCodeList()){
-                CancelCollectPackageDto cancelCollectPackageDto =assembleCancelCollectPackageDto(packageCode,mqBody);
-                jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+            for (String barCode:mqBody.getPackageCodeList()){
+                if (WaybillUtil.isPackageCode(barCode)){
+                    CancelCollectPackageDto cancelCollectPackageDto =assembleCancelCollectPackageDto(barCode,mqBody);
+                    jyBizTaskCollectPackageService.cancelJyCollectPackage(cancelCollectPackageDto);
+                }else if (BusinessUtil.isBoxcode(barCode)){
+                    CancelCollectPackageReq cancelCollectBox =assembleCancelCollectBoxDto(mqBody,barCode);
+                    jyCollectPackageService.execCancelCollectBox(cancelCollectBox, null);
+                }else {
+                    log.info("BatchCancelCollectPackageConsumer data error unsupport box type:{}",message.getText());
+                }
             }
         }
+    }
+
+    private CancelCollectPackageReq assembleCancelCollectBoxDto(BatchCancelCollectPackageMqDto mqBody, String barCode) {
+        CancelCollectPackageReq req =new CancelCollectPackageReq();
+        req.setBarCode(barCode);
+        req.setBoxCode(mqBody.getBoxCode());
+        req.setBizId(mqBody.getBizId());
+
+        CurrentOperate currentOperate =new CurrentOperate();
+        currentOperate.setSiteCode(mqBody.getSiteCode());
+        currentOperate.setSiteName(mqBody.getSiteName());
+        req.setCurrentOperate(currentOperate);
+
+        User user =new User();
+        user.setUserErp(mqBody.getUpdateUserErp());
+        user.setUserName(mqBody.getUpdateUserName());
+        user.setUserCode(mqBody.getUpdateUserCode());
+        req.setUser(user);
+
+        return req;
     }
 
     private CancelCollectPackageDto assembleCancelCollectPackageDto(String packageCode, BatchCancelCollectPackageMqDto request) {

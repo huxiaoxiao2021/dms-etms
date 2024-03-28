@@ -59,7 +59,7 @@ public interface JyCollectPackageService {
      * @param request
      * @return
      */
-    InvokeResult bindCollectBag(BindCollectBagReq request);
+    InvokeResult<BindCollectBagResp> bindCollectBag(BindCollectBagReq request);
 
     /**
      *  取消集包：把包裹从箱子里取出
@@ -117,4 +117,12 @@ public interface JyCollectPackageService {
      * @return
      */
     InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
+
+
+    /**
+     * 执行取消集箱
+     * @param request
+     * @param response
+     */
+    void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response);
 }

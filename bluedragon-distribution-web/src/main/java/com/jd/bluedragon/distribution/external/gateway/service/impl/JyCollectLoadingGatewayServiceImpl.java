@@ -6,11 +6,13 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.constants.BoxTypePositionMappingEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyCollectLoadingGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -26,6 +28,8 @@ import java.util.List;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_FAIL;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_THIRD_ERROR_CODE;
+import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
 @Slf4j
 @UnifiedExceptionProcess
@@ -42,7 +46,8 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
         //扫描AL循环物资码
         if (BusinessUtil.isLLBoxBindingCollectionBag(request.getBarCode())) {
             BindCollectBagReq bindCollectBagReq = assembleBindCollectBagReq(request);
-            return retJdCResponse(jyCollectPackageService.bindCollectBag(bindCollectBagReq));
+            InvokeResult<BindCollectBagResp> rs =jyCollectPackageService.bindCollectBag(bindCollectBagReq);
+            return converBindRespToCollectResp(rs);
         }
         //扫描包裹号
         else if (WaybillUtil.isPackageCode(request.getBarCode())){
@@ -55,6 +60,15 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
         //其他
         else {
             return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
+        }
+    }
+
+    private  JdCResponse converBindRespToCollectResp(InvokeResult<BindCollectBagResp> rs) {
+        if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE == rs.getCode() && ObjectHelper.isNotNull(rs.getData()) ){
+            CollectPackageResp collectPackageResp = BeanUtils.copy(rs.getData(),CollectPackageResp.class);
+            return new JdCResponse(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, collectPackageResp);
+        }else {
+            return new JdCResponse(rs.getCode(), rs.getMessage());
         }
     }
 
@@ -84,6 +98,7 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
     @Override
     public JdCResponse<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
         try {
+            request.setSupportBoxTypes(BoxTypePositionMappingEnum.COLLECT_LOADING.getSupportBoxTypes());
             return retJdCResponse(jyCollectPackageService.listCollectPackageTask(request));
         } catch (Exception e) {
             log.error("集包任务列表查询异常{}", JsonHelper.toJson(request), e);
@@ -94,6 +109,7 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
     @Override
     public JdCResponse<CollectPackageTaskResp> searchPackageTask(SearchPackageTaskReq request) {
         try {
+            request.setSupportBoxTypes(BoxTypePositionMappingEnum.COLLECT_LOADING.getSupportBoxTypes());
             return retJdCResponse(jyCollectPackageService.searchPackageTask(request));
         } catch (Exception e) {
             log.error("集包任务检索异常{}", JsonHelper.toJson(request), e);
@@ -130,6 +146,12 @@ public class JyCollectLoadingGatewayServiceImpl implements JyCollectLoadingGatew
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.cancelCollectPackage", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CancelCollectPackageResp> cancelCollectPackage(CancelCollectPackageReq request) {
         try {
+            if (request.getCancelBindFlag() && BusinessUtil.isBoxcode(request.getBarCode())){
+                return retJdCResponse(jyCollectPackageService.cancelCollectBox(request));
+            }
+            else if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
+                return retJdCResponse(jyCollectPackageService.cancelCollectBox(request));
+            }
             return retJdCResponse(jyCollectPackageService.cancelCollectPackage(request));
         } catch (JyBizException e) {
             if (ObjectHelper.isNotNull(e.getCode())) {
