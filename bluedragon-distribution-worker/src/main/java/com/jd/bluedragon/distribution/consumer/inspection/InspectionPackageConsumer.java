@@ -239,7 +239,6 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
             extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_TWO);
         }else {
-            tWaybillStatus.setRemark(String.format(TRACE_INSPECTION_REMARK, tWaybillStatus.getCreateSiteName()));
             extendParamMap.put(OPERATE_DESC_KEY, String.format(TRACE_INSPECTION_REMARK, tWaybillStatus.getCreateSiteName()));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ZERO);
         }
