@@ -189,8 +189,12 @@ public class WeightAndVolumeGatewayServiceImpl implements WeightAndVolumeGateway
             response.toFail("操作场地为空！");
             return false;
         }
+        if(request.getOperatorId() == null){
+            response.toFail("操作人ID不能为空！");
+            return false;
+        }
         if(StringUtils.isBlank(request.getOperatorCode())){
-            response.toFail("操作人为空！");
+            response.toFail("操作人erp不能为空！");
             return false;
         }
         return true;
