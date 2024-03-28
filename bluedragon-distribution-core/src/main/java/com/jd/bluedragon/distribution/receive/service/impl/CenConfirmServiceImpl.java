@@ -173,7 +173,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			cenConfirm.setOperatorId(inspection.getOperatorId());
 			cenConfirm.setOperatorData(inspection.getOperatorData());
 			cenConfirm.setOperateFlowId(inspection.getOperateFlowId());
-			cenConfirm.setBizSource(inspection.getBizSource());
 		} else {
 			// 收货表中只抽取大件包裹数据
 			cenConfirm

@@ -185,6 +185,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         inspection.setOperatorId(packageMQ.getOperatorId());
         inspection.setOperatorTypeCode(packageMQ.getOperatorTypeCode());
         inspection.setOperateFlowId(packageMQ.getOperateFlowId());
+        inspection.setBizSource(packageMQ.getBizSource());
         return inspection;
     }
 
@@ -213,7 +214,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
         else {
             WaybillStatus tWaybillStatus = cenConfirmService.createWaybillStatus(cenConfirm, bDto, rDto);
-            setRemarkAndExtendParamMap(tWaybillStatus, cenConfirm);
+            setRemarkAndExtendParamMap(tWaybillStatus, cenConfirm, record);
             if (cenConfirmService.checkFormat(tWaybillStatus, cenConfirm.getType())) {
                 // 添加到task表
                 taskService.add(cenConfirmService.toTask(tWaybillStatus, cenConfirm.getOperateType()));
@@ -226,15 +227,15 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
     }
 
-    private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm) {
+    private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm, Inspection record) {
         Map<String, Object> extendParamMap =  tWaybillStatus.getExtendParamMap();
         if (Objects.isNull(extendParamMap)) {
             extendParamMap = new HashMap<>();
         }
-        if (ELECTRONIC_FENCE.getCode().equals(cenConfirm.getBizSource())) {
+        if (ELECTRONIC_FENCE.getCode().equals(record.getBizSource())) {
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ONE);
             extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK, StringUtils.isEmpty(cenConfirm.getVehicleNumber())? "" : cenConfirm.getVehicleNumber()));
-        }else if (ELECTRONIC_GATEWAY.getCode().equals(cenConfirm.getBizSource())) {
+        }else if (ELECTRONIC_GATEWAY.getCode().equals(record.getBizSource())) {
             String boxCodeStr = getBoxCodeStr(cenConfirm.getPackageBarcode());
             extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_TWO);
