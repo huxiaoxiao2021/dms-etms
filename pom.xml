@@ -331,7 +331,7 @@
 			<dependency>
 				<groupId>com.jdl.express.collect</groupId>
 				<artifactId>jdl-express-collect-api</artifactId>
-				<version>1.5-jdk7-SNAPSHOT</version>
+				<version>1.22-TEST-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
