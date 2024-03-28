@@ -43,7 +43,7 @@ public class RouterFilter implements Filter {
     private static final String RULE_ROUTER = "1122";
     private static final String SWITCH_ON = "1";
 
-    //非空即为开启
+    //非空即为开启,走错发校验
     private static final String AIR_WAYBILL_ROUTE_CHECK_SWITCH = "air.waybill.route.check.switch";
 
     @Autowired
@@ -64,7 +64,7 @@ public class RouterFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         SysConfig funcConfig = sysConfigService.findConfigContentByConfigName(AIR_WAYBILL_ROUTE_CHECK_SWITCH);
-        if(Objects.nonNull(funcConfig) && StringUtils.isNotBlank(funcConfig.getConfigContent())) {
+        if(Objects.nonNull(funcConfig) || StringUtils.isBlank(funcConfig.getConfigContent())) {
             /* 判断如果是填航空仓订单则直接进行返回，不进行下面的下一跳校验 */
             if (WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) {
                 chain.doFilter(request,chain);

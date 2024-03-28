@@ -1086,7 +1086,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
 
         if(CollectionUtils.isEmpty(resEntityList)) {
             logWarn("接货仓发货岗该单据{}匹配流向为{}，未匹配到混扫任务,request={}", request.getBarCode(), JsonHelper.toJson(nextSiteIdList), JsonHelper.toJson(request));
-            BaseStaffSiteOrgDto nextSite = this.getImpossibleNextSite(nextSiteIdList);
+            BaseStaffSiteOrgDto nextSite = this.getPossibleNextSite(nextSiteIdList);
             if(Objects.nonNull(nextSite)) {
                 Integer lastForceSendNextSite = this.getLastForceSendNextSite(request, nextSite.getSiteCode());
                 if(Objects.nonNull(lastForceSendNextSite)) {
@@ -1179,7 +1179,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param endSiteIdList
      * @return
      */
-    private BaseStaffSiteOrgDto getImpossibleNextSite(List<Integer> endSiteIdList) {
+    private BaseStaffSiteOrgDto getPossibleNextSite(List<Integer> endSiteIdList) {
         if(CollectionUtils.isEmpty(endSiteIdList)) {
             return null;
         }
