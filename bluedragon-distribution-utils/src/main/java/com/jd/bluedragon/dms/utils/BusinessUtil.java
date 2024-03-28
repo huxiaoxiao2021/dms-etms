@@ -3201,4 +3201,14 @@ public class BusinessUtil {
         }
         return false;
     }
+
+    /**
+     * 判断是否是快递直送分拣
+     * 
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDirectDeliverySort(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
+    }
 }

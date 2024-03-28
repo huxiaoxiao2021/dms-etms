@@ -53,6 +53,11 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
     }
 
     @Override
+    public PackageWeighting queryPackWeightFlowRecentDetail(String waybillCode, String packageCode, List<Integer> businessTypes) {
+        return packageWeightingDao.queryPackWeightFlowRecentDetail(waybillCode, packageCode, businessTypes);
+    }
+
+    @Override
     public List<PackageWeighting> findWaybillWeightFlow(String waybillCode, List<Integer> businessTypes) {
        return packageWeightingDao.findWaybillWeightFlow(waybillCode, businessTypes);
     }
