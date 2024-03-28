@@ -2978,13 +2978,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
         if (Objects.equals(SendVehicleScanTypeEnum.SCAN_BOARD.getCode(), request.getBarCodeType())) {
-            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOARD_CODE.getCode(), barCodeType.getCode())) {
-                response.toFail("请扫描包裹号或运单号或板号！");
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOARD_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或板号！");
                 return false;
             }
-            //按板并扫描的是包裹号或运单号
-            if (Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) || Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
-                // 根据包裹号或运单号找到板号
+            //按板并扫描的是包裹号
+            if (Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
+                // 根据包裹号找到板号
                 Board boardResult = virtualBoardJsfManager.getBoardByBarCode(request.getBarCode(), siteCode);
                 if(boardResult == null || StringUtils.isBlank(boardResult.getCode())) {
                     response.toFail("根据包裹或运单号未找到对应板数据");
