@@ -78,6 +78,14 @@ public class SendScanCallbackReqDto implements Serializable {
      */
     private Boolean forceSubmit;
 
+    /**
+     * 装卸商编码
+     */
+    private String merchantCode;
+    /**
+     * 装卸商名称
+     */
+    private Long merchantName;
 
     //==================================
 
@@ -199,5 +207,21 @@ public class SendScanCallbackReqDto implements Serializable {
 
     public void setForceSubmit(Boolean forceSubmit) {
         this.forceSubmit = forceSubmit;
+    }
+
+    public String getMerchantCode() {
+        return merchantCode;
+    }
+
+    public void setMerchantCode(String merchantCode) {
+        this.merchantCode = merchantCode;
+    }
+
+    public Long getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(Long merchantName) {
+        this.merchantName = merchantName;
     }
 }

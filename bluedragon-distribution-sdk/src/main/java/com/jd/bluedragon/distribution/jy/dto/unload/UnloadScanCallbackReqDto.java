@@ -65,6 +65,14 @@ public class UnloadScanCallbackReqDto implements Serializable {
      *操作时间
      */
     private Date operateTime;
+    /**
+     * 装卸商编码
+     */
+    private String merchantCode;
+    /**
+     * 装卸商名称
+     */
+    private Long merchantName;
 
     //==================================
 
@@ -170,5 +178,21 @@ public class UnloadScanCallbackReqDto implements Serializable {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMerchantCode() {
+        return merchantCode;
+    }
+
+    public void setMerchantCode(String merchantCode) {
+        this.merchantCode = merchantCode;
+    }
+
+    public Long getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(Long merchantName) {
+        this.merchantName = merchantName;
     }
 }
