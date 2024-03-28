@@ -91,6 +91,8 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
     public static final String  EXTEND_PARAM_KEY = "traceWriteType";
 
+    public static final String  OPERATE_DESC_KEY = "operateDesc";
+
     @Override
     public void consume(Message message) throws Exception {
 
@@ -230,16 +232,15 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
             extendParamMap = new HashMap<>();
         }
         if (ELECTRONIC_FENCE.getCode().equals(cenConfirm.getBizSource())) {
-            tWaybillStatus.setRemark(
-                    String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK,
-                            StringUtils.isEmpty(cenConfirm.getVehicleNumber())? "" : cenConfirm.getVehicleNumber()));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ONE);
+            extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK, StringUtils.isEmpty(cenConfirm.getVehicleNumber())? "" : cenConfirm.getVehicleNumber()));
         }else if (ELECTRONIC_GATEWAY.getCode().equals(cenConfirm.getBizSource())) {
             String boxCodeStr = getBoxCodeStr(cenConfirm.getPackageBarcode());
-            tWaybillStatus.setRemark(String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
+            extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_TWO);
         }else {
             tWaybillStatus.setRemark(String.format(TRACE_INSPECTION_REMARK, tWaybillStatus.getCreateSiteName()));
+            extendParamMap.put(OPERATE_DESC_KEY, String.format(TRACE_INSPECTION_REMARK, tWaybillStatus.getCreateSiteName()));
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ZERO);
         }
     }
