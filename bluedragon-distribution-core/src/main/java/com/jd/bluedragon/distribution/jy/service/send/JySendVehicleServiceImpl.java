@@ -1923,7 +1923,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private SendScanCallbackReqDto transferDto(SendScanRequest request) {
         SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
-        callbackReqDto.setBarCodeType(request.getBarCodeType());
+        if(Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType())){
+            callbackReqDto.setBarCodeType(Constants.NUMBER_ONE);
+        }else if(Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())){
+            callbackReqDto.setBarCodeType(Constants.NUMBER_TWO);
+        }else{
+            //兜底
+            callbackReqDto.setBarCodeType(request.getBarCodeType());
+        }
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
