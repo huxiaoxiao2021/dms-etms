@@ -84,6 +84,14 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      * 装车评价结果消息业务key
      */
     private static final String EVALUATE_RESULT_BUSINESS_KEY = "RESULT";
+    /**
+     * 提交装车评价-锁前缀
+     */
+    private static final String SUBMIT_APPEAL_LOCK = "SUBMIT_APPEAL_LOCK";
+    /**
+     * 审核装车评价-锁前缀
+     */
+    private static final String CHECK_APPEAL_LOCK = "CHECK_APPEAL_LOCK";
 
     /**
      * 根据条件获取评价记录申诉列表
@@ -139,7 +147,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         }
         try {
             // 获取锁
-            if (!lock(addDto.getTargetBizId())) {
+            if (!lock(SUBMIT_APPEAL_LOCK + addDto.getTargetBizId())) {
                 response.toError("多人同时申诉该评价，请稍后重试！");
                 response.setData(Boolean.FALSE);
                 return response;
@@ -164,7 +172,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             response.setData(Boolean.FALSE);
             return response;
         }finally {
-            unLock(addDto.getTargetBizId());
+            unLock(SUBMIT_APPEAL_LOCK + addDto.getTargetBizId());
         }
         response.setData(Boolean.TRUE);
         return response;
@@ -184,6 +192,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         targetResultDto.setTargetBizId(jyEvaluateRecordAppealDto.getTargetBizId());
         targetResultDto.setSourceBizId(jyEvaluateRecordAppealDto.getSourceBizId());
         targetResultDto.setAppealStatus(Constants.CONSTANT_NUMBER_TWO);
+        targetResultDto.setFirstEvaluate(Boolean.FALSE);
         evaluateTargetResultProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetResultDto));
     }
 
@@ -319,7 +328,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         }
         try {
             // 获取锁
-            if (!lock(res.getTargetBizId())) {
+            if (!lock(CHECK_APPEAL_LOCK + res.getTargetBizId())) {
                 response.toError("多人同时审核该评价的申诉，请稍后重试");
                 response.setData(Boolean.FALSE);
                 return response;
@@ -361,7 +370,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                 e);
             return response;
         } finally {
-            unLock(res.getTargetBizId());
+            unLock(CHECK_APPEAL_LOCK + res.getTargetBizId());
         }
         response.setData(Boolean.TRUE);
         return response;

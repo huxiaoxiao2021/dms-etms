@@ -215,7 +215,7 @@
     <select id="queryByCondition" parameterType="java.lang.Integer" resultMap="jyEvaluateAppealPermissionsMap">
         select <include refid="Base_Column_List" />
         from jy_evaluate_appeal_permissions
-        WHERE yn = 1 and site_code = #{siteCode}
+        WHERE yn = 1 and site_code = #{siteCode} limit 1
     </select>
 
     <update id="updateAppealStatusById"
