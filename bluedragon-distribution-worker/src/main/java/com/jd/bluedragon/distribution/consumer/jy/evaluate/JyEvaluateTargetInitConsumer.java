@@ -151,6 +151,8 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
             targetResultDto.setTargetStartTime(targetScheduleTask.getTaskStartTime());
             targetResultDto.setTargetFinishTime(targetScheduleTask.getTaskEndTime());
         }
+        // 评价申诉状态初始化 1 -未申诉
+        targetResultDto.setAppealStatus(Constants.NUMBER_ONE);
         return targetResultDto;
     }
 
@@ -244,16 +246,17 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
             targetResultDto.setStatus(EVALUATE_STATUS_DISSATISFIED);
             targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
         }
-        // 申诉之后，如果isSatisfied不为空，评价是否满意以isSatisfied为最终结果。
-        if (Objects.nonNull(targetInitDto.getIsSatisfied()) &&
-            Objects.equals(targetInitDto.getIsSatisfied(), EVALUATE_STATUS_SATISFIED)){
-            targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
-        }
         // 申诉之后，dimensionCodeList不为空，移除targetResultDto.setDimensionCode的code
         if (CollectionUtils.isNotEmpty(targetInitDto.getDimensionCodeList())
         && CollectionUtils.isNotEmpty(dimensionCodeList)){
             dimensionCodeList.removeIf(targetInitDto.getDimensionCodeList()::contains);
             targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+        }
+        // 申诉之后，如果isSatisfied不为空，评价是否满意以isSatisfied为最终结果。
+        if (Objects.nonNull(targetInitDto.getIsSatisfied()) &&
+            Objects.equals(targetInitDto.getIsSatisfied(), EVALUATE_STATUS_SATISFIED)){
+            targetResultDto.setStatus(EVALUATE_STATUS_SATISFIED);
+            targetResultDto.setDimensionCode("");
         }
         targetResultDto.setEvaluateUserErp(String.join(Constants.SEPARATOR_COMMA, erpList));
         targetResultDto.setImgCount(imgCount);

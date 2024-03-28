@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordAppealDao;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
+import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetResultDto;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealResultStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealStatusEnum;
 import com.jd.bluedragon.distribution.jy.evaluate.*;
@@ -65,6 +66,10 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
+    @Autowired
+    @Qualifier("evaluateTargetResultProducer")
+    private DefaultJMQProducer evaluateTargetResultProducer;
+
     /**
      * 装车评价初始化消息业务key
      */
@@ -75,6 +80,10 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      */
     public static final String EVALUATE_APPEAL_LOCK_ = "EVALUATE_APPEAL_LOCK_";
     private final static int LOCK_TIME = 60;
+    /**
+     * 装车评价结果消息业务key
+     */
+    private static final String EVALUATE_RESULT_BUSINESS_KEY = "RESULT";
 
     /**
      * 根据条件获取评价记录申诉列表
@@ -147,7 +156,8 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             // 保存申诉上传的图片
             List<JyAttachmentDetailEntity> annexList = buildJyAttachmentDetailEntityList(dtoList);
             jyAttachmentDetailService.batchInsert(annexList);
-            response.setData(Boolean.TRUE);
+            // 发送mq消息，同步评价状态（未申诉->已申诉）
+            sendMqUpdateStatus(dtoList);
         } catch (Exception e) {
             log.error("JyEvaluateAppealServiceImpl.batchAddJyEvaluateRecordAppeal 批量插入装车评价申诉数据异常", e);
             response.toError("批量插入装车评价申诉数据异常！");
@@ -158,6 +168,23 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         }
         response.setData(Boolean.TRUE);
         return response;
+    }
+
+    /**
+     * 发送MQ更新状态
+     * @param dtoList 评价记录申诉DTO列表
+     * @throws
+     */
+    private void sendMqUpdateStatus(List<JyEvaluateRecordAppealDto> dtoList) {
+        // 发送报表消息
+        JyEvaluateRecordAppealDto jyEvaluateRecordAppealDto = dtoList.get(0);
+        String businessId = jyEvaluateRecordAppealDto.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_RESULT_BUSINESS_KEY
+            + Constants.UNDER_LINE + System.currentTimeMillis();
+        EvaluateTargetResultDto targetResultDto = new EvaluateTargetResultDto();
+        targetResultDto.setTargetBizId(jyEvaluateRecordAppealDto.getTargetBizId());
+        targetResultDto.setSourceBizId(jyEvaluateRecordAppealDto.getSourceBizId());
+        targetResultDto.setAppealStatus(Constants.CONSTANT_NUMBER_TWO);
+        evaluateTargetResultProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetResultDto));
     }
 
     /**
