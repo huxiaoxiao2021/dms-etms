@@ -143,7 +143,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
             doOmeToWms(record);
 
             // 发送验货全流程跟踪
-            sendInspectionWaybillTrack(record);
+            sendInspectionWaybillTrack(record, packageMQ);
 
             // 推送冷链验货消息
             pushColdChainOperateMQ(record);
@@ -191,9 +191,11 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
     /**
      * 发送验货运单全流程跟踪
+     *
      * @param record
+     * @param packageMQ
      */
-    private void sendInspectionWaybillTrack(Inspection record) {
+    private void sendInspectionWaybillTrack(Inspection record, InspectionPackageMQ packageMQ) {
         BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(record.getCreateSiteCode());
 
         CenConfirm cenConfirm = cenConfirmService.commonGenCenConfirmFromInspection(record);
@@ -214,7 +216,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
         else {
             WaybillStatus tWaybillStatus = cenConfirmService.createWaybillStatus(cenConfirm, bDto, rDto);
-            setRemarkAndExtendParamMap(tWaybillStatus, cenConfirm, record);
+            setRemarkAndExtendParamMap(tWaybillStatus, cenConfirm, record, packageMQ);
             if (cenConfirmService.checkFormat(tWaybillStatus, cenConfirm.getType())) {
                 // 添加到task表
                 taskService.add(cenConfirmService.toTask(tWaybillStatus, cenConfirm.getOperateType()));
@@ -227,14 +229,14 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
     }
 
-    private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm, Inspection record) {
+    private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm, Inspection record, InspectionPackageMQ packageMQ) {
         Map<String, Object> extendParamMap =  tWaybillStatus.getExtendParamMap();
         if (Objects.isNull(extendParamMap)) {
             extendParamMap = new HashMap<>();
         }
         if (ELECTRONIC_FENCE.getCode().equals(record.getBizSource())) {
             extendParamMap.put(EXTEND_PARAM_KEY, INTEGER_ONE);
-            extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK, StringUtils.isEmpty(cenConfirm.getVehicleNumber())? "" : cenConfirm.getVehicleNumber()));
+            extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK, StringUtils.isEmpty(packageMQ.getVehicleNumber())? "" : packageMQ.getVehicleNumber()));
         }else if (ELECTRONIC_GATEWAY.getCode().equals(record.getBizSource())) {
             String boxCodeStr = getBoxCodeStr(cenConfirm.getPackageBarcode());
             extendParamMap.put(OPERATE_DESC_KEY, String.format(ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK, boxCodeStr));
