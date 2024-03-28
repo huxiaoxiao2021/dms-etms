@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * @author weixiaofeng12
+ * @description 查询集装统计数据能力
+ * @date 2024-03-11 17:56
+ */
 @Service("collectLoadingManger")
 @Slf4j
 public class CollectLoadingMangerImpl extends CollectPackageMangerImpl{
@@ -53,7 +57,7 @@ public class CollectLoadingMangerImpl extends CollectPackageMangerImpl{
         apiDataQueryRequest.setCurrPage(request.getPageNo());
         apiDataQueryRequest.setPageSize(request.getPageSize());
 
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>(8);
         params.put("bizId", request.getBizId());
         params.put("endSiteId",request.getEndSiteId());
         apiDataQueryRequest.setParams(params);

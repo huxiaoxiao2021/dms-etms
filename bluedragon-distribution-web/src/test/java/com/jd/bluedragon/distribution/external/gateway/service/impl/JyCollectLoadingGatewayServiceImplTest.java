@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.jy.enums.CollectPackageExcepScanEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyCollectLoadingGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * @author weixiaofeng12
+ * @description 集装岗单元测试类
+ * @date 2024-03-11 17:56
+ */
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
+@Slf4j
 public class JyCollectLoadingGatewayServiceImplTest {
 
     @Autowired
@@ -54,8 +61,8 @@ public class JyCollectLoadingGatewayServiceImplTest {
 
 
 
-        JdCResponse<CollectPackageResp> collectPackageRespJdCResponse = jyCollectPackageGatewayService.collectScan(collectPackageReq);
-        System.out.println(JsonHelper.toJson(collectPackageRespJdCResponse));
+        JdCResponse<CollectPackageResp> rs = jyCollectPackageGatewayService.collectScan(collectPackageReq);
+        log.info(JsonHelper.toJson(rs));
     }
 
 
@@ -79,8 +86,8 @@ public class JyCollectLoadingGatewayServiceImplTest {
 
 
 
-        JdCResponse<CollectPackageResp> collectPackageRespJdCResponse = jyCollectPackageGatewayService.collectScan(collectPackageReq);
-        System.out.println(JsonHelper.toJson(collectPackageRespJdCResponse));
+        JdCResponse<CollectPackageResp> rs = jyCollectPackageGatewayService.collectScan(collectPackageReq);
+        log.info(JsonHelper.toJson(rs));
     }
     @Test
     public void bindTags() {
@@ -104,8 +111,8 @@ public class JyCollectLoadingGatewayServiceImplTest {
 
 
 
-        JdCResponse<CollectPackageResp> collectPackageRespJdCResponse = jyCollectPackageGatewayService.collectScan(collectPackageReq);
-        System.out.println(JsonHelper.toJson(collectPackageRespJdCResponse));
+        JdCResponse<CollectPackageResp> rs = jyCollectPackageGatewayService.collectScan(collectPackageReq);
+        log.info(JsonHelper.toJson(rs));
     }
 
     @Test
@@ -129,8 +136,8 @@ public class JyCollectLoadingGatewayServiceImplTest {
 
 
 
-        JdCResponse<CancelCollectPackageResp> cancelCollectPackageRespJdCResponse = jyCollectPackageGatewayService.cancelCollectPackage(cancelCollectPackageReq);
-        System.out.println(JsonHelper.toJson(cancelCollectPackageRespJdCResponse));
+        JdCResponse<CancelCollectPackageResp> rs = jyCollectPackageGatewayService.cancelCollectPackage(cancelCollectPackageReq);
+        log.info(JsonHelper.toJson(rs));
     }
 
     @Test
@@ -147,7 +154,7 @@ public class JyCollectLoadingGatewayServiceImplTest {
         taskReq.setCurrentOperate(currentOperate);
         taskReq.setUser(user);
         JdCResponse<CollectPackageTaskResp> response = jyCollectPackageGatewayService.listCollectPackageTask(taskReq);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
 
     @Test
@@ -165,7 +172,7 @@ public class JyCollectLoadingGatewayServiceImplTest {
         taskReq.setUser(user);
         taskReq.setBarCode("BC1001231019260000413101");
         JdCResponse<CollectPackageTaskResp> response = jyCollectPackageGatewayService.searchPackageTask(taskReq);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
     
     @Test
@@ -174,7 +181,7 @@ public class JyCollectLoadingGatewayServiceImplTest {
         taskDetailReq.setBizId("JB23102300000004");
         taskDetailReq.setBarCode("BC1001231019260000403101");
         JdCResponse<TaskDetailResp> response = jyCollectPackageGatewayService.queryTaskDetail(taskDetailReq);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
 
     @Test
@@ -187,7 +194,7 @@ public class JyCollectLoadingGatewayServiceImplTest {
         sealingBoxDto.setBizId("JB23102300000004");
         list.add(sealingBoxDto);
         JdCResponse<SealingBoxResp> response = jyCollectPackageGatewayService.sealingBox(boxReq);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
 
 
@@ -241,9 +248,9 @@ public class JyCollectLoadingGatewayServiceImplTest {
 
         data.setCollectPackageFlowDtoList(collectPackageFlowDtoList);
 
-        JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
-        jdCResponse.setData(data);
-        System.out.println(JsonHelper.toJson(jdCResponse));
+        JdCResponse response =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
+        response.setData(data);
+        log.info(JsonHelper.toJson(response));
     }
 
     @Test
@@ -261,9 +268,9 @@ public class JyCollectLoadingGatewayServiceImplTest {
         collectPackageDtoList.add(collectPackageDto2);
 
 
-        JdCResponse jdCResponse =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
-        jdCResponse.setData(data);
-        System.out.println(JsonHelper.toJson(jdCResponse));
+        JdCResponse response =new JdCResponse(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS);
+        response.setData(data);
+        log.info(JsonHelper.toJson(response));
     }
 
     @Test
@@ -280,7 +287,7 @@ public class JyCollectLoadingGatewayServiceImplTest {
         req.setUser(user);
         req.setCurrentOperate(currentOperate);
         JdCResponse<MixFlowListResp> response = jyCollectPackageGatewayService.querySiteMixFlowList(req);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
 
     @Test
@@ -307,6 +314,6 @@ public class JyCollectLoadingGatewayServiceImplTest {
         collectPackageFlowDtoList.add(dto2);
         req.setCollectPackageFlowDtoList(collectPackageFlowDtoList);
         JdCResponse<UpdateMixFlowListResp> response = jyCollectPackageGatewayService.updateTaskFlowList(req);
-        System.out.println(JsonHelper.toJson(response));
+        log.info(JsonHelper.toJson(response));
     }
 }

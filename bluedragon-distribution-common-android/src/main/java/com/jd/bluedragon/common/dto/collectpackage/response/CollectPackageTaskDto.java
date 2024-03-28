@@ -101,6 +101,33 @@ public class CollectPackageTaskDto implements Serializable {
      */
     private int materialType;
 
+
+    /**
+     * 任务目的地id
+     */
+    private Long endSiteId;
+
+    /**
+     * 任务目的地名称
+     */
+    private String endSiteName;
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
     public int getMaterialType(){
         return materialType;
     }
