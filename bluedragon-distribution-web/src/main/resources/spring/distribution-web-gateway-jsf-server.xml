@@ -746,4 +746,12 @@
                   ref="jyDirectDeliverySortCollectGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <bean id="jyCollectLoadingGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyCollectLoadingGatewayServiceImpl" />
+    <jsf:provider id="jsfJyCollectLoadingGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyCollectLoadingGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyCollectLoadingGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

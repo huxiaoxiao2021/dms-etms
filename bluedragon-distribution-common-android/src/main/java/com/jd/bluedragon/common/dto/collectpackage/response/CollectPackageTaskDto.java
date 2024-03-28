@@ -73,6 +73,101 @@ public class CollectPackageTaskDto implements Serializable {
      */
     private boolean hasBoundBoxFlag;
 
+
+    /**
+     * 已扫包裹数量
+     */
+    private Integer packageScanCount;
+
+    /**
+     * 已扫箱号数量
+     */
+    private Integer boxScanCount;
+
+
+    /**
+     * 拦截包裹数量
+     */
+    private Integer packageInterceptCount;
+
+    /**
+     * 拦截箱号数量
+     */
+    private Integer boxInterceptCount;
+
+
+    /**
+     * 箱号绑定的循环物资类型
+     */
+    private int materialType;
+
+
+    /**
+     * 任务目的地id
+     */
+    private Long endSiteId;
+
+    /**
+     * 任务目的地名称
+     */
+    private String endSiteName;
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public int getMaterialType(){
+        return materialType;
+    }
+
+    public void setMaterialType(int materialType) {
+        this.materialType = materialType;
+    }
+
+    public Integer getPackageScanCount() {
+        return packageScanCount;
+    }
+
+    public void setPackageScanCount(Integer packageScanCount) {
+        this.packageScanCount = packageScanCount;
+    }
+
+    public Integer getBoxScanCount() {
+        return boxScanCount;
+    }
+
+    public void setBoxScanCount(Integer boxScanCount) {
+        this.boxScanCount = boxScanCount;
+    }
+
+    public Integer getPackageInterceptCount() {
+        return packageInterceptCount;
+    }
+
+    public void setPackageInterceptCount(Integer packageInterceptCount) {
+        this.packageInterceptCount = packageInterceptCount;
+    }
+
+    public Integer getBoxInterceptCount() {
+        return boxInterceptCount;
+    }
+
+    public void setBoxInterceptCount(Integer boxInterceptCount) {
+        this.boxInterceptCount = boxInterceptCount;
+    }
+
     public boolean getHasBoundBoxFlag() {
         return hasBoundBoxFlag;
     }
