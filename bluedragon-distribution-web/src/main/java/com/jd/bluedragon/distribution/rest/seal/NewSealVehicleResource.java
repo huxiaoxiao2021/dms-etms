@@ -789,26 +789,27 @@ public class NewSealVehicleResource {
         if(CollectionUtils.isEmpty(successSealCarBatchCodes)) {
             return;
         }
-        String transportCode = request.getData().get(0).getTransportCode();
-
-        BatchCodeShuttleSealDto shuttleSealDto = new BatchCodeShuttleSealDto();
-        shuttleSealDto.setSuccessSealBatchCodeList(successSealCarBatchCodes);
-        shuttleSealDto.setOperateTime(new Date());
-        shuttleSealDto.setTransportCode(transportCode);
-        shuttleSealDto.setOperatorErp(StringUtils.isBlank(request.getUserErp()) ? Constants.SYS_DMS : request.getUserErp());
-        if(!Objects.isNull(request.getDmsSiteId())) {
-            shuttleSealDto.setOperateSiteId(request.getDmsSiteId());
-        }
         try{
-            jyAviationRailwaySendSealService.batchCodeShuttleSealMark(shuttleSealDto);
-        }catch (Exception ex) {
-            log.error("支线封车成功后触发修改航空干线封车支线已封标识失败，errMsg={},封车成功批次为{}，request={}",
-                    ex.getMessage(), JSONObject.toJSONString(successSealCarBatchCodes), JSONObject.toJSONString(request), ex);
+            String transportCode = request.getData().get(0).getTransportCode();
+
+            BatchCodeShuttleSealDto shuttleSealDto = new BatchCodeShuttleSealDto();
+            shuttleSealDto.setSuccessSealBatchCodeList(successSealCarBatchCodes);
+            shuttleSealDto.setOperateTime(new Date());
+            shuttleSealDto.setTransportCode(transportCode);
+            shuttleSealDto.setOperatorErp(StringUtils.isBlank(request.getUserErp()) ? Constants.SYS_DMS : request.getUserErp());
+            if(!Objects.isNull(request.getDmsSiteId())) {
+                shuttleSealDto.setOperateSiteId(request.getDmsSiteId());
+            }
+
             String msg = com.jd.bluedragon.utils.JsonHelper.toJson(shuttleSealDto);
             if(log.isInfoEnabled()) {
                 log.info("支线封车后处理空铁发货干线任务支线已封逻辑消息生产：businessId={},msg={}", transportCode, msg);
             }
             aviationRailwayShuttleSealProducer.sendOnFailPersistent(transportCode, msg);
+//            jyAviationRailwaySendSealService.batchCodeShuttleSealMark(shuttleSealDto);
+        }catch (Exception ex) {
+            log.error("支线封车成功后触发修改航空干线封车支线已封标识失败，errMsg={},封车成功批次为{}，request={}",
+                    ex.getMessage(), JSONObject.toJSONString(successSealCarBatchCodes), JSONObject.toJSONString(request), ex);
         }
     }
 
