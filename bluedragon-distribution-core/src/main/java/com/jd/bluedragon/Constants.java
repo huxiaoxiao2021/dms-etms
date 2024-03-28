@@ -921,6 +921,11 @@ public class Constants {
     public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
+     * 揽收终止原因配置
+     */
+    public static final String SYS_CONFIG_COLLECT_TERMINATE_REASON= "collect_terminate_reason";
+    
+    /**
      * 安卓菜单可用性配置
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
