@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
@@ -107,6 +109,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private PositionQueryJsfManager positionQueryJsfManager;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -572,11 +576,32 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
-        closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
-        // 当前异常上报只将任务状态修改为完成
-        boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
-        if (!success) {
-            log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
+
+        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(req.getBizId(), false);
+        if(Objects.isNull(entity)) {
+            ret.parameterError("提货任务不存在");
+            return ret;
+        }
+        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
+            if(PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+                ret.error("该任务已经完成，无需提报异常");
+                return ret;
+            }
+        }
+        if(PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+            jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
+        }
+
+        this.closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
+
+        String title = "空铁提货任务异常提报提醒";
+        String template = "航班号%s提货差异异常，待提件数、已提件数、多提件数，请尽快联系上游排查";
+        String content = String.format(template, req.getServiceNumber());
+        InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(req.getUser().getUserErp(), req.getPositionCode(), title, content);
+        if(!invokeResult.codeSuccess()) {
+            log.error("异常提报推送网格负责人失败,req={}, invokeResult={]", JSON.toJSONString(req), JSON.toJSONString(invokeResult));
+            ret.error("异常提报推送网格负责人失败");
+            return ret;
         }
         return ret;
     }
