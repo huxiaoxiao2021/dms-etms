@@ -1085,6 +1085,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 表示此单已经验过，不更新卸车扫描进度
             return;
         }
+        Integer pdaUnloadCount = dataResult.getScanPackCount();
         UnloadScanRequest request = unloadScanContextDto.getUnloadScanRequest();
         JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadScanContextDto.getTaskUnloadVehicle();
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(request.getBizId());
