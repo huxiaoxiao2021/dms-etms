@@ -10,12 +10,11 @@ import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordAppealDao;
-import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetInitDto;
+import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dto.evaluate.EvaluateTargetResultDto;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealResultStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.EvaluateAppealStatusEnum;
 import com.jd.bluedragon.distribution.jy.evaluate.*;
-import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailService;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -69,6 +68,9 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     @Autowired
     @Qualifier("evaluateTargetResultProducer")
     private DefaultJMQProducer evaluateTargetResultProducer;
+
+    @Autowired
+    private JyEvaluateRecordDao jyEvaluateRecordDao;
 
     /**
      * 装车评价初始化消息业务key
@@ -491,44 +493,52 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     }
 
     /**
-     * 更新ES数据
+     * 更新ES数据,通过mq
      *
      * @param res 评价记录申诉响应对象
      */
-    public void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
+    private void esDataUpdate(JyEvaluateRecordAppealRes res, JyEvaluateRecordAppealUpdateDto updatePassDto) {
         if (CollectionUtils.isEmpty(updatePassDto.getDimensionCodeList())) {
             return;
         }
-        EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
-        // 操作时间
-        targetInitDto.setOperateTime(System.currentTimeMillis());
-        // 操作人erp
-        targetInitDto.setOperateUserErp(res.getUpdateUserErp());
-        // 操作人姓名
-        targetInitDto.setOperateUserName(res.getUpdateUserName());
-        // 评价来源bizId
-        targetInitDto.setSourceBizId(res.getSourceBizId());
-        // 评价目标bizId
-        targetInitDto.setTargetBizId(res.getTargetBizId());
-        // 设置申诉通过的code空集合
-        List<String> codeList = new ArrayList<>();
-        for (Integer number : updatePassDto.getDimensionCodeList()) {
-            codeList.add(String.valueOf(number));
+        List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(res.getSourceBizId());
+        if (CollectionUtils.isEmpty(recordList)) {
+            return;
         }
-        targetInitDto.setDimensionCodeList(codeList);
+        EvaluateTargetResultDto targetResultDto = new EvaluateTargetResultDto();
+        targetResultDto.setTargetBizId(res.getTargetBizId());
+        targetResultDto.setSourceBizId(res.getSourceBizId());
+        targetResultDto.setFirstEvaluate(Boolean.FALSE);
+        // 设置申诉通过的code集合
+        // 设置申诉通过的code集合
+        List<String> codeList = updatePassDto.getDimensionCodeList().stream().
+            map(String::valueOf).collect(Collectors.toList());
         // 如果该评价的不满意项，全部申诉通过。评价变为满意
-        if (Objects.equals(res.getDimensionList().size(), updatePassDto.getDimensionCodeList().size())) {
+        if (Objects.equals(recordList.size(), codeList.size())) {
             // 评价满意
-            targetInitDto.setIsSatisfied(Constants.EVALUATE_STATUS_SATISFIED);
-
-        } else {
-            // 评价不满意
-            targetInitDto.setIsSatisfied(Constants.EVALUATE_STATUS_DISSATISFIED);
+            targetResultDto.setStatus(Constants.EVALUATE_STATUS_SATISFIED);
+            targetResultDto.setDimensionCode("");
         }
-        String businessId =
-            res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_INIT_BUSINESS_KEY + Constants.UNDER_LINE
-                + targetInitDto.getOperateTime();
-        evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
+        // 评价维度编码集合
+        List<String> dimensionCodeList = new ArrayList<>();
+        for (JyEvaluateRecordEntity evaluateRecord : recordList) {
+            // 评价维度编码
+            String dimensionCode = String.valueOf(evaluateRecord.getDimensionCode());
+            // 评价状态
+            Integer status = evaluateRecord.getEvaluateStatus();
+            // 只有不满意的记录才需要统计
+            if (Constants.EVALUATE_STATUS_DISSATISFIED.equals(status) &&
+                !codeList.contains(dimensionCode)) {
+                if (!dimensionCodeList.contains(dimensionCode)) {
+                    dimensionCodeList.add(dimensionCode);
+                }
+            }
+        }
+        targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+        String businessId = res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_RESULT_BUSINESS_KEY
+            + Constants.UNDER_LINE + System.currentTimeMillis();
+        log.info("JyEvaluateAppealServiceImpl.esDataUpdate 发送mq消息体：={}", JsonHelper.toJson(targetResultDto));
+        evaluateTargetResultProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetResultDto));
     }
 
     /**
