@@ -54,8 +54,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
-import static com.jd.bluedragon.distribution.api.response.BoxResponse.MESSAGE_NO_BOX_END_SITE;
-import static com.jd.bluedragon.distribution.api.response.BoxResponse.MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH;
+import static com.jd.bluedragon.distribution.api.response.BoxResponse.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
 import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.tcBoxEndSiteTypeCheck;
@@ -292,7 +291,7 @@ public class BoxResource {
         // BX 开头的箱号，目的地只能是 三方配送公司
         if (BoxTypeV2Enum.TYPE_BX.equals(boxType)
                 && !bxBoxEndSiteTypeCheck(siteInfo)) {
-            return new BoxResponse(BoxResponse.CODE_TC_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH);
+            return new BoxResponse(BoxResponse.CODE_BX_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_BX_BOX_END_SITE_TYPE_NOT_MATCH);
         }
         return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
     }
