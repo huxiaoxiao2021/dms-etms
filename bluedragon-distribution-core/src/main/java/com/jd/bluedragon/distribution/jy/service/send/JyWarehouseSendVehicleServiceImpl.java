@@ -1096,6 +1096,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     if(Objects.nonNull(forceSendDetailEntity)) {
                         List<Long> receiveSiteIdList = new ArrayList<>(Arrays.asList(nextSite.getSiteCode().longValue()));
                         request.getValidateIgnore().getValidateIgnoreRouterCondition().setReceiveSiteIdList(receiveSiteIdList);
+                        request.setForceSubmit(true);
+                        logInfo("包裹{}未匹配到混扫任务，查到上次存在强发流向为{}，触发强发,强发任务detailBizId={}", request.getBarCode(), lastForceSendNextSite, forceSendDetailEntity.getSendVehicleDetailBizId());
                         return forceSendDetailEntity;
                     }
                 }
