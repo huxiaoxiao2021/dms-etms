@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.BindCollectBagReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq;
 import com.jd.bluedragon.common.dto.collectpackage.request.SearchPackageTaskReq;
@@ -119,6 +119,12 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setJyCollectPackageFlag(false);
+        if (ObjectHelper.isNotNull(request.getCurrentOperate()) && ObjectHelper.isNotNull(request.getCurrentOperate().getOperatorData())) {
+            OperatorData operatorData = request.getCurrentOperate().getOperatorData();
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+        }
         return pdaOperateRequest;
     }
 
