@@ -502,41 +502,41 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
             return;
         }
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(res.getSourceBizId());
-        if (CollectionUtils.isEmpty(recordList)) {
-            return;
-        }
         EvaluateTargetResultDto targetResultDto = new EvaluateTargetResultDto();
         targetResultDto.setTargetBizId(res.getTargetBizId());
         targetResultDto.setSourceBizId(res.getSourceBizId());
         targetResultDto.setFirstEvaluate(Boolean.FALSE);
         // 设置申诉通过的code集合
-        // 设置申诉通过的code集合
-        List<String> codeList = updatePassDto.getDimensionCodeList().stream().
-            map(String::valueOf).collect(Collectors.toList());
-        // 如果该评价的不满意项，全部申诉通过。评价变为满意
-        if (Objects.equals(recordList.size(), codeList.size())) {
-            // 评价满意
+        List<String> codeList =
+            updatePassDto.getDimensionCodeList().stream().map(String::valueOf).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(recordList)){
             targetResultDto.setStatus(Constants.EVALUATE_STATUS_SATISFIED);
             targetResultDto.setDimensionCode("");
-        }
-        // 评价维度编码集合
-        List<String> dimensionCodeList = new ArrayList<>();
-        for (JyEvaluateRecordEntity evaluateRecord : recordList) {
-            // 评价维度编码
-            String dimensionCode = String.valueOf(evaluateRecord.getDimensionCode());
-            // 评价状态
-            Integer status = evaluateRecord.getEvaluateStatus();
-            // 只有不满意的记录才需要统计
-            if (Constants.EVALUATE_STATUS_DISSATISFIED.equals(status) &&
-                !codeList.contains(dimensionCode)) {
-                if (!dimensionCodeList.contains(dimensionCode)) {
-                    dimensionCodeList.add(dimensionCode);
+        }else {
+            // 评价维度编码集合
+            List<String> dimensionCodeList = new ArrayList<>();
+            for (JyEvaluateRecordEntity evaluateRecord : recordList) {
+                // 评价维度编码
+                String dimensionCode = String.valueOf(evaluateRecord.getDimensionCode());
+                // 评价状态
+                Integer status = evaluateRecord.getEvaluateStatus();
+                // 只有不满意的记录才需要统计
+                if (Constants.EVALUATE_STATUS_DISSATISFIED.equals(status) && !codeList.contains(dimensionCode)) {
+                    if (!dimensionCodeList.contains(dimensionCode)) {
+                        dimensionCodeList.add(dimensionCode);
+                    }
                 }
             }
+            targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
+            if (CollectionUtils.isEmpty(dimensionCodeList)){
+                targetResultDto.setStatus(Constants.EVALUATE_STATUS_SATISFIED);
+                targetResultDto.setDimensionCode("");
+            }
         }
-        targetResultDto.setDimensionCode(String.join(Constants.SEPARATOR_COMMA, dimensionCodeList));
-        String businessId = res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_RESULT_BUSINESS_KEY
-            + Constants.UNDER_LINE + System.currentTimeMillis();
+
+        String businessId =
+            res.getSourceBizId() + Constants.UNDER_LINE + EVALUATE_RESULT_BUSINESS_KEY + Constants.UNDER_LINE
+                + System.currentTimeMillis();
         log.info("JyEvaluateAppealServiceImpl.esDataUpdate 发送mq消息体：={}", JsonHelper.toJson(targetResultDto));
         evaluateTargetResultProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetResultDto));
     }
