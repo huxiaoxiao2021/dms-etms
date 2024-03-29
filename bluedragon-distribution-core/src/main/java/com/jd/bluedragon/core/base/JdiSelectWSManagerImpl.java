@@ -36,7 +36,7 @@ public class JdiSelectWSManagerImpl implements JdiSelectWSManager {
             }
             return jdiSelectWS.checkTransportCode(simpleCode, transportCode);
         }catch (Exception e){
-            logger.warn("根据派车任务明细简码:{}获取派车任务明细接口返回状态异常!", simpleCode);
+            logger.error("根据派车任务明细简码:{}获取派车任务明细接口返回状态异常!errMsg={}", simpleCode, e.getMessage(), e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);

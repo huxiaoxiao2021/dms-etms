@@ -32,6 +32,7 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.report.WeightVolSendCodeJSFService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolSendCodeSumVo;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -74,6 +75,9 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Autowired
     @Qualifier("aviationRailwayShuttleSealProducer")
     private DefaultJMQProducer aviationRailwayShuttleSealProducer;
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
+
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
@@ -219,6 +223,69 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     }
 
     /**
+     * 校验任务简码与运力编号是否匹配
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.findAndCheckTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<TransportInfoDto> findAndCheckTransportCode(CheckTransportCodeRequest request) {
+        JdCResponse<TransportInfoDto> jdCResponse = new JdCResponse<>();
+        NewSealVehicleRequest param = new NewSealVehicleRequest();
+
+        param.setTransportCode(request.getTransportCode());
+        param.setTransWorkItemCode(request.getTransWorkItemCode());
+
+        TransWorkItemResponse workItemResponse = newSealVehicleResource.checkTransportCode(param);
+        if(JdResponse.CODE_OK.equals(workItemResponse.getCode())) {
+            return this.getTransportCode(param.getTransportCode());
+        }else {
+            jdCResponse.setCode(workItemResponse.getCode());
+            jdCResponse.setMessage(workItemResponse.getMessage());
+        }
+        return jdCResponse;
+    }
+
+    //获取运力信息
+    private JdCResponse<TransportInfoDto> getTransportCode(String transportCode) {
+        JdCResponse<TransportInfoDto> res = new JdCResponse<>();
+        try {
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+            if (Objects.isNull(vtsDto)) {    //JSF接口返回空
+                res.setCode(JdResponse.CODE_SERVICE_ERROR);
+                res.setMessage("查询运力信息结果为空:" + transportCode);
+                return res;
+            }
+            if(Constants.RESULT_SUCCESS != vtsDto.getCode()) {
+                res.setCode(JdResponse.CODE_SERVICE_ERROR);
+                res.setMessage(StringUtils.isNotBlank(vtsDto.getMessage()) ? vtsDto.getMessage() : "查询运力结果失败");
+                return res;
+            }
+            TransportResourceDto data = vtsDto.getData();
+            if (Objects.isNull(data)) {
+                res.setCode(JdResponse.CODE_SERVICE_ERROR);
+                res.setMessage("查询运力信息结果Data为空:" + transportCode);
+            }
+
+            //设置运力基本信息
+            TransportInfoDto resData = new TransportInfoDto();
+            resData.setNextSiteCode(data.getEndNodeId());
+            resData.setNextSiteName(data.getEndNodeName());
+            resData.setRouteType(data.getTransType());
+            resData.setTransWay(data.getTransWay());
+            resData.setTransWayName(data.getTransWayName());
+            resData.setCarrierType(data.getCarrierType());
+
+            res.toSucceed("操作成功");
+            res.setData(resData);
+            return res;
+        } catch (Exception e) {
+            res.setCode(JdResponse.CODE_SERVICE_ERROR);
+            res.setMessage("查询运力服务异常");
+            logger.error("通过运力编码获取基础资料信息异常：运力={}，errMsg={}", transportCode, e.getMessage(), e);
+            return res;
+        }
+    }
+
+    /**
      * 检查运力编码和批次号目的地是否一致
      */
     @Deprecated
@@ -307,8 +374,19 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     public JdCResponse sealCar(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
-        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
-        newSealVehicleRequest.setData(convert(list));
+
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> data = convert(sealCarRequest.getSealCarDtoList());
+        newSealVehicleRequest.setData(data);
+        newSealVehicleRequest.setPost(sealCarRequest.getPost());
+        if(Objects.nonNull(sealCarRequest.getUser())) {
+            newSealVehicleRequest.setUserErp(sealCarRequest.getUser().getUserErp());
+            newSealVehicleRequest.setUserName(sealCarRequest.getUser().getUserName());
+        }
+        if(Objects.nonNull(sealCarRequest.getCurrentOperate())) {
+            newSealVehicleRequest.setDmsSiteId(sealCarRequest.getCurrentOperate().getSiteCode());
+        }
+
+
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.seal(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
@@ -635,6 +713,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setVehicleNumber(request.getCarNum());
         return param;
     }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getUnSealSendCodes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request) {
     	JdCResponse<List<String>> result = new JdCResponse<List<String>>();
