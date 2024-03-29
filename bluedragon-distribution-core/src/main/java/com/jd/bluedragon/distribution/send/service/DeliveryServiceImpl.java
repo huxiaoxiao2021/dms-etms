@@ -1624,9 +1624,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
-            // 判断当前操作场地站点类型，是6420的走新逻辑
+            // 判断当前操作场地站点类型，是6420或者6460的走新逻辑
             BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getCreateSiteCode() + "");
-            if (siteInfo != null && Integer.valueOf(Constants.B2B_SITE_TYPE).equals(siteInfo.getSubType())) {
+            if (siteInfo != null && (Integer.valueOf(Constants.B2B_SITE_TYPE).equals(siteInfo.getSubType())
+                    || Integer.valueOf(Constants.B2B_CODE_SITE_TYPE).equals(siteInfo.getSubType()))) {
                 sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             } else {
                 sortingCheck.setOperateType(1);
