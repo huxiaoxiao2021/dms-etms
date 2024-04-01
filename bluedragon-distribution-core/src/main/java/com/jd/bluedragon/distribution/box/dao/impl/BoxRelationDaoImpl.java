@@ -43,4 +43,12 @@ public class BoxRelationDaoImpl extends BaseDao<BoxRelation> implements BoxRelat
         param.put("boxCode", boxCode);
         return sqlSession.selectList(this.nameSpace + ".getByBoxCode", param);
     }
+
+    @Override
+    public List<BoxRelation> getByRelationCode(String boxCode) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("boxCode", boxCode);
+        return sqlSession.selectList(this.nameSpace + ".getByRelationCode", param);
+
+    }
 }
