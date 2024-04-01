@@ -4529,6 +4529,7 @@ public class UccPropertyConfiguration{
 
     public void setTeanMixScanWorkAreaCodes(String teanMixScanWorkAreaCodes) {
         this.teanMixScanWorkAreaCodes = teanMixScanWorkAreaCodes;
+        this.setTeanMixScanWorkAreaCodesList();
     }
 
     public List<String> getTeanMixScanWorkAreaCodesList() {
@@ -4544,7 +4545,7 @@ public class UccPropertyConfiguration{
     }
 
     public boolean isTeanMixScanWorkAreaCode(String workAreaCode){
-        if(Objects.equals(this.teanMixScanWorkAreaCodesList, Constants.STR_ALL)){
+        if(Objects.equals(this.teanMixScanWorkAreaCodes, Constants.STR_ALL)){
             return true;
         }
         return this.teanMixScanWorkAreaCodesList.contains(workAreaCode);
