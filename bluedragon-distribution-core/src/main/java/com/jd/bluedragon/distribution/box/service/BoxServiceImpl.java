@@ -1317,7 +1317,7 @@ public class BoxServiceImpl implements BoxService {
 		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
 		{
 			Box box =new  Box();
-			box.setCode(boxRelation.getBoxCode());
+			box.setCode(boxRelation.getRelationBoxCode());
 			box.setType(BoxTypeV2Enum.getFromCode(boxRelation.getRelationBoxCode().substring(0,2)).getCode());
 			return box;
 		}).collect(Collectors.toList());
@@ -1373,13 +1373,22 @@ public class BoxServiceImpl implements BoxService {
             return Collections.emptyList();
         }
 
-        List<Box> boxList = assembleBoxList(rs.getData());
+        List<Box> boxList = assembleParentBoxList(rs.getData());
         for (Box boxItem : boxList) {
             boxItem.setParent(listAllParentBox(box, level + 1));
         }
         return boxList;
     }
-
+	private List<Box> assembleParentBoxList(List<BoxRelation> boxRelationList) {
+		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
+		{
+			Box box =new  Box();
+			box.setCode(boxRelation.getBoxCode());
+			box.setType(BoxTypeV2Enum.getFromCode(boxRelation.getRelationBoxCode().substring(0,2)).getCode());
+			return box;
+		}).collect(Collectors.toList());
+		return boxes;
+	}
 	@Override
 	public boolean saveBoxBindRelation(BoxBindDto containerBindDto) {
 		return false;
