@@ -75,8 +75,11 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
@@ -439,6 +442,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
+
+    @Autowired
+    JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
     
 
     /**
@@ -4461,6 +4467,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null)
             return true;
 
+        checkIfNeedDealSortingTask(task);
+        
         List<SendM> tSendM = null;
         if (JsonHelper.isJsonString(task.getBody())) {
             SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
@@ -4495,6 +4503,24 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
         }
         return true;
+    }
+
+    private void checkIfNeedDealSortingTask(Task task) {
+        try {
+            if (ObjectHelper.isNotNull(task) && ObjectHelper.isNotNull(task.getBoxCode())){
+                JyBizTaskCollectPackageEntity jyBizTaskCollectPackageEntity = jyBizTaskCollectPackageService.findByBoxCode(task.getBoxCode());
+                if (ObjectHelper.isNotNull(jyBizTaskCollectPackageEntity) && !JyBizTaskCollectPackageStatusEnum.SEALED.getCode().equals(jyBizTaskCollectPackageEntity.getTaskStatus())){
+                    JyBizTaskCollectPackageEntity update =new JyBizTaskCollectPackageEntity();
+                    update.setId(jyBizTaskCollectPackageEntity.getId());
+                    update.setTaskStatus(JyBizTaskCollectPackageStatusEnum.SEALED.getCode());
+                    update.setUpdateTime(new Date());
+                    jyBizTaskCollectPackageService.updateById(update);
+                    log.info("按箱操作发货后变更集包任务的状态成功:{}",JsonHelper.toJson(task));
+                }
+            }
+        } catch (Exception e) {
+            log.error("按箱操作发货后变更集包任务的状态异常，箱号:{}",task.getBoxCode(),e);
+        }
     }
 
     /**
