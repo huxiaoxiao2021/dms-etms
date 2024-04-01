@@ -51,6 +51,11 @@ public class AviationSendScanReq  extends BaseReq implements Serializable {
      */
     private Long confirmSendDestId;
 
+    /**
+     * 忽略验证的条件
+     */
+    private ValidateIgnore validateIgnore;
+
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
     }
@@ -116,5 +121,13 @@ public class AviationSendScanReq  extends BaseReq implements Serializable {
 
     public void setConfirmSendDestId(Long confirmSendDestId) {
         this.confirmSendDestId = confirmSendDestId;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }
