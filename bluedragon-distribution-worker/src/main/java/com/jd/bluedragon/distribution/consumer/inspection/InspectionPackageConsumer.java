@@ -30,6 +30,7 @@ import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -260,13 +261,16 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         if (sortingDto == null || org.apache.commons.lang.StringUtils.isEmpty(sortingDto.getBoxCode())) {
             return "";
         }
-        StringBuilder boxCodeStr = new StringBuilder(sortingDto.getBoxCode());
+        StringBuilder boxCodeStr = new StringBuilder();
         Box boxQuery = new Box();
         boxQuery.setCode(sortingDto.getBoxCode());
         List<Box> boxes = boxService.listAllParentBox(boxQuery);
-        for (Box box : boxes) {
-            boxCodeStr.append(SEPARATOR_APPEND).append(box.getCode());
+        if (CollectionUtils.isEmpty(boxes)) {
+            for (int i = boxes.size() - 1; i >= 0; i--) {
+                boxCodeStr.append(boxes.get(i).getCode()).append(SEPARATOR_APPEND);
+            }
         }
+        boxCodeStr.append(sortingDto.getBoxCode());
         return boxCodeStr.toString();
     }
 
