@@ -185,6 +185,10 @@ public class JyExceptionInterceptDetail implements Serializable{
      */
     private BigDecimal inputHeight;
     /**
+     * 换单后新单号  db_column: waybill_code_new
+     */
+    private String waybillCodeNew;
+    /**
      * 保存状态 0：暂存 1 ：保存   db_column: save_type
      */
     private Integer saveType;
@@ -572,6 +576,14 @@ public class JyExceptionInterceptDetail implements Serializable{
         this.inputHeight = inputHeight;
     }
 
+    public String getWaybillCodeNew() {
+        return waybillCodeNew;
+    }
+
+    public void setWaybillCodeNew(String waybillCodeNew) {
+        this.waybillCodeNew = waybillCodeNew;
+    }
+
     public Integer getSaveType() {
         return saveType;
     }
@@ -705,6 +717,7 @@ public class JyExceptionInterceptDetail implements Serializable{
                 ", inputLength=" + inputLength +
                 ", inputWidth=" + inputWidth +
                 ", inputHeight=" + inputHeight +
+                ", waybillCodeNew=" + waybillCodeNew +
                 ", saveType=" + saveType +
                 ", createUserId=" + createUserId +
                 ", createUserCode='" + createUserCode + '\'' +
