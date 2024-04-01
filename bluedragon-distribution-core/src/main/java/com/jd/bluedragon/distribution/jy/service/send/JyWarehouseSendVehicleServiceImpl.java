@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -10,6 +9,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendFlowConfigEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.ForceSendSiteRelation;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
@@ -38,10 +38,11 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
-import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.JyCollectScanCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.constants.WaybillCustomTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
+import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCancelScanDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
@@ -69,7 +70,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.common.annotation.CacheMethod;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.erp.util.BeanUtils;
@@ -135,8 +135,6 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private DmsConfigManager dmsConfigManager ;
     @Autowired
     private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
-    @Autowired
-    private JdiQueryWSManager jdiQueryWSManager;
     /* 运单查询 */
     @Autowired
     private WaybillCommonService waybillCommonService;
@@ -175,6 +173,17 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     private BaseMajorManager baseMajorManager;
     @Autowired
     private JySendTransferLogService jySendTransferLogService;
+
+    private void logInfo(String message, Object... objects) {
+        if (log.isInfoEnabled()) {
+            log.info(message, objects);
+        }
+    }
+    private void logWarn(String message, Object... objects) {
+        if (log.isWarnEnabled()) {
+            log.warn(message, objects);
+        }
+    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendVehicleServiceImpl.fetchSendVehicleTaskPage",
@@ -216,6 +225,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         }
     }
 
+    @Override
     List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity condition,
                                                        List<String> sendVehicleBizList) {
         Date currentDate = (condition.getCurrentDate() == null ? new Date() : condition.getCurrentDate());
@@ -999,55 +1009,18 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchBarCodeBindSendVehicleTask:接货仓发货岗扫描前查找发货流向及混扫任务信息：";
         CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.JyWarehouseSendVehicleServiceImpl.fetchBarCodeBindSendVehicleTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         //根据发货方式获取流向
-        InvokeResult<List<Integer>> nextSiteCodeRes = this.fetchNextSiteId(request);
+        InvokeResult<List<Integer>> nextSiteCodeRes = this.confirmNextSiteId(request, response);
         if(!nextSiteCodeRes.codeSuccess()) {
-            log.warn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
-            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
-            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code/msg不变，新的强发逻辑走结果集中的强发标识
-            if(SendScanRes.FORCE_SEND_CODE == nextSiteCodeRes.getCode()) {
-                response.getData().setCheckForceSendFlag(true);
-                response.getData().setCheckForceSendMsg(SendScanRes.FORCE_SEND_MSG_NULL_FLOW);
-                customMsg = "获取路由流向数据失败";
-            }
-            response.setCode(SendScanRes.DEFAULT_FAIL);
-            response.setMessage(customMsg);
             return;
         }
-        if(log.isInfoEnabled()) {
-            log.info("{}，当前扫描单号可能流向为{}，request={}", methodDesc, JsonHelper.toJson(nextSiteCodeRes), JsonHelper.toJson(request));
-        }
-        List<Long> endSiteIdList = new ArrayList<>();
-        nextSiteCodeRes.getData().forEach(siteId ->{
-            endSiteIdList.add((long)siteId);
-        });
-        //这是一行测试代码
-//        endSiteIdList.add(910l); endSiteIdList.add(10186l);
-        //根据发货流向匹配混扫任务明细，获取派车任务信息
-        JyGroupSortCrossDetailEntityQueryDto entityQueryParam = new JyGroupSortCrossDetailEntityQueryDto();
-        entityQueryParam.setGroupCode(request.getGroupCode());
-        entityQueryParam.setTemplateCode(request.getMixScanTaskCode());
-        entityQueryParam.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
-        entityQueryParam.setEndSiteIdList(endSiteIdList);
-        entityQueryParam.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
-        List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
-        if(CollectionUtils.isEmpty(resEntityList)) {
-            log.warn("接货仓发货岗该单据{}匹配流向为{}，未匹配到混扫任务,request={},派车信息={}", request.getBarCode(), JsonHelper.toJson(endSiteIdList),
-                    JsonHelper.toJson(request), JsonHelper.toJson(resEntityList));
-            //
-            String getNextSiteName = this.getImpossibleNextSiteName(request, endSiteIdList);
-            response.setCode(SendScanRes.CODE_NULL_FLOW_FORCE_SEND);
-            response.setMessage(String.format(SendScanRes.MSG_NULL_FLOW_FORCE_SEND, getNextSiteName));
-            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code值不变，新的强发逻辑走结果集中的强发标识
-            response.getData().setCheckForceSendFlag(true);
-            response.getData().setCheckForceSendMsg(String.format(SendScanRes.FORCE_SEND_MSG_EXIST_FLOW, getNextSiteName));
+
+        logInfo("{}，当前扫描单号可能流向为{}，request={}", methodDesc, JsonHelper.toJson(nextSiteCodeRes), JsonHelper.toJson(request));
+        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity  = this.findMixScanTask(request, nextSiteCodeRes.getData(), response);
+        if(Objects.isNull(jyGroupSortCrossDetailEntity)) {
             return;
         }
-        JyGroupSortCrossDetailEntity jyGroupSortCrossDetailEntity = this.getDetailSendVehicleByReceiveSiteCodes(resEntityList, endSiteIdList);
-        if(log.isInfoEnabled()) {
-            log.info("接货仓发货岗按流向{}匹配混扫任务明细,request={},混扫明细={}", JsonHelper.toJson(endSiteIdList),
-                    JsonHelper.toJson(request), JsonHelper.toJson(jyGroupSortCrossDetailEntity));
-        }
-        request.setSendVehicleDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
+
+        logInfo("接货仓发货岗按流向{}匹配混扫任务明细,request={},混扫明细detailBizId={}", JsonHelper.toJson(nextSiteCodeRes.getData()), JsonHelper.toJson(request), jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         JyBizTaskSendVehicleDetailEntity entity = jyBizTaskSendVehicleDetailService.findByBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         if(Objects.isNull(entity)) {
             //正常场景不会有异常，异常数据可能会存在NPE，比如自建任务绑定后自建任务无效，但是混扫任务没有删除该无效数据，解决办法，找到这个任务，在PDA上删除
@@ -1055,6 +1028,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             response.setMessage("混扫任务中添加的流向任务错误");
             return;
         }
+
+        request.setSendVehicleDetailBizId(jyGroupSortCrossDetailEntity.getSendVehicleDetailBizId());
         request.setSendVehicleBizId(entity.getSendVehicleBizId());
         request.setPreNextSiteCode(entity.getEndSiteId());
         request.setTaskId(super.getJyScheduleTaskId(entity.getSendVehicleBizId()));
@@ -1075,18 +1050,124 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
         Profiler.registerInfoEnd(info);
     }
 
-    private JyGroupSortCrossDetailEntity getDetailSendVehicleByReceiveSiteCodes(List<JyGroupSortCrossDetailEntity> detailEntityList, List<Long> endSiteIdList) {
+    //确认发货流向
+    private InvokeResult<List<Integer>> confirmNextSiteId(SendScanReq request, JdVerifyResponse<SendScanRes> response) {
+        InvokeResult<List<Integer>> nextSiteCodeRes = this.fetchNextSiteId(request);
+        if(!nextSiteCodeRes.codeSuccess()) {
+            logWarn("接货仓发货岗查询扫描下一流向失败：request={}，流向res={}", JsonHelper.toJson(request), JsonHelper.toJson(nextSiteCodeRes));
+            String customMsg = StringUtils.isBlank(nextSiteCodeRes.getMessage()) ? "获取扫描下一流向失败" : nextSiteCodeRes.getMessage();
+            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code/msg不变，新的强发逻辑走结果集中的强发标识
+            if(SendScanRes.FORCE_SEND_CODE == nextSiteCodeRes.getCode()) {
+                response.getData().setCheckForceSendFlag(true);
+                response.getData().setCheckForceSendMsg(SendScanRes.FORCE_SEND_MSG_NULL_FLOW);
+                customMsg = "获取路由流向数据失败";
+            }
+            response.setCode(SendScanRes.DEFAULT_FAIL);
+            response.setMessage(customMsg);
+        }
+        return nextSiteCodeRes;
+    }
+
+
+    //获取可能的混扫任务
+    private JyGroupSortCrossDetailEntity findMixScanTask(SendScanReq request, List<Integer> nextSiteIdList, JdVerifyResponse<SendScanRes> response) {
+        List<Long> endSiteIdList = new ArrayList<>();
+        nextSiteIdList.forEach(siteId ->{
+            endSiteIdList.add((long)siteId);
+        });
+        //根据发货流向匹配混扫任务明细，获取派车任务信息
+        JyGroupSortCrossDetailEntityQueryDto entityQueryParam = new JyGroupSortCrossDetailEntityQueryDto();
+        entityQueryParam.setGroupCode(request.getGroupCode());
+        entityQueryParam.setTemplateCode(request.getMixScanTaskCode());
+        entityQueryParam.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        entityQueryParam.setEndSiteIdList(endSiteIdList);
+        entityQueryParam.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+        List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
+
+        if(CollectionUtils.isEmpty(resEntityList)) {
+            logWarn("接货仓发货岗该单据{}匹配流向为{}，未匹配到混扫任务,request={}", request.getBarCode(), JsonHelper.toJson(nextSiteIdList), JsonHelper.toJson(request));
+            BaseStaffSiteOrgDto nextSite = this.getPossibleNextSite(nextSiteIdList);
+            if(Objects.nonNull(nextSite)) {
+                Integer lastForceSendNextSite = this.getLastForceSendNextSite(request, nextSite.getSiteCode());
+                if(Objects.nonNull(lastForceSendNextSite)) {
+                    response.getData().setSysAutoForceSendFlag(true);
+                    response.getData().setExpiredNextSiteId(lastForceSendNextSite);
+                    JyGroupSortCrossDetailEntity forceSendDetailEntity = this.findForceSendDetailEntity(request, lastForceSendNextSite);
+                    if(Objects.nonNull(forceSendDetailEntity)) {
+                        List<Long> receiveSiteIdList = new ArrayList<>(Arrays.asList(nextSite.getSiteCode().longValue()));
+                        request.getValidateIgnore().getValidateIgnoreRouterCondition().setReceiveSiteIdList(receiveSiteIdList);
+                        request.setForceSubmit(true);
+                        logInfo("包裹{}未匹配到混扫任务，查到上次存在强发流向为{}，触发强发,强发任务detailBizId={}", request.getBarCode(), lastForceSendNextSite, forceSendDetailEntity.getSendVehicleDetailBizId());
+                        return forceSendDetailEntity;
+                    }
+                }
+            }
+
+            String nextSiteName = Objects.nonNull(nextSite) ? nextSite.getSiteName(): "";
+            response.setCode(SendScanRes.CODE_NULL_FLOW_FORCE_SEND);
+            response.setMessage(String.format(SendScanRes.MSG_NULL_FLOW_FORCE_SEND, nextSiteName));
+            if(Objects.nonNull(nextSite)) {
+                response.getData().setCurScanDestId((long)nextSite.getSiteCode());
+                response.getData().setCurScanDestName(nextSite.getSiteName());
+            }
+            //处理强发逻辑时，考虑PDA和服务端上线周期不同，需要兼容上线期间原异常code的处理逻辑，原code值不变，新的强发逻辑走结果集中的强发标识
+            response.getData().setCheckForceSendFlag(true);
+            response.getData().setNextSiteMismatchingFlag(true);
+            response.getData().setCheckForceSendMsg(String.format(SendScanRes.FORCE_SEND_MSG_EXIST_FLOW, nextSiteName));
+            return null;
+        }else {
+            return this.getDetailSendVehicleByReceiveSiteCodes(resEntityList, nextSiteIdList);
+        }
+
+    }
+
+    //获取
+    private JyGroupSortCrossDetailEntity findForceSendDetailEntity(SendScanReq request, Integer lastForceSendNextSite) {
+        JyGroupSortCrossDetailEntityQueryDto entityQueryParam = new JyGroupSortCrossDetailEntityQueryDto();
+        entityQueryParam.setGroupCode(request.getGroupCode());
+        entityQueryParam.setTemplateCode(request.getMixScanTaskCode());
+        entityQueryParam.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+        entityQueryParam.setEndSiteIdList(Arrays.asList(lastForceSendNextSite.longValue()));
+        entityQueryParam.setFuncType(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
+        List<JyGroupSortCrossDetailEntity> resEntityList = jyGroupSortCrossDetailService.selectByCondition(entityQueryParam);
+        if(CollectionUtils.isNotEmpty(resEntityList)) {
+            return resEntityList.get(0);
+        }
+        return null;
+    }
+
+    //匹配该流向的上次强发流向
+    private Integer getLastForceSendNextSite(SendScanReq request, Integer siteCode) {
+        if(Objects.isNull(request)
+                || Objects.isNull(request.getValidateIgnore())
+                || Objects.isNull(request.getValidateIgnore().getValidateIgnoreRouterCondition())
+                || CollectionUtils.isEmpty(request.getValidateIgnore().getValidateIgnoreRouterCondition().getForceSendSiteRelationList())) {
+            return null;
+        }
+        List<ForceSendSiteRelation> forceSendSiteRelationList = request.getValidateIgnore().getValidateIgnoreRouterCondition().getForceSendSiteRelationList();
+        for (ForceSendSiteRelation relation : forceSendSiteRelationList) {
+            if(siteCode.equals(relation.getRouteNextSiteId())) {
+                return relation.getForceSendSiteId();
+            }
+        }
+        return null;
+    }
+
+
+    private JyGroupSortCrossDetailEntity getDetailSendVehicleByReceiveSiteCodes(List<JyGroupSortCrossDetailEntity> detailEntityList, List<Integer> endSiteIdList) {
         if(detailEntityList.size() == 1) {
             return detailEntityList.get(0);
         }
 
         // K-流向 V-混扫任务中该流向发货任务    根据龙门架流向list和混扫任务list匹配结果可能多个，按照龙门架发货流向取前面的
-        Map<Long, JyGroupSortCrossDetailEntity> nextSiteCodeMap = new HashMap<>();
+        Map<Integer, JyGroupSortCrossDetailEntity> nextSiteCodeMap = new HashMap<>();
         for(JyGroupSortCrossDetailEntity entity : detailEntityList) {
-            nextSiteCodeMap.put(entity.getEndSiteId(), entity);
+            if(Objects.isNull(entity.getEndSiteId())) {
+                nextSiteCodeMap.put(entity.getEndSiteId().intValue(), entity);
+            }
         }
 
-        for(Long receiveSiteCode : endSiteIdList) {
+        for(Integer receiveSiteCode : endSiteIdList) {
             if(!Objects.isNull(nextSiteCodeMap.get(receiveSiteCode))) {
                 return nextSiteCodeMap.get(receiveSiteCode);
             }
@@ -1100,26 +1181,18 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param endSiteIdList
      * @return
      */
-    private String getImpossibleNextSiteName(SendScanReq request, List<Long> endSiteIdList) {
-        if(StringUtils.isBlank(request.getBarCode()) || CollectionUtils.isEmpty(endSiteIdList)) {
-            return "";
+    private BaseStaffSiteOrgDto getPossibleNextSite(List<Integer> endSiteIdList) {
+        if(CollectionUtils.isEmpty(endSiteIdList)) {
+            return null;
         }
-
-        if (BusinessUtil.isBoxcode(request.getBarCode())) {
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(0).intValue());
-            return baseStaffSiteOrgDto.getSiteName();
-        }else if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto;
-            //按单按包裹扫描，流向get(0)是运单的预分拣站点，其他的是发货规则配置的可能分拣中心流向
-            if(endSiteIdList.size() == 1) {
-                baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(0).intValue());
-            }else {
-                baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(1).intValue());
-            }
-            return baseStaffSiteOrgDto.getSiteName();
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto;
+        //按单按包裹扫描，流向get(0)是运单的预分拣站点，其他的是发货规则配置的可能分拣中心流向
+        if(endSiteIdList.size() == 1) {
+            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(0));
         }else {
-            return "";
+            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteIdList.get(1));
         }
+        return baseStaffSiteOrgDto;
     }
 
 
@@ -1134,9 +1207,9 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
     public InvokeResult<List<Integer>> fetchNextSiteId(SendScanReq request) {
 
         if (BusinessUtil.isBoxcode(request.getBarCode())) {
-            return fetchNextSiteIdByBox(request);
+            return this.fetchNextSiteIdByBox(request);
         }else if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
-            return fetchNextSiteIdByWaybillOrPackage(request);
+            return this.fetchNextSiteIdByWaybillOrPackage(request);
         }else {
             return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "只支持扫描包裹、运单和箱号");
         }
@@ -1411,19 +1484,65 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * @param request
      * @return
      */
-    private InvokeResult<List<Integer>> fetchNextSiteIdByBox(SendScanReq request) {
+    private InvokeResult<List<Integer>>     fetchNextSiteIdByBox(SendScanReq request) {
         String methodDesc = "JyWarehouseSendVehicleServiceImpl.fetchNextSiteIdByBox:获取箱号下一流向：";
         InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
-        if(log.isInfoEnabled()) {
-            log.info("{},参数={}", methodDesc, JsonHelper.toJson(request));
-        }
+        logInfo("{},参数={}", methodDesc, JsonHelper.toJson(request));
+
         Box box = boxService.findBoxByCode(request.getBarCode());
         if (box == null) {
             result.setMessage(HintService.getHint(HintCodeConstants.BOX_NOT_EXIST));
             result.setCode(BoxResponse.CODE_BOX_NOT_FOUND);
             return result;
         }
-        result.setData(Arrays.asList(box.getReceiveSiteCode()));
+
+        List<Integer> nextSiteIdList = new ArrayList<>();
+        //路由场景
+        if (JySendFlowConfigEnum.ROUTER.getCode() == (request.getOperateType())) {
+            if(Objects.nonNull(box.getReceiveSiteCode())) {
+                nextSiteIdList.add(box.getReceiveSiteCode());
+            }
+            BoxNextSiteDto boxNextSiteDto = routerService.getRouteNextSiteByBox(request.getCurrentOperate().getSiteCode(), request.getBarCode());
+            if(Objects.nonNull(boxNextSiteDto) && Objects.nonNull(boxNextSiteDto.getNextSiteId())) {
+                nextSiteIdList.add(boxNextSiteDto.getNextSiteId());
+                logInfo("{}获取箱号{}路由下一跳为{}，依赖单号为{}", methodDesc, request.getBarCode(), boxNextSiteDto.getNextSiteId(), boxNextSiteDto.getBoxConfirmNextSiteKey());
+            }
+        } else {
+            List<String> waybillCodes = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(request.getBarCode(), 3);
+            if(CollectionUtils.isNotEmpty(waybillCodes)) {
+                SendScanReq requestTemp = new SendScanReq();
+                org.springframework.beans.BeanUtils.copyProperties(request, requestTemp);
+                String waybillCode = waybillCodes.get(0);
+                requestTemp.setBarCode(waybillCode);
+                InvokeResult<List<Integer>> nextSiteBySendRuleRes = this.fetchNextSiteIdByWaybillOrPackage(requestTemp);
+                if(!nextSiteBySendRuleRes.codeSuccess()) {
+                    logInfo("{}根据箱{}内运单{}按龙门架方式获取流向失败，res={},request={}", methodDesc, request.getBarCode(),
+                            waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes), JsonHelper.toJson(request));
+                    result.customMessage(nextSiteBySendRuleRes.getCode(), nextSiteBySendRuleRes.getMessage());
+                    return result;
+                }
+                boolean existBoxReceiveSiteIdFlag =  false;
+                if(CollectionUtils.isNotEmpty(nextSiteBySendRuleRes.getData())) {
+                    logInfo("{}根据箱{}内运单{}获取箱流向为{}", methodDesc, request.getBarCode(), waybillCode, JsonHelper.toJson(nextSiteBySendRuleRes));
+                    for(Integer nextSiteIdTemp : nextSiteBySendRuleRes.getData()) {
+                        if(Objects.nonNull(nextSiteBySendRuleRes) && nextSiteIdTemp.equals(box.getReceiveSiteCode())) {
+                            existBoxReceiveSiteIdFlag = true;
+                        }
+                        nextSiteIdList.add(nextSiteIdTemp);
+                    }
+                }
+                if(!existBoxReceiveSiteIdFlag) {
+                    nextSiteIdList.add(box.getReceiveSiteCode());
+                }
+            }
+        }
+
+        if(CollectionUtils.isEmpty(nextSiteIdList)) {
+            logWarn("{}根据箱号获取流向为空, req={}", methodDesc, JsonHelper.toJson(request));
+            result.customMessage(SendScanRes.FORCE_SEND_CODE, SendScanRes.FORCE_SEND_MSG_NULL_FLOW);
+            return result;
+        }
+        result.setData(nextSiteIdList);
         return result;
     }
 
@@ -1473,7 +1592,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
                     receiveSite = selfSite;
                 }
                 /* 通过发货配置jsf接口调用 */
-                result = getSiteRoutersFromDMSAutoJsf(request.getBarCode(), request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
+                result = getSiteRoutersFromDmsAutoJsf(request.getBarCode(), request.getMachineCode(), operateSiteCode, receiveSite, operateTime, waybillCode, nextRouters);
             }
             siteRouters.addAll(nextRouters);
             result.setData(siteRouters);
@@ -1516,7 +1635,7 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
      * 按分拣龙门架配置获取下一流向
      * @return
      */
-    private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
+    private InvokeResult<List<Integer>> getSiteRoutersFromDmsAutoJsf
     (String packageCode, String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
         InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
