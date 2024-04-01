@@ -1317,7 +1317,7 @@ public class BoxServiceImpl implements BoxService {
 		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
 		{
 			Box box =new  Box();
-			box.setCode(boxRelation.getRelationBoxCode());
+			box.setCode(boxRelation.getBoxCode());
 			box.setType(BoxTypeV2Enum.getFromCode(boxRelation.getRelationBoxCode().substring(0,2)).getCode());
 			return box;
 		}).collect(Collectors.toList());
