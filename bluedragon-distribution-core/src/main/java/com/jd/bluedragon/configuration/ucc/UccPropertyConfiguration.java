@@ -4811,4 +4811,13 @@ public class UccPropertyConfiguration{
         return this.interceptExceptionSiteIdEnableList.contains(siteCode);
     }
 
+    private String imageClarityThreshold;
+
+    public String getImageClarityThreshold() {
+        return imageClarityThreshold;
+    }
+
+    public void setImageClarityThreshold(String imageClarityThreshold) {
+        this.imageClarityThreshold = imageClarityThreshold;
+    }
 }
