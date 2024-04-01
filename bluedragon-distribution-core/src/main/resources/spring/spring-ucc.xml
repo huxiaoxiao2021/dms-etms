@@ -361,7 +361,7 @@
 		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
 		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
 		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
-
+		<property name="jyCollectPackCheckBoxEndSiteMatchSwitch" value="${jyCollectPackCheckBoxEndSiteMatchSwitch:true}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -709,6 +709,7 @@
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
 				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
 				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
+				<value>uccPropertyConfiguration.jyCollectPackCheckBoxEndSiteMatchSwitch</value>
 			</list>
 		</property>
 	</bean>

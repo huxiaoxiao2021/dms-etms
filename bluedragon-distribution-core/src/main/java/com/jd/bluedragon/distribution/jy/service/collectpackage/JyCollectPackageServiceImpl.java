@@ -96,12 +96,14 @@ import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.Constants.ORIGINAL_CROSS_TYPE_AIR;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCHK;
+import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCLY;
 import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCode;
 import static com.jd.bluedragon.distribution.box.domain.Box.BOX_TRANSPORT_TYPE_AIR;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.getOriginalCrossType;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
@@ -400,12 +402,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request
      */
     private void checkBoxEndSiteMatch(CollectPackageReq request) {
-        Box box = boxService.findBoxByCode(request.getBoxCode());
-        if (box == null) {
-            throw new JyBizException("该箱号不存在或者已过期！");
+        if (!dmsConfigManager.getPropertyConfig().getJyCollectPackCheckBoxEndSiteMatchSwitch()) {
+            return;
         }
-        BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(box.getType());
-        BoxSubTypeEnum boxSubType = BoxSubTypeEnum.getFromCode(box.getBoxSubType());
+        BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getBoxType());
+        BoxSubTypeEnum boxSubType = BoxSubTypeEnum.getFromCode(request.getBoxSubType());
         Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         if (ObjectHelper.isEmpty(waybill)) {
             throw new JyBizException("未查询到运单数据!");
@@ -413,16 +414,20 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (Objects.isNull(waybill.getOldSiteId())) {
             throw new JyBizException("运单对应的预分拣站点为空!");
         }
-        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
-        boolean isTAWaybill = isTAWaybill(request);
 
         // 特安类型箱号只能扫描特安标识的运单
-        if (BoxTypeV2Enum.TYPE_TA.equals(boxType) && !isTAWaybill) {
+        if (BoxTypeV2Enum.TYPE_TA.equals(boxType) && !isTAWaybill(request)) {
             throw new JyBizException("TA开头的箱号，只能扫描特安标识的运单，禁止扫描其他运单!");
         }
 
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+        if (siteInfo == null) {
+            throw new JyBizException("未获取到箱号目的地信息!");
+        }
         // TC开头的箱号，只能扫描目的地只能是备件库、仓储、退货组、逆向仓、售后仓等
-        if (BoxTypeV2Enum.TYPE_TC.equals(boxType) && !tcBoxEndSiteTypeCheck(siteInfo)) {
+        if (BoxTypeV2Enum.TYPE_TC.equals(boxType)
+                && !(isReverseSite(siteInfo.getSiteType())
+                || Objects.equals(RETURN_CENTER.getFirstTypesOfThird(), siteInfo.getSortType()))) {
             throw new JyBizException("TC开头的箱号，只能扫描目的地只能是 备件库、仓储、退货组、逆向仓、售后仓等!");
         }
 
@@ -432,7 +437,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
 
         //BC开头的箱号校验
-        if (BoxTypeV2Enum.TYPE_BC.equals(boxType) && !bcBoxEndSiteTypeCheck(siteInfo, isTAWaybill)) {
+        if (BoxTypeV2Enum.TYPE_BC.equals(boxType) && !bcBoxEndSiteTypeCheck(siteInfo, isTAWaybill(request))) {
             throw new JyBizException("BC开头的箱号，只能扫描除目的地是备件库、仓储、退货组、逆向仓、售后仓、三方配送公司，特安标识的运单以外的其它运单!");
         }
 
@@ -440,6 +445,21 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         if (TYPE_BCHK.equals(boxSubType) && !bchkBoxCheck(waybill)) {
             throw new JyBizException("BC-航空类型的箱号 只能集航空单!");
         }
+
+        //BC-公路箱号只能集除航空单以外的订单
+        if (TYPE_BCLY.equals(boxSubType) && !bclyBoxCheck(waybill)) {
+            throw new JyBizException("BC-航空类型的箱号 只能集航空单!");
+        }
+    }
+
+    /**
+     * BC-公路箱号只能集除航空单以外的订单
+     * @param waybill
+     * @return
+     */
+    private boolean bclyBoxCheck(Waybill waybill) {
+        Integer originalCrossType = getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
+        return !ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType);
     }
 
     /**
@@ -458,15 +478,8 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param isTAWaybill 入参参数描述
      */
     private boolean bcBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo, boolean isTAWaybill) {
-        // BC开头的箱号，只能扫描除目的地是 备件库、仓储、退货组、逆向仓、售后仓、 三方配送公司，特安标识的运单以外的其它运单
-        Integer siteType = siteInfo.getSiteType();
-        //仓储
-        String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
-        //备件库
-        String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
-        if (siteType == Integer.parseInt(wms_type)
-                || siteType == Integer.parseInt(spwms_type)
-                || Objects.equals(RETURN_CENTER.getFirstTypesOfThird(), siteInfo.getSortType())
+        // BC开头的箱号，只能扫描除目的地是 备件库、仓储、逆向仓、售后仓、 三方配送公司，特安标识的运单以外的其它运单
+        if (isReverseSite(siteInfo.getSiteType())
                 || isThirdSite(siteInfo)
                 || isTAWaybill) {
             return false;
@@ -480,25 +493,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      */
     public static boolean bxBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo) {
         return isThirdSite(siteInfo);
-    }
-
-    /**
-     * TC开头的箱号，只能扫描目的地只能是备件库、仓储、退货组、逆向仓、售后仓等
-     * @param siteInfo
-     */
-    public static boolean tcBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo) {
-        // TC开头的箱号，只能扫描目的地只能是备件库、仓储、退货组、逆向仓、售后仓等
-        Integer siteType = siteInfo.getSiteType();
-        //仓储
-        String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
-        //备件库
-        String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
-        if (!(siteType == Integer.parseInt(wms_type)
-                || siteType == Integer.parseInt(spwms_type)
-                || Objects.equals(RETURN_CENTER.getFirstTypesOfThird(), siteInfo.getSortType()))) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -621,7 +615,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             throw new JyBizException("未获取到运单对应预分拣站点信息!");
         }
         //判断终点是逆向站点
-        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+        if (isReverseSite(baseStaffSiteOrgDto.getSiteType())){
             return task.getEndSiteId().intValue();
         }else {
             if(ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsId())){
@@ -823,11 +817,12 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         request.setBoxReceiveId(Long.valueOf(box.getReceiveSiteCode()));
         request.setBoxReceiveName(box.getReceiveSiteName());
         request.setBoxType(box.getType());
+        request.setBoxSubType(box.getBoxSubType());
         request.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
         if (ObjectHelper.isNotNull(request.getBoxReceiveId())){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getBoxReceiveId().intValue());
             log.info("查询箱号:{} 目的地站点信息:{}",request.getBoxCode(),JsonHelper.toJson(baseStaffSiteOrgDto));
-            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && isReverseSite(baseStaffSiteOrgDto.getSiteType())){
                 request.setBusinessType(DmsConstants.BUSSINESS_TYPE_REVERSE);
             }
         }
@@ -1874,7 +1869,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     public static void main(String[] args) {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
         baseStaffSiteOrgDto.setSiteType(901);
-        if (BusinessUtil.isReverseSite(baseStaffSiteOrgDto.getSiteType())){
+        if (isReverseSite(baseStaffSiteOrgDto.getSiteType())){
             System.out.println(1);
         }
     }

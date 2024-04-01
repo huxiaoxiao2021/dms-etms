@@ -57,7 +57,7 @@ import java.util.*;
 import static com.jd.bluedragon.distribution.api.response.BoxResponse.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
-import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.tcBoxEndSiteTypeCheck;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 
 
 @Component
@@ -275,6 +275,9 @@ public class BoxResource {
     }
 
     private BoxResponse checkBoxEndSiteMatch(BoxRequest request) {
+        if (!dmsConfigManager.getPropertyConfig().getJyCollectPackCheckBoxEndSiteMatchSwitch()) {
+            return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
+        }
         if (Objects.isNull(request.getReceiveSiteCode())) {
             return new BoxResponse(BoxResponse.CODE_NO_BOX_END_SITE, MESSAGE_NO_BOX_END_SITE);
         }
@@ -285,7 +288,7 @@ public class BoxResource {
         BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getType());
         // TC 开头的箱号，目的地只能是 备件库、仓储、退货组、逆向仓、售后仓
         if (BoxTypeV2Enum.TYPE_TC.equals(boxType)
-                && !tcBoxEndSiteTypeCheck(siteInfo)) {
+                && !isReverseSite(siteInfo.getSiteType())) {
             return new BoxResponse(BoxResponse.CODE_TC_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH);
         }
         // BX 开头的箱号，目的地只能是 三方配送公司
