@@ -693,6 +693,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 waybillCode = list.get(0).getWaybillCode();
             }
         }
+        if (waybillCode == null) {
+            log.warn("handleMoreLocalOrOutScan|运单号为空:barCode={}", JsonHelper.toJson(request));
+            return;
+        }
         // 判断是否本场地
         if (!hasCurrentNodeInRouteLink(siteCode, waybillCode)) {
             unloadScanDto.setMoreFlag(Constants.MORE_OUT_SCAN);
