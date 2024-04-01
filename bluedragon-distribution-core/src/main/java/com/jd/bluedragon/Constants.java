@@ -2527,4 +2527,38 @@ public class Constants {
      */
     public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
 
+
+    /**
+     * 评价申诉权限 0 关闭
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_0 = 0;
+    /**
+     * 评价申诉权限 1 开启
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_1 = 1;
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_ID = "id";
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_OPINION = "opinion";
+    /**
+     * 审核记录统计数
+     */
+    public static final Integer APPEAL_COUNT_NUM = 3;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_SATISFIED = 1;
+    /**
+     * 评价类型：1-装车 2-卸车
+     */
+    public static final Integer EVALUATE_TYPE_LOAD = 1;
+
 }

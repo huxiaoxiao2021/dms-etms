@@ -207,6 +207,11 @@ public class EvaluateTargetResultDto implements Serializable {
      */
     private List<EvaluateDimensionReq> dimensionList;
 
+    /**
+     *  评价申诉状态 1：未申诉 2：已申诉
+     */
+    private Integer appealStatus;
+
     public Integer getTargetAreaCode() {
         return targetAreaCode;
     }
@@ -509,5 +514,13 @@ public class EvaluateTargetResultDto implements Serializable {
 
     public void setSourceHubName(String sourceHubName) {
         this.sourceHubName = sourceHubName;
+    }
+
+    public Integer getAppealStatus() {
+        return appealStatus;
+    }
+
+    public void setAppealStatus(Integer appealStatus) {
+        this.appealStatus = appealStatus;
     }
 }
