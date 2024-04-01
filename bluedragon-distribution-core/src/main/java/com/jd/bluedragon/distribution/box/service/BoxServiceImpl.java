@@ -1368,9 +1368,7 @@ public class BoxServiceImpl implements BoxService {
         if (ObjectHelper.isEmpty(box) || ObjectHelper.isEmpty(box.getCode())) {
             return Collections.emptyList();
         }
-        final BoxRelation boxRelationParam = new BoxRelation();
-        boxRelationParam.setRelationBoxCode(box.getCode());
-        InvokeResult<List<BoxRelation>> rs = boxRelationService.queryBoxRelation(boxRelationParam);
+        InvokeResult<List<BoxRelation>> rs = boxRelationService.getRelationsByBoxCode(box.getCode());
         if (ObjectHelper.isEmpty(rs) || !rs.codeSuccess() || CollectionUtils.isEmpty(rs.getData())) {
             return Collections.emptyList();
         }
