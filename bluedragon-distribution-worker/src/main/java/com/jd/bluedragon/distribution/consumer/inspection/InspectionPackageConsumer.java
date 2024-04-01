@@ -265,7 +265,7 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         Box boxQuery = new Box();
         boxQuery.setCode(sortingDto.getBoxCode());
         List<Box> boxes = boxService.listAllParentBox(boxQuery);
-        if (CollectionUtils.isEmpty(boxes)) {
+        if (!CollectionUtils.isEmpty(boxes)) {
             for (int i = boxes.size() - 1; i >= 0; i--) {
                 boxCodeStr.append(boxes.get(i).getCode()).append(SEPARATOR_APPEND);
             }
