@@ -40,7 +40,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Date;
 
 /**
  * 拣运-附件接口实现类
@@ -52,19 +56,6 @@ import java.util.*;
 public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	
 	private final Logger logger = LoggerFactory.getLogger(JyOperateFlowServiceImpl.class);
-
-	/**
-	 * 一千毫秒
-	 */
-	private static final long ONE_THOUSAND_MILLISECONDS = 1000L;
-	/**
-	 * 500毫秒
-	 */
-	private static final long FIVE_HUNDRED_MILLISECONDS = 500L;
-	/**
-	 * 时间戳中毫秒所在起始下标
-	 */
-	private static final int TIMESTAMP_MILLISECONDS_START_INDEX = 10;
 	
     @Autowired
     private JyOperateFlowDao jyOperateFlowDao;
@@ -490,11 +481,12 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	 */
 	private Date getRealUpdateTime(Date operateDate) {
 		long operateTime = operateDate.getTime();
+		String operateTimeStr = String.valueOf(operateTime);
 		// 获取当前时间戳的毫秒数
-		long milliSeconds = Long.parseLong(String.valueOf(operateTime).substring(TIMESTAMP_MILLISECONDS_START_INDEX));
+		long milliSeconds = Long.parseLong(operateTimeStr.substring(operateTimeStr.length() - Constants.CONSTANT_NUMBER_THREE));
 		// 如果大于500则进位
-		if (milliSeconds >= FIVE_HUNDRED_MILLISECONDS) {
-			return new Date(operateTime + (ONE_THOUSAND_MILLISECONDS - milliSeconds));
+		if (milliSeconds >= Constants.CONSTANT_FIVE_HUNDRED) {
+			return new Date(operateTime + (Constants.CONSTANT_ONE_THOUSAND - milliSeconds));
 		} else {
 			// 如果小于500则返回原值
 			return operateDate;
