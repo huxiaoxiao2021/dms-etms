@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_JyRouterDynamicLineReplacePlanLog" type="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        <result property="id" column="id"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="refId" column="ref_id"/>
+        <result property="statusPrev" column="status_prev"/>
+        <result property="statusTarget" column="status_target"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `start_site_id`, `start_site_name`, `ref_id`, `status_prev`, `status_target`, `create_time`, `create_user_erp`, `create_user_name`, `yn`, `ts`
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        insert into `router_dynamic_line_replace_plan_log`(
+            id,
+            start_site_id,
+            start_site_name,
+            ref_id,
+            status_prev,
+            status_target,
+            create_time,
+            create_user_erp,
+            create_user_name,
+            yn,
+            ts
+        ) values (
+            #{id},
+            #{startSiteId},
+            #{startSiteName},
+            #{refId},
+            #{statusPrev},
+            #{statusTarget},
+            #{createTime},
+            #{createUserErp},
+            #{createUserName},
+            #{yn},
+            #{ts}
+        )
+    </insert>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        insert into `router_dynamic_line_replace_plan_log`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="startSiteId != null">
+                start_site_id,
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                start_site_name,
+            </if>
+            <if test="refId != null">
+                ref_id,
+            </if>
+            <if test="statusPrev != null">
+                status_prev,
+            </if>
+            <if test="statusTarget != null">
+                status_target,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                create_user_erp,
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="startSiteId != null">
+                #{startSiteId},
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                #{startSiteName},
+            </if>
+            <if test="refId != null">
+                #{refId},
+            </if>
+            <if test="statusPrev != null">
+                #{statusPrev},
+            </if>
+            <if test="statusTarget != null">
+                #{statusTarget},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                #{createUserErp},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                #{createUserName},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `router_dynamic_line_replace_plan_log`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            start_site_id,
+            start_site_name,
+            ref_id,
+            status_prev,
+            status_target,
+            create_time,
+            create_user_erp,
+            create_user_name,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.startSiteId},
+                    #{item.startSiteName},
+                    #{item.refId},
+                    #{item.statusPrev},
+                    #{item.statusTarget},
+                    #{item.createTime},
+                    #{item.createUserErp},
+                    #{item.createUserName},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        UPDATE `router_dynamic_line_replace_plan_log`
+        <set>
+            <if test="startSiteId != null ">
+                start_site_id = #{startSiteId},
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                start_site_name = #{startSiteName},
+            </if>
+            <if test="refId != null ">
+                ref_id = #{refId},
+            </if>
+            <if test="statusPrev != null ">
+                status_prev = #{statusPrev},
+            </if>
+            <if test="statusTarget != null ">
+                status_target = #{statusTarget},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                create_user_erp = #{createUserErp},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name = #{createUserName},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_JyRouterDynamicLineReplacePlanLog" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `router_dynamic_line_replace_plan_log`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_JyRouterDynamicLineReplacePlanLog" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanLogQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `router_dynamic_line_replace_plan_log`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="startSiteId != null">
+            AND start_site_id = #{startSiteId}
+        </if>
+        <if test="startSiteName != null and startSiteName != ''">
+            AND start_site_name = #{startSiteName}
+        </if>
+        <if test="refId != null">
+            AND ref_id = #{refId}
+        </if>
+        <if test="statusPrev != null">
+            AND status_prev = #{statusPrev}
+        </if>
+        <if test="statusTarget != null">
+            AND status_target = #{statusTarget}
+        </if>
+        <if test="createTime != null">
+            AND create_time = #{createTime}
+        </if>
+        <if test="createUserErp != null and createUserErp != ''">
+            AND create_user_erp = #{createUserErp}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            AND create_user_name = #{createUserName}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+        <if test="ts != null">
+            AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanLogQuery">
+        SELECT count(1) FROM `router_dynamic_line_replace_plan_log`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_JyRouterDynamicLineReplacePlanLog" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanLogQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `router_dynamic_line_replace_plan_log`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{limitStart}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog">
+        UPDATE `router_dynamic_line_replace_plan_log` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDeleteByPrimaryKeys" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanLogQuery">
+        UPDATE `router_dynamic_line_replace_plan_log` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_JyRouterDynamicLineReplacePlan" type="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        <result property="id" column="id"/>
+        <result property="versionId" column="version_id"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="oldEndSiteId" column="old_end_site_id"/>
+        <result property="oldEndSiteName" column="old_end_site_name"/>
+        <result property="oldPlanLineCode" column="old_plan_line_code"/>sw
+        <result property="oldPlanFlowCode" column="old_plan_flow_code"/>
+        <result property="oldPlanDepartureTime" column="old_plan_departure_time"/>
+        <result property="newEndSiteId" column="new_end_site_id"/>
+        <result property="newEndSiteName" column="new_end_site_name"/>
+        <result property="newPlanLineCode" column="new_plan_line_code"/>
+        <result property="newPlanFlowCode" column="new_plan_flow_code"/>
+        <result property="newPlanDepartureTime" column="new_plan_departure_time"/>
+        <result property="enableTime" column="enable_time"/>
+        <result property="disableTime" column="disable_time"/>
+        <result property="pushTime" column="push_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `version_id`, `start_site_id`, `start_site_name`, `old_end_site_id`, `old_end_site_name`, `old_plan_line_code`, `old_plan_flow_code`, `old_plan_departure_time`, `new_end_site_id`, `new_end_site_name`, `new_plan_line_code`, `new_plan_flow_code`, `new_plan_departure_time`, `enable_time`, `disable_time`, `push_time`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        insert into `router_dynamic_line_replace_plan`(
+            id,
+            version_id,
+            start_site_id,
+            start_site_name,
+            old_end_site_id,
+            old_end_site_name,
+            old_plan_line_code,
+            old_plan_flow_code,
+            old_plan_departure_time,
+            new_end_site_id,
+            new_end_site_name,
+            new_plan_line_code,
+            new_plan_flow_code,
+            new_plan_departure_time,
+            enable_time,
+            disable_time,
+            push_time,
+            create_time,
+            update_time,
+            yn,
+            ts
+        ) values (
+            #{id},
+            #{versionId},
+            #{startSiteId},
+            #{startSiteName},
+            #{oldEndSiteId},
+            #{oldEndSiteName},
+            #{oldPlanLineCode},
+            #{oldPlanFlowCode},
+            #{oldPlanDepartureTime},
+            #{newEndSiteId},
+            #{newEndSiteName},
+            #{newPlanLineCode},
+            #{newPlanFlowCode},
+            #{newPlanDepartureTime},
+            #{enableTime},
+            #{disableTime},
+            #{pushTime},
+            #{createTime},
+            #{updateTime},
+            #{yn},
+            #{ts}
+        )
+    </insert>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        insert into `router_dynamic_line_replace_plan`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="versionId != null">
+                version_id,
+            </if>
+            <if test="startSiteId != null">
+                start_site_id,
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                start_site_name,
+            </if>
+            <if test="oldEndSiteId != null">
+                old_end_site_id,
+            </if>
+            <if test="oldEndSiteName != null and oldEndSiteName != ''">
+                old_end_site_name,
+            </if>
+            <if test="oldPlanLineCode != null and oldPlanLineCode != ''">
+                old_plan_line_code,
+            </if>
+            <if test="oldPlanFlowCode != null and oldPlanFlowCode != ''">
+                old_plan_flow_code,
+            </if>
+            <if test="oldPlanDepartureTime != null">
+                old_plan_departure_time,
+            </if>
+            <if test="newEndSiteId != null">
+                new_end_site_id,
+            </if>
+            <if test="newEndSiteName != null and newEndSiteName != ''">
+                new_end_site_name,
+            </if>
+            <if test="newPlanLineCode != null and newPlanLineCode != ''">
+                new_plan_line_code,
+            </if>
+            <if test="newPlanFlowCode != null and newPlanFlowCode != ''">
+                new_plan_flow_code,
+            </if>
+            <if test="newPlanDepartureTime != null">
+                new_plan_departure_time,
+            </if>
+            <if test="enableTime != null">
+                enable_time,
+            </if>
+            <if test="disableTime != null">
+                disable_time,
+            </if>
+            <if test="pushTime != null">
+                push_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="versionId != null">
+                #{versionId},
+            </if>
+            <if test="startSiteId != null">
+                #{startSiteId},
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                #{startSiteName},
+            </if>
+            <if test="oldEndSiteId != null">
+                #{oldEndSiteId},
+            </if>
+            <if test="oldEndSiteName != null and oldEndSiteName != ''">
+                #{oldEndSiteName},
+            </if>
+            <if test="oldPlanLineCode != null and oldPlanLineCode != ''">
+                #{oldPlanLineCode},
+            </if>
+            <if test="oldPlanFlowCode != null and oldPlanFlowCode != ''">
+                #{oldPlanFlowCode},
+            </if>
+            <if test="oldPlanDepartureTime != null">
+                #{oldPlanDepartureTime},
+            </if>
+            <if test="newEndSiteId != null">
+                #{newEndSiteId},
+            </if>
+            <if test="newEndSiteName != null and newEndSiteName != ''">
+                #{newEndSiteName},
+            </if>
+            <if test="newPlanLineCode != null and newPlanLineCode != ''">
+                #{newPlanLineCode},
+            </if>
+            <if test="newPlanFlowCode != null and newPlanFlowCode != ''">
+                #{newPlanFlowCode},
+            </if>
+            <if test="newPlanDepartureTime != null">
+                #{newPlanDepartureTime},
+            </if>
+            <if test="enableTime != null">
+                #{enableTime},
+            </if>
+            <if test="disableTime != null">
+                #{disableTime},
+            </if>
+            <if test="pushTime != null">
+                #{pushTime},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `router_dynamic_line_replace_plan`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            version_id,
+            start_site_id,
+            start_site_name,
+            old_end_site_id,
+            old_end_site_name,
+            old_plan_line_code,
+            old_plan_flow_code,
+            old_plan_departure_time,
+            new_end_site_id,
+            new_end_site_name,
+            new_plan_line_code,
+            new_plan_flow_code,
+            new_plan_departure_time,
+            enable_time,
+            disable_time,
+            push_time,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.versionId},
+                    #{item.startSiteId},
+                    #{item.startSiteName},
+                    #{item.oldEndSiteId},
+                    #{item.oldEndSiteName},
+                    #{item.oldPlanLineCode},
+                    #{item.oldPlanFlowCode},
+                    #{item.oldPlanDepartureTime},
+                    #{item.newEndSiteId},
+                    #{item.newEndSiteName},
+                    #{item.newPlanLineCode},
+                    #{item.newPlanFlowCode},
+                    #{item.newPlanDepartureTime},
+                    #{item.enableTime},
+                    #{item.disableTime},
+                    #{item.pushTime},
+                    #{item.createTime},
+                    #{item.updateTime},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        UPDATE `router_dynamic_line_replace_plan`
+        <set>
+            <if test="versionId != null ">
+                version_id = #{versionId},
+            </if>
+            <if test="startSiteId != null ">
+                start_site_id = #{startSiteId},
+            </if>
+            <if test="startSiteName != null and startSiteName != ''">
+                start_site_name = #{startSiteName},
+            </if>
+            <if test="oldEndSiteId != null ">
+                old_end_site_id = #{oldEndSiteId},
+            </if>
+            <if test="oldEndSiteName != null and oldEndSiteName != ''">
+                old_end_site_name = #{oldEndSiteName},
+            </if>
+            <if test="oldPlanLineCode != null and oldPlanLineCode != ''">
+                old_plan_line_code = #{oldPlanLineCode},
+            </if>
+            <if test="oldPlanFlowCode != null and oldPlanFlowCode != ''">
+                old_plan_flow_code = #{oldPlanFlowCode},
+            </if>
+            <if test="oldPlanDepartureTime != null ">
+                old_plan_departure_time = #{oldPlanDepartureTime},
+            </if>
+            <if test="newEndSiteId != null ">
+                new_end_site_id = #{newEndSiteId},
+            </if>
+            <if test="newEndSiteName != null and newEndSiteName != ''">
+                new_end_site_name = #{newEndSiteName},
+            </if>
+            <if test="newPlanLineCode != null and newPlanLineCode != ''">
+                new_plan_line_code = #{newPlanLineCode},
+            </if>
+            <if test="newPlanFlowCode != null and newPlanFlowCode != ''">
+                new_plan_flow_code = #{newPlanFlowCode},
+            </if>
+            <if test="newPlanDepartureTime != null ">
+                new_plan_departure_time = #{newPlanDepartureTime},
+            </if>
+            <if test="enableTime != null ">
+                enable_time = #{enableTime},
+            </if>
+            <if test="disableTime != null ">
+                disable_time = #{disableTime},
+            </if>
+            <if test="pushTime != null ">
+                push_time = #{pushTime},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_JyRouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `router_dynamic_line_replace_plan`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_JyRouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `router_dynamic_line_replace_plan`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="startSiteId != null">
+            AND start_site_id = #{startSiteId}
+        </if>
+        <if test="startSiteName != null and startSiteName != ''">
+            AND start_site_name = #{startSiteName}
+        </if>
+        <if test="oldEndSiteId != null">
+            AND old_end_site_id = #{oldEndSiteId}
+        </if>
+        <if test="oldEndSiteName != null and oldEndSiteName != ''">
+            AND old_end_site_name = #{oldEndSiteName}
+        </if>
+        <if test="oldPlanLineCode != null and oldPlanLineCode != ''">
+            AND old_plan_line_code = #{oldPlanLineCode}
+        </if>
+        <if test="oldPlanFlowCode != null and oldPlanFlowCode != ''">
+            AND old_plan_flow_code = #{oldPlanFlowCode}
+        </if>
+        <if test="oldPlanDepartureTime != null">
+            AND old_plan_departure_time = #{oldPlanDepartureTime}
+        </if>
+        <if test="newEndSiteId != null">
+            AND new_end_site_id = #{newEndSiteId}
+        </if>
+        <if test="newEndSiteName != null and newEndSiteName != ''">
+            AND new_end_site_name = #{newEndSiteName}
+        </if>
+        <if test="newPlanLineCode != null and newPlanLineCode != ''">
+            AND new_plan_line_code = #{newPlanLineCode}
+        </if>
+        <if test="newPlanFlowCode != null and newPlanFlowCode != ''">
+            AND new_plan_flow_code = #{newPlanFlowCode}
+        </if>
+        <if test="newPlanDepartureTime != null">
+            AND new_plan_departure_time = #{newPlanDepartureTime}
+        </if>
+        <if test="enableTime != null">
+            AND enable_time = #{enableTime}
+        </if>
+        <if test="disableTime != null">
+            AND disable_time = #{disableTime}
+        </if>
+        <if test="pushTime != null">
+            AND push_time = #{pushTime}
+        </if>
+        <if test="createTime != null">
+            AND create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+            AND update_time = #{updateTime}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+        <if test="ts != null">
+            AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
+        SELECT count(1) FROM `router_dynamic_line_replace_plan`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_JyRouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `router_dynamic_line_replace_plan`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{limitStart}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
+        UPDATE `router_dynamic_line_replace_plan` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDeleteByPrimaryKeys" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
+        UPDATE `router_dynamic_line_replace_plan` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

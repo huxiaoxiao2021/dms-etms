@@ -840,5 +840,10 @@
     <jmq:consumer id="jmq.jyRecycleMaterialAutoInspectionPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" listener="jyRecycleMaterialAutoInspectionPackageConsumer"/>
     </jmq:consumer>
+
+    <!--  路由推送临时线路切换消息  -->
+    <jmq:consumer id="jmq.jyDynamicLineReplacePlanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.router.dynamicLineReplacePlanConsumer}" listener="dynamicLineReplacePlanConsumer"/>
+    </jmq:consumer>
 </beans>
 
