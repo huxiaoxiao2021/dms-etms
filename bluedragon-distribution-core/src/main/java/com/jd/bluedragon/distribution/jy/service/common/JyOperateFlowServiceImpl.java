@@ -138,12 +138,8 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			if (!dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
 				return;
 			}
-			// 全程跟踪操作时间
-			Date operateTime = waybillStatus.getOperateTime();
-			if (operateTime != null) {
-				// 时间转换
-				waybillStatus.setOperateTime(getRealUpdateTime(operateTime));
-			}
+			// 组装参数
+			assembleData(waybillStatus);
 			// 获取有效单号
 			String barCode = getBarCode(waybillStatus);
 			// 消息业务ID格式：操作码+单号
@@ -154,6 +150,22 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			}
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
+		}
+	}
+
+	private void assembleData(WaybillStatus waybillStatus) {
+		// 原始操作时间
+		Date operateTime = waybillStatus.getOperateTime();
+		// 操作信息对象
+		OperatorData operatorData = waybillStatus.getOperatorData();
+		if (operatorData != null) {
+			// 记录原始操作时间
+			operatorData.setOriginOperateTime(operateTime);
+		}
+		if (operateTime != null) {
+			// 时间转换，跟运单数据库保持一致
+			Date newOperateTime = getRealUpdateTime(operateTime);
+			waybillStatus.setOperateTime(newOperateTime);
 		}
 	}
 
