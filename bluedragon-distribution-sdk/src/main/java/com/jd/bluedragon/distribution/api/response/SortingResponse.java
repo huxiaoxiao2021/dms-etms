@@ -426,6 +426,12 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29467 = 29467;
     public static final String  MESSAGE_29467 = "您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
 
+    public static final Integer CODE_29468 = 29468;
+    public static final String  MESSAGE_29468 = "您扫描的岗位码是特安作业区，禁止操作非特安件";
+
+    public static final Integer CODE_29469 = 29469;
+    public static final String  MESSAGE_29469 = "未找到网格信息，请检查网格码网格数据";
+
 
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
