@@ -40,10 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 拣运-附件接口实现类
@@ -55,6 +52,19 @@ import java.util.Map;
 public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	
 	private final Logger logger = LoggerFactory.getLogger(JyOperateFlowServiceImpl.class);
+
+	/**
+	 * 一千毫秒
+	 */
+	private static final long ONE_THOUSAND_MILLISECONDS = 1000L;
+	/**
+	 * 500毫秒
+	 */
+	private static final long FIVE_HUNDRED_MILLISECONDS = 500L;
+	/**
+	 * 时间戳中毫秒所在起始下标
+	 */
+	private static final int TIMESTAMP_MILLISECONDS_START_INDEX = 10;
 	
     @Autowired
     private JyOperateFlowDao jyOperateFlowDao;
@@ -136,6 +146,12 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		try {
 			if (!dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
 				return;
+			}
+			// 全程跟踪操作时间
+			Date operateTime = waybillStatus.getOperateTime();
+			if (operateTime != null) {
+				// 时间转换
+				waybillStatus.setOperateTime(getRealUpdateTime(operateTime));
 			}
 			// 获取有效单号
 			String barCode = getBarCode(waybillStatus);
@@ -465,6 +481,24 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
 		}
 		return map;
+	}
+
+	/**
+	 * mysql在5.6.4之前的版本中是不保存毫秒数，直接舍弃掉；在5.6.4以后毫秒数在低于500的时候会舍弃掉，大于等于500会进位，这个可以在mysql官方文档中找到。
+	 * 视频追溯也遇到这个问题，我们给运单传的全程跟踪操作时间是毫秒，运单接收到直接存mysql，遇到毫秒数大于500自动加了1秒
+	 * 所以此处需要转换成跟运单库里一样的时间
+	 */
+	private Date getRealUpdateTime(Date operateDate) {
+		long operateTime = operateDate.getTime();
+		// 获取当前时间戳的毫秒数
+		long milliSeconds = Long.parseLong(String.valueOf(operateTime).substring(TIMESTAMP_MILLISECONDS_START_INDEX));
+		// 如果大于500则进位
+		if (milliSeconds >= FIVE_HUNDRED_MILLISECONDS) {
+			return new Date(operateTime + (ONE_THOUSAND_MILLISECONDS - milliSeconds));
+		} else {
+			// 如果小于500则返回原值
+			return operateDate;
+		}
 	}
 
 }
