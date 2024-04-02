@@ -448,7 +448,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         //BC-公路箱号只能集除航空单以外的订单
         if (TYPE_BCLY.equals(boxSubType) && !bclyBoxCheck(waybill)) {
-            throw new JyBizException("BC-航空类型的箱号 只能集航空单!");
+            throw new JyBizException("BC-公路箱号只能集除航空单以外的订单!");
         }
     }
 
