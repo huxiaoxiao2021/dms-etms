@@ -840,5 +840,9 @@
     <jmq:consumer id="jmq.jyRecycleMaterialAutoInspectionPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" listener="jyRecycleMaterialAutoInspectionPackageConsumer"/>
     </jmq:consumer>
+    <!--  箱号绑定循环物资  -->
+    <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
+    </jmq:consumer>
 </beans>
 
