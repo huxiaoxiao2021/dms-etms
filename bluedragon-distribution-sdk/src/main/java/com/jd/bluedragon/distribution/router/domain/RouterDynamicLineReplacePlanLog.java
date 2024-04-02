@@ -40,9 +40,17 @@ public class RouterDynamicLineReplacePlanLog implements Serializable{
      */
     private Integer statusTarget;
     /**
+     * 创建时间  db_column: operate_time
+     */
+    private Date operateTime;
+    /**
      * 创建时间  db_column: create_time
      */
     private Date createTime;
+    /**
+     * 创建人ERP  db_column: create_user_id
+     */
+    private Integer createUserId;
     /**
      * 创建人ERP  db_column: create_user_erp
      */
@@ -115,12 +123,28 @@ public class RouterDynamicLineReplacePlanLog implements Serializable{
         this.statusTarget = statusTarget;
     }
 
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
     }
 
     public String getCreateUserErp() {

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.router.dto.request;
 
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +17,13 @@ public class RouterDynamicLineReplacePlanQuery implements Serializable {
 
     private static final long serialVersionUID = 7340503050913597627L;
 
+    private Long id;
+
+    /**
+     * 版本ID
+     */
+    private Long versionId;
+
     /**
      * 起始场地ID
      */
@@ -27,7 +35,105 @@ public class RouterDynamicLineReplacePlanQuery implements Serializable {
     private Integer oldEndSiteId;
 
     /**
+     * 替换目的场地ID
+     */
+    private Integer newEndSiteId;
+
+    /**
      * 匹配状态列表
      */
-    private List<Integer> statusList;
+    private List<Integer> enableStatusList;
+
+    private Date effectTime;
+
+    private Long pushTime;
+
+    private Integer yn;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(Long versionId) {
+        this.versionId = versionId;
+    }
+
+    public Integer getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Integer startSiteId) {
+        this.startSiteId = startSiteId;
+    }
+
+    public Integer getOldEndSiteId() {
+        return oldEndSiteId;
+    }
+
+    public void setOldEndSiteId(Integer oldEndSiteId) {
+        this.oldEndSiteId = oldEndSiteId;
+    }
+
+    public Integer getNewEndSiteId() {
+        return newEndSiteId;
+    }
+
+    public void setNewEndSiteId(Integer newEndSiteId) {
+        this.newEndSiteId = newEndSiteId;
+    }
+
+    public List<Integer> getEnableStatusList() {
+        return enableStatusList;
+    }
+
+    public void setEnableStatusList(List<Integer> enableStatusList) {
+        this.enableStatusList = enableStatusList;
+    }
+
+    public Date getEffectTime() {
+        return effectTime;
+    }
+
+    public void setEffectTime(Date effectTime) {
+        this.effectTime = effectTime;
+    }
+
+    public Long getPushTime() {
+        return pushTime;
+    }
+
+    public void setPushTime(Long pushTime) {
+        this.pushTime = pushTime;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
+
+    @Override
+    public String toString() {
+        return "RouterDynamicLineReplacePlanQuery{" +
+                "id=" + id +
+                ", versionId=" + versionId +
+                ", startSiteId=" + startSiteId +
+                ", oldEndSiteId=" + oldEndSiteId +
+                ", newEndSiteId=" + newEndSiteId +
+                ", enableStatusList=" + enableStatusList +
+                ", effectTime=" + effectTime +
+                ", pushTime=" + pushTime +
+                ", yn=" + yn +
+                '}';
+    }
 }

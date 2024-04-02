@@ -19,8 +19,8 @@ public class RouterDynamicLineReplacePlanLogDao extends BaseDao<RouterDynamicLin
 
     final static String NAMESPACE = RouterDynamicLineReplacePlanDao.class.getName();
 
-    public int insertSelective(RouterDynamicLineReplacePlanLogQuery jyRouterDynamicLineReplacePlanLogQuery) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", jyRouterDynamicLineReplacePlanLogQuery);
+    public int insertSelective(RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlan) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", routerDynamicLineReplacePlan);
     }
 
     public RouterDynamicLineReplacePlanLog selectOne(RouterDynamicLineReplacePlanLogQuery routerDynamicLineReplacePlanLogQuery) {
@@ -29,9 +29,5 @@ public class RouterDynamicLineReplacePlanLogDao extends BaseDao<RouterDynamicLin
 
     public List<RouterDynamicLineReplacePlanLog> queryList(RouterDynamicLineReplacePlanLogQuery routerDynamicLineReplacePlanLogQuery) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryList", routerDynamicLineReplacePlanLogQuery);
-    }
-
-    public RouterDynamicLineReplacePlanLog updateByBizId(RouterDynamicLineReplacePlanLogQuery jyRouterDynamicLineReplacePlanLogQuery) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".updateByBizId", jyRouterDynamicLineReplacePlanLogQuery);
     }
 }

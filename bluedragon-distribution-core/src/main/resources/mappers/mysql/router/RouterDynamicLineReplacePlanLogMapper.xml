@@ -9,7 +9,9 @@
         <result property="refId" column="ref_id"/>
         <result property="statusPrev" column="status_prev"/>
         <result property="statusTarget" column="status_target"/>
+        <result property="operateTime" column="operate_time"/>
         <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="yn" column="yn"/>
@@ -18,7 +20,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `start_site_id`, `start_site_name`, `ref_id`, `status_prev`, `status_target`, `create_time`, `create_user_erp`, `create_user_name`, `yn`, `ts`
+        `id`, `start_site_id`, `start_site_name`, `ref_id`, `status_prev`, `status_target`, `operate_time`, `create_time`, `create_user_id`, `create_user_erp`, `create_user_name`, `yn`, `ts`
     </sql>
 
     <!-- 插入 -->
@@ -30,7 +32,9 @@
             ref_id,
             status_prev,
             status_target,
+            operate_time,
             create_time,
+            create_user_id,
             create_user_erp,
             create_user_name,
             yn,
@@ -42,7 +46,9 @@
             #{refId},
             #{statusPrev},
             #{statusTarget},
+            #{operateTime},
             #{createTime},
+            #{createUserId},
             #{createUserErp},
             #{createUserName},
             #{yn},
@@ -72,8 +78,14 @@
             <if test="statusTarget != null">
                 status_target,
             </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
             <if test="createTime != null">
                 create_time,
+            </if>
+            <if test="createUserId != null">
+                create_user_id,
             </if>
             <if test="createUserErp != null and createUserErp != ''">
                 create_user_erp,
@@ -107,8 +119,14 @@
             <if test="statusTarget != null">
                 #{statusTarget},
             </if>
+            <if test="operateTime != null">
+                #{create_time},
+            </if>
             <if test="createTime != null">
                 #{createTime},
+            </if>
+            <if test="createUserId != null">
+                #{createUserId},
             </if>
             <if test="createUserErp != null and createUserErp != ''">
                 #{createUserErp},
@@ -134,7 +152,9 @@
             ref_id,
             status_prev,
             status_target,
+            operate_time,
             create_time,
+            create_user_id,
             create_user_erp,
             create_user_name,
             yn,
@@ -149,7 +169,9 @@
                     #{item.refId},
                     #{item.statusPrev},
                     #{item.statusTarget},
+                    #{item.operateTime},
                     #{item.createTime},
+                    #{item.createUserId},
                     #{item.createUserErp},
                     #{item.createUserName},
                     #{item.yn},
@@ -178,6 +200,9 @@
             </if>
             <if test="createTime != null ">
                 create_time = #{createTime},
+            </if>
+            <if test="createUserId != null">
+                create_user_id = #{createUserId},
             </if>
             <if test="createUserErp != null and createUserErp != ''">
                 create_user_erp = #{createUserErp},
@@ -220,38 +245,14 @@
     </sql>
     <!-- 判断空值 -->
     <sql id="sql_if_not_null">
-        <if test="id != null">
-            AND id = #{id}
-        </if>
         <if test="startSiteId != null">
             AND start_site_id = #{startSiteId}
-        </if>
-        <if test="startSiteName != null and startSiteName != ''">
-            AND start_site_name = #{startSiteName}
         </if>
         <if test="refId != null">
             AND ref_id = #{refId}
         </if>
-        <if test="statusPrev != null">
-            AND status_prev = #{statusPrev}
-        </if>
-        <if test="statusTarget != null">
-            AND status_target = #{statusTarget}
-        </if>
-        <if test="createTime != null">
-            AND create_time = #{createTime}
-        </if>
-        <if test="createUserErp != null and createUserErp != ''">
-            AND create_user_erp = #{createUserErp}
-        </if>
-        <if test="createUserName != null and createUserName != ''">
-            AND create_user_name = #{createUserName}
-        </if>
         <if test="yn != null">
             AND yn = #{yn}
-        </if>
-        <if test="ts != null">
-            AND ts = #{ts}
         </if>
     </sql>
     <!-- 查询行数 -->

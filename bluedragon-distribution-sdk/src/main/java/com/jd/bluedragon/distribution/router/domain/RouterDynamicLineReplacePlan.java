@@ -84,6 +84,10 @@ public class RouterDynamicLineReplacePlan implements Serializable{
      */
     private Long pushTime;
     /**
+     * 启用状态  db_column: enable_status
+     */
+    private Integer enableStatus;
+    /**
      * 创建时间  db_column: create_time
      */
     private Date createTime;
@@ -91,6 +95,18 @@ public class RouterDynamicLineReplacePlan implements Serializable{
      * 修改时间  db_column: update_time
      */
     private Date updateTime;
+    /**
+     * 修改人ID  db_column: update_user_id
+     */
+    private Integer updateUserId;
+    /**
+     * 修改人  db_column: update_user_code
+     */
+    private String updateUserCode;
+    /**
+     * 修改人名称  db_column: update_user_name
+     */
+    private String updateUserName;
     /**
      * 有效标志  db_column: yn
      */
@@ -243,6 +259,14 @@ public class RouterDynamicLineReplacePlan implements Serializable{
         this.pushTime = pushTime;
     }
 
+    public Integer getEnableStatus() {
+        return enableStatus;
+    }
+
+    public void setEnableStatus(Integer enableStatus) {
+        this.enableStatus = enableStatus;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -257,6 +281,30 @@ public class RouterDynamicLineReplacePlan implements Serializable{
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getUpdateUserId() {
+        return updateUserId;
+    }
+
+    public void setUpdateUserId(Integer updateUserId) {
+        this.updateUserId = updateUserId;
+    }
+
+    public String getUpdateUserCode() {
+        return updateUserCode;
+    }
+
+    public void setUpdateUserCode(String updateUserCode) {
+        this.updateUserCode = updateUserCode;
+    }
+
+    public String getUpdateUserName() {
+        return updateUserName;
+    }
+
+    public void setUpdateUserName(String updateUserName) {
+        this.updateUserName = updateUserName;
     }
 
     public Integer getYn() {

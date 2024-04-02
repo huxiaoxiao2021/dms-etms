@@ -1,6 +1,6 @@
 package com.jd.bluedragon.common.dto.router.dynamicLine.request;
 
-import com.jd.bluedragon.common.dto.base.request.OperateUser;
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 
@@ -11,26 +11,27 @@ import java.io.Serializable;
  * @copyright jd.com 京东物流JDL
  * @time 2024-04-02 10:38:58 周二
  */
-public class RouterDynamicLineReplacePlanChangeStatusReq implements Serializable {
+public class RouterDynamicLineReplacePlanChangeStatusReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -1028450085618939342L;
 
-    private Integer status;
+    private Long id;
 
-    private OperateUser operateUser;
+    private Integer enableStatus;
 
-    public Integer getStatus() {
-        return status;
+    public Long getId() {
+        return id;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public OperateUser getOperateUser() {
-        return operateUser;
+    public Integer getEnableStatus() {
+        return enableStatus;
     }
 
-    public void setOperateUser(OperateUser operateUser) {
-        this.operateUser = operateUser;
+    public void setEnableStatus(Integer enableStatus) {
+        this.enableStatus = enableStatus;
     }
+
 }
