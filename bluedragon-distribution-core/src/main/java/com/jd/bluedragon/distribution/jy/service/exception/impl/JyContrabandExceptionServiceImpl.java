@@ -252,11 +252,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             InvokeResult<String> qualityReport = qualityReport(req, bigWaybillDto);
 
             StringBuilder errorMessage = new StringBuilder();
-            if (!invokeResult.codeSuccess()){
-                errorMessage.append(invokeResult.getData());
-            }
             if (!qualityReport.codeSuccess()){
-                errorMessage.append(qualityReport.getData());
+                errorMessage.append(qualityReport.getMessage());
+            }
+            if (!invokeResult.codeSuccess()){
+                errorMessage.append(invokeResult.getMessage());
             }
             if (StringUtils.isNotBlank(errorMessage.toString())){
                 return JdCResponse.fail(errorMessage.toString());
