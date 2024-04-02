@@ -432,14 +432,16 @@
             AND new_end_site_id = #{newEndSiteId}
         </if>
         <if test="effectTime != null">
-            AND (enable_time &gt;= #{effectTime}
-                AND disable_time &lt;= #{effectTime})
+            AND (enable_time &gt;= #{effectTime} AND disable_time &lt;= #{effectTime})
         </if>
         <if test="pushTime != null">
             AND push_time = #{pushTime}
         </if>
-        <if test="enableStatus != null">
-            AND enable_status = #{enableStatus}
+        <if test="enableStatusList != null">
+            AND enable_status IN
+            <foreach collection="enableStatusList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="yn != null">
             AND yn = #{yn}
@@ -465,14 +467,6 @@
         UPDATE `router_dynamic_line_replace_plan` SET yn = 1
         WHERE
         id = #{id} 
-    </update>
-    <!-- 批量伪删除 -->
-    <update id="batchDeleteByPrimaryKeys" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
-        UPDATE `router_dynamic_line_replace_plan` SET yn = 1
-        WHERE id IN
-        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
-            #{item}
-        </foreach>
     </update>
 </mapper>
 

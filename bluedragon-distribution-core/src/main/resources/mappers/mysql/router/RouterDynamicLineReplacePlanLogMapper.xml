@@ -276,13 +276,5 @@
         WHERE
         id = #{id} 
     </update>
-    <!-- 批量伪删除 -->
-    <update id="batchDeleteByPrimaryKeys" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanLogQuery">
-        UPDATE `router_dynamic_line_replace_plan_log` SET yn = 1
-        WHERE id IN
-        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-    </update>
 </mapper>
 
