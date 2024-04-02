@@ -26,6 +26,7 @@ import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
 import com.jd.merchant.sdk.order.dto.BaseInfo;
@@ -47,7 +48,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.utils.BusinessHelper.isJfWaybill;
+import static com.jd.bluedragon.utils.BusinessHelper.*;
 
 /**
  * <p>
@@ -235,10 +236,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         // 初始化运单数据
         if(WaybillUtil.isWaybillCode(condition.getBarCode()) || WaybillUtil.isPackageCode(condition.getBarCode())){
-            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
-            if(waybill == null){
+            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
+            if(baseEntity == null || baseEntity.getData() == null){
                 throw new RuntimeException("无运单信息!");
             }
+            Waybill waybill = baseEntity.getData();
             weightVolumeContext.setWaybill(waybill);
         }
         // 初始化场地数据
@@ -310,7 +312,9 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         if ((Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
                 || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType()))
                 && dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
-            if (isJfWaybill(weightVolumeContext.getWaybill())) {
+            if (isJfWaybill(weightVolumeContext.getWaybill())
+                    && productSolutionIsExist(weightVolumeContext.getWaybill())
+                    && weightingProductCodeCheck(weightVolumeContext.getWaybill())) {
                 result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
                 result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
                 return;

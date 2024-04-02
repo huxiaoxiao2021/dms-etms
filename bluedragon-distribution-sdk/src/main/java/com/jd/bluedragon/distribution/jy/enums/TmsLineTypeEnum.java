@@ -5,12 +5,14 @@ package com.jd.bluedragon.distribution.jy.enums;
  * @Description 运输线路类型
  * @Author wyh
  * @Date 2022/6/9 16:35
+ *
+ * 2024年03月12日14:09:58 运输发起的删除摆渡线路，调整原2对应的name为拣支（分拣发的支线），新增40对应的name为仓支（接货仓发的支线）
  **/
 public enum TmsLineTypeEnum {
 
     TRUNK_LINE(1, "干线", JyLineTypeEnum.TRUNK_LINE),
 
-    BRANCH_LINE(2, "支线", JyLineTypeEnum.BRANCH_LINE),
+    BRANCH_LINE(2, "拣支（分拣发的支线）", JyLineTypeEnum.BRANCH_LINE),
 
     TC_SHUTTLE(3, "TC摆渡", JyLineTypeEnum.OTHER),
 
@@ -36,7 +38,9 @@ public enum TmsLineTypeEnum {
 
     RETURN_LONG_STATION(34, "长途传站返回", JyLineTypeEnum.TRANSFER),
 
-    SHORT_BARGE(36, "短驳", JyLineTypeEnum.OTHER);
+    SHORT_BARGE(36, "短驳", JyLineTypeEnum.OTHER),
+
+    JHC_BRANCH_LINE(40, "仓支（接货仓发的支线）", JyLineTypeEnum.BRANCH_LINE)
     ;
 
     private Integer code;

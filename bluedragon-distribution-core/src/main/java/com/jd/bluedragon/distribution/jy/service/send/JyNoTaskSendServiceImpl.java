@@ -645,7 +645,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
         queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange() != null ? dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange(): 48));
-        queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode())));
+        queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode(),TmsLineTypeEnum.JHC_BRANCH_LINE.getCode())));
 
         // 目的网点非必填
         if (createVehicleTaskReq.getDestinationSiteId() != null) {

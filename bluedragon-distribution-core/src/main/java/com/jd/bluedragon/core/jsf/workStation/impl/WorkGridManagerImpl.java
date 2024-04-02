@@ -46,6 +46,26 @@ public class WorkGridManagerImpl implements WorkGridManager {
         }
        return result;
     }
+
+    /**
+     * 根据业务主键查询
+     * @param workGridKey
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "queryByWorkGridKeyWithCache",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Result<WorkGrid> queryByWorkGridKeyWithCache(String workGridKey) {
+        Result<WorkGrid> result = new Result<>();
+        result.toFail("获取三定场地网格数据失败");
+        try {
+            log.info("三定场地网格管理 queryByWorkGridKey 入参:"+ workGridKey);
+            return workGridJsfService.queryByWorkGridKeyWithCache(workGridKey);
+        } catch (Exception e) {
+            log.error("获取三定场地网格数据异常 {}",  e.getMessage(),e);
+            result.toFail("获取三定场地网格异常!");
+        }
+        return result;
+    }
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "querySiteListForManagerScan",mState={JProEnum.TP,JProEnum.FunctionError})
 	@Override
 	public List<Integer> querySiteListForManagerScan(WorkGridQuery workGridQuery) {
