@@ -115,15 +115,24 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
     @Resource
     private CacheService jimdbCacheService;
 
+    /**
+     * 系统配置服务
+     */
     @Autowired
     private SysConfigService sysConfigService;
-
+    /**
+     * 拣运用户服务
+     */
     @Autowired
     private JyUserManager jyUserManager;
-
+    /**
+     * 送货服务
+     */
     @Autowired
     private DeliveryServiceImpl deliveryService;
-
+    /**
+     * 线程池
+     */
     @Autowired
     ThreadPoolTaskExecutor taskExecutor;
 
@@ -690,8 +699,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * @return
      */
     private boolean interceptSiteDiscardedStorage(ScanDiscardedPackagePo paramObj) {
-        String userERP = paramObj.getOperateUser().getUserCode();
-        if (StringUtils.isBlank(userERP)) {
+        String userCode = paramObj.getOperateUser().getUserCode();
+        if (StringUtils.isBlank(userCode)) {
             log.info("userERP为空");
             return false;
         }
@@ -716,7 +725,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         }
 
         List<String> positionCodes = jdSiteTypeConfig.getPositionCodes();
-        com.jdl.basic.common.utils.Result<JyUser> jyUserDtoResult = jyUserManager.queryUserInfo(userERP);
+        com.jdl.basic.common.utils.Result<JyUser> jyUserDtoResult = jyUserManager.queryUserInfo(userCode);
         log.info("根据erp 获取人员信息出参-{}", JSON.toJSONString(jyUserDtoResult));
         JyUser data = jyUserDtoResult.getData();
         if (data == null) {
