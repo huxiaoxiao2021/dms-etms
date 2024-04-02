@@ -44,25 +44,14 @@ public class DiscardedPackageStorageTask implements Callable<Result<Boolean>> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * PDA扫描入参
-     */
     private ScanDiscardedPackagePo paramObj;
-    /**
-     * 运单追踪服务
-     */
+
     private WaybillTraceManager waybillTraceManager;
-    /**
-     * 运单查询服务
-     */
+
     private WaybillQueryManager waybillQueryManager;
-    /**
-     * 弃件暂存处理器
-     */
+
     private DiscardedStorageHandlerStrategy discardedStorageHandlerStrategy;
-    /**
-     * 站点信息
-     */
+
     private BaseStaffSiteOrgDto siteDto;
 
 

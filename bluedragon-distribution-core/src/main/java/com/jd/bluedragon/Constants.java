@@ -2,11 +2,6 @@ package com.jd.bluedragon;
 
 import java.util.*;
 
-/**
- * @Author: chenyaguo@jd.com
- * @Date: 2023/11/28 20:26
- * @Description:  站点类型配置
- */
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
