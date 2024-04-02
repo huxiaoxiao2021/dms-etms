@@ -1044,10 +1044,6 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         cancelCollectPackageDto.setUpdateTime(new Date());
         cancelCollectPackageDto.setCurrentSiteCode(dto.getSiteCode());
         cancelCollectPackageDto.setSkipSendCheck(true);
-        if (1==1){
-            throw new JyBizException(
-                SortingResponse.CODE_SORTING_CANCEL_PROCESS, HintService.getHint(HintCodeConstants.CANCEL_SORTING_PROCESSING));
-        }
         return cancelCollectPackageDto;
     }
 }
