@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.jy.constants;
 
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyPickingSendBatchCodeStatusEnum;
+
 public enum JyPickingSendTaskEnum {
 
-    TO_SEND(0, "待发货"),
-    SENDING(1, "发货中"),
-    TO_SEAL(2, "待封车"),
-    SEALED(3,"已封车"),
+    TO_SEND(JyPickingSendBatchCodeStatusEnum.TO_SEND.getCode(), "待发货"),
+    SENDING(JyPickingSendBatchCodeStatusEnum.SENDING.getCode(), "发货中"),
+    TO_SEAL(JyPickingSendBatchCodeStatusEnum.TO_SEAL.getCode(), "待封车"),
+    SEALED(JyPickingSendBatchCodeStatusEnum.SEALED.getCode(),"已封车"),
     ;
     private Integer code;
     private String name;

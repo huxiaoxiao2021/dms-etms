@@ -68,4 +68,11 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @return
      */
     JdCResponse<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req);
+
+    /**
+     * 查询发货批次数据
+     * @param req
+     * @return
+     */
+    JdCResponse<PickingSendBatchCodeDetailRes> PageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req);
 }
