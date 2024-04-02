@@ -16,6 +16,18 @@ public class InventoryTaskQueryReq extends BaseReq implements Serializable {
      */
     private String bizId;
 
+    /**
+     * 调用来源 1定时 2列表查询
+     */
+    private Integer source;
+
+    public Integer getSource() {
+        return source;
+    }
+
+    public void setSource(Integer source) {
+        this.source = source;
+    }
 
     public String getBizId() {
         return bizId;
