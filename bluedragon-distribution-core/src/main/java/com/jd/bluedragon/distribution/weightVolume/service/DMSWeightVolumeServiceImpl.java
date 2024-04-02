@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
@@ -40,7 +41,6 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.alibaba.fastjson.JSON;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -64,13 +64,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
-import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.*;
@@ -825,7 +825,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         result.success();
 
         // 拦截开关
-        if (!dmsConfigManager.getPropertyConfig().getWaybillZeroWeightInterceptSwitch()) {
+        if(!checkWaybillNotZeroWeightInterceptSwitchOn(entity.getOperateSiteCode())){
             return result;
         }
 
@@ -889,6 +889,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //            return result;
 //        }
         return result;
+    }
+
+    @Override
+    public boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode) {
+        String waybillZeroWeightInterceptSites = dmsConfigManager.getPropertyConfig().getWaybillZeroWeightInterceptSites();
+        return Objects.equals(waybillZeroWeightInterceptSites, STR_ALL)
+                || Arrays.stream(waybillZeroWeightInterceptSites.split(SEPARATOR_COMMA))
+                .map(Integer::valueOf)
+                .collect(Collectors.toList())
+                .contains(operateSiteCode);
     }
 
     /**
