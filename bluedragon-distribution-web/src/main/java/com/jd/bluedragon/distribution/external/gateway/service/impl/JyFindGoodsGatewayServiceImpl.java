@@ -12,7 +12,9 @@ import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.FindGoodsTaskQuerySourceEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants;
 import com.jd.bluedragon.distribution.jy.service.findgoods.JyFindGoodsService;
@@ -22,7 +24,9 @@ import com.jd.bluedragon.external.gateway.service.JyFindGoodsGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.common.utils.ObjectHelper;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +36,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+/**
+ * 清场网关服务
+ * @author weixiaofeng
+ * @date 2024-04-02
+ */
 @Slf4j
 @UnifiedExceptionProcess
 @Service
@@ -43,6 +52,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
   DmsConfigManager dmsConfigManager;
   @Value("${app.config.runningMode}")
   protected String env;
+  @Autowired
+  WorkGridManager workGridManager;
 
 
   private void checkBaseParam(User user, CurrentOperate currentOperate, String groupCode, String positionCode) {
@@ -101,6 +112,10 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
     if (!(dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().equals("*") || dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().contains(env))){
         return res;
     }
+    if (FindGoodsTaskQuerySourceEnum.TIMER_QUERY.getCode().equals(request.getSource()) && !checkCurrentUserIsGridSupervisor(request)){
+      //判断当前操作人是不是网格负责人
+      return res;
+    }
 
     try{
       if(Objects.isNull(request)) {
@@ -122,6 +137,26 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
       res.toError("获取当前时刻找货任务服务异常");
       return res;
     }
+  }
+
+  /**
+   * 判断用户是否为当前网格的负责人
+   * @param request
+   * @return
+   */
+  private boolean checkCurrentUserIsGridSupervisor(InventoryTaskQueryReq request) {
+    if (ObjectHelper.isNotNull(request) && ObjectHelper.isNotNull(request.getCurrentOperate())
+            && ObjectHelper.isNotNull(request.getCurrentOperate().getOperatorData())
+            && ObjectHelper.isNotNull(request.getCurrentOperate().getOperatorData().getWorkGridKey())){
+      Result<WorkGrid> rs = workGridManager.queryByWorkGridKey(request.getCurrentOperate().getOperatorData().getWorkGridKey());
+      if (ObjectHelper.isNotNull(rs) && rs.isSuccess() && ObjectHelper.isNotNull(rs.getData())){
+        WorkGrid workGrid = rs.getData();
+        if (ObjectHelper.isNotNull(workGrid.getOwnerUserErp()) && workGrid.getOwnerUserErp().equals(request.getUser().getUserErp())){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
