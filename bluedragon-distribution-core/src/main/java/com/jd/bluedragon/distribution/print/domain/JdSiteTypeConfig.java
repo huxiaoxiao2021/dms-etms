@@ -29,6 +29,16 @@ public class JdSiteTypeConfig {
      */
     private List<String> positionCodes;
 
+    /**
+     * 弃件暂存拦截开关：true 拦截  false：不拦截
+     */
+    private boolean discardedStorageCheckSwitch = false;
+
+    /**
+     * 支持弃件暂存岗位编码集合
+     */
+    private List<String> discardedStoragePositionCodes;
+
     public List<String> getPositionCodes() {
         return positionCodes;
     }
@@ -60,5 +70,21 @@ public class JdSiteTypeConfig {
 
     public void setCheckSwitch(boolean checkSwitch) {
         this.checkSwitch = checkSwitch;
+    }
+
+    public List<String> getDiscardedStoragePositionCodes() {
+        return discardedStoragePositionCodes;
+    }
+
+    public void setDiscardedStoragePositionCodes(List<String> discardedStoragePositionCodes) {
+        this.discardedStoragePositionCodes = discardedStoragePositionCodes;
+    }
+
+    public boolean isDiscardedStorageCheckSwitch() {
+        return discardedStorageCheckSwitch;
+    }
+
+    public void setDiscardedStorageCheckSwitch(boolean discardedStorageCheckSwitch) {
+        this.discardedStorageCheckSwitch = discardedStorageCheckSwitch;
     }
 }

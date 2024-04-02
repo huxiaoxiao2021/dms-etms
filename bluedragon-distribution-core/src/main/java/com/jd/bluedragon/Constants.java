@@ -2462,4 +2462,9 @@ public class Constants {
      */
     public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
 
+    /**
+     * 弃件暂存站点类型限制配置
+     */
+    public static final String DISCARDED_STORAGE_LIMIT_SITE_TYPE_CONFIG  = "discarded.storage.limit.siteType.config";
+
 }
