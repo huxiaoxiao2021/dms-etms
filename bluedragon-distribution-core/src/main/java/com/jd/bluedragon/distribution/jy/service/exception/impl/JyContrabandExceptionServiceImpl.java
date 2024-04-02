@@ -16,11 +16,13 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -322,8 +324,11 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 }
             }
         } catch (JyBizException e) {
-            logger.error("jy取消集包服务异常{}", dto.getBarCode(), e);
+            logger.error("jy取消集包服务业务异常{}", dto.getBarCode(), e);
             result.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error("jy取消集包服务异常{}", dto.getBarCode(), e);
+            result.error("取消集包失败，服务异常！");
         }
         return result;
 
@@ -1031,6 +1036,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         cancelCollectPackageDto.setUpdateTime(new Date());
         cancelCollectPackageDto.setCurrentSiteCode(dto.getSiteCode());
         cancelCollectPackageDto.setSkipSendCheck(true);
+        if (1==1){
+            throw new JyBizException(
+                SortingResponse.CODE_SORTING_CANCEL_PROCESS, HintService.getHint(HintCodeConstants.CANCEL_SORTING_PROCESSING));
+        }
         return cancelCollectPackageDto;
     }
 }
