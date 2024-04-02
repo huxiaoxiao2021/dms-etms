@@ -252,10 +252,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             InvokeResult<String> qualityReport = qualityReport(req, bigWaybillDto);
 
             StringBuilder errorMessage = new StringBuilder();
-            if (StringUtils.isNotBlank(invokeResult.getData())){
+            if (!invokeResult.codeSuccess()){
                 errorMessage.append(invokeResult.getData());
             }
-            if (StringUtils.isNotBlank(qualityReport.getData())){
+            if (!qualityReport.codeSuccess()){
                 errorMessage.append(qualityReport.getData());
             }
             if (StringUtils.isNotBlank(errorMessage.toString())){
@@ -291,7 +291,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
             JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
             if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
-                result.setData(WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE);
+                result.error(WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE);
             }
         }
         return result;
@@ -323,7 +323,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
         } catch (JyBizException e) {
             logger.error("jy取消集包服务异常{}", dto.getBarCode(), e);
-            result.setData(e.getMessage());
+            result.error(e.getMessage());
         }
         return result;
 
