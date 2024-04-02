@@ -247,20 +247,19 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
 
-            // 取消集包
-            InvokeResult<String> invokeResult = cancelCollectPackage(dto);
-
+            StringBuilder errorMessage = new StringBuilder();
             //质控上报
             InvokeResult<String> qualityReport = qualityReport(req, bigWaybillDto);
-
-            StringBuilder errorMessage = new StringBuilder();
             if (!qualityReport.codeSuccess()){
                 errorMessage.append(qualityReport.getMessage());
             }
+
+            // 取消集包
+            InvokeResult<String> invokeResult = cancelCollectPackage(dto);
             if (!invokeResult.codeSuccess()){
                 errorMessage.append(invokeResult.getMessage());
             }
-            if (StringUtils.isNotBlank(errorMessage.toString())){
+            if (!qualityReport.codeSuccess() || !invokeResult.codeSuccess()){
                 return JdCResponse.fail(errorMessage.toString());
             }
         } catch (Exception e) {
