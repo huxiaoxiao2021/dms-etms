@@ -115,6 +115,7 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
         deputyConf.setEndSiteId(collectBoxFlowDirectionConf.getEndSiteId());
         deputyConf.setEndSiteName(collectBoxFlowDirectionConf.getEndSiteName());
         deputyConf.setSupportDeputyReceiveSite(INTEGER_ONE);
+        deputyConf.setTransportType(collectBoxFlowDirectionConf.getTransportType());
         deputyPager.setSearchVo(deputyConf);
         return deputyPager;
     }

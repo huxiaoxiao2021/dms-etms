@@ -45,8 +45,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
-import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
+import static com.jd.bluedragon.distribution.box.domain.Box.BOX_TRANSPORT_TYPE_AIR;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.TRANSPORT_TYPE_AIR;
 
 @Service
 @Slf4j
@@ -248,6 +249,12 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         conf.setStartSiteId(task.getStartSiteId().intValue());
         conf.setBoxReceiveId(task.getEndSiteId().intValue());
         conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        // 箱号和集包规则运输类型枚举值不同，需要转换一下，默认公路类型
+        Integer transportType = TRANSPORT_TYPE_HIGHWAY;
+        if (BOX_TRANSPORT_TYPE_AIR.equals(task.getTransportType())) {
+            transportType = TRANSPORT_TYPE_AIR;
+        }
+        conf.setTransportType(transportType);
         return conf;
     }
 
