@@ -5,13 +5,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.merchant.ExpressOrderServiceWsManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
@@ -23,17 +21,13 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillPickup;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.merchant.sdk.b2b.constant.enumImpl.SystemCallerEnum;
 import com.jd.merchant.sdk.order.dto.BaseInfo;
 import com.jd.merchant.sdk.order.dto.UpdateOrderRequest;
@@ -43,7 +37,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
 
-import com.jdl.basic.api.enums.WorkSiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -52,18 +45,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.*;
-import static com.jd.bluedragon.distribution.waybill.domain.WaybillStatus.WAYBILL_STATUS_CODE_SITE_SORTING;
-import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
-import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
-import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
-import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
+import static com.jd.bluedragon.utils.BusinessHelper.*;
 
 /**
  * <p>
@@ -251,10 +236,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         // 初始化运单数据
         if(WaybillUtil.isWaybillCode(condition.getBarCode()) || WaybillUtil.isPackageCode(condition.getBarCode())){
-            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
-            if(waybill == null){
+            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
+            if(baseEntity == null || baseEntity.getData() == null){
                 throw new RuntimeException("无运单信息!");
             }
+            Waybill waybill = baseEntity.getData();
             weightVolumeContext.setWaybill(waybill);
         }
         // 初始化场地数据
@@ -320,6 +306,19 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             result.setCode(interceptResult.getCode());
             result.setMessage(interceptResult.getMessage());
             return;
+        }
+
+        // 寄付运单拦截
+        if ((Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(), weightVolumeContext.getBusinessType())
+                || Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType()))
+                && dmsConfigManager.getPropertyConfig().getWaybillJFWeightInterceptSwitch()) {
+            if (isJfWaybill(weightVolumeContext.getWaybill())
+                    && productSolutionIsExist(weightVolumeContext.getWaybill())
+                    && weightingProductCodeCheck(weightVolumeContext.getWaybill())) {
+                result.setCode(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE);
+                result.setMessage(WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE);
+                return;
+            }
         }
 
         if(!WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(weightVolumeContext.getBusinessType())

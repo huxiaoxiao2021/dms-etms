@@ -31,6 +31,13 @@ public class BusinessConfigInfo implements Serializable {
      */
     private boolean showRemindTransJobFlag;
 
+    /**
+     * 静默下载
+     * 0-否
+     * 1-是
+     */
+    private Boolean silentUpdate;
+
     public List<JyDemotionConfigInfo> getJyDemotionConfigList() {
         return jyDemotionConfigList;
     }
@@ -61,5 +68,13 @@ public class BusinessConfigInfo implements Serializable {
 
     public void setShowRemindTransJobFlag(boolean showRemindTransJobFlag) {
         this.showRemindTransJobFlag = showRemindTransJobFlag;
+    }
+
+    public Boolean getSilentUpdate() {
+        return silentUpdate;
+    }
+
+    public void setSilentUpdate(Boolean silentUpdate) {
+        this.silentUpdate = silentUpdate;
     }
 }
