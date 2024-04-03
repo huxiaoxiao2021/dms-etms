@@ -92,6 +92,8 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.staig.receiver.rpc.Result;
+import com.jd.ql.dms.receive.api.dto.PackDTO;
+import com.jd.ql.dms.receive.api.dto.ResultObject;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -3030,5 +3032,22 @@ public class WaybillResource {
 		}
 
 
+	}
+
+
+	@GET
+	@Path("/dy/getOrderByPackCode/{deliveryId}")
+	@JProfiler(jKey = "DMS.WEB.CommandResource.getWaybillPackageList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<List<PackDTO>> getWaybillPackageList(@PathParam("deliveryId") String deliveryId) {
+		log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
+		InvokeResult<List<PackDTO>> result = new InvokeResult<>();
+		ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
+		if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
+			log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
+			result.error("getWaybillPackageList 查询不到包裹");
+			return result;
+		}
+		result.setData(resultObject.getData());
+		return result;
 	}
 }
