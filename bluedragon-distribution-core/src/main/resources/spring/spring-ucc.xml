@@ -252,7 +252,7 @@
 		<property name="czOrgForbiddenList" value="${czOrgForbiddenList:''}"/>
 		<property name="czSiteTypeForbiddenList" value="${czSiteTypeForbiddenList:''}"/>
 		<property name="batchSendForbiddenSwitch" value="${batchSendForbiddenSwitch:false}"/>
-		<property name="forceSendSiteList" value="${forceSendSiteList:''}"/>
+		<property name="forceSendSiteList" value="${forceSendSiteList:-1}"/>
 		<property name="needValidateBatchCodeHasSealed" value="${needValidateBatchCodeHasSealed:false}"/>
 		<property name="dpSpringSiteCode" value="${dpSpringSiteCode:-1}"/>
 		<property name="volumeExcessIssueSites" value="${volumeExcessIssueSites:910}"/>
@@ -365,6 +365,7 @@
 		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
 		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
+		<property name="routerDynamicLineReplaceEnableSiteStr" value="${routerDynamicLineReplaceEnableSiteStr:'-1'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -715,6 +716,7 @@
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
+				<value>uccPropertyConfiguration.routerDynamicLineReplaceEnableSiteStr</value>
 			</list>
 		</property>
 	</bean>

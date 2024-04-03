@@ -2104,6 +2104,12 @@ public class UccPropertyConfiguration{
     private String interceptExceptionSiteIdEnableListStr;
     private List<Integer> interceptExceptionSiteIdEnableList = new ArrayList<>();
 
+    /**
+     * 动态临时路由启用场地
+     */
+    private String routerDynamicLineReplaceEnableSiteStr;
+    private List<Integer> routerDynamicLineReplaceEnableSiteList = new ArrayList<>();
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4682,5 +4688,34 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.interceptExceptionSiteIdEnableList.contains(siteCode);
+    }
+
+    public String getRouterDynamicLineReplaceEnableSiteStr() {
+        return routerDynamicLineReplaceEnableSiteStr;
+    }
+
+    public void setRouterDynamicLineReplaceEnableSiteStr(String routerDynamicLineReplaceEnableSiteStr) {
+        this.routerDynamicLineReplaceEnableSiteStr = routerDynamicLineReplaceEnableSiteStr;
+    }
+
+    public List<Integer> getRouterDynamicLineReplaceEnableSiteList() {
+        return routerDynamicLineReplaceEnableSiteList;
+    }
+
+    public void setRouterDynamicLineReplaceEnableSiteList() {
+        this.routerDynamicLineReplaceEnableSiteList.clear();
+        if(StringUtils.isNotBlank(routerDynamicLineReplaceEnableSiteStr)){
+            if(Objects.equals(this.routerDynamicLineReplaceEnableSiteStr, Constants.STR_ALL)){
+                return;
+            }
+            this.routerDynamicLineReplaceEnableSiteList = Arrays.stream(routerDynamicLineReplaceEnableSiteStr.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+    public boolean isRouterDynamicLineReplaceEnableSite(Integer siteCode){
+        if(Objects.equals(this.routerDynamicLineReplaceEnableSiteStr, Constants.STR_ALL)){
+            return true;
+        }
+        return this.routerDynamicLineReplaceEnableSiteList.contains(siteCode);
     }
 }

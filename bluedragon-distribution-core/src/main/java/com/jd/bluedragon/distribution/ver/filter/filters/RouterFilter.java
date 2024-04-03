@@ -143,7 +143,7 @@ public class RouterFilter implements Filter {
                 }
 
                 // 如果存在临时路由切换，则不认为是错误路由
-                if(this.hasMatchedEnableDynamicLine(request, routeNextDto)){
+                if(dmsConfigManager.getPropertyConfig().isRouterDynamicLineReplaceEnableSite(request.getCreateSiteCode()) && this.hasMatchedEnableDynamicLine(request, routeNextDto)){
                     logger.info("RouterFilter hasMatchedEnableDynamicLine: {}", waybillCode);
                     chain.doFilter(request, chain);
                     return;
