@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.pickinggood;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,6 +20,10 @@ public class JyPickingSendDestinationDetailCondition extends JyPickingSendDestin
     private Integer offset;
     //页容量
     private Integer pageSize;
+    //完成时间查询开始时间
+    private Date completeTimeRangeStart;
+    //完成时间查询结束时间
+    private Date completeTimeRangeEnd;
 
     public List<String> getSendCodeList() {
         return sendCodeList;
@@ -42,5 +47,21 @@ public class JyPickingSendDestinationDetailCondition extends JyPickingSendDestin
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Date getCompleteTimeRangeStart() {
+        return completeTimeRangeStart;
+    }
+
+    public void setCompleteTimeRangeStart(Date completeTimeRangeStart) {
+        this.completeTimeRangeStart = completeTimeRangeStart;
+    }
+
+    public Date getCompleteTimeRangeEnd() {
+        return completeTimeRangeEnd;
+    }
+
+    public void setCompleteTimeRangeEnd(Date completeTimeRangeEnd) {
+        this.completeTimeRangeEnd = completeTimeRangeEnd;
     }
 }

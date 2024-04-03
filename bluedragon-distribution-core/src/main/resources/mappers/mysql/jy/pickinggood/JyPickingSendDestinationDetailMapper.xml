@@ -189,6 +189,7 @@
     and next_site_id = #{nextSiteId}
     and status = #{status}
     and task_type = #{taskType}
+    and complete_time > #{completeTimeRangeStart}
     order by complete_time desc
     limit #{offset}, #{pageSize}
   </select>
