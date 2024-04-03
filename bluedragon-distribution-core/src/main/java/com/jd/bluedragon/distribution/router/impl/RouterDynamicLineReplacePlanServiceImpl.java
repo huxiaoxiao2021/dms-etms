@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMq;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMqContext;
+import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanMatchedEnableLineReq;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -223,6 +224,60 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
         Result<Void> result = Result.success();
         if (req.getStartSiteId() == null) {
             return result.toFail("参数错误, startSiteId不能为空");
+        }
+        return result;
+    }
+
+    /**
+     * 根据条件查询可用的动态线路替换方案列表
+     *
+     * @param req 请求入参
+     * @return 数据列表
+     * @author fanggang7
+     * @time 2024-04-03 17:45:38 周三
+     */
+    @Override
+    public Result<RouterDynamicLineReplacePlan> getMatchedEnableLine(RouterDynamicLineReplacePlanMatchedEnableLineReq req) {
+        if(log.isInfoEnabled()){
+            log.info("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJson(req));
+        }
+        Result<RouterDynamicLineReplacePlan> result = Result.success();
+        try {
+            // step 校验参数
+            final Result<Void> checkResult = this.checkParam4getMatchedEnableLine(req);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
+
+            // step 查询符合条件的数据
+            final RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery = new RouterDynamicLineReplacePlanQuery();
+            routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
+            routerDynamicLineReplacePlanQuery.setStartSiteId(req.getStartSiteId());
+            routerDynamicLineReplacePlanQuery.setOldEndSiteId(req.getOldEndSiteId());
+            routerDynamicLineReplacePlanQuery.setNewEndSiteId(req.getNewEndSiteId());
+            routerDynamicLineReplacePlanQuery.setEffectTime(req.getEffectTime());
+            final RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist = routerDynamicLineReplacePlanDao.selectLatestOne(routerDynamicLineReplacePlanQuery);
+            result.setData(routerDynamicLineReplacePlanExist);
+        }catch (Exception e){
+            log.error("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJson(req), e);
+            result.toFail("系统异常");
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4getMatchedEnableLine(RouterDynamicLineReplacePlanMatchedEnableLineReq req){
+        Result<Void> result = Result.success();
+        if (req.getStartSiteId() == null) {
+            return result.toFail("参数错误, startSiteId不能为空");
+        }
+        if (req.getOldEndSiteId() == null) {
+            return result.toFail("参数错误, oldEndSiteId不能为空");
+        }
+        if (req.getNewEndSiteId() == null) {
+            return result.toFail("参数错误, newEndSiteId不能为空");
+        }
+        if (req.getEffectTime() == null) {
+            req.setEffectTime(new Date());
         }
         return result;
     }

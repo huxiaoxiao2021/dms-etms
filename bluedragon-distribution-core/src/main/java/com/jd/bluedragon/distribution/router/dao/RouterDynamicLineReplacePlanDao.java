@@ -38,4 +38,8 @@ public class RouterDynamicLineReplacePlanDao extends BaseDao<RouterDynamicLineRe
         return this.getSqlSession().selectOne(NAMESPACE + ".updateByPrimaryKeySelective", routerDynamicLineReplacePlan);
     }
 
+    public RouterDynamicLineReplacePlan selectLatestOne(RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectLatestOne", routerDynamicLineReplacePlanQuery);
+    }
+
 }

@@ -9,14 +9,18 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnoreRouterCondition;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
+import com.jd.bluedragon.distribution.router.IRouterDynamicLineReplacePlanService;
 import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanMatchedEnableLineReq;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -49,6 +53,9 @@ public class RouterFilter implements Filter {
 
     @Autowired
     private JYTransferConfigProxy jyTransferConfigProxy;
+
+    @Autowired
+    private IRouterDynamicLineReplacePlanService routerDynamicLineReplacePlanService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -134,6 +141,14 @@ public class RouterFilter implements Filter {
                         }
                     }
                 }
+
+                // 如果存在临时路由切换，则不认为是错误路由
+                if(this.hasMatchedEnableDynamicLine(request, routeNextDto)){
+                    logger.info("RouterFilter hasMatchedEnableDynamicLine: {}", waybillCode);
+                    chain.doFilter(request, chain);
+                    return;
+                }
+
                 String siteName = siteService.getDmsShortNameByCode(routeNextDto.getFirstNextSiteId());
                 Map<String, String> argsMap = new HashMap<>();
                 argsMap.put(HintArgsConstants.ARG_FIRST, siteName);
@@ -149,5 +164,24 @@ public class RouterFilter implements Filter {
     private boolean isRightReceiveSite(Integer receiveSiteCode, RouteNextDto routeNextDto) {
         return CollectionUtils.isNotEmpty(routeNextDto.getNextSiteIdList())
                 && Objects.equals(routeNextDto.getFirstNextSiteId(),receiveSiteCode);
+    }
+
+    private boolean hasMatchedEnableDynamicLine(FilterContext request, RouteNextDto routeNextDto){
+        final RouterDynamicLineReplacePlanMatchedEnableLineReq routerDynamicLineReplacePlanMatchedEnableLineReq = new RouterDynamicLineReplacePlanMatchedEnableLineReq();
+        routerDynamicLineReplacePlanMatchedEnableLineReq.setStartSiteId(request.getCreateSiteCode());
+        routerDynamicLineReplacePlanMatchedEnableLineReq.setOldEndSiteId(routeNextDto.getFirstNextSiteId());
+        routerDynamicLineReplacePlanMatchedEnableLineReq.setNewEndSiteId(request.getReceiveSiteCode());
+        final Result<RouterDynamicLineReplacePlan> matchedEnableLineResult = routerDynamicLineReplacePlanService.getMatchedEnableLine(routerDynamicLineReplacePlanMatchedEnableLineReq);
+        if (!matchedEnableLineResult.isSuccess()) {
+            logger.warn("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine fail {}, {}, {}", JsonHelper.toJson(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJson(request), JsonHelper.toJson(routeNextDto));
+            return false;
+        } else {
+            if (matchedEnableLineResult.getData() != null) {
+                logger.warn("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine exist {}, {}, {}, {}", JsonHelper.toJson(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJson(matchedEnableLineResult.getData()), JsonHelper.toJson(request), JsonHelper.toJson(routeNextDto));
+                return true;
+            }
+        }
+
+        return false;
     }
 }

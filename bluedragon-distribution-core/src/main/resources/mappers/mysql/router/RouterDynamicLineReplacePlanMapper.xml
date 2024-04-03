@@ -407,6 +407,7 @@
         <include refid="Base_Column_List"/>
         FROM `router_dynamic_line_replace_plan`
         <include refid="where"/>
+        limit 1
     </select>
     <!-- where条件 -->
     <sql id="where">
@@ -468,5 +469,15 @@
         WHERE
         id = #{id} 
     </update>
+
+    <!-- 按条件查询单条记录 -->
+    <select id="selectLatestOne" resultMap="RM_RouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `router_dynamic_line_replace_plan`
+        <include refid="where"/>
+        order by version_id desc
+        limit 1
+    </select>
 </mapper>
 
