@@ -86,7 +86,9 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 	 */
 	private Long operateFlowId;
 
-
+	/**
+	 * 操作来源
+	 */
 	private Integer bizSource;
 
 	/**

@@ -1379,6 +1379,12 @@ public class BoxServiceImpl implements BoxService {
         }
         return boxList;
     }
+
+	/**
+	 * 组装参数
+	 * @param boxRelationList
+	 * @return
+	 */
 	private List<Box> assembleParentBoxList(List<BoxRelation> boxRelationList) {
 		List<Box> boxes = boxRelationList.stream().map(boxRelation ->
 		{

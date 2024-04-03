@@ -233,6 +233,13 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
     }
 
+    /**
+     * 保存全程跟踪话术
+     * @param tWaybillStatus
+     * @param cenConfirm
+     * @param record
+     * @param packageMQ
+     */
     private void setRemarkAndExtendParamMap(WaybillStatus tWaybillStatus, CenConfirm cenConfirm, Inspection record, InspectionPackageMQ packageMQ) {
         Map<String, Object> extendParamMap =  tWaybillStatus.getExtendParamMap();
         if (Objects.isNull(extendParamMap)) {
