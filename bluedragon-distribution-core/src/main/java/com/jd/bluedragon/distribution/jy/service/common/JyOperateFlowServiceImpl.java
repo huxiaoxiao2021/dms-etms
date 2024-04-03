@@ -138,15 +138,18 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			if (!dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
 				return;
 			}
+			// 不污染源对象，重新复制一份
+			WaybillStatus dmsOperateTrack = new WaybillStatus();
+			BeanUtils.copyProperties(waybillStatus, dmsOperateTrack);
 			// 组装参数
-			assembleData(waybillStatus);
+			assembleData(dmsOperateTrack);
 			// 获取有效单号
-			String barCode = getBarCode(waybillStatus);
+			String barCode = getBarCode(dmsOperateTrack);
 			// 消息业务ID格式：操作码+单号
-			String businessId = waybillStatus.getOperateType() + barCode;
-			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
+			String businessId = dmsOperateTrack.getOperateType() + barCode;
+			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(dmsOperateTrack));
 			if (logger.isInfoEnabled()) {
-				logger.info("sendOperateTrack|发送操作轨迹:businessId={},waybillStatus={}", businessId, JsonHelper.toJsonMs(waybillStatus));
+				logger.info("sendOperateTrack|发送操作轨迹:businessId={},waybillStatus={}", businessId, JsonHelper.toJsonMs(dmsOperateTrack));
 			}
 		} catch (Exception e) {
 			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJsonMs(waybillStatus), e);
