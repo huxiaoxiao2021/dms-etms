@@ -1682,6 +1682,11 @@ public class Constants {
     public static final int CONSTANT_TWO_HUNDRED = 200;
 
     /**
+     * 常量值：500
+     * */
+    public static final int CONSTANT_FIVE_HUNDRED = 500;
+
+    /**
      * 常量值：1000
      * */
     public static final int CONSTANT_ONE_THOUSAND = 1000;

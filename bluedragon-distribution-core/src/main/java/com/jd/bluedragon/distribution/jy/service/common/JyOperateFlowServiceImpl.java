@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.board.domain.OperatorInfo;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -23,6 +22,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 /**
  * 拣运-附件接口实现类
@@ -90,7 +91,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			return 0;
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info("jyOperateFlowMqProducer-sendMq|发送流水:mqData={}", JsonHelper.toJson(mqData));
+			logger.info("jyOperateFlowMqProducer-sendMq|发送流水:mqData={}", JsonHelper.toJsonMs(mqData));
 		}
 		jyOperateFlowMqProducer.sendOnFailPersistent(mqData.getOperateBizKey(), JsonHelper.toJson(mqData));
 		return 1;
@@ -110,7 +111,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 				}
 				msgList.add(new Message(jyOperateFlowMqProducer.getTopic(), JsonHelper.toJson(mqData), mqData.getOperateBizKey()));
 				if (logger.isInfoEnabled()) {
-					logger.info("jyOperateFlowMqProducer-sendMqList|发送流水:mqData={}", JsonHelper.toJson(mqData));
+					logger.info("jyOperateFlowMqProducer-sendMqList|发送流水:mqData={}", JsonHelper.toJsonMs(mqData));
 				}
 			}
 			jyOperateFlowMqProducer.batchSendOnFailPersistent(msgList);
@@ -137,16 +138,37 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			if (!dmsConfigManager.getPropertyConfig().isOperateFlowNewSwitch()) {
 				return;
 			}
+			// 不污染源对象，重新复制一份
+			WaybillStatus dmsOperateTrack = new WaybillStatus();
+			BeanUtils.copyProperties(waybillStatus, dmsOperateTrack);
+			// 组装参数
+			assembleData(dmsOperateTrack);
 			// 获取有效单号
-			String barCode = getBarCode(waybillStatus);
+			String barCode = getBarCode(dmsOperateTrack);
 			// 消息业务ID格式：操作码+单号
-			String businessId = waybillStatus.getOperateType() + barCode;
-			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(waybillStatus));
+			String businessId = dmsOperateTrack.getOperateType() + barCode;
+			dmsOperateTrackProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(dmsOperateTrack));
 			if (logger.isInfoEnabled()) {
-				logger.info("sendOperateTrack|发送操作轨迹:waybillStatus={}", JsonHelper.toJson(waybillStatus));
+				logger.info("sendOperateTrack|发送操作轨迹:businessId={},waybillStatus={}", businessId, JsonHelper.toJsonMs(dmsOperateTrack));
 			}
 		} catch (Exception e) {
-			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJson(waybillStatus), e);
+			logger.error("sendOperateTrack|发送操作轨迹出现异常:waybillStatus={}", JsonHelper.toJsonMs(waybillStatus), e);
+		}
+	}
+
+	private void assembleData(WaybillStatus waybillStatus) {
+		// 原始操作时间
+		Date operateTime = waybillStatus.getOperateTime();
+		// 操作信息对象
+		OperatorData operatorData = waybillStatus.getOperatorData();
+		if (operatorData != null) {
+			// 记录原始操作时间
+			operatorData.setOriginOperateTime(operateTime);
+		}
+		if (operateTime != null) {
+			// 时间转换，跟运单数据库保持一致
+			Date newOperateTime = getRealUpdateTime(operateTime);
+			waybillStatus.setOperateTime(newOperateTime);
 		}
 	}
 
@@ -196,7 +218,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 				comboardTaskDto.setOperateFlowMap(map);
 			}
 		} catch (Exception e) {
-			logger.error("发送组板操作流水消息出现异常:request={}", JsonHelper.toJson(t), e);
+			logger.error("发送组板操作流水消息出现异常:request={}", JsonHelper.toJsonMs(t), e);
 		}
 	}
 
@@ -214,7 +236,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			unsealFlowMq.setOperateBizSubType(request.getBizType());
 			sendMq(unsealFlowMq);
 		} catch (Exception e) {
-			logger.error("发送解封车操作流水消息出现异常:sealCarDto={},request={}", JsonHelper.toJson(sealCarDto),
+			logger.error("发送解封车操作流水消息出现异常:sealCarDto={},request={}", JsonHelper.toJsonMs(sealCarDto),
 					JsonHelper.toJson(request), e);
 		}
 	}
@@ -229,7 +251,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			List<JyOperateFlowMqData> inspectionFlowMqList = new ArrayList<>();
 			for (Inspection inspection : inspectionList) {
 				if (logger.isInfoEnabled()) {
-					logger.info("sendInspectOperateFlowData|发送验货流水:inspection={}", JsonHelper.toJson(inspection));
+					logger.info("sendInspectOperateFlowData|发送验货流水:inspection={}", JsonHelper.toJsonMs(inspection));
 				}
 				originInspection = inspection;
 				// 组装操作流水实体
@@ -243,7 +265,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			// 批量发送验货操作流水消息
 			sendMqList(inspectionFlowMqList);
 		} catch (Exception e) {
-			logger.error("发送验货操作流水消息出现异常:inspection={}", originInspection, e);
+			logger.error("发送验货操作流水消息出现异常:inspection={}", JsonHelper.toJsonMs(originInspection), e);
 		}
 	}
 
@@ -262,7 +284,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sendMq(boardFlowMq);
 			receive.setOperateFlowId(operateFlowId);
 		} catch (Exception e) {
-			logger.error("发送收货操作流水消息出现异常:request={}", JsonHelper.toJson(receive), e);
+			logger.error("发送收货操作流水消息出现异常:request={}", JsonHelper.toJsonMs(receive), e);
 		}
 	}
 
@@ -280,11 +302,11 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sendMq(sortingCancelFlowMq);
 			waybillStatus.setOperateFlowId(operateFlowId);
 			if (logger.isInfoEnabled()) {
-				logger.info("sendSoringOperateFlowData|发送分拣流水:sorting={},sortingMQ={},waybillStatus={}", JsonHelper.toJson(sorting),
-						JsonHelper.toJson(sortingCancelFlowMq), JsonHelper.toJson(waybillStatus));
+				logger.info("sendSoringOperateFlowData|发送分拣流水:sorting={},sortingMQ={},waybillStatus={}", JsonHelper.toJsonMs(sorting),
+						JsonHelper.toJsonMs(sortingCancelFlowMq), JsonHelper.toJsonMs(waybillStatus));
 			}
 		} catch (Exception e) {
-			logger.error("发送分拣操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
+			logger.error("发送分拣操作流水消息出现异常:request={}", JsonHelper.toJsonMs(waybillStatus), e);
 		}
 	}
 
@@ -301,12 +323,12 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			deliveryCancelFlowMq.setId(operateFlowId);
 			waybillStatus.setOperateFlowId(operateFlowId);
 			if (logger.isInfoEnabled()) {
-				logger.info("createDeliveryOperateFlowData|发送发货流水:sendDetail={},deliveryMQ={},waybillStatus={}", JsonHelper.toJson(sendDetail),
-						JsonHelper.toJson(deliveryCancelFlowMq), JsonHelper.toJson(waybillStatus));
+				logger.info("createDeliveryOperateFlowData|发送发货流水:sendDetail={},deliveryMQ={},waybillStatus={}", JsonHelper.toJsonMs(sendDetail),
+						JsonHelper.toJsonMs(deliveryCancelFlowMq), JsonHelper.toJsonMs(waybillStatus));
 			}
 			return deliveryCancelFlowMq;
 		} catch (Exception e) {
-			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
+			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJsonMs(waybillStatus), e);
 		}
 		return null;
 	}
@@ -322,7 +344,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			}
 			sendMq(deliveryCancelFlowMq);
 		} catch (Exception e) {
-			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJson(waybillStatus), e);
+			logger.error("发送发货操作流水消息出现异常:request={}", JsonHelper.toJsonMs(waybillStatus), e);
 		}
 	}
 
@@ -339,7 +361,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sortingCancelFlowMq.setOperateKey(String.valueOf(abnormalWayBill.getId()));
 			sendMq(sortingCancelFlowMq);
 		} catch (Exception e) {
-			logger.error("发送异常处理操作流水出现异常:abnormalWayBill={}", JsonHelper.toJson(abnormalWayBill), e);
+			logger.error("发送异常处理操作流水出现异常:abnormalWayBill={}", JsonHelper.toJsonMs(abnormalWayBill), e);
 		}
 	}
 
@@ -353,7 +375,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			weightVolumeFlowMq.setOperateBizSubType(subTypeEnum.getCode());
 			sendMq(weightVolumeFlowMq);
 		} catch (Exception e) {
-			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJson(entity), e);
+			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJsonMs(entity), e);
 		}
 	}
 
@@ -370,7 +392,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			return boardFlowMq.getId();
 		} catch (Exception e) {
 			logger.error("发送组板操作流水消息核心逻辑出现异常:request={},boardBoxResult={},subTypeEnum={}",
-					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
+					JsonHelper.toJsonMs(bindBoardRequest), JsonHelper.toJsonMs(boardBoxResult), subTypeEnum.getCode(), e);
 		}
 		return null;
 	}
@@ -395,7 +417,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			boardFlowMq.setId(operateFlowId);
 		} catch (Exception e) {
 			logger.error("构建组板操作流水消息对象出现异常:request={},boardBoxResult={},subTypeEnum={}",
-					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
+					JsonHelper.toJsonMs(bindBoardRequest), JsonHelper.toJsonMs(boardBoxResult), subTypeEnum.getCode(), e);
 		}
 		return boardFlowMq;
 	}
@@ -462,9 +484,28 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			}
 		} catch (Exception e) {
 			logger.error("批量发送组板操作流水消息出现异常:request={},boardBoxResult={},subTypeEnum={}",
-					JsonHelper.toJson(bindBoardRequest), JsonHelper.toJson(boardBoxResult), subTypeEnum.getCode(), e);
+					JsonHelper.toJsonMs(bindBoardRequest), JsonHelper.toJsonMs(boardBoxResult), subTypeEnum.getCode(), e);
 		}
 		return map;
+	}
+
+	/**
+	 * mysql在5.6.4之前的版本中是不保存毫秒数，直接舍弃掉；在5.6.4以后毫秒数在低于500的时候会舍弃掉，大于等于500会进位，这个可以在mysql官方文档中找到。
+	 * 视频追溯也遇到这个问题，我们给运单传的全程跟踪操作时间是毫秒，运单接收到直接存mysql，遇到毫秒数大于500自动加了1秒
+	 * 所以此处需要转换成跟运单库里一样的时间
+	 */
+	private Date getRealUpdateTime(Date operateDate) {
+		long operateTime = operateDate.getTime();
+		String operateTimeStr = String.valueOf(operateTime);
+		// 获取当前时间戳的毫秒数
+		long milliSeconds = Long.parseLong(operateTimeStr.substring(operateTimeStr.length() - Constants.CONSTANT_NUMBER_THREE));
+		// 如果大于500则进位
+		if (milliSeconds >= Constants.CONSTANT_FIVE_HUNDRED) {
+			return new Date(operateTime + (Constants.CONSTANT_ONE_THOUSAND - milliSeconds));
+		} else {
+			// 如果小于500则返回原值
+			return operateDate;
+		}
 	}
 
 }
