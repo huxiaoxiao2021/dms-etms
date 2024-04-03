@@ -336,7 +336,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
         if(log.isInfoEnabled()){
             log.info("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJson(req));
         }
-        Result<Boolean> result = Result.success();
+        Result<Boolean> result = Result.success(true);
         try {
             // step 校验参数
             final Result<Void> checkResult = this.checkParam4changeStatus4Client(req);
