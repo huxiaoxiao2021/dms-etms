@@ -402,7 +402,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         // 统计场地审核通过次数>3,下游乱评价，关闭下游未来7天的评价权限
         JyEvaluateRecordAppealDto dto = getJyEvaluateRecordAppealDto(res.getTargetSiteCode(), EvaluateAppealResultStatusEnum.PASS.getCode());
         Integer checkAppealCount = jyEvaluateRecordAppealDao.getAppealCount(dto);
-        if (Objects.nonNull(checkAppealCount) && checkAppealCount > Constants.APPEAL_COUNT_NUM) {
+        if (Objects.nonNull(checkAppealCount) && checkAppealCount >= Constants.APPEAL_COUNT_NUM) {
             JyEvaluateAppealPermissionsEntity permissions =
                 jyEvaluateAppealPermissionsDao.queryByCondition(res.getSourceSiteCode().intValue());
 
@@ -422,7 +422,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         JyEvaluateRecordAppealDto appealDto =
             getJyEvaluateRecordAppealDto(res.getTargetSiteCode(), EvaluateAppealResultStatusEnum.REJECT.getCode());
         Integer appealRejectCount = jyEvaluateRecordAppealDao.getAppealCount(appealDto);
-        if (Objects.nonNull(appealRejectCount) && appealRejectCount > Constants.APPEAL_COUNT_NUM) {
+        if (Objects.nonNull(appealRejectCount) && appealRejectCount >= Constants.APPEAL_COUNT_NUM) {
             JyEvaluateAppealPermissionsEntity permissions =
                 jyEvaluateAppealPermissionsDao.queryByCondition(res.getTargetSiteCode().intValue());
             // 场地评价和申诉权限记录为空，初始化记录，关闭场地申诉权限，评价权限开启
