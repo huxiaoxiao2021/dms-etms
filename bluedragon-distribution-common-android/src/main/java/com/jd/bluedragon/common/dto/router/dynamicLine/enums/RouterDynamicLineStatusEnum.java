@@ -25,7 +25,7 @@ public enum RouterDynamicLineStatusEnum {
     /**
      * 已失效
      */
-    DISABLE(-1, "已失效"),
+    OUT_OF_DATE(-1, "已失效"),
     ;
 
     public static Map<Integer, String> ENUM_MAP;

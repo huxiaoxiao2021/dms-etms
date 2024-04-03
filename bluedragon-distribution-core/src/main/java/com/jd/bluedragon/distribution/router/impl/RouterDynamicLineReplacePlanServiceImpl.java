@@ -30,10 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 动态线路切换方案接口实现
@@ -256,6 +253,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             routerDynamicLineReplacePlanQuery.setOldEndSiteId(req.getOldEndSiteId());
             routerDynamicLineReplacePlanQuery.setNewEndSiteId(req.getNewEndSiteId());
             routerDynamicLineReplacePlanQuery.setEffectTime(req.getEffectTime());
+            routerDynamicLineReplacePlanQuery.setEnableStatusList(new ArrayList<>(Collections.singletonList(RouterDynamicLineStatusEnum.ENABLE.getCode())));
             final RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist = routerDynamicLineReplacePlanDao.selectLatestOne(routerDynamicLineReplacePlanQuery);
             result.setData(routerDynamicLineReplacePlanExist);
         }catch (Exception e){
@@ -315,13 +313,14 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             pageData.setTotal(total);
 
             if (total > 0) {
+                final long currentTimeMillis = System.currentTimeMillis();
                 final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryList(routerDynamicLineReplacePlanQuery);
 
                 // step 组装数据实体
                 if(CollectionUtils.isNotEmpty(dataRawList)){
                     for (RouterDynamicLineReplacePlan routerDynamicLineReplacePlan : dataRawList) {
                         final RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo = new RouterDynamicLineReplacePlanVo();
-                        BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
+                        this.assembleRouterDynamicLineReplacePlanVo(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo, currentTimeMillis);
                         dataList.add(routerDynamicLineReplacePlanVo);
                     }
                     pageData.setRecords(dataList);
@@ -348,6 +347,14 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             return result.toFail("参数错误, pageSize不能为空");
         }
         return result;
+    }
+
+    private void assembleRouterDynamicLineReplacePlanVo(RouterDynamicLineReplacePlan routerDynamicLineReplacePlan, RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo, long currentTimeMillis) {
+        BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
+        // 失效状态
+        if(routerDynamicLineReplacePlan.getEnableTime().getTime() > currentTimeMillis || routerDynamicLineReplacePlan.getDisableTime().getTime() < currentTimeMillis){
+            routerDynamicLineReplacePlanVo.setEnableStatus(RouterDynamicLineStatusEnum.OUT_OF_DATE.getCode());
+        }
     }
 
     private Result<Void> checkParam4BaseReq(BaseReq req){
