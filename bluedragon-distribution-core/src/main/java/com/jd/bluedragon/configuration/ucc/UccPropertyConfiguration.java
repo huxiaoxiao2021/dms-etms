@@ -4854,4 +4854,14 @@ public class UccPropertyConfiguration{
     public void setImageClarityThreshold(String imageClarityThreshold) {
         this.imageClarityThreshold = imageClarityThreshold;
     }
+
+    private boolean jyCollectPackCheckBoxEndSiteMatchSwitch;
+
+    public boolean getJyCollectPackCheckBoxEndSiteMatchSwitch() {
+        return jyCollectPackCheckBoxEndSiteMatchSwitch;
+    }
+
+    public void setJyCollectPackCheckBoxEndSiteMatchSwitch(boolean jyCollectPackCheckBoxEndSiteMatchSwitch) {
+        this.jyCollectPackCheckBoxEndSiteMatchSwitch = jyCollectPackCheckBoxEndSiteMatchSwitch;
+    }
 }
