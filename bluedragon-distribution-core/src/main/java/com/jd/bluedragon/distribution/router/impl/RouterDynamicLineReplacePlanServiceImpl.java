@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMqContext
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.PageData;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections4.CollectionUtils;
@@ -235,13 +236,14 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
      * @time 2024-04-02 10:53:44 周二
      */
     @Override
-    public Result<List<RouterDynamicLineReplacePlanVo>> queryListByCondition4Client(RouterDynamicLineReplacePlanListReq req) {
+    public Result<PageData<RouterDynamicLineReplacePlanVo>> queryListByCondition4Client(RouterDynamicLineReplacePlanListReq req) {
         if(log.isInfoEnabled()){
             log.info("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client param: {}", JsonHelper.toJson(req));
         }
-        Result<List<RouterDynamicLineReplacePlanVo>> result = Result.success();
+        Result<PageData<RouterDynamicLineReplacePlanVo>> result = Result.success();
         List<RouterDynamicLineReplacePlanVo> dataList = new ArrayList<>();
-        result.setData(dataList);
+        PageData<RouterDynamicLineReplacePlanVo> pageData = new PageData<>(req.getPageNumber(), req.getPageSize(), (long) 0, dataList);
+        result.setData(pageData);
         try {
             // step 校验参数
             final Result<Void> checkResult = this.checkParam4queryListByCondition4Client(req);
@@ -254,14 +256,20 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             routerDynamicLineReplacePlanQuery.setStartSiteId(req.getCurrentOperate().getSiteCode());
             routerDynamicLineReplacePlanQuery.setEffectTime(new Date());
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
-            final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryList(routerDynamicLineReplacePlanQuery);
+            final Long total = routerDynamicLineReplacePlanDao.queryCount(routerDynamicLineReplacePlanQuery);
+            pageData.setTotal(total);
 
-            // step 组装数据实体
-            if (CollectionUtils.isNotEmpty(dataList)) {
-                for (RouterDynamicLineReplacePlan routerDynamicLineReplacePlan : dataRawList) {
-                    final RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo = new RouterDynamicLineReplacePlanVo();
-                    BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
-                    dataList.add(routerDynamicLineReplacePlanVo);
+            if (total > 0) {
+                final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryList(routerDynamicLineReplacePlanQuery);
+
+                // step 组装数据实体
+                if(CollectionUtils.isNotEmpty(dataRawList)){
+                    for (RouterDynamicLineReplacePlan routerDynamicLineReplacePlan : dataRawList) {
+                        final RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo = new RouterDynamicLineReplacePlanVo();
+                        BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
+                        dataList.add(routerDynamicLineReplacePlanVo);
+                    }
+                    pageData.setRecords(dataList);
                 }
             }
 

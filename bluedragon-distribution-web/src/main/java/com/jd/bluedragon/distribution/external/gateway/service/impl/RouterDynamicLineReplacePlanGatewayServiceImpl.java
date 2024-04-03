@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.router.dynamicLine.response.RouterDynamicLin
 import com.jd.bluedragon.distribution.router.IRouterDynamicLineReplacePlanService;
 import com.jd.bluedragon.external.gateway.service.IRouterDynamicLineReplacePlanGatewayService;
 import com.jd.bluedragon.utils.converter.ResultConverter;
+import com.jd.dms.java.utils.sdk.base.PageData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import java.util.List;
  * @copyright jd.com 京东物流JDL
  * @time 2024-04-01 18:23:22 周一
  */
-@Service("routerDynamicLineReplacePlanGatewayService")
+@Service
 public class RouterDynamicLineReplacePlanGatewayServiceImpl implements IRouterDynamicLineReplacePlanGatewayService {
 
     @Autowired
@@ -34,7 +35,7 @@ public class RouterDynamicLineReplacePlanGatewayServiceImpl implements IRouterDy
      * @time 2024-04-02 10:53:44 周二
      */
     @Override
-    public JdCResponse<List<RouterDynamicLineReplacePlanVo>> queryList(RouterDynamicLineReplacePlanListReq req) {
+    public JdCResponse<PageData<RouterDynamicLineReplacePlanVo>> queryList(RouterDynamicLineReplacePlanListReq req) {
         return ResultConverter.convertResultToJdcResponse(routerDynamicLineReplacePlanService.queryListByCondition4Client(req));
     }
 

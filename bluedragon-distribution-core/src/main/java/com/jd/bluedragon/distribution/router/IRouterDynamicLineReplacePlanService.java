@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.router.dynamicLine.response.RouterDynamicLin
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMq;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
+import com.jd.dms.java.utils.sdk.base.PageData;
 import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public interface IRouterDynamicLineReplacePlanService {
      * @author fanggang7
      * @time 2024-04-02 10:53:44 周二
      */
-    Result<List<RouterDynamicLineReplacePlanVo>> queryListByCondition4Client(RouterDynamicLineReplacePlanListReq req);
+    Result<PageData<RouterDynamicLineReplacePlanVo>> queryListByCondition4Client(RouterDynamicLineReplacePlanListReq req);
 
     /**
      * 根据条件查询动态线路替换方案列表

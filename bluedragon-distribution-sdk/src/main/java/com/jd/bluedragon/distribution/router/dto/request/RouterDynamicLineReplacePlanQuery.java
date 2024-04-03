@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.router.dto.request;
 
 
+import com.jd.dms.java.utils.sdk.base.Page;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
  * @author fanggang7
  * @time 2024-04-01 19:35:04 周一
  */
-public class RouterDynamicLineReplacePlanQuery implements Serializable {
+public class RouterDynamicLineReplacePlanQuery extends Page implements Serializable {
 
     private static final long serialVersionUID = 7340503050913597627L;
 

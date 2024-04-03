@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class RouterDynamicLineReplacePlanLogDao extends BaseDao<RouterDynamicLineReplacePlanLog> {
 
-    final static String NAMESPACE = RouterDynamicLineReplacePlanDao.class.getName();
+    final static String NAMESPACE = RouterDynamicLineReplacePlanLogDao.class.getName();
 
-    public int insertSelective(RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlan) {
-        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", routerDynamicLineReplacePlan);
+    public int insertSelective(RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", routerDynamicLineReplacePlanLog);
     }
 
     public RouterDynamicLineReplacePlanLog selectOne(RouterDynamicLineReplacePlanLogQuery routerDynamicLineReplacePlanLogQuery) {
