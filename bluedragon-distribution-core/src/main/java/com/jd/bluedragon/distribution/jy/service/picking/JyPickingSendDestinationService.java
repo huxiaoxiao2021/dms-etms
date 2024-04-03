@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowAddReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowDeleteReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendBatchCodeDetailRes;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
 
 import java.util.List;
@@ -71,4 +69,8 @@ public interface JyPickingSendDestinationService {
      * @return
      */
     String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId, Integer taskType);
+    //批次列表查询
+    InvokeResult<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req);
+    //删除批次
+    void delBatchCodes(DelBatchCodesReq req);
 }

@@ -12,4 +12,12 @@ public class PickingSendBatchCodeDetailRes implements Serializable {
     private static final long serialVersionUID = 4997976038143915037L;
     //待封车批次list
     private List<PickingSendBatchCodeDetailDto> pickingSendBatchCodeDetailDtoList;
+
+    public List<PickingSendBatchCodeDetailDto> getPickingSendBatchCodeDetailDtoList() {
+        return pickingSendBatchCodeDetailDtoList;
+    }
+
+    public void setPickingSendBatchCodeDetailDtoList(List<PickingSendBatchCodeDetailDto> pickingSendBatchCodeDetailDtoList) {
+        this.pickingSendBatchCodeDetailDtoList = pickingSendBatchCodeDetailDtoList;
+    }
 }

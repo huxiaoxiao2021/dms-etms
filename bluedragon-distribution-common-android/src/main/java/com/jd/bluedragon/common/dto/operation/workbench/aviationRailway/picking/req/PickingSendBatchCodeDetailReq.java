@@ -30,4 +30,45 @@ public class PickingSendBatchCodeDetailReq extends BaseReq implements Serializab
     private Integer pageNum;
     //页容量 [1,100]
     private Integer pageSize;
+
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getNextSiteId() {
+        return nextSiteId;
+    }
+
+    public void setNextSiteId(Integer nextSiteId) {
+        this.nextSiteId = nextSiteId;
+    }
+
+    public Integer getBatchCodeStatus() {
+        return batchCodeStatus;
+    }
+
+    public void setBatchCodeStatus(Integer batchCodeStatus) {
+        this.batchCodeStatus = batchCodeStatus;
+    }
+
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 }

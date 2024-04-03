@@ -4,10 +4,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.FinishSendTaskReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowAddReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowDeleteReq;
-import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.SendFlowReq;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.req.*;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendBatchCodeDetailDto;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.PickingSendBatchCodeDetailRes;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.picking.res.SendFlowDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -17,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQu
 import com.jd.bluedragon.distribution.jy.constants.JyPickingSendTaskEnum;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendDestinationDetailDao;
+import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
@@ -129,6 +129,7 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setUpdateUserErp(req.getUser().getUserErp());
         entity.setUpdateUserName(req.getUser().getUserName());
         entity.setTaskType(req.getTaskType());
+        entity.setScanItemNum(req.getScanItemNum());
         jyPickingSendDestinationDetailDao.finishSendTask(entity);
         return true;
     }
@@ -302,5 +303,60 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
     @Override
     public String fetchLatestNoCompleteBatchCode(Long curSiteId, Long nextSiteId, Integer taskType) {
         return jyPickingSendDestinationDetailDao.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, taskType);
+    }
+
+    @Override
+    public InvokeResult<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req) {
+        InvokeResult<PickingSendBatchCodeDetailRes> res = new InvokeResult<>();
+        PickingSendBatchCodeDetailRes resData = new PickingSendBatchCodeDetailRes();
+        res.setData(resData);
+        //select by condition
+        JyPickingSendDestinationDetailCondition condition = new JyPickingSendDestinationDetailCondition();
+        condition.setCreateSiteId((long)req.getCurrentOperate().getSiteCode());
+        condition.setNextSiteId(req.getNextSiteId().longValue());
+        condition.setStatus(req.getBatchCodeStatus());
+        condition.setTaskType(req.getTaskType());
+        condition.setPageSize(req.getPageSize());
+        condition.setOffset(this.getOffset(req.getPageNum(), req.getPageSize()));
+        List<JyPickingSendDestinationDetailEntity> entityList = jyPickingSendDestinationDetailDao.pageFetchSendBatchCodeDetailList(condition);
+        if(CollectionUtils.isEmpty(entityList)) {
+            res.setMessage("查询为空");
+            return res;
+        }
+        //convert resultSet to dto
+        List<PickingSendBatchCodeDetailDto> pickingSendBatchCodeDetailDtoList = new ArrayList<>();
+        entityList.forEach(entity -> {
+            PickingSendBatchCodeDetailDto dto = new PickingSendBatchCodeDetailDto();
+            dto.setSendCode(entity.getSendCode());
+            dto.setFirstScanTime(entity.getFirstScanTime());
+            dto.setCompleteTime(entity.getCompleteTime());
+            dto.setScanItemNum(entity.getScanItemNum());
+            pickingSendBatchCodeDetailDtoList.add(dto);
+        });
+        resData.setPickingSendBatchCodeDetailDtoList(pickingSendBatchCodeDetailDtoList);
+        return res;
+    }
+    //分页偏移量
+    private Integer getOffset(Integer pageNum, Integer pageSize) {
+        if (pageNum == null || pageSize == null) {
+            return 0;
+        }else {
+            return  (pageNum - 1) * pageSize;
+        }
+    }
+
+
+    @Override
+    public void delBatchCodes(DelBatchCodesReq req) {
+        JyPickingSendDestinationDetailCondition condition = new JyPickingSendDestinationDetailCondition();
+        condition.setSendCodeList(req.getSendCodeList());
+        condition.setCreateSiteId((long)req.getCurrentOperate().getSiteCode());
+        condition.setNextSiteId(req.getNextSiteId().longValue());
+        condition.setTaskType(req.getTaskType());
+
+        condition.setUpdateTime(new Date());
+        condition.setUpdateUserErp(req.getUser().getUserErp());
+        condition.setUpdateUserName(req.getUser().getUserName());
+        jyPickingSendDestinationDetailDao.delBatchCodes(condition);
     }
 }

@@ -35,6 +35,12 @@ public class JyAviationRailwayPickingGoodsCacheService {
     private static final String LOCK_PICKING_DETAIL_RECORD_INIT_PRE = "lock:picking:detail:init:%s:%s:%s";
     private static final Integer LOCK_PICKING_DETAIL_RECORD_INIT_PRE_TIMEOUT_SECONDS = 120;
 
+    private static final String LOCK_PICKING_SEND_COMPLETE_PRE = "lock:picking:send:complete:%s:%s";
+    private static final Integer LOCK_PICKING_SEND_COMPLETE_PRE_TIMEOUT_SECONDS = 120;
+
+
+    private static final String LOCK_PICKING_SEND_BATCH_CODE_DELETE_PRE = "lock:picking:send:batch:code:delete:%s:%s";
+    private static final Integer LOCK_PICKING_SEND_BATCH_CODE_DELETE_PRE_TIMEOUT_SECONDS = 120;
 
     @Autowired
     private JimDbLock jimDbLock;
@@ -119,5 +125,45 @@ public class JyAviationRailwayPickingGoodsCacheService {
         return String.format(LOCK_PICKING_DETAIL_RECORD_INIT_PRE, siteId, bizId, barCode);
     }
 
+    /**
+     * 提货并发货批次完成加锁
+     * @param siteId
+     * @param nextSite
+     * @return
+     */
+    public boolean lockPickingSendTaskComplete(Integer siteId, Integer nextSite) {
+        String lockKey = this.getLockKeyPickingSendTaskComplete(siteId, nextSite);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_SEND_COMPLETE_PRE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+    //释放锁
+    public void unlockPickingSendTaskComplete(Integer siteId, Integer nextSite) {
+        String lockKey = this.getLockKeyPickingSendTaskComplete(siteId, nextSite);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    //获取key
+    private String getLockKeyPickingSendTaskComplete(Integer siteId, Integer nextSite) {
+        return String.format(LOCK_PICKING_SEND_COMPLETE_PRE, siteId, nextSite);
+    }
+
+
+    /**
+     * 提发批次数据删除加锁
+     * @param siteCode
+     * @param nextSiteId
+     * @return
+     */
+    public boolean lockPickingSendBatchCodeDel(int siteCode, Integer nextSiteId) {
+        String lockKey = this.getLockKeyPickingSendBatchCodeDel(siteCode, nextSiteId);
+        return jimDbLock.lock(lockKey, DEFAULT_VALUE_1, LOCK_PICKING_SEND_BATCH_CODE_DELETE_PRE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+    //释放锁
+    public void unlockPickingSendBatchCodeDel(int siteCode, Integer nextSiteId) {
+        String lockKey = this.getLockKeyPickingSendBatchCodeDel(siteCode, nextSiteId);
+        jimDbLock.releaseLock(lockKey, DEFAULT_VALUE_1);
+    }
+    //获取key
+    private String getLockKeyPickingSendBatchCodeDel(int siteCode, Integer nextSiteId) {
+        return String.format(LOCK_PICKING_SEND_BATCH_CODE_DELETE_PRE, siteCode, nextSiteId);
+    }
 
 }

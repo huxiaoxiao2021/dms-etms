@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyPickingSendBatchCodeStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -111,6 +113,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private RouterService routerService;
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
+    @Autowired
+    private SendMDao sendmDao;
+
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -520,7 +525,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return true;
     }
 
-
+    @Override
     public JyBizTaskPickingGoodEntity fetchWaitPickingBizIdByBarCode(Long siteCode, String barCode) {
         String bizId = jyPickingSendRecordService.fetchWaitPickingBizIdByBarCode(siteCode, barCode);
         if(StringUtils.isBlank(bizId)) {
@@ -764,33 +769,61 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishSendTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishPickingSendTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public InvokeResult<Void> finishSendTask(FinishSendTaskReq req) {
-        InvokeResult<Void> ret = new InvokeResult<>();
-        finishSendTaskCheck(req, ret);
-        if (!ret.codeSuccess()) {
-            return ret;
+    public InvokeResult<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req) {
+        InvokeResult<FinishSendTaskRes> res = new InvokeResult<>();
+        FinishSendTaskRes resData = new FinishSendTaskRes();
+        res.setData(resData);
+        if (!this.finishPickingSendTaskBaseCheck(req, res)) {
+            return res;
         }
-        long curSiteId = req.getCurrentOperate().getSiteCode();
-        long nextSiteId = (long) req.getNextSiteId();
-        String sendCode = jyPickingSendDestinationService.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, req.getTaskType());
-        if (StringUtils.isEmpty(sendCode)) {
-            ret.customMessage(InvokeResult.AVRA_SEND_TASK_FINISHED_CODE, InvokeResult.AVRA_SEND_TASK_FINISHED_MESSAGE);
-            return ret;
+        int curSiteId = req.getCurrentOperate().getSiteCode();
+        Integer nextSiteId = req.getNextSiteId();
+        if(!pickingGoodsCacheService.lockPickingSendTaskComplete(curSiteId, nextSiteId)) {
+            res.error("该流向正在操作任务完成，请稍后重试");
+            return res;
         }
-        req.setSendCode(sendCode);
-        jyPickingSendDestinationService.finishSendTask(req);
-        return ret;
+        String sendCode = null;
+        try{
+            sendCode = jyPickingSendDestinationService.fetchLatestNoCompleteBatchCode((long)curSiteId, nextSiteId.longValue(), req.getTaskType());
+            if (StringUtils.isEmpty(sendCode)) {
+                res.customMessage(InvokeResult.AVRA_SEND_TASK_FINISHED_CODE, InvokeResult.AVRA_SEND_TASK_FINISHED_MESSAGE);
+                return res;
+            }
+            req.setSendCode(sendCode);
+
+            Integer scanItemNum = sendmDao.countBoxCodeNumBySendCode(sendCode, curSiteId);
+            req.setScanItemNum(scanItemNum);
+
+            resData.setSendCode(sendCode);
+            resData.setScanItemNum(scanItemNum);
+            jyPickingSendDestinationService.finishSendTask(req);
+            return res;
+        }catch (Exception ex) {
+            log.error("提货发货任务完成异常，请联系分拣小秘,req={},sendCode={},errMsg={}", JSON.toJSONString(req), sendCode, ex.getMessage(), ex);
+            res.error("提货发货任务完成异常，请联系分拣小秘");
+            return res;
+        }finally {
+            pickingGoodsCacheService.unlockPickingSendTaskComplete(curSiteId, nextSiteId);
+        }
     }
 
-    private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult<Void> invokeResult) {
+
+    //check: true-success; false-error
+    private boolean finishPickingSendTaskBaseCheck(FinishSendTaskReq req, InvokeResult<FinishSendTaskRes> invokeResult) {
+        if(Objects.isNull(req) || Objects.isNull(invokeResult)) {
+            return true;
+        }
         if (req.getNextSiteId() == null) {
-            invokeResult.parameterError("目的场地编码不能为空！");
+            invokeResult.error("目的场地编码不能为空！");
+            return false;
         }
-        if (req.getTaskType() == null) {
-            invokeResult.parameterError("任务类型不能为空！");
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            invokeResult.error("任务类型不合法");
+            return false;
         }
+        return true;
     }
 
     @Override
@@ -1261,5 +1294,85 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             batchFinishPickingTaskByBizId(bizIdList, PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
+    }
+
+    @Override
+    public InvokeResult<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req) {
+        InvokeResult<PickingSendBatchCodeDetailRes> res = new InvokeResult<>();
+        if(!pageFetchSendBatchCodeDetailListBaseCheck(req, res)) {
+            return res;
+        }
+
+        res = jyPickingSendDestinationService.pageFetchSendBatchCodeDetailList(req);
+        return res;
+    }
+    //校验;true 放行  false 拦截
+    private boolean pageFetchSendBatchCodeDetailListBaseCheck(PickingSendBatchCodeDetailReq req, InvokeResult<PickingSendBatchCodeDetailRes> res) {
+        if(Objects.isNull(req) || Objects.isNull(res)) {
+            res.success();
+            return true;
+        }
+        if(Objects.isNull(req.getCurrentOperate()) || Objects.isNull(req.getCurrentOperate().getSiteCode())) {
+            res.error("当前操作人站点不能为空");
+            return false;
+        }
+        if(Objects.isNull(req.getNextSiteId())) {
+            res.error("下一站点不能为空");
+            return false;
+        }
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            res.error("任务类型不合法");
+            return false;
+        }
+        if(Objects.isNull(req.getBatchCodeStatus())) {
+            req.setBatchCodeStatus(JyPickingSendBatchCodeStatusEnum.TO_SEAL.getCode());
+        }
+        return true;
+    }
+
+    @Override
+    public InvokeResult delBatchCodes(DelBatchCodesReq req) {
+        InvokeResult res = new InvokeResult();
+        if(!this.delBatchCodesBaseCheck(req, res)) {
+            return res;
+        }
+        if(!pickingGoodsCacheService.lockPickingSendBatchCodeDel(req.getCurrentOperate().getSiteCode(), req.getNextSiteId())) {
+            res.error("该流向正在操作任务删除，请稍后重试");
+            return res;
+        }
+        try{
+            jyPickingSendDestinationService.delBatchCodes(req);
+        }catch (Exception ex) {
+            log.error("提发批次删除服务异常：req={},errMsg={}", JSON.toJSONString(req), ex.getMessage(), ex);
+            res.error("提发批次删除服务异常");
+            return res;
+        }finally {
+            pickingGoodsCacheService.unlockPickingSendBatchCodeDel(req.getCurrentOperate().getSiteCode(), req.getNextSiteId());
+        }
+        return res;
+    }
+    //校验;true 放行  false 拦截
+    private boolean delBatchCodesBaseCheck(DelBatchCodesReq req, InvokeResult res) {
+        if(Objects.isNull(req) || Objects.isNull(res)) {
+            return true;
+        }
+        if(Objects.isNull(req.getCurrentOperate()) || Objects.isNull(req.getCurrentOperate().getSiteCode())) {
+            res.error("当前操作人站点不能为空");
+            return false;
+        }
+        if(CollectionUtils.isEmpty(req.getSendCodeList())) {
+            res.error("批次号不能为空");
+            return false;
+        }
+        if(Objects.isNull(req.getNextSiteId())) {
+            res.error("下一站点不能为空");
+            return false;
+        }
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            res.error("任务类型不合法");
+            return false;
+        }
+        res.success();
+        return true;
     }
 }

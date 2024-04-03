@@ -35,7 +35,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     @Autowired
     private JyAviationRailwayPickingGoodsService jyAviationRailwayPickingGoodsService;
 
-    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
+    private <T> JdCResponse<T> retJdcResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
@@ -56,7 +56,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(request));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.pickingGoodsScan(request));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.pickingGoodsScan(request));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -82,7 +82,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.finishPickGoods(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.finishPickGoods(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -108,7 +108,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.submitException(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.submitException(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -134,7 +134,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.listSendFlowInfo(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.listSendFlowInfo(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -160,7 +160,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.addSendFlow(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.addSendFlow(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -186,7 +186,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.deleteSendFlow(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.deleteSendFlow(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -212,7 +212,36 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.finishSendTask(req));
+            InvokeResult<FinishSendTaskRes> invokeResult = jyAviationRailwayPickingGoodsService.finishPickingSendTask(req);
+            JdCResponse<Void> res = new JdCResponse<Void>();
+            res.init(invokeResult.getCode(), invokeResult.getMessage());
+            return res;
+        }catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        }catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁发货完成接口异常", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.finishPickingSendTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req) {
+        if(Objects.isNull(req)){
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.finishSendTask:";
+        try{
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+
+            if(log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.finishPickingSendTask(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -238,7 +267,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskSummary(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskSummary(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -264,7 +293,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdCResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskAgg(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.listAirRailTaskAgg(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
@@ -273,4 +302,54 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁提货机场/车站列表明细查询异常", null);//500+非自定义异常
         }
     }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.pageFetchSendBatchCodeDetailList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req) {
+        if (Objects.isNull(req)) {
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.pageFetchSendBatchCodeDetailList:";
+        try {
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+            baseParamValidateService.checkPdaPage(req.getPageNum(), req.getPageSize());
+            if (log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.pageFetchSendBatchCodeDetailList(req));
+        } catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        } catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "查询批次数据服务异常", null);//500+非自定义异常
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.delBatchCodes",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<DelBatchCodesRes> delBatchCodes(DelBatchCodesReq req) {
+        if (Objects.isNull(req)) {
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
+        }
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.delBatchCodes:";
+        try {
+            //基本参数校验
+            baseParamValidateService.checkUserAndSiteAndGroupAndPost(
+                    req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
+            if (log.isInfoEnabled()) {
+                log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
+            }
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.delBatchCodes(req));
+        } catch (JyBizException ex) {
+            log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
+            return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
+        } catch (Exception ex) {
+            log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "删除批次服务异常", null);//500+非自定义异常
+        }    }
 }
