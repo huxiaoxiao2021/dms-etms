@@ -4,19 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTypeRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
-import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
-import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
@@ -25,29 +19,23 @@ import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.rest.allianceBusi.AllianceBusiResouse;
-import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
@@ -57,7 +45,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.EXPRESS_CENTER_SITE_ID;
@@ -69,10 +56,6 @@ import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCa
  * @date : 2019/6/14
  */
 public class InspectionGatewayServiceImpl implements InspectionGatewayService {
-
-    @Autowired
-    @Qualifier("inspectionResource")
-    private InspectionResource inspectionResource;
 
     @Autowired
     private DmsPackingConsumableService dmsPackingConsumableService;
@@ -102,19 +85,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     @Autowired
     private InspectionService inspectionService;
-
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
-
-    @Autowired
-    private WaybillRouteLinkQueryManager waybillRouteManager;
-
-    @Autowired
-    private EasyFreezeSiteManager easyFreezeSiteManager;
-
-    @Autowired
-    private DmsConfigManager dmsConfigManager;
-
+    
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
     @Override
