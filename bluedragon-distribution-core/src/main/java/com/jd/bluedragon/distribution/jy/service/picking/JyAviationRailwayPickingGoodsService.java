@@ -64,11 +64,10 @@ public interface JyAviationRailwayPickingGoodsService {
 
     /**
      * 发货完成
-     * 原方法：finishSendTask， 本方法新增返回值FinishSendTaskRes
      * @param req
      * @return
      */
-    InvokeResult<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req);
+    InvokeResult<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req);
 
     /**
      * 所有机场任务列表

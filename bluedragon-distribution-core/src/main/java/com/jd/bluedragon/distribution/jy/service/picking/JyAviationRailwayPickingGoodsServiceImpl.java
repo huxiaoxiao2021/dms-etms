@@ -769,9 +769,9 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishPickingSendTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.completePickingSendTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public InvokeResult<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req) {
+    public InvokeResult<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req) {
         InvokeResult<FinishSendTaskRes> res = new InvokeResult<>();
         FinishSendTaskRes resData = new FinishSendTaskRes();
         res.setData(resData);

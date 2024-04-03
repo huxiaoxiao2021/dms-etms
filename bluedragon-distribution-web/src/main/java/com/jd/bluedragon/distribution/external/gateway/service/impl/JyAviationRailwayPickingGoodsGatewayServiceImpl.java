@@ -212,7 +212,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            InvokeResult<FinishSendTaskRes> invokeResult = jyAviationRailwayPickingGoodsService.finishPickingSendTask(req);
+            InvokeResult<FinishSendTaskRes> invokeResult = jyAviationRailwayPickingGoodsService.completePickingSendTask(req);
             JdCResponse<Void> res = new JdCResponse<Void>();
             res.init(invokeResult.getCode(), invokeResult.getMessage());
             return res;
@@ -226,13 +226,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.finishPickingSendTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsGatewayService.completePickingSendTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdCResponse<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req) {
+    public JdCResponse<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req) {
         if(Objects.isNull(req)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL, "参数为空", null);
         }
-        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.finishSendTask:";
+        final String methodDesc = "JyAviationRailwayPickingGoodsGatewayService.completePickingSendTask:";
         try{
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
@@ -241,13 +241,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }
-            return retJdcResponse(jyAviationRailwayPickingGoodsService.finishPickingSendTask(req));
+            return retJdcResponse(jyAviationRailwayPickingGoodsService.completePickingSendTask(req));
         }catch (JyBizException ex) {
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage());
             return new JdCResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(req), ex.getMessage(), ex);
-            return new JdCResponse<>(JdCResponse.CODE_ERROR, "空铁发货完成接口异常", null);//500+非自定义异常
+            return new JdCResponse<>(JdCResponse.CODE_ERROR, "提货发货完成接口异常", null);//500+非自定义异常
         }
     }
 

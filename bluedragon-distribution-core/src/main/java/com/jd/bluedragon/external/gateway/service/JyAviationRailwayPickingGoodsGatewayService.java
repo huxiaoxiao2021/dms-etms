@@ -62,7 +62,7 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @param req
      * @return
      */
-    JdCResponse<FinishSendTaskRes> finishPickingSendTask(FinishSendTaskReq req);
+    JdCResponse<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req);
 
     /**
      * 所有机场任务列表

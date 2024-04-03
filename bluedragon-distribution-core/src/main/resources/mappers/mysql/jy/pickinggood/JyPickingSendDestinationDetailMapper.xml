@@ -146,7 +146,8 @@
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
             update_time = #{updateTime},
-            complete_time = #{completeTime}
+            complete_time = #{completeTime},
+            scan_item_num = #{scanItemNum}
     where   yn = 1
     and     status = 1
     and     send_code = #{sendCode}
