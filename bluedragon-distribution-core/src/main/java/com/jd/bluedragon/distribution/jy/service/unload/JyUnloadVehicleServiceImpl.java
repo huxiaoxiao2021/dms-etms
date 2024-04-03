@@ -655,7 +655,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param result
      * @return
      */
-    private UnloadScanContextDto initUnloadScanContext(UnloadScanRequest request, JdVerifyResponse<JdVerifyResponse<> result) {
+    private UnloadScanContextDto initUnloadScanContext(UnloadScanRequest request, JdVerifyResponse<UnLoadScanResponse> result) {
         UnloadScanContextDto unloadScanContextDto = new UnloadScanContextDto();
         
         // fill request
@@ -758,7 +758,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param result
      * @param unloadScanContextDto
      */
-    private void collectHandle(JdVerifyResponse<JdVerifyResponse<> result, UnloadScanContextDto unloadScanContextDto) {
+    private void collectHandle(JdVerifyResponse<UnLoadScanResponse> result, UnloadScanContextDto unloadScanContextDto) {
         if(!checkIsDirectDeliverySortCollect(unloadScanContextDto)){
             // 非直送分拣揽收单不处理
             return;
