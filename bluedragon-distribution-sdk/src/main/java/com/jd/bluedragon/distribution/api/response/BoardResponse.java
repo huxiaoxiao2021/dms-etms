@@ -76,6 +76,11 @@ public class BoardResponse implements Serializable{
     /** 组板明细包裹数量 */
     private Integer packageNum;
 
+    /** 组板成功标识 */
+    private Boolean successFlag;
+
+    /** com_board_box表业务主键 */
+    private String operateKey;
 
 
     /**
@@ -201,5 +206,21 @@ public class BoardResponse implements Serializable{
 
     public void setPackageNum(Integer packageNum) {
         this.packageNum = packageNum;
+    }
+
+    public Boolean getSuccessFlag() {
+        return successFlag;
+    }
+
+    public void setSuccessFlag(Boolean successFlag) {
+        this.successFlag = successFlag;
+    }
+
+    public String getOperateKey() {
+        return operateKey;
+    }
+
+    public void setOperateKey(String operateKey) {
+        this.operateKey = operateKey;
     }
 }

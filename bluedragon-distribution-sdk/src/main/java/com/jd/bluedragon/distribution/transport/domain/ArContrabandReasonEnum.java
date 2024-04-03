@@ -11,31 +11,6 @@ import java.util.List;
  */
 public enum ArContrabandReasonEnum {
     /**
-     * 液体或膏状
-     */
-    LIQUID_OR_PASTE(1, "违禁品-含液体或膏状","10,40,60"),
-
-    /**
-     * 粉末
-     */
-    POWDER(2, "违禁品-含粉末","10,40,60"),
-
-    /**
-     * 电池
-     */
-    BATTERY(3, "违禁品-含电池","10,40,60"),
-
-    /**
-     * 磁
-     */
-    MAGNET(4, "违禁品-含磁","10,40,60"),
-
-    /**
-     * 危险品
-     */
-    DANGEROUS_GOODS(5, "违禁品-危险品","10,40,60"),
-
-    /**
      * 政府航空管制
      */
     GOVERNMENT_AVIATION_CONTROL(6, "政府航空管制","10,40"),
@@ -117,19 +92,5 @@ public enum ArContrabandReasonEnum {
             }
         }
         return null;
-    }
-
-    /**
-     * 获取所有带违禁品标识的违禁品原因
-     * @return
-     */
-    public static List<Integer> getContrabandFlagReason(){
-        List<Integer> list = new ArrayList<Integer>();
-        list.add(LIQUID_OR_PASTE.getCode());
-        list.add(POWDER.getCode());
-        list.add(BATTERY.getCode());
-        list.add(MAGNET.getCode());
-        list.add(DANGEROUS_GOODS.getCode());
-        return list;
     }
 }

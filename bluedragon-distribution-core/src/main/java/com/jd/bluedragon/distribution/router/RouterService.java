@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.router;
 
+import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -35,4 +36,22 @@ public interface RouterService {
      * @return
      */
     public RouteNextDto matchNextNodeAndLastNodeByRouter(Integer siteCode, String waybillCode, String routerStr);
+
+
+    /**
+     * 根据箱号查询箱号下一流向（随机取箱内三个运单来确定箱的流向）
+     * @param curSiteId
+     * @param box
+     * @return
+     */
+    BoxNextSiteDto getRouteNextSiteByBox(Integer curSiteId, String box);
+
+    /**
+     * 根据运单号查询该运单路由的下一流向场地
+     * 【可能为空】
+     * @param curSiteId
+     * @param waybillCode
+     * @return
+     */
+    BaseStaffSiteOrgDto getRouteNextSiteByWaybillCode(Integer curSiteId, String waybillCode);
 }

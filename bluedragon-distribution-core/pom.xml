@@ -112,7 +112,7 @@
 			<artifactId>erp.ql.station-api</artifactId>
 			<version>1.0.1-printcheck-20210426.063930-1</version>
 		</dependency>
- 
+
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -192,6 +192,10 @@
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>profiler</artifactId>
+					<groupId>com.jd.ump</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -243,12 +247,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>2.0.29-SNAPSHOT</version>
+			<version>2.0.30-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.0.0-COLLECT-SNAPSHOT</version>
+			<version>1.5.7-SNAPSHOT</version>
 		</dependency>
 <!--		积分-->
 		<dependency>
@@ -277,7 +281,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.0.0-COLLECT-SNAPSHOT</version>
+            <version>1.7.11-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -790,6 +794,10 @@
 					<artifactId>netty-all</artifactId>
 					<groupId>io.netty</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>profiler</artifactId>
+					<groupId>com.jd.ump</groupId>
+				</exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -1058,6 +1066,10 @@
 					<artifactId>commons-jexl</artifactId>
 					<groupId>org.apache.commons</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>profiler</artifactId>
+					<groupId>com.jd.ump</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1176,6 +1188,10 @@
                      <artifactId>cxf-rt-transports-http</artifactId>
                      <groupId>org.apache.cxf</groupId>
                  </exclusion>
+				 <exclusion>
+					 <artifactId>profiler</artifactId>
+					 <groupId>com.jd.ump</groupId>
+				 </exclusion>
              </exclusions>
         </dependency>
 
@@ -1443,7 +1459,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>2.4-SNAPSHOT</version>
+			<version>2.5-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
@@ -1541,6 +1557,12 @@
 			<groupId>com.jd.jspliter</groupId>
 			<artifactId>jspliter-jmq</artifactId>
 			<version>1.0.3</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>profiler</artifactId>
+					<groupId>com.jd.ump</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -2131,6 +2153,10 @@
 					<groupId>org.aspectj</groupId>
 					<artifactId>aspectjweaver</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>profiler</artifactId>
+					<groupId>com.jd.ump</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -2289,7 +2315,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.4-SNAPSHOT</version>
+			<version>1.41-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -2737,6 +2763,12 @@
 			<groupId>vd-service-sdk</groupId>
 			<artifactId>vd-service-sdk</artifactId>
 		</dependency>
+
+		<!--拣运租户组件-->
+		<dependency>
+			<groupId>com.jdl.sorting.tech</groupId>
+			<artifactId>tenant-jsf-filter-sdk</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>
@@ -2799,6 +2831,11 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+			</plugin>
         </plugins>
 	</build>
 	<groupId>com.jd.bluedragon</groupId>

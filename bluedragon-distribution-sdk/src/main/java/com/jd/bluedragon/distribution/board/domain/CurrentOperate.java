@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.board.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -44,6 +46,11 @@ public class CurrentOperate implements Serializable {
      * 操作者id
      */
 	private String operatorId;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public CurrentOperate() {
     }
@@ -117,4 +124,12 @@ public class CurrentOperate implements Serializable {
 	public void setOperatorId(String operatorId) {
 		this.operatorId = operatorId;
 	}
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
 }

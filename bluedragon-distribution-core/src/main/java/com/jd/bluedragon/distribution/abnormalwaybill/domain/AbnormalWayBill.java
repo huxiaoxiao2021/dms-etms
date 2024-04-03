@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.util.Date;
 
 /**
@@ -92,6 +94,14 @@ public class AbnormalWayBill {
     /**  数据库时间戳 */
     private Date ts;
     private String waveBusinessId;//版次号，路由系统的字段
+    /**
+     * 操作流水表主键
+     */
+    private Long operateFlowId;
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public Integer getCreateSiteCode() {
         return createSiteCode;
@@ -291,5 +301,21 @@ public class AbnormalWayBill {
 
     public void setWaveBusinessId(String waveBusinessId) {
         this.waveBusinessId = waveBusinessId;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

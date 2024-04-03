@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.capability.send.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.request.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 
 /**

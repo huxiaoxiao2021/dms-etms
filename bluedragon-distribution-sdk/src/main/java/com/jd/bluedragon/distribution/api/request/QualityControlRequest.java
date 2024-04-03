@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -52,6 +54,16 @@ public class QualityControlRequest implements Serializable{
     private String trackContent;     // 发送全程跟踪内容
     private String waveBusinessId;//版次号，路由系统的字段
     private Integer qcVersionFlag;//对接质控版本，1是老质控，2是新质控，null默认为老质控
+
+    /**
+     * 操作数据对象
+     */
+    private OperatorData operatorData;
+
+    /**
+     * 异常菜单来源
+     */
+    private Integer bizSource;
 
     public Integer getUserID() {
         return userID;
@@ -211,5 +223,21 @@ public class QualityControlRequest implements Serializable{
 
     public void setQcVersionFlag(Integer qcVersionFlag) {
         this.qcVersionFlag = qcVersionFlag;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
@@ -151,6 +152,8 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             } else {
                 logger.warn("向运单系统回传包裹称重信息失败：{}，运单返回值：{}", entity.getPackageCode(), JsonHelper.toJson(resultMap));
             }
+            // 记录称重操作流水
+            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_PACKAGE);
 
             /* 原始逻辑：发送MQ，在未来的日志里看看能否合并 */
             OpeSendObject opeSend = new OpeSendObject();

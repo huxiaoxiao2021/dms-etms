@@ -230,6 +230,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         String packageBarCode = context.getRequest().getPackageBarCode();
         try{
             response.setRePrintNum(INTEGER_ZERO);
+            // 如果包裹号或运单号为空，不处理
+            if (StringUtils.isEmpty(packageBarCode)) {
+                return;
+            }
              // 只针对 按包裹打印和一单一件按运单号打印的场景
             if (!Objects.equals(context.getWaybill().getPackageNum(),INTEGER_ONE) && !WaybillUtil.isPackageCode(packageBarCode)) {
                 return;
@@ -241,7 +245,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 return;
             }
             WorkSiteTypeEnum workSiteTypeEnum = getWorkingSiteTypeBySubType(siteInfo.getSubType());
-            if (!workSiteTypeEnum.equals(DMS_TYPE)) {
+            if (!DMS_TYPE.equals(workSiteTypeEnum)) {
                 return;
             }
 

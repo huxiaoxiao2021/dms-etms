@@ -1012,7 +1012,7 @@ public class NewSealVehicleResource {
                 }
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -1072,7 +1072,7 @@ public class NewSealVehicleResource {
                 }
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     unSealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -1152,7 +1152,9 @@ public class NewSealVehicleResource {
 
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
+            request1.setOperatorData(request.getOperatorData());
             request1.setData(Collections.singletonList(request.getSealCarDto()));
+            request1.setBizType(request.getBizType());
             unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
             if(Objects.equals(unSealVehicleResponse.getCode(), JdResponse.CODE_OK)){
                 NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
