@@ -441,6 +441,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             routerDynamicLineReplacePlanLog.setRefId(req.getId());
             routerDynamicLineReplacePlanLog.setStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
             routerDynamicLineReplacePlanLog.setStatusTarget(req.getEnableStatus());
+            routerDynamicLineReplacePlanLog.setCreateTime(currentTime);
             routerDynamicLineReplacePlanLog.setOperateTime(currentTime);
             routerDynamicLineReplacePlanLog.setCreateUserId(user.getUserCode());
             routerDynamicLineReplacePlanLog.setCreateUserErp(user.getUserErp());
