@@ -182,6 +182,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
         routerDynamicLineReplacePlan.setNewPlanLineCode(dynamicLineReplacePlanMq.getNewPlanLineCode());
         routerDynamicLineReplacePlan.setNewPlanFlowCode(dynamicLineReplacePlanMq.getNewPlanFlowCode());
         routerDynamicLineReplacePlan.setNewPlanDepartureTime(dynamicLineReplacePlanMq.getNewPlanDepartureTime());
+        routerDynamicLineReplacePlan.setCreateTime(new Date());
         routerDynamicLineReplacePlan.setEnableTime(dynamicLineReplacePlanMq.getEnableTime());
         routerDynamicLineReplacePlan.setDisableTime(dynamicLineReplacePlanMq.getDisableTime());
         routerDynamicLineReplacePlan.setPushTime(dynamicLineReplacePlanMq.getPushTime());
