@@ -60,6 +60,12 @@ public class BusinessInterceptConfigHelper {
     // 拦截报表处理节点【拆包】类型
     @Value("${businessIntercept.dispose.node.unpack}")
     private Integer interceptDisposeNodeUnpack;
+    // 拦截报表处理节点【逆向发货】类型
+    @Value("${businessIntercept.dispose.node.reverseSend}")
+    private Integer interceptDisposeNodeReverseSend;
+    // 拦截报表处理节点【补打新单】类型
+    @Value("${businessIntercept.dispose.node.reprintNewWaybill}")
+    private Integer interceptDisposeNodeReprintNewWaybill;
 
     // 【PDA】操作后取消类型的拦截码
     @Value("${businessIntercept.pda.interceptCode.waybillCancel}")
@@ -245,6 +251,23 @@ public class BusinessInterceptConfigHelper {
     public BusinessInterceptConfigHelper setInterceptDisposeNodeUnpack(Integer interceptDisposeNodeUnpack) {
         this.interceptDisposeNodeUnpack = interceptDisposeNodeUnpack;
         return this;
+    }
+
+    public Integer getInterceptDisposeNodeReverseSend() {
+        return interceptDisposeNodeReverseSend;
+    }
+
+    public BusinessInterceptConfigHelper setInterceptDisposeNodeReverseSend(Integer interceptDisposeNodeReverseSend) {
+        this.interceptDisposeNodeReverseSend = interceptDisposeNodeReverseSend;
+        return this;
+    }
+
+    public Integer getInterceptDisposeNodeReprintNewWaybill() {
+        return interceptDisposeNodeReprintNewWaybill;
+    }
+
+    public void setInterceptDisposeNodeReprintNewWaybill(Integer interceptDisposeNodeReprintNewWaybill) {
+        this.interceptDisposeNodeReprintNewWaybill = interceptDisposeNodeReprintNewWaybill;
     }
 
     public String getPdaInterceptCodeWaybillCancel() {

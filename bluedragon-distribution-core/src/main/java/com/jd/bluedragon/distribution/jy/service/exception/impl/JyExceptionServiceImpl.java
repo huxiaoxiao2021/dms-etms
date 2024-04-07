@@ -2549,7 +2549,34 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
         // 3.3 插入流水记录
-        recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, bizTaskExceptionUpdate);
+        recordLog(getJyBizTaskExceptionCycleType(businessInterceptDisposeRecord, targetProcessStatus), bizTaskExceptionUpdate);
+    }
+
+    private JyBizTaskExceptionCycleTypeEnum getJyBizTaskExceptionCycleType(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer targetProcessStatus) {
+        JyBizTaskExceptionCycleTypeEnum targetEnum = JyBizTaskExceptionCycleTypeEnum.CLOSE;
+        final Integer disposeNode = businessInterceptDisposeRecord.getDisposeNode();
+        if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeExchangeWaybill())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_EXCHANGE_PRINT;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeFinishWeight())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_UPLOAD_WEIGHT_VOLUME;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReprint())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REPRINT;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeUnpack())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_UNPACK;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReverseSend())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REVERSE_SEND;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReprintNewWaybill())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REPRINT_NEW_WAYBILL;
+        }
+        if(Objects.equals(targetProcessStatus, JyBizTaskExceptionProcessStatusEnum.INTERCEPT_RECALL.getCode())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_RECALL;
+        }
+        return targetEnum;
     }
 
     /**

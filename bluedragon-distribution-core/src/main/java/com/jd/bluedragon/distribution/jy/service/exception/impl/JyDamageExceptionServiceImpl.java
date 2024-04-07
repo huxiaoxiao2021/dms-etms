@@ -862,23 +862,27 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     break;
                 case REPAIR_HANDOVER:
                     // 1.修复下传
-                    this.repairOrReplacePackagingHandover(req, entity);
+                    this.repairOrReplacePackagingHandover(req, entity, JyBizTaskExceptionCycleTypeEnum.DAMAGE_FIX_SEND_FINISH);
                     //称重
                     this.dealExpDamageWeightVolumeUploadAfterRepair(req, entity);
                     break;
                 case HANDOVER:
                     //2.直接下传
-                    this.finishFlow(req, entity);
+                    JyBizTaskExceptionCycleTypeEnum targetEnum = JyBizTaskExceptionCycleTypeEnum.DAMAGE_INNER_DIRECT_SEND_FINISH;
+                    if (Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.INSIDE_OUTSIDE_DAMAGE.getCode(), req.getDamageType())) {
+                        targetEnum = JyBizTaskExceptionCycleTypeEnum.DAMAGE_OUTER_DIRECT_SEND_FINISH;
+                    }
+                    this.finishFlow(req, entity, targetEnum);
                     break;
                 case REPLACE_PACKAGING_HANDOVER:
                     //3.更换包装下传
-                    this.repairOrReplacePackagingHandover(req, entity);
+                    this.repairOrReplacePackagingHandover(req, entity, JyBizTaskExceptionCycleTypeEnum.DAMAGE_CHANGE_WRAP_FINISH);
                     //称重
                     this.dealExpDamageWeightVolumeUploadAfterRepair(req, entity);
                     break;
                 case DESTROY:
                     //4.报废
-                    this.finishFlow(req, entity);
+                    this.finishFlow(req, entity, JyBizTaskExceptionCycleTypeEnum.CLOSE);
                     //报废全程跟踪
                     this.sendScrapTraceOfDamage(req.getBizId());
                     break;
@@ -889,7 +893,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                     break;
                 case REPLENISH:
                     //6.补单/补差
-                    this.finishFlow(req, entity);
+                    this.finishFlow(req, entity, JyBizTaskExceptionCycleTypeEnum.CLOSE);
                     //调用妥投接口
                     jyExceptionService.delivered(req.getBizId());
                     break;
@@ -935,12 +939,12 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     }
 
-    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
+    private void finishFlow(ExpDamageDetailReq req, JyExceptionDamageEntity entity, JyBizTaskExceptionCycleTypeEnum jyBizTaskExceptionCycleTypeEnum) {
         this.saveOrUpdate(entity);
-        this.updateTask(entity);
+        this.updateTask(entity, jyBizTaskExceptionCycleTypeEnum);
     }
 
-    private void updateTask(JyExceptionDamageEntity entity) {
+    private void updateTask(JyExceptionDamageEntity entity, JyBizTaskExceptionCycleTypeEnum jyBizTaskExceptionCycleTypeEnum) {
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(entity.getBizId());
         update.setStatus(JyExpStatusEnum.COMPLETE.getCode());
@@ -949,15 +953,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         update.setUpdateUserName(entity.getUpdateStaffName());
         update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
-        jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, update);
+        jyExceptionService.recordLog(jyBizTaskExceptionCycleTypeEnum, update);
     }
 
-    private void repairOrReplacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageEntity entity) {
+    private void repairOrReplacePackagingHandover(ExpDamageDetailReq req, JyExceptionDamageEntity entity, JyBizTaskExceptionCycleTypeEnum jyBizTaskExceptionCycleTypeEnum) {
         entity.setVolumeRepairAfter(req.getVolumeRepairAfter());
         entity.setWeightRepairAfter(req.getWeightRepairAfter());
         this.saveImages(req, entity);
         this.saveOrUpdate(entity);
-        this.updateTask(entity);
+        this.updateTask(entity, jyBizTaskExceptionCycleTypeEnum);
     }
 
     /**
