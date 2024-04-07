@@ -76,4 +76,5 @@ public class HrUserManagerImpl implements HrUserManager{
         }
         return null;
     }
+    
 }

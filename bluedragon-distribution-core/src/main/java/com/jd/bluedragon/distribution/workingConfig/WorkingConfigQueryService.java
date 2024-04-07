@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.workingConfig;
 
+import com.jd.dms.wb.report.sdk.model.vo.working.data.SupplierVO;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,4 +24,11 @@ public interface WorkingConfigQueryService {
      * @return
      */
     Map<String,String> querySupplierCodeWithDaMuJia(Integer siteCode);
+
+    /**
+     * 查询场地外包商
+     * @param siteId
+     * @return
+     */
+    List<SupplierVO> querySupplierBySiteCode(Integer siteId);
 }

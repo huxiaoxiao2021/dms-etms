@@ -15,4 +15,5 @@ public interface HrUserManager {
      * @return
      */
     String getSuperiorErp(String userErp);
+    
 }
