@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckAppealDto;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.dto.DWSCheckAppealRequest;
 import com.jd.bluedragon.Constants;
@@ -84,6 +85,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
+    @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
+
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -161,13 +165,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             return;
         }
         // 上传称重流水
-        if((Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ.getCode(), status)
-                || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_OVERTIME.getCode(), status)
-                || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_Y.getCode(), status)
-                || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_N.getCode(), status)
-                || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_EFFECT.getCode(), status))
-                && SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(updateDto.getReviewSource())
-                && !Objects.equals(updateDto.getManualUploadWeight(), Constants.CONSTANT_NUMBER_ONE)){
+        if(checkIsUploadWeight(spotCheckNotifyMQ, updateDto)){
             updateDto.setManualUploadWeight(Constants.CONSTANT_NUMBER_ONE);
             uploadWeightVolume(spotCheckNotifyMQ, updateDto.getReviewDate());
         }
@@ -178,6 +176,33 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             updateDto.setContrastStaffType(spotCheckNotifyMQ.getDutyStaffType());
         }
         spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
+    }
+
+    /**
+     * 是否上传称重数据
+     * 
+     * @param spotCheckNotifyMQ
+     * @param updateDto
+     * @return
+     */
+    private boolean checkIsUploadWeight(SpotCheckNotifyMQ spotCheckNotifyMQ, WeightVolumeSpotCheckDto updateDto) {
+        List<Integer> needUploadWeightStatus = Lists.newArrayList(
+                SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ.getCode(),
+                SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_OVERTIME.getCode(),
+                SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_Y.getCode(),
+                SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_N.getCode(),
+                SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_EFFECT.getCode()
+        );
+        return  // 1、满足条件的抽检状态需要上传
+                needUploadWeightStatus.contains(spotCheckNotifyMQ.getStatus())
+                // 2、未操作过上传的需要上传
+                && !Objects.equals(updateDto.getManualUploadWeight(), Constants.CONSTANT_NUMBER_ONE) 
+                && (
+                    // 3.1、开关打开则所有抽检来源都需要上传
+                    dmsWeightVolumeService.checkWaybillNotZeroWeightInterceptSwitchOn(updateDto.getReviewSiteCode())
+                    // 3.2、开关未打开则只有人工抽检需要上传      
+                    || SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(updateDto.getReviewSource())
+                );
     }
 
     private List<JyAttachmentDetailEntity> createAttachmentList(SpotCheckNotifyMQ spotCheckNotifyMQ) {
@@ -321,6 +346,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
         weightVolumeEntity.setOperatorId(baseStaff.getStaffNo());
         weightVolumeEntity.setOperatorName(baseStaff.getStaffName());
         weightVolumeEntity.setOperateTime(new Date(operateTime));
+        // 只上传运单称重流水，不发称重全程跟踪
+        weightVolumeEntity.setUploadWaybillFlowFlag(true);
+        weightVolumeEntity.setRecordWaybillTraceFlag(false);
         // 异步上传称重流水
         dmsWeightVolumeService.dealWeightAndVolume(weightVolumeEntity, false);
     }
