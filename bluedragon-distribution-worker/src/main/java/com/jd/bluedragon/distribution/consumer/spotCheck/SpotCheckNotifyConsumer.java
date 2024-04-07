@@ -84,10 +84,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
-
-    @Autowired
-    private DMSWeightVolumeService dmsWeightVolumeService;
-
+    
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
