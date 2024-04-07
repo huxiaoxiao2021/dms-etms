@@ -573,7 +573,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					}
 					for (WaybillMonitorDto waybillMonitorDto : goldShieldResult.getDatas()) {
 						// 判责站点和预分拣站点相同，直接执行反调度
-						if (Objects.equals(String.valueOf(req.getSiteOfSchedulingOnSiteCode()), waybillMonitorDto.getResponsibleUnits())) {
+						if (StringUtils.isNotEmpty(waybillMonitorDto.getJudgementId())
+								&& Objects.equals(String.valueOf(req.getSiteOfSchedulingOnSiteCode()), waybillMonitorDto.getResponsibleUnits())) {
 							return returnPack(req);
 						}
 					}
