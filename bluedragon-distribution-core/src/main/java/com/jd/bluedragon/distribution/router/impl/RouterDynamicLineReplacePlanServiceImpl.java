@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMq;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMqContext;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanMatchedEnableLineReq;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
+import com.jd.bluedragon.distribution.router.manager.IRouterDynamicLineReplacePlanManager;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.java.utils.sdk.base.PageData;
@@ -56,6 +57,9 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private IRouterDynamicLineReplacePlanManager routerDynamicLineReplacePlanManager;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -466,47 +470,23 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             if (Objects.equals(routerDynamicLineReplacePlanExist.getEnableStatus(), req.getEnableStatus())) {
                 return result.toFail(String.format("已经是%s状态，请刷新页面", targetStatusStr));
             }
-            if (routerDynamicLineReplacePlanExist.getEnableTime().getTime() > currentTime.getTime() || routerDynamicLineReplacePlanExist.getDisableTime().getTime() < currentTime.getTime()) {
+            if (routerDynamicLineReplacePlanExist.getEnableTime().getTime() < currentTime.getTime() || currentTime.getTime() > routerDynamicLineReplacePlanExist.getDisableTime().getTime()) {
                 return result.toFail("该数据已过生效时间范围");
             }
 
-            final User user = req.getUser();
-            // step 更新数据
-            final RouterDynamicLineReplacePlan routerDynamicLineReplacePlan = getRouterDynamicLineReplacePlan(req, currentTime, user);
-            routerDynamicLineReplacePlanDao.updateByPrimaryKeySelective(routerDynamicLineReplacePlan);
-
-            // step 写入日志
-            final RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog = new RouterDynamicLineReplacePlanLog();
-            routerDynamicLineReplacePlanLog.setRefId(req.getId());
-            routerDynamicLineReplacePlanLog.setStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
-            routerDynamicLineReplacePlanLog.setStatusTarget(req.getEnableStatus());
-            routerDynamicLineReplacePlanLog.setCreateTime(currentTime);
-            routerDynamicLineReplacePlanLog.setOperateTime(currentTime);
-            routerDynamicLineReplacePlanLog.setCreateUserId(user.getUserCode());
-            routerDynamicLineReplacePlanLog.setCreateUserErp(user.getUserErp());
-            routerDynamicLineReplacePlanLog.setCreateUserName(user.getUserName());
-            routerDynamicLineReplacePlanLogDao.insertSelective(routerDynamicLineReplacePlanLog);
-
-            // step 主动删除缓存
-            final String uniqueCacheKey = this.getUniqueCacheKey(routerDynamicLineReplacePlanExist);
-            redisClientOfJy.del(uniqueCacheKey);
+            // step 更新数据+写入日志
+            final boolean executeFlag = routerDynamicLineReplacePlanManager.changeStatus4Client(req, routerDynamicLineReplacePlanExist);
+            if(executeFlag){
+                // step 主动删除缓存
+                final String uniqueCacheKey = this.getUniqueCacheKey(routerDynamicLineReplacePlanExist);
+                redisClientOfJy.del(uniqueCacheKey);
+            }
 
         }catch (Exception e){
             log.error("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJson(req), e);
             result.toFail("系统异常");
         }
         return result;
-    }
-
-    private RouterDynamicLineReplacePlan getRouterDynamicLineReplacePlan(RouterDynamicLineReplacePlanChangeStatusReq req, Date currentTime, User user) {
-        final RouterDynamicLineReplacePlan routerDynamicLineReplacePlan = new RouterDynamicLineReplacePlan();
-        routerDynamicLineReplacePlan.setId(req.getId());
-        routerDynamicLineReplacePlan.setEnableStatus(req.getEnableStatus());
-        routerDynamicLineReplacePlan.setUpdateTime(currentTime);
-        routerDynamicLineReplacePlan.setUpdateUserId(user.getUserCode());
-        routerDynamicLineReplacePlan.setUpdateUserCode(user.getUserErp());
-        routerDynamicLineReplacePlan.setUpdateUserName(user.getUserName());
-        return routerDynamicLineReplacePlan;
     }
 
     private Result<Void> checkParam4changeStatus4Client(RouterDynamicLineReplacePlanChangeStatusReq req){
