@@ -469,7 +469,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             if (Objects.equals(routerDynamicLineReplacePlanExist.getEnableStatus(), req.getEnableStatus())) {
                 return result.toFail(String.format("已经是%s状态，请刷新页面", targetStatusStr));
             }
-            if (routerDynamicLineReplacePlanExist.getEnableTime().getTime() < currentTime.getTime() || currentTime.getTime() > routerDynamicLineReplacePlanExist.getDisableTime().getTime()) {
+            if (currentTime.getTime() > routerDynamicLineReplacePlanExist.getDisableTime().getTime()) {
                 return result.toFail("该数据已过生效时间范围");
             }
 
