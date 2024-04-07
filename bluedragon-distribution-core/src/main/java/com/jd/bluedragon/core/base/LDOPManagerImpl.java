@@ -51,6 +51,8 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
+import com.jd.ql.dms.receive.api.dto.PackDTO;
+import com.jd.ql.dms.receive.api.dto.ResultObject;
 import com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf;
 import com.jd.ql.dms.receive.api.util.PageUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -58,6 +60,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -744,4 +747,10 @@ public class LDOPManagerImpl implements LDOPManager {
         return result;
 	}
 
+    @Override
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.getPackLists",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public ResultObject<List<PackDTO>> getPackLists(String deliveryId) {
+        return orderInfoServiceJsf.getPackLists(deliveryId, null);
+    }
 }

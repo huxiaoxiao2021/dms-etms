@@ -14,6 +14,8 @@ import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.receive.api.dto.PackDTO;
+import com.jd.ql.dms.receive.api.dto.ResultObject;
 
 import java.util.List;
 
@@ -102,4 +104,11 @@ public interface LDOPManager {
 	 * @return
 	 */
 	JdResult<String> refundApply(RefundApplyDTO refundApplyDTO);
+
+    /**
+     * 查询B商家订单
+     * @param deliveryId 运单号 + _ + 操作场地id
+     * @return
+     */
+    ResultObject<List<PackDTO>> getPackLists(String deliveryId);
 }
