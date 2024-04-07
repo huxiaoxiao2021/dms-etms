@@ -14,7 +14,6 @@ import com.jd.bluedragon.distribution.router.IRouterDynamicLineReplacePlanServic
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao;
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
-import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMq;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMqContext;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanMatchedEnableLineReq;

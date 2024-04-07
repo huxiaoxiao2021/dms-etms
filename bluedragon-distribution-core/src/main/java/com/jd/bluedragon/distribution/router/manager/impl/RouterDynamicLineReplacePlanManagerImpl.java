@@ -39,7 +39,7 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
      * @time 2024-04-02 10:53:44 周二
      */
     @Override
-    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean changeStatus4Client(RouterDynamicLineReplacePlanChangeStatusReq req, RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist) {
         final User user = req.getUser();
         Date currentTime = new Date();
