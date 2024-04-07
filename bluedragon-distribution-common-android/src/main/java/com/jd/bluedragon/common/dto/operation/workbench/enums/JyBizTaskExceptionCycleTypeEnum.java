@@ -18,6 +18,19 @@ public enum JyBizTaskExceptionCycleTypeEnum {
     UP_SHELF(5, "暂存上架"),
     DOWN_SHELF(6, "暂存上架"),
     CLOSE(7, "完成"),
+    DAMAGE_FIX_SEND_FINISH(10,"修复下传"),
+    DAMAGE_INNER_DIRECT_SEND_FINISH(11,"直接下传(内破)"),
+    DAMAGE_CHANGE_WRAP_FINISH(12,"更换包装下传"),
+    DAMAGE_REVERSE_RETURN_FINISH(13,"逆向退回"),
+    DAMAGE_OUTER_DIRECT_SEND_FINISH(14,"直接下传(外破)"),
+    SCRAPPED_APPROVAL_PASSED_FINISH(15,"报废处理审批通过"),
+    INTERCEPT_DISPOSE_RECALL(-1,"撤销拦截"),
+    INTERCEPT_DISPOSE_REPRINT(16,"补打完成"),
+    INTERCEPT_DISPOSE_EXCHANGE_PRINT(17,"换单打印完成"),
+    INTERCEPT_DISPOSE_UPLOAD_WEIGHT_VOLUME(18,"称重量方"),
+    INTERCEPT_DISPOSE_UNPACK(19,"拆包"),
+    INTERCEPT_DISPOSE_REVERSE_SEND(20,"逆向发货"),
+    INTERCEPT_DISPOSE_REPRINT_NEW_WAYBILL(21,"换单后补打新单"),
     ;
 
     private Integer code;
