@@ -46,6 +46,13 @@ public enum WorkTaskTypeEnum {
         }
         return null;
     }
+	
+	public static Boolean isViolentSortingType(Integer code){
+		if(code == null){
+			return false;
+		}
+		return VIOLENCE_SORT.getCode().equals(code);
+	}
     /**
      * 判断code是否存在
      * @param code

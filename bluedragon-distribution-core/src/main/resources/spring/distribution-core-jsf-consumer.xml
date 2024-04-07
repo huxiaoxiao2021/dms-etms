@@ -1602,4 +1602,24 @@
                        groupRouter="jySendCallbackJsfServiceGroupRouter">
     </jsf:consumerGroup>
 
+
+    <!-- 分拣外包商查询接口 -->
+    <jsf:consumer id="outSourceProvisionQueryApi"
+                  interface="com.jd.dms.wb.report.sdk.api.outsource.OutSourceProvisionQueryApi"
+                  alias="${jsf.alias.outSource}"
+                  timeout="${jsf.timeout.outSource}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    
+    <!--摄像头配置查询 -->
+    <jsf:consumer id="videoTraceCameraJsfService"
+                  interface="com.jdl.basic.api.service.videoTraceCamera.VideoTraceCameraJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>
