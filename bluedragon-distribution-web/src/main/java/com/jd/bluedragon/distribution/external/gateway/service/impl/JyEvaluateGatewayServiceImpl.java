@@ -125,12 +125,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
                     return result;
                 }
             }
-            String message = jyEvaluateService.saveTargetEvaluate(request);
-            if (StringUtils.isNotBlank(message)){
-                result.setCode(JdCResponse.CODE_CONFIRM);
-                result.setMessage(message);
-                return result;
-            }
+            jyEvaluateService.saveTargetEvaluate(request);
         } catch (JyBizException e) {
             LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());
@@ -174,12 +169,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
                 result.toFail("评价维度列表详情不能为空");
                 return result;
             }
-            String message = jyEvaluateService.updateTargetEvaluate(request);
-            if (StringUtils.isNotBlank(message)){
-                result.setCode(JdCResponse.CODE_CONFIRM);
-                result.setMessage(message);
-                return result;
-            }
+            jyEvaluateService.updateTargetEvaluate(request);
         } catch (JyBizException e) {
             LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
             result.toError(e.getMessage());

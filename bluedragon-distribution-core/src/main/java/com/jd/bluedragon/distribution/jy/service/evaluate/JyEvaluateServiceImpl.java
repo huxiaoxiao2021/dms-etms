@@ -174,10 +174,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
             // 判断场地使用具有评价权限
-            String message = checkSiteCanEvaluate(request);
-            if (StringUtils.isNotBlank(message)){
-                return message;
-            }
+            checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 根据封车编码查询封车与解封车信息
@@ -200,11 +197,12 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     /**
      * 检查站点是否可以进行评价
+     *
      * @param request 评价对象
      */
-    private String checkSiteCanEvaluate(EvaluateTargetReq request) {
+    private void checkSiteCanEvaluate(EvaluateTargetReq request) {
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus())) {
-            return null;
+            return;
         }
         // 查询评价的来源场地
         JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
@@ -223,7 +221,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 场地评价已关闭，比较权限关闭时间和当前时间是否超过7天，超过可进行评价
             Integer closeDay = dmsConfigManager.getPropertyConfig().getEvaluateAppealCloseDay();
             if (!DateHelper.isDateMoreThanDaysAgo(permissions.getEvaluateClosureDate(), closeDay)) {
-                return "当前场地评价权限已被暂时关闭7天！";
+                throw new JyBizException("当前场地评价权限已被暂时关闭7天！");
             } else {
                 // 超过7天，开启场地评价权限
                 JyEvaluateAppealPermissionsEntity entity =
@@ -236,7 +234,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             JyEvaluateAppealPermissionsEntity entity = buildEntity(request, sideCode);
             jyEvaluateAppealPermissionsDao.insert(entity);
         }
-        return null;
     }
 
     /**
@@ -282,10 +279,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
                 throw new JyBizException("多人同时评价该任务，请稍后重试！");
             }
             // 判断场地使用具有评价权限
-            String message = checkSiteCanEvaluate(request);
-            if (StringUtils.isNotBlank(message)){
-                return message;
-            }
+            checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
             // 根据封车编码查询封车与解封车信息
