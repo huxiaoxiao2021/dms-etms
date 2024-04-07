@@ -567,9 +567,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 					query.setWaybillCode(WaybillUtil.getWaybillCode(req.getBarCode()));
 					query.setSystemCode(SYS_DMS);
 					GoldShieldResult<WaybillMonitorDto> goldShieldResult = goldShieldDataManager.queryGsMonitorInfo(query);
-					if (goldShieldResult == null || CollectionUtils.isEmpty(goldShieldResult.getDatas())) {
+					if (goldShieldResult == null
+							|| CollectionUtils.isEmpty(goldShieldResult.getDatas())
+							|| !checkJudgementRes(goldShieldResult.getDatas())) {
 						result.setData(Boolean.FALSE);
-						result.toFail("无判责结果！");
+						result.toFail("此单金盾系统无判责结果！");
 						return result;
 					}
 					for (WaybillMonitorDto waybillMonitorDto : goldShieldResult.getDatas()) {
@@ -603,6 +605,20 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			redisClientOfJy.del(lockKey);
 		}
 		return result;
+	}
+
+	/**
+	 * 校验是否有判责结果
+	 * @param datas
+	 * @return
+	 */
+	private boolean checkJudgementRes(List<WaybillMonitorDto> datas) {
+		for (WaybillMonitorDto waybillMonitorDto : datas) {
+			if (StringUtils.isNotEmpty(waybillMonitorDto.getJudgementId())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
