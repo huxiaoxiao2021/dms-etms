@@ -58,6 +58,16 @@ public interface PackageWeightingService {
     List<PackageWeighting> findPackageWeightFlow(String waybillCode, String packageCode, List<Integer> businessTypes);
 
     /**
+     * 查询最近一条包裹维度称重流水
+     * 
+     * @param waybillCode
+     * @param packageCode
+     * @param businessTypes
+     * @return
+     */
+    PackageWeighting queryPackWeightFlowRecentDetail(String waybillCode, String packageCode, List<Integer> businessTypes);
+
+    /**
      * 查询运单重量 称重流水
      * @param waybillCode
      * @param businessTypes
