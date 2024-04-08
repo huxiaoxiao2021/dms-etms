@@ -362,7 +362,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
 
             if (total > 0) {
                 final long currentTimeMillis = System.currentTimeMillis();
-                final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryList(routerDynamicLineReplacePlanQuery);
+                final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryListOrderByStatus(routerDynamicLineReplacePlanQuery);
 
                 // step 组装数据实体
                 if(CollectionUtils.isNotEmpty(dataRawList)){
