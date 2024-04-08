@@ -339,7 +339,6 @@
 		<property name="jyWarehouseSealedPlanTimeBeginHours" value="${jyWarehouseSealedPlanTimeBeginHours:24}"/>
 		<property name="jyWarehouseSealedPlanTimeEndHours" value="${jyWarehouseSealedPlanTimeEndHours:48}"/>
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
-		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
 		<property name="waybillZeroWeightInterceptSites" value="${waybillZeroWeightInterceptSites:910}"/>
@@ -719,7 +718,6 @@
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseSealedPlanTimeEndHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
-				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSites</value>
