@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageNotScanItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
@@ -32,10 +33,12 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageHandlerStrategy;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageSortingTempStorageHandler;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.print.domain.JdSiteTypeConfig;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -45,14 +48,17 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.gulfstream.common.BizException;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -67,13 +73,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
@@ -135,6 +146,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      */
     @Autowired
     ThreadPoolTaskExecutor taskExecutor;
+
+    @Autowired
+    private DiscardedStorageWithBoxCodeHandler boxCodeHandler;
 
     private final int maxScanSize = 100;
 
@@ -483,24 +497,19 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 if (BusinessUtil.isBoxcode(paramObj.getBarCode())){
                     log.info("scanDiscardedPackage，弃件暂存-扫描箱号 boxCode: {}", paramObj.getBarCode());
                     List<SendDetail> cancelSendByBox = deliveryService.getCancelSendByBox(paramObj.getBarCode());
-                    List<Future<Result<Boolean>>> futures = new ArrayList<>();
+                    log.info("scanDiscardedPackage，弃件暂存-扫描箱号，箱内包裹数 {}", cancelSendByBox.size());
 
                     for (SendDetail sendByBox : cancelSendByBox) {
-                        paramObj.setBarCode(sendByBox.getWaybillCode());
-                        DiscardedPackageStorageTask task =
-                            new DiscardedPackageStorageTask(paramObj, waybillTraceManager,
-                                waybillQueryManager, discardedStorageHandlerStrategy, siteDto);
-                        Future<Result<Boolean>> future = taskExecutor.submit(task);
-                        futures.add(future);
-                    }
-                    for (Future<Result<Boolean>> future : futures) {
-                        Result<Boolean> booleanResult = future.get();
+                        Result<Boolean> booleanResult = validateData(sendByBox.getWaybillCode());
                         if (Objects.nonNull(booleanResult) && booleanResult.isFail()){
                             log.warn("scanDiscardedPackage，运单不符合弃件条件 param: {}， 错误原因：{}",
                                 JsonHelper.toJson(paramObj), booleanResult.getMessage());
                             return result.toFail("箱号内有包裹不符合弃件条件，请联系营业部处理");
                         }
                     }
+                    // 校验通过，插入数据库
+                    saveToDb(cancelSendByBox, paramObj);
+
                     // 查询扫描后未提交的数据
                     final List<DiscardedWaybillScanResultItemDto> discardedPackageScanResultItemDtoList =
                         this.selectUnSubmitDiscardedWaybillList(this.genUnSubmitDiscardedListQo(paramObj));
@@ -569,11 +578,117 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             final List<DiscardedWaybillScanResultItemDto> discardedPackageScanResultItemDtoList = this.selectUnSubmitDiscardedWaybillList(this.genUnSubmitDiscardedListQo(paramObj));
             result.setData(discardedPackageScanResultItemDtoList);
 
-        } catch (Exception e) {
+        } catch (JyBizException jyBizException) {
+            log.error("DiscardedPackageStorageTempServiceImpl.scanDiscardedPackage JyBizException param {} exception {}",
+                JsonHelper.toJson(paramObj), jyBizException.getMessage(), jyBizException);
+            return result.toFail(jyBizException.getMessage());
+        }catch (Exception e) {
             result.toFail("接口异常");
             log.error("DiscardedPackageStorageTempServiceImpl.scanDiscardedPackage exception param {} exception {}", JsonHelper.toJson(paramObj), e.getMessage(), e);
         } finally {
             jimdbCacheService.del(key);
+        }
+        return result;
+    }
+
+    @Transactional
+    private void saveToDb(List<SendDetail> cancelSendByBox, ScanDiscardedPackagePo paramObj){
+        List<CompletableFuture<Result<Boolean>>> futures = new ArrayList<>();
+        for (SendDetail sendDetail : cancelSendByBox) {
+            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, sendDetail);
+            CompletableFuture<Result<Boolean>> future = processDataAsync(context);
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        // 遍历futures列表获取每个异步任务的返回值
+        for (CompletableFuture<Result<Boolean>> future : futures) {
+            Result<Boolean> result = future.join();
+            if (!result.isSuccess()) {
+                // 发现失败的返回值，执行回滚操作
+                throw new JyBizException("弃件暂存失败，存储数据出现错误");
+            }
+        }
+
+        // 数据库全部保存成功之后，发送全程跟踪
+        for (SendDetail sendDetail : cancelSendByBox) {
+            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, sendDetail);
+            boxCodeHandler.handleAfterWithBoxCode(context);
+        }
+    }
+
+    /**
+     * 根据扫描的废弃包裹信息对象和发货详情，构建废弃存储上下文对象    。
+     * 该方法会查询与运单号相关的详细信息，并设置到上下文对象中    。
+     * @param paramObj 扫描废弃包裹信息对象，包含操作用户信息
+     * @param sendDetail 发货详情对象，包含运单号
+     * @return DiscardedStorageContext 构建的废弃存储上下文对象，包含了查询到的所有相关信息
+     */
+    private DiscardedStorageContext getDiscardedStorageContext(ScanDiscardedPackagePo paramObj, SendDetail sendDetail) {
+        String waybillCode = sendDetail.getWaybillCode();
+        paramObj.setBarCode(sendDetail.getWaybillCode());
+        BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(paramObj.getOperateUser().getSiteCode());
+        WChoice choice = new WChoice();
+        choice.setQueryWaybillC(true);
+        choice.setQueryPackList(true);
+        choice.setQueryGoodList(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+        final BigWaybillDto bigWaybillDto = baseEntity.getData();
+        final DiscardedStorageContext context = new DiscardedStorageContext();
+        context.setScanDiscardedPackagePo(paramObj);
+        context.setCurrentSiteInfo(siteDto);
+        context.setBigWaybillDto(bigWaybillDto);
+        context.setWaybillCode(waybillCode);
+        return context;
+    }
+
+    @Async
+    public CompletableFuture<Result<Boolean>> processDataAsync(DiscardedStorageContext context) {
+        return CompletableFuture.supplyAsync(() -> {
+            // 3. 执行业务操作逻辑
+            return boxCodeHandler.doHandleWithBoxCode(context);
+        }, taskExecutor);
+    }
+
+
+    /**
+     * 验证数据的方法
+     * @param barCode 条形码
+     * @return 返回验证结果
+     * @throws RuntimeException 运行时异常
+     */
+    private Result<Boolean> validateData(String barCode) {
+        Result<Boolean> result = Result.success();
+        try {
+            String waybillCode = WaybillUtil.getWaybillCode(barCode);
+
+            // 暂存判断
+            if (!waybillTraceManager.isOpCodeWaste(barCode)) {
+                log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", barCode);
+                return result.toFail("不是弃件，请勿操作弃件暂存");
+            }
+
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(true);
+            choice.setQueryPackList(true);
+            choice.setQueryGoodList(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+            log.info("查询到运单信息。运单号：{}。返回结果：{}", waybillCode,
+                com.jd.bluedragon.utils.JsonHelper.toJson(baseEntity));
+            if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()) {
+                return result.toFail("查询到运单信息失败:" + baseEntity.getMessage());
+            }
+            final BigWaybillDto bigWaybillDto = baseEntity.getData();
+            if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
+                return result.toFail("没有查询到运单信息");
+            }
+            if (CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
+                return result.toFail("没有查询到运单包裹信息");
+            }
+        } catch (RuntimeException e) {
+            result.toFail("数据校验异常");
+            log.error("DiscardedPackageStorageTempServiceImpl.validateData exception param {} exception {}",
+                barCode, e.getMessage(), e);
         }
         return result;
     }
@@ -645,7 +760,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                     return result.toFail("ERP在人资系统中不是【异常岗】，无法操作弃件暂存功能，请联系异常岗人员操作。", ResultCodeConstant.NO_PERMISSION);
                 }
                 // 运单号或者箱号校验
-                if (!WaybillUtil.isWaybillCode(barCode) && BusinessUtil.isBoxcode(barCode)){
+                if (!WaybillUtil.isWaybillCode(barCode) && !BusinessUtil.isBoxcode(barCode)){
                     return result.toFail("参数错误，请扫描格式正确的运单号或者箱号", ResultCodeConstant.ILLEGAL_ARGUMENT);
                 }
             }

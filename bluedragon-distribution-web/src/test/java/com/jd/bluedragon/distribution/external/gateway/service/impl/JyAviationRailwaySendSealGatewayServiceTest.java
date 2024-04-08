@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -16,10 +17,18 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
+import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageSiteDepartTypeEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageStorageTempStatusEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +67,8 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     @Autowired
     private NewSealVehicleGatewayService newSealVehicleGatewayService;
 
-
+    @Autowired
+    private DiscardedPackageStorageTempService discardedPackageStorageTempService;
     @Test
     public void newCheckTranCodeAndBatchCode(){
         String json = "{\n" +
@@ -653,5 +663,27 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
             }
         }
         System.out.println("succ");
+    }
+
+    @Test
+    public void testScanDiscardedPackage() {
+        final ScanDiscardedPackagePo paramObj = new ScanDiscardedPackagePo();
+        paramObj.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode()).setOperateUser(genOperateUser());
+        paramObj.setBarCode("BC1001240408250000300125");
+        paramObj.setStatus(DiscardedPackageStorageTempStatusEnum.TEMP_STORAGE.getCode());
+        paramObj.setOperateType(WasteOperateTypeEnum.STORAGE.getCode());
+        paramObj.setWaybillType(WasteWaybillTypeEnum.PACKAGE.getCode());
+        final Result<List<DiscardedWaybillScanResultItemDto>> result = discardedPackageStorageTempService.scanDiscardedPackage(paramObj);
+        System.out.println(JsonHelper.toJson(result));
+    }
+
+    private OperateUser genOperateUser(){
+        OperateUser operateUser = new OperateUser();
+        operateUser.setUserCode("xumigen");
+        operateUser.setUserName("徐迷根");
+        operateUser.setSiteCode(10186);
+        operateUser.setSiteName("名称");
+        operateUser.setUserId(10186L);
+        return operateUser;
     }
 }
