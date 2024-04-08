@@ -251,6 +251,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
                 break;
             default: 
                 log.error("暴力分拣责任信息上报判责系统，工作类型错误，biz:{}", oldData.getBizId());
+                throw new RuntimeException("类型错误");
 
         }
         info.setSiteCode(oldData.getSiteCode());

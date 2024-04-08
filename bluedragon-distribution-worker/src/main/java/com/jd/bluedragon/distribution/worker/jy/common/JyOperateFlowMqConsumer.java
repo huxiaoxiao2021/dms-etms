@@ -54,9 +54,21 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
                 logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJson(jyOperateFlowDto));
             }
             jyOperateFlowService.insert(jyOperateFlowDto);
+            // 由于mq底层机制导致消息可能会重复消费，一直报主键冲突异常。如果用幂等方式解决可能会影响性能。此处采用只记录日志不重试的方式
+        } catch (com.jd.jddl.common.exception.JddlRuntimeException e) {
+            // 由于此异常可能是多种原因导致的，所以此处需要继续判断caused by的异常类型是否为主键冲突异常
+            Throwable rootCause = e.getCause();
+            // 如果是主键冲突异常则直接打印日志，不重试
+            if (rootCause instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException) {
+                logger.warn("JyOperateFlowMq-重复消费,消息体:{}", message.getText());
+                return;
+            }
+            Profiler.functionError(info);
+            logger.error("JyOperateFlowMq-消费异常-jddl, 消息体:{}", message.getText(), e);
+            throw e;
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("JyOperateFlowMq-消费异常, 消息体:{}", message.getText(), e);
+            logger.error("JyOperateFlowMq-消费异常-e, 消息体:{}", message.getText(), e);
             throw e;
         } finally {
             Profiler.registerInfoEnd(info);
