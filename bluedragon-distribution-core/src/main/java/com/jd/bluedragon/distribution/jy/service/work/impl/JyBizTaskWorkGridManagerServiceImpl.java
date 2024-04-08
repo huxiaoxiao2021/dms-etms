@@ -566,7 +566,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 				return;
 			}
 			
-			//网格信息
+			//第1个是网格是主网格
 			String gridBusinessKey = workGridKeys.get(0);
 			Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
 			WorkGrid workGrid;
@@ -766,7 +766,8 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		try {
 			violentSortingResponsibleInfoProducer.send(key, JsonHelper.toJson(dto));
 		} catch (JMQException e) {
-			logger.error("暴力分拣任务无法定责时，发送消费给判责系统时异常",e);
+			//todo 
+			logger.error("暴力分拣任务无法定责时，发送消费给判责系统时异常,暴力分拣id:{}",violentSortingDto.getId(),e);
 		}
 		
 		jyWorkGridManagerResponsibleInfoService.add(responsibleInfo);
