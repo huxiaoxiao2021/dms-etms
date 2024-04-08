@@ -43,7 +43,7 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
             }
             JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
             if (logger.isInfoEnabled()) {
-                logger.info("JyOperateFlowMqConsumer:消息text={},jyOperateFlowMqData={}", message.getText(), JsonHelper.toJson(jyOperateFlowMqData));
+                logger.info("JyOperateFlowMqConsumer:消息text={},jyOperateFlowMqData={}", message.getText(), JsonHelper.toJsonMs(jyOperateFlowMqData));
             }
             if (jyOperateFlowMqData == null) {
                 logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
@@ -51,7 +51,7 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
             }
             JyOperateFlowDto jyOperateFlowDto = BeanConverter.convertToJyOperateFlowDto(jyOperateFlowMqData);
             if (logger.isInfoEnabled()) {
-                logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJson(jyOperateFlowDto));
+                logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
             }
             jyOperateFlowService.insert(jyOperateFlowDto);
         } catch (Exception e) {
