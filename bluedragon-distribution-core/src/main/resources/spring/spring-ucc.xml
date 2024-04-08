@@ -354,6 +354,7 @@
 		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanMixScanWorkAreaCodes" value="${teanMixScanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
@@ -704,6 +705,7 @@
 				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
 				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanMixScanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
