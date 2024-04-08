@@ -271,6 +271,11 @@
         <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
     </bean>
 
+    <!--运单称重mq 只上传称重流水不发全程跟踪-->
+    <bean id="waybillWeightFlowNoTraceProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.weightFlowNoTrace}"/>
+    </bean>
+
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
     <bean id="dmsWeighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.waybill.weight.ope.flow}"/>
