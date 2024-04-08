@@ -70,5 +70,13 @@ public interface DMSWeightVolumeService {
      */
     InvokeResult<Void> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
 
+    /**
+     * 校验'非0重量拦截'开关是否开启
+     * 
+     * @param operateSiteCode
+     * @return
+     */
+    boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode);
+
     Result<Boolean> checkAndUpload(WeightVolumeCondition condition);
 }

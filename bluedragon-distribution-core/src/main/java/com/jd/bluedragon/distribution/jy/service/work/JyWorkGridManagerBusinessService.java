@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.service.work;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTaskEditRequest;
+import com.jd.bluedragon.common.dto.work.JyWorkGridOwnerDto;
+import com.jd.bluedragon.common.dto.work.ResponsibleInfo;
 import com.jd.bluedragon.common.dto.work.ScanTaskPositionRequest;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.TaskWorkGridManagerAutoCloseData;
@@ -85,5 +87,13 @@ public interface JyWorkGridManagerBusinessService {
 	 * @return
 	 */
 	boolean dealWorkGridModifyTask(WorkGridModifyMqData workGridModifyMqData);
-	
+
+	JdCResponse<List<ResponsibleInfo>> queryResponsibleInfos(String bizId);
+
+	/**
+	 * 查下任务的网格组长
+	 * @param bizId
+	 * @return
+	 */
+	JdCResponse<List<JyWorkGridOwnerDto>> queryWorkGridOwners(String bizId);
 }

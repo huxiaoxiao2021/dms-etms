@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.inspection.response.WaybillCancelResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
-import com.jd.etms.waybill.domain.Waybill;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 
 import java.io.Serializable;
 
@@ -23,9 +25,24 @@ public class UnloadScanContextDto implements Serializable {
     private UnloadScanRequest unloadScanRequest;
 
     /**
+     * 卸车任务详情
+     */
+    private JyBizTaskUnloadVehicleEntity taskUnloadVehicle;
+
+    /**
      * 运单数据
      */
-    private Waybill waybill;
+    private BigWaybillDto bigWaybillDto;
+
+    /**
+     * 是否更新卸车进度标识
+     */
+    private boolean updateUnloadProcessFlag;
+
+    /**
+     * waybillCancel拦截对象
+     */
+    private WaybillCancelResultDto waybillCancelResultDto;
 
     public UnloadScanRequest getUnloadScanRequest() {
         return unloadScanRequest;
@@ -35,12 +52,36 @@ public class UnloadScanContextDto implements Serializable {
         this.unloadScanRequest = unloadScanRequest;
     }
 
-    public Waybill getWaybill() {
-        return waybill;
+    public JyBizTaskUnloadVehicleEntity getTaskUnloadVehicle() {
+        return taskUnloadVehicle;
     }
 
-    public void setWaybill(Waybill waybill) {
-        this.waybill = waybill;
+    public void setTaskUnloadVehicle(JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+        this.taskUnloadVehicle = taskUnloadVehicle;
+    }
+
+    public BigWaybillDto getBigWaybillDto() {
+        return bigWaybillDto;
+    }
+
+    public void setBigWaybillDto(BigWaybillDto bigWaybillDto) {
+        this.bigWaybillDto = bigWaybillDto;
+    }
+
+    public boolean getUpdateUnloadProcessFlag() {
+        return updateUnloadProcessFlag;
+    }
+
+    public void setUpdateUnloadProcessFlag(boolean updateUnloadProcessFlag) {
+        this.updateUnloadProcessFlag = updateUnloadProcessFlag;
+    }
+
+    public WaybillCancelResultDto getWaybillCancelResultDto() {
+        return waybillCancelResultDto;
+    }
+
+    public void setWaybillCancelResultDto(WaybillCancelResultDto waybillCancelResultDto) {
+        this.waybillCancelResultDto = waybillCancelResultDto;
     }
 
     @Override

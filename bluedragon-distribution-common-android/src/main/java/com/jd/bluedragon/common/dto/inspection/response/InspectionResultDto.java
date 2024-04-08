@@ -20,6 +20,11 @@ public class InspectionResultDto implements Serializable {
      * 笼车号
      */
     private String tabletrolleyCode;
+    
+    /**
+     * waybillCancel拦截对象
+     */
+    private WaybillCancelResultDto waybillCancelResultDto;
 
     public String getStorageCode() {
         return storageCode;
@@ -43,5 +48,13 @@ public class InspectionResultDto implements Serializable {
 
     public void setTabletrolleyCode(String tabletrolleyCode) {
         this.tabletrolleyCode = tabletrolleyCode;
+    }
+
+    public WaybillCancelResultDto getWaybillCancelResultDto() {
+        return waybillCancelResultDto;
+    }
+
+    public void setWaybillCancelResultDto(WaybillCancelResultDto waybillCancelResultDto) {
+        this.waybillCancelResultDto = waybillCancelResultDto;
     }
 }

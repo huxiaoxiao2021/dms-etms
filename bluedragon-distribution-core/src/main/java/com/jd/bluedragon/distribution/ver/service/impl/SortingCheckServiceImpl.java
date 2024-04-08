@@ -331,7 +331,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     private SortingJsfResponse singleSendCheck(SortingCheck sortingCheck, boolean reportIntercept) {
-        DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
+        DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType())
+                || WaybillUtil.isWaybillCode(sortingCheck.getBoxCode()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
         return doSingleSendCheckWithChain(sortingCheck, reportIntercept, deliveryFilterChain);
     }
 
