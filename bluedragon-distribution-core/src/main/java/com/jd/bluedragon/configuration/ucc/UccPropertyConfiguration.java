@@ -1656,14 +1656,18 @@ public class UccPropertyConfiguration{
     private Integer jyWarehouseTaskCreateTimeBeginHours;
 
     /**
-     * 包裹非0重量体积拦截开关
-     */
-    private Boolean waybillZeroWeightInterceptSwitch;
-
-    /**
      * 接货仓发货岗自建任务常用车型置顶
      */
     private String jyWarehouseManualTaskKeyVehicleTypes;
+
+
+    /**
+     * 包裹非0重量体积拦截开关
+     * <p>
+     *     场地维度开关，多个场地以,隔开，ALL表示全国维度
+     * </p>
+     */
+    private String waybillZeroWeightInterceptSites;
 
     /**
      * 自动化称重限制开关
@@ -4597,14 +4601,6 @@ public class UccPropertyConfiguration{
         this.jyWarehouseTaskCreateTimeBeginHours = jyWarehouseTaskCreateTimeBeginHours;
     }
 
-    public Boolean getWaybillZeroWeightInterceptSwitch() {
-        return waybillZeroWeightInterceptSwitch;
-    }
-
-    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
-        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
-    }
-
     public String getJyWarehouseManualTaskKeyVehicleTypes() {
         return jyWarehouseManualTaskKeyVehicleTypes;
     }
@@ -4613,6 +4609,13 @@ public class UccPropertyConfiguration{
         this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
     }
 
+    public String getWaybillZeroWeightInterceptSites() {
+        return waybillZeroWeightInterceptSites;
+    }
+
+    public void setWaybillZeroWeightInterceptSites(String waybillZeroWeightInterceptSites) {
+        this.waybillZeroWeightInterceptSites = waybillZeroWeightInterceptSites;
+    }
 
     public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
         return automaticWeightVolumeUpperCheckSwitch;

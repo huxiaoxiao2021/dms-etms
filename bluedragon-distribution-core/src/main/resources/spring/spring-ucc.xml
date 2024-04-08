@@ -342,6 +342,7 @@
 		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
 		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
+		<property name="waybillZeroWeightInterceptSites" value="${waybillZeroWeightInterceptSites:910}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
@@ -721,6 +722,7 @@
 				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
+				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSites</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
 				<value>uccPropertyConfiguration.allowEntryHours</value>
