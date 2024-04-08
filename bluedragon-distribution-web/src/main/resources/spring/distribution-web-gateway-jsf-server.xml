@@ -730,6 +730,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 揽收网关服务 -->
+    <jsf:provider id="jsfJyCollectGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyDirectDeliverySortCollectGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyDirectDeliverySortCollectGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 分拣运单称重上传 -->
     <bean id="weightAndVolumeGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WeightAndVolumeGatewayServiceImpl"/>
     <jsf:provider id="jsfWeightAndVolumeGatewayService"

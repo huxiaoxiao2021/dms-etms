@@ -1226,7 +1226,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
             //备件库退货
             String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
-            if(siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)){
+            if(Objects.equals(siteType,Integer.parseInt(asm_type)) || Objects.equals(siteType,Integer.parseInt(wms_type)) || Objects.equals(siteType,Integer.parseInt(spwms_type))){
                 result.setCode(RESULT_THIRD_ERROR_CODE);
                 result.setMessage("禁止逆向操作！");
                 return true;

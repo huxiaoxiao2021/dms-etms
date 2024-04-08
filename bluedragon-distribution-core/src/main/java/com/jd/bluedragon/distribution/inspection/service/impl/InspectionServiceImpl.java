@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.common.dto.inspection.response.WaybillCancelResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -1341,8 +1342,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
     }
     @Override
     public JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(InspectionScanRequest request) {
-        JdVerifyResponse<InspectionCheckResultDto> response = new JdVerifyResponse<>();
-        response.toSuccess();
+        JdVerifyResponse<InspectionCheckResultDto> response = initCheckInspectionResult();
 
         String barCode = request.getBarCode();
 
@@ -1373,14 +1373,21 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
                 final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
                 if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
-                    if(interceptResult.getCode().equals(SortingResponse.CODE_29467)){
+
+					// waybillCancel拦截不通过，设置waybillCancelResult
+					WaybillCancelResultDto waybillCancelResult = response.getData().getInspectionResultDto().getWaybillCancelResultDto();
+					waybillCancelResult.setInterceptFlag(true);
+					waybillCancelResult.setInterceptCode(interceptResult.getCode());
+					waybillCancelResult.setInterceptMsg(interceptResult.getMessage());
+
+                    if(interceptResult.getCode().equals(SortingResponse.CODE_29467) || interceptResult.getCode().equals(SortingResponse.CODE_29468)){
                         response.toFail(interceptResult.getMessage());
-                        response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
+                        response.addInterceptBox(interceptResult.getCode(), interceptResult.getMessage());
                         return response;
                     } else {
                         response.addPromptBox(interceptResult.getCode(), interceptResult.getMessage());
                     }
-                }
+				}
             }
         } catch (Exception e) {
             log.error("InspectionServiceImpl_checkBeforeInspection {}", JsonHelper.toJson(request));
@@ -1388,26 +1395,42 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
             // return response;
         }
 
-        JdCResponse<InspectionCheckResultDto> hintCheckResult = hintCheck(hintCheckRequest);
+		InspectionCheckResultDto inspectionCheckResultDto = response.getData();
+		JdCResponse<Void> hintCheckResult = hintCheck(hintCheckRequest, inspectionCheckResultDto);
         if (!Objects.equals(hintCheckResult.getCode(), com.jd.bluedragon.distribution.wss.dto.BaseEntity.CODE_SUCCESS)) {
             response.toError(hintCheckResult.getMessage());
             return response;
         }
         else {
-            response.setData(hintCheckResult.getData());
-
-            if (StringUtils.isNotBlank(hintCheckResult.getData().getInspectionResultDto().getHintMessage())) {
-                response.addWarningBox(0, hintCheckResult.getData().getInspectionResultDto().getHintMessage());
+            if (StringUtils.isNotBlank(inspectionCheckResultDto.getInspectionResultDto().getHintMessage())) {
+                response.addWarningBox(0, inspectionCheckResultDto.getInspectionResultDto().getHintMessage());
             }
-            if (StringUtils.isNotBlank(hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage())) {
-                response.addWarningBox(0, hintCheckResult.getData().getConsumableRecordResponseDto().getHintMessage());
+            if (StringUtils.isNotBlank(inspectionCheckResultDto.getConsumableRecordResponseDto().getHintMessage())) {
+                response.addWarningBox(0, inspectionCheckResultDto.getConsumableRecordResponseDto().getHintMessage());
             }
         }
 
         return response;
     }
 
-    private PdaOperateRequest getPdaOperateRequest4InspectionRequest(InspectionScanRequest inspectionScanRequest) {
+	/**
+	 * 初始化response
+	 *
+	 * @return
+	 */
+	private JdVerifyResponse<InspectionCheckResultDto> initCheckInspectionResult() {
+		JdVerifyResponse<InspectionCheckResultDto> response = new JdVerifyResponse<>();
+		InspectionCheckResultDto inspectionCheckResult = new InspectionCheckResultDto();
+		InspectionResultDto inspectionResultDto = new InspectionResultDto();
+		inspectionResultDto.setWaybillCancelResultDto(new WaybillCancelResultDto());
+		inspectionCheckResult.setInspectionResultDto(inspectionResultDto);
+		inspectionCheckResult.setConsumableRecordResponseDto(new ConsumableRecordResponseDto());
+		response.toSuccess();
+		response.setData(inspectionCheckResult);
+		return response;
+	}
+
+	private PdaOperateRequest getPdaOperateRequest4InspectionRequest(InspectionScanRequest inspectionScanRequest) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         final CurrentOperate currentOperate = inspectionScanRequest.getCurrentOperate();
         final User user = inspectionScanRequest.getUser();
@@ -1451,12 +1474,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         return pdaOperateRequest;
     }
 
-    public JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request) {
+    public JdCResponse<Void> hintCheck(HintCheckRequest request, InspectionCheckResultDto inspectionCheckResultDto) {
 
-        JdCResponse<InspectionCheckResultDto> resultDto = new JdCResponse<InspectionCheckResultDto>();
+        JdCResponse<Void> resultDto = new JdCResponse<>();
         resultDto.toSucceed();
-        InspectionCheckResultDto inspectionCheckResultDto = new InspectionCheckResultDto();
-        resultDto.setData(inspectionCheckResultDto);
 
         // 老验货需校验菜单是否可用
         if(!request.getNewInspectionCheck()){
@@ -1474,11 +1495,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
             return resultDto;
         }
         if (storageResponse.getData() != null) {
-            InspectionResultDto dto = new InspectionResultDto();
+            InspectionResultDto dto = inspectionCheckResultDto.getInspectionResultDto();
             dto.setStorageCode(storageResponse.getData().getStorageCode());
             dto.setHintMessage(storageResponse.getData().getHintMessage());
             dto.setTabletrolleyCode(storageResponse.getData().getTabletrolleyCode());
-            inspectionCheckResultDto.setInspectionResultDto(dto);
         }
 
         //运单是否存在待确认的包装任务
@@ -1486,16 +1506,12 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         if (WaybillUtil.isPackageCode(request.getPackageCode())) {
             waybillCode = WaybillUtil.getWaybillCode(request.getPackageCode());
         }
-        JdCResponse<ConsumableRecordResponseDto> jdCResponse = this.isExistConsumableRecord(waybillCode);
-        inspectionCheckResultDto.setConsumableRecordResponseDto(jdCResponse.getData());
-
+        this.isExistConsumableRecord(waybillCode, inspectionCheckResultDto.getConsumableRecordResponseDto());
         return resultDto;
     }
 
-    public JdCResponse<ConsumableRecordResponseDto> isExistConsumableRecord(String waybillCode) {
-        JdCResponse<ConsumableRecordResponseDto> jdCResponse = new JdCResponse<>();
-        ConsumableRecordResponseDto consumableRecordResponseDto = new ConsumableRecordResponseDto();
-        jdCResponse.setData(consumableRecordResponseDto);
+    public JdCResponse<Void> isExistConsumableRecord(String waybillCode, ConsumableRecordResponseDto consumableRecordResponseDto) {
+        JdCResponse<Void> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
         if (StringUtils.isEmpty(waybillCode)) {
             jdCResponse.toFail("单号不能为空");
@@ -1509,25 +1525,6 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         }
 
         return jdCResponse;
-    }
-
-    private void checkWaybillCancel(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
-        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-        final User user = request.getUser();
-        final CurrentOperate currentOperate = request.getCurrentOperate();
-        pdaOperateRequest.setPackageCode(request.getBarCode());
-        pdaOperateRequest.setBusinessType(request.getBusinessType());
-        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
-        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
-        pdaOperateRequest.setOperateUserCode(user.getUserCode());
-        pdaOperateRequest.setOperateUserName(user.getUserName());
-        pdaOperateRequest.setOperateTime(DateUtil.formatDateTime(currentOperate.getOperateTime()));
-        pdaOperateRequest.setOperateType(request.getOperateType());
-
-        JdCancelWaybillResponse cancelWaybillResponse = waybillService.dealCancelWaybill(pdaOperateRequest);
-        if (!Objects.equals(JdResponse.CODE_SUCCESS, cancelWaybillResponse.getCode())) {
-            response.addWarningBox(0, cancelWaybillResponse.getMessage());
-        }
     }
 
     private void easyFreezeCheck(InspectionScanRequest request, JdVerifyResponse<InspectionCheckResultDto> response){

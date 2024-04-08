@@ -940,14 +940,6 @@
                   protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-    <!-- 冷链耗材相关接口 -->
-    <jsf:consumer id="coldDmsPackingConsumableApi" interface="com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi"
-                  protocol="jsf" alias="${jsf.consumer.coldchain.distribution.alias}"
-                  timeout="${jsf.consumer.coldchain.distribution.timeout}"
-                  lazy="${jsf.consumer.lazy}"
-                  retries="${jsf.retries}" >
-    </jsf:consumer>
-
     <jsf:consumer id="idcrServiceJsf" interface="com.jd.wl.ai.cv.center.outter.api.service.IDCRService"
                   protocol="jsf" alias="${jsf.idcrService.alias}"
                   timeout="${jsf.idcrService.timeout}"
@@ -1610,4 +1602,33 @@
                        groupRouter="jySendCallbackJsfServiceGroupRouter">
     </jsf:consumerGroup>
 
+
+    <!-- 分拣外包商查询接口 -->
+    <jsf:consumer id="outSourceProvisionQueryApi"
+                  interface="com.jd.dms.wb.report.sdk.api.outsource.OutSourceProvisionQueryApi"
+                  alias="${jsf.alias.outSource}"
+                  timeout="${jsf.timeout.outSource}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--摄像头配置查询 -->
+    <jsf:consumer id="videoTraceCameraJsfService"
+                  interface="com.jdl.basic.api.service.videoTraceCamera.VideoTraceCameraJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+
+    <jsf:consumer id="goldShieldDataService"
+                  interface="com.jd.ql.data.api.service.GoldShieldDataService"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.goldShieldData}">
+    </jsf:consumer>
 </beans>

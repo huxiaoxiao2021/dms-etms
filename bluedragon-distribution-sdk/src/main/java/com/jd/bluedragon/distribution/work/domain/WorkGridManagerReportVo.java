@@ -240,6 +240,8 @@ public class WorkGridManagerReportVo  implements Serializable {
 	 *  只有暴力分拣任务才会有
 	 */
 	private ViolenceSortInfoData violenceSortInfoData;
+
+	private ResponsibleInfoVO responsibleInfo;
 	
 	public Long getId() {
 		return id;
@@ -558,5 +560,13 @@ public class WorkGridManagerReportVo  implements Serializable {
 
 	public void setViolenceSortInfoData(ViolenceSortInfoData violenceSortInfoData) {
 		this.violenceSortInfoData = violenceSortInfoData;
+	}
+
+	public ResponsibleInfoVO getResponsibleInfo() {
+		return responsibleInfo;
+	}
+
+	public void setResponsibleInfo(ResponsibleInfoVO responsibleInfo) {
+		this.responsibleInfo = responsibleInfo;
 	}
 }

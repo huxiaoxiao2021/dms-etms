@@ -1611,15 +1611,24 @@ public class UccPropertyConfiguration{
      */
     private String jyWarehouseManualTaskKeyVehicleTypes;
 
+
     /**
      * 包裹非0重量体积拦截开关
+     * <p>
+     *     场地维度开关，多个场地以,隔开，ALL表示全国维度
+     * </p>
      */
-    private Boolean waybillZeroWeightInterceptSwitch;
+    private String waybillZeroWeightInterceptSites;
 
     /**
      * 自动化称重限制开关
      */
     private Boolean automaticWeightVolumeUpperCheckSwitch;
+
+    /**
+     * PDA静默下载开关
+     */
+    private Boolean pdaSilentUpdateSwitch;
 
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
@@ -2080,6 +2089,12 @@ public class UccPropertyConfiguration{
      */
     private String teanWorkAreaCodes;
     private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安及其他混扫作业区编码，逗号分隔
+     */
+    private String teanMixScanWorkAreaCodes;
+    private List<String> teanMixScanWorkAreaCodesList = new ArrayList<>();
 
     /**
      * 特安作业区拦截链场地白名单
@@ -4467,13 +4482,12 @@ public class UccPropertyConfiguration{
         this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
     }
 
-
-    public Boolean getWaybillZeroWeightInterceptSwitch() {
-        return waybillZeroWeightInterceptSwitch;
+    public String getWaybillZeroWeightInterceptSites() {
+        return waybillZeroWeightInterceptSites;
     }
 
-    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
-        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    public void setWaybillZeroWeightInterceptSites(String waybillZeroWeightInterceptSites) {
+        this.waybillZeroWeightInterceptSites = waybillZeroWeightInterceptSites;
     }
 
     public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
@@ -4510,6 +4524,34 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanMixScanWorkAreaCodes() {
+        return teanMixScanWorkAreaCodes;
+    }
+
+    public void setTeanMixScanWorkAreaCodes(String teanMixScanWorkAreaCodes) {
+        this.teanMixScanWorkAreaCodes = teanMixScanWorkAreaCodes;
+        this.setTeanMixScanWorkAreaCodesList();
+    }
+
+    public List<String> getTeanMixScanWorkAreaCodesList() {
+        return teanMixScanWorkAreaCodesList;
+    }
+
+    public void setTeanMixScanWorkAreaCodesList() {
+        this.teanMixScanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanMixScanWorkAreaCodes)){
+            final String[] split = teanMixScanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanMixScanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanMixScanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanMixScanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanMixScanWorkAreaCodesList.contains(workAreaCode);
     }
 
     public String getTeanSiteIdWhiteListStr4InterceptFilter() {
@@ -4638,6 +4680,14 @@ public class UccPropertyConfiguration{
 
     public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
         this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
+    }
+
+    public Boolean getPdaSilentUpdateSwitch() {
+        return pdaSilentUpdateSwitch;
+    }
+
+    public void setPdaSilentUpdateSwitch(Boolean pdaSilentUpdateSwitch) {
+        this.pdaSilentUpdateSwitch = pdaSilentUpdateSwitch;
     }
 
     public String getInterceptExceptionSiteIdEnableListStr() {

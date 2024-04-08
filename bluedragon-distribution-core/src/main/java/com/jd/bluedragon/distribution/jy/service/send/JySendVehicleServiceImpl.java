@@ -65,6 +65,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -425,6 +426,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WorkGridManager workGridManager;
+
+    @Autowired
+    private IVirtualBoardJsfManager virtualBoardJsfManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2850,7 +2854,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
             request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
-
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_BOARD.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOARD_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或板号！");
+                return false;
+            }
+            //按板并扫描的是包裹号
+            if (Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
+                // 根据包裹号找到板号
+                Board boardResult = virtualBoardJsfManager.getBoardByBarCode(request.getBarCode(), siteCode);
+                if(boardResult == null || StringUtils.isBlank(boardResult.getCode())) {
+                    response.toFail("根据包裹或运单号未找到对应板数据");
+                    return false;
+                }
+                log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",request.getBarCode(),siteCode, boardResult.getCode());
+                request.setBarCode(boardResult.getCode());
+            }
+        }
         return true;
     }
 
@@ -3714,7 +3734,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         BigDecimal finalScannedWeight = sendAgg.getTotalScannedWeight();
         Integer finalScannedCount = sendAgg.getTotalScannedCount();
         //获取同派车单下-其余场地（非本场地）的已经封车任务统计数据
-        if (!taskSend.manualCreatedTask()){
+        if (!taskSend.manualCreatedTask() && StringUtils.isNotBlank(taskSend.getTransWorkCode())){
             JyBizTaskSendVehicleEntity condition =new JyBizTaskSendVehicleEntity();
             condition.setTransWorkCode(taskSend.getTransWorkCode());
             List<JyBizTaskSendVehicleEntity> sendVehicleEntityList =taskSendVehicleService.findByTransWork(condition);
@@ -3733,7 +3753,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
 
-        BigDecimal loadRate = null;
+        BigDecimal loadRate = BigDecimal.ZERO;
         try {
             VehicleVolumeDicReq vehicleVolumeDicReq =new VehicleVolumeDicReq();
             vehicleVolumeDicReq.setVehicleType(taskSend.getVehicleType());
@@ -3741,7 +3761,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             if (ObjectHelper.isEmpty(vehicleVolumeDicResp) && (ObjectHelper.isEmpty(basicVehicleType) || ObjectHelper.isEmpty(basicVehicleType.getWeight()))){
                 log.info("未获取到车辆的容量数据和承载重量数据,无法计算装车进度:{}",JsonHelper.toJson(taskSend));
-                return null;
+                return loadRate;
             }
 
             loadRate = vehicleVolumeDicResp == null ?

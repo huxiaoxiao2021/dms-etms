@@ -18,7 +18,22 @@
                 <entry key="10007" value="改址"/>
                 <entry key="10008" value="京喜整包未称"/>
                 <entry key="10009" value="京喜空包拦截"/>
+                <entry key="10010" value="自动化拦截"/>
             </map>
+        </property>
+        <!-- 拦截异常岗需要关注的拦截类型 -->
+        <property name="exceptionJobNeedHandleInterceptTypeNodeList">
+            <util:list>
+                <value>10001</value>
+                <value>10002</value>
+                <value>10003</value>
+                <value>10004</value>
+                <value>10005</value>
+                <value>10006</value>
+                <value>10007</value>
+                <value>10008</value>
+                <value>10009</value>
+            </util:list>
         </property>
         <!-- 处理类型 -->
         <property name="disposeNodeConfig">
@@ -103,6 +118,12 @@
                         <value>-10009</value>
                         <value>10001</value>
                         <value>10006</value>
+                    </util:list>
+                </entry>
+                <entry key="10010">
+                    <util:list>
+                        <value>10001</value>
+                        <value>10003</value>
                     </util:list>
                 </entry>
             </util:map>
