@@ -484,6 +484,8 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             }
             if(Objects.equals(req.getEnableStatus(), RouterDynamicLineStatusEnum.ENABLE.getCode())){
                 result.setMessage(HintService.getHint(HintCodeConstants.ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT, HintCodeConstants.ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE));
+            } else {
+                result.setMessage("操作成功");
             }
 
         }catch (Exception e){
