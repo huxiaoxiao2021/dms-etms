@@ -119,6 +119,11 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
      */
     private List<String> photoUrlList;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public String getProvinceAgencyCode() {
         return provinceAgencyCode;
     }
@@ -295,5 +300,13 @@ public class ReassignWaybillApprovalRecordMQ implements Serializable {
 
     public void setPhotoUrlList(List<String> photoUrlList) {
         this.photoUrlList = photoUrlList;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
