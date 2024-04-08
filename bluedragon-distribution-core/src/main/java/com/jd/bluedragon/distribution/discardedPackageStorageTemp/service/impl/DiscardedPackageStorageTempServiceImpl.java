@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageNotScanItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
@@ -11,7 +9,6 @@ import com.jd.bluedragon.common.dto.wastepackagestorage.request.QueryUnScanDisca
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.QueryUnSubmitDiscardedListPo;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.SubmitDiscardedPackagePo;
-import com.jd.bluedragon.common.task.DiscardedPackageStorageTask;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -33,33 +30,26 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageHandlerStrategy;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageSortingTempStorageHandler;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.print.domain.JdSiteTypeConfig;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.gulfstream.common.BizException;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -76,19 +66,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.CHAR_19_2;
-import static com.jd.bluedragon.dms.utils.WaybillSignConstants.POSITION_19;
 
 /**
  * 快递弃件暂存
