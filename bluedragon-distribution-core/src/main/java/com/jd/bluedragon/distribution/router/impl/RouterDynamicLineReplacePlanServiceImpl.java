@@ -10,6 +10,8 @@ import com.jd.bluedragon.common.dto.router.dynamicLine.request.RouterDynamicLine
 import com.jd.bluedragon.common.dto.router.dynamicLine.response.RouterDynamicLineReplacePlanVo;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.router.IRouterDynamicLineReplacePlanService;
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao;
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao;
@@ -479,6 +481,9 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
                 // step 主动删除缓存
                 final String uniqueCacheKey = this.getUniqueCacheKey(routerDynamicLineReplacePlanExist);
                 redisClientOfJy.del(uniqueCacheKey);
+            }
+            if(Objects.equals(req.getEnableStatus(), RouterDynamicLineStatusEnum.ENABLE.getCode())){
+                result.setMessage(HintService.getHint(HintCodeConstants.ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT, HintCodeConstants.ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE));
             }
 
         }catch (Exception e){
