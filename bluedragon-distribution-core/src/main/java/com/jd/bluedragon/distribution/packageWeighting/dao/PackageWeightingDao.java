@@ -63,6 +63,20 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
     }
 
     /**
+     * 查询最近一条包裹维度的称重流水
+     * 
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    public PackageWeighting queryPackWeightFlowRecentDetail(String waybillCode, String packageCode, List<Integer> businessTypes){
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("packageCode", packageCode);
+        return super.getSqlSession().selectOne(PackageWeightingDao.namespace + ".queryPackWeightFlowRecentDetail", parameters);
+    }
+
+    /**
      * 运单维度-查询称重流水
      * @param waybillCode
      * @param businessTypes
