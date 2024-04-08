@@ -112,8 +112,8 @@ public class JyFindGoodsGatewayServiceImpl implements JyFindGoodsGatewayService 
     if (!(dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().equals("*") || dmsConfigManager.getPropertyConfig().getQingChangDataOpenSwitch().contains(env))){
         return res;
     }
-    if (FindGoodsTaskQuerySourceEnum.TIMER_QUERY.getCode().equals(request.getSource()) && !checkCurrentUserIsGridSupervisor(request)){
-      //判断当前操作人是不是网格负责人
+    //判断当前操作人是不是网格负责人
+    if (!checkCurrentUserIsGridSupervisor(request)){
       return res;
     }
 
