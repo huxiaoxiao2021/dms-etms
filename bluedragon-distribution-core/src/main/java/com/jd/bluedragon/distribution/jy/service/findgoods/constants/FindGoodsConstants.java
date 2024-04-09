@@ -22,13 +22,18 @@ public class FindGoodsConstants {
     /**
      * 计划发货任务和找货任务的间隔时长 30min
      */
-    public static final Integer PLAN_INVENTORY_TASK_START_INTERVAL_MINUTES = 30;
+    public static final Integer PLAN_INVENTORY_TASK_START_INTERVAL_MINUTES = 0;
     /**
      * 计划找货任务持续时长 60min
      */
     public static final Integer PLAN_INVENTORY_TASK_DURATION_MINUTES = 30;
 
 
+    /**
+     * 清场需要完成拍照的数量
+     */
+
+    public static final int PHOTOGRAPH_COMPELETE_COUNT = 4;
 
 
 }

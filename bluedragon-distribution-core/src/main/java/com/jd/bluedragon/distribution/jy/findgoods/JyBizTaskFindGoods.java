@@ -43,6 +43,35 @@ public class JyBizTaskFindGoods {
 
     private String taskDate;
 
+    private String gridCode;
+    private String gridName;
+
+    private String cleanSiteUser;
+
+    public String getCleanSiteUser() {
+        return cleanSiteUser;
+    }
+
+    public void setCleanSiteUser(String cleanSiteUser) {
+        this.cleanSiteUser = cleanSiteUser;
+    }
+
+    public String getGridCode() {
+        return gridCode;
+    }
+
+    public void setGridCode(String gridCode) {
+        this.gridCode = gridCode;
+    }
+
+    public String getGridName() {
+        return gridName;
+    }
+
+    public void setGridName(String gridName) {
+        this.gridName = gridName;
+    }
+
     public String getTaskDate() {
         return taskDate;
     }

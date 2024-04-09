@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.inventory.*;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryDetailStatusEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryListTypeEnum;
 import com.jd.bluedragon.common.dto.inventory.enums.InventoryTaskStatusEnum;
+import com.jd.bluedragon.common.dto.inventory.enums.PhotoPositionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.config.dto.ClientAutoRefreshConfig;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentTypeEnum;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
@@ -60,6 +61,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.jy.service.findgoods.constants.FindGoodsConstants.PHOTOGRAPH_COMPELETE_COUNT;
 
 @Slf4j
 @Service
@@ -196,6 +198,13 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
     dto.setPhotoTotalCount(4);//当前业务场景仅支持4个。直接写死
     if(InventoryTaskStatusEnum.COMPLETE.getCode().equals(jyBizTaskFindGoods.getTaskStatus())) {
       dto.setCompleteTime(jyBizTaskFindGoods.getUpdateTime().getTime());
+    }
+    dto.setGridName(jyBizTaskFindGoods.getGridName());
+    if (StringUtils.isNotEmpty(jyBizTaskFindGoods.getPhotoStatus())){
+      dto.setCleanSiteFlag(jyBizTaskFindGoods.getPhotoStatus().length() == PHOTOGRAPH_COMPELETE_COUNT);
+    }
+    if (dto.getCleanSiteFlag()){
+      dto.setCleanSiteUser(jyBizTaskFindGoods.getCleanSiteUser());
     }
     return dto;
   }
@@ -397,6 +406,7 @@ public class JyFindGoodsServiceImpl implements JyFindGoodsService {
         }else {
           dbUpdate.setPhotoStatus(findGoods.getPhotoStatus().concat(request.getPhotoPosition().toString()));
         }
+        dbUpdate.setCleanSiteUser(request.getUser().getUserErp());
         jyBizTaskFindGoodsDao.updatePhotoStatus(dbUpdate);
       }
     }catch (Exception ex) {
