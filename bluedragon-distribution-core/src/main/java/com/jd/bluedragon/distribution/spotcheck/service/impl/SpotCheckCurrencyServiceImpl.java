@@ -134,6 +134,9 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
             String picUrl = request.getPicUrl();
             // 将图片url转换为对应的内网域名
             picUrl = transformUrl(picUrl);
+            if (logger.isInfoEnabled()) {
+                logger.info("picAutoDistinguish|人工抽检转换图片url域名结果:picUrl={}", picUrl);
+            }
             Integer uploadPicType = request.getPicType();
             Integer excessType = request.getExcessType();
             ImmutablePair<Integer, String> immutablePair
@@ -175,6 +178,7 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
                     String internalDomain = String.valueOf(domainMap.get(externalDomain));
                     // 用内网域名进行替换
                     picUrl = picUrl.replace(externalDomain, internalDomain);
+                    return picUrl;
                 }
             }
         } catch (Exception e) {
