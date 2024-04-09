@@ -1,12 +1,18 @@
 package com.jd.bluedragon.distribution.router.manager.impl;
 
+import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.router.RouterDynamicLineReplacePlanJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.router.dto.RouterDynamicLineReplacePlanDto;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.router.dynamicLine.request.RouterDynamicLineReplacePlanChangeStatusReq;
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao;
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog;
+import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
 import com.jd.bluedragon.distribution.router.manager.IRouterDynamicLineReplacePlanManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,6 +27,7 @@ import java.util.Date;
  * @copyright jd.com 京东物流JDL
  * @time 2024-04-07 10:43:55 周日
  */
+@Slf4j
 @Component("routerDynamicLineReplacePlanManager")
 public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLineReplacePlanManager {
 
@@ -29,6 +36,9 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
 
     @Autowired
     private RouterDynamicLineReplacePlanLogDao routerDynamicLineReplacePlanLogDao;
+
+    @Autowired
+    private RouterDynamicLineReplacePlanJsfService routerDynamicLineReplacePlanJsfService;
 
     /**
      * 根据条件查询动态线路替换方案列表
@@ -46,6 +56,18 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
         // step 更新数据
         final RouterDynamicLineReplacePlan routerDynamicLineReplacePlan = getRouterDynamicLineReplacePlan(req, currentTime, user);
         routerDynamicLineReplacePlanDao.updateByPrimaryKeySelective(routerDynamicLineReplacePlan);
+
+        // step 同步数据至自动化系统
+        RouterDynamicLineReplacePlanQuery conditon = new RouterDynamicLineReplacePlanQuery();
+        conditon.setId(routerDynamicLineReplacePlan.getId());
+        RouterDynamicLineReplacePlan source = routerDynamicLineReplacePlanDao.selectOne(conditon);
+        RouterDynamicLineReplacePlanDto dest = new RouterDynamicLineReplacePlanDto();
+        BeanUtils.copyProperties(source,dest);
+        BaseDmsAutoJsfResponse<Boolean> response = routerDynamicLineReplacePlanJsfService.syncRouterLine(dest);
+        if (response == null || !response.getData()){
+            log.warn("同步路由数据至自动化系统失败，提示用户重试！");
+            throw new RuntimeException("同步路由数据至自动化系统失败，提示用户重试！");
+        }
 
         // step 写入日志
         final RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog = new RouterDynamicLineReplacePlanLog();
