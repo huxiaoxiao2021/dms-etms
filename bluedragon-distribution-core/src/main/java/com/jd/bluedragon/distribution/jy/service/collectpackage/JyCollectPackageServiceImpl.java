@@ -550,6 +550,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     public void flowCheck(CollectPackageReq request) {
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        log.info("集包任务数据:{}",JsonHelper.toJson(collectPackageTask));
         if (ObjectHelper.isEmpty(collectPackageTask)) {
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
         }
@@ -594,6 +595,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private boolean checkYufenjianIfMatchDestination(Integer yufenjian, CollectPackageReq request, JyBizTaskCollectPackageEntity collectPackageTask) {
         if (BusinessUtil.isReverse(request.getBusinessType()) && MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())
                 && !yufenjian.equals(collectPackageTask.getEndSiteId().intValue())){
+            log.info("预分拣站点:{},集包任务目的地:{}",yufenjian,collectPackageTask.getEndSiteId().intValue());
             throw new JyBizException("逆向退仓/备件库：包裹预分拣站点与箱号目的地不一致，禁止集包！");
         }
         //预分拣==箱号目的地
