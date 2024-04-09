@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.spotcheck.PicAutoDistinguishRequest;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
@@ -18,11 +20,14 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * 抽检通用接口实现
@@ -43,6 +48,9 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Override
     public InvokeResult<Waybill> obtainBaseInfo(String barCode) {
@@ -124,6 +132,8 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             Double weight = request.getWeight();
             String picUrl = request.getPicUrl();
+            // 将图片url转换为对应的内网域名
+            picUrl = transformUrl(picUrl);
             Integer uploadPicType = request.getPicType();
             Integer excessType = request.getExcessType();
             ImmutablePair<Integer, String> immutablePair
@@ -137,6 +147,40 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
             Profiler.registerInfoEnd(info);
         }
         return result;
+    }
+
+    /**
+     * 将图片url转换成对应的内网域名
+     */
+    private String transformUrl(String picUrl) {
+        if (StringUtils.isBlank(picUrl)) {
+            return picUrl;
+        }
+        try {
+            // 查询内网域名与外网域名转换关系对应的配置
+            SysConfig domainMapJsonStr = sysConfigService.findConfigContentByConfigName(Constants.VIDEO_DOMAIN_TRANSFORM_MAP);
+            if (domainMapJsonStr == null) {
+                logger.warn("picAutoDistinguish|人工抽检转换图片url域名未找到对应的配置信息,不作替换");
+                return picUrl;
+            }
+            // 将配置信息转换成map
+            Map<String, Object> domainMap = JsonHelper.json2MapNormal(domainMapJsonStr.getConfigContent());
+            if (domainMap == null || domainMap.isEmpty()) {
+                logger.warn("picAutoDistinguish|人工抽检转换图片url域名配置信息转换map为空,不作替换");
+                return picUrl;
+            }
+            for (String externalDomain : domainMap.keySet()) {
+                // 找到对应的外网域名
+                if (picUrl.contains(externalDomain)) {
+                    String internalDomain = String.valueOf(domainMap.get(externalDomain));
+                    // 用内网域名进行替换
+                    picUrl = picUrl.replace(externalDomain, internalDomain);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("picAutoDistinguish|将图片url转换成对应的内网域名时出现异常:picUrl={}", picUrl, e);
+        }
+        return picUrl;
     }
 
     /**
