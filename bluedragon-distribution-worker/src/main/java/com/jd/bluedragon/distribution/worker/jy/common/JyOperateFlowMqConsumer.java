@@ -56,7 +56,7 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
             jyOperateFlowService.insert(jyOperateFlowDto);
         } catch (Exception e) {
             // 由于mq底层机制导致消息可能会重复消费，一直报主键冲突异常。如果用幂等方式解决可能会影响性能。此处采用只记录日志不重试的方式
-            if (isConstraintViolationException(e)) {
+            if (isConstraintViolationException(e, message.getText())) {
                 logger.warn("JyOperateFlowMq-重复消费,消息体:{}", message.getText());
                 return;
             }
@@ -71,19 +71,23 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
     /**
      * 判断异常是否是由于MySQLIntegrityConstraintViolationException引起
      */
-    private boolean isConstraintViolationException(Exception e) {
+    private boolean isConstraintViolationException(Exception e, String messageText) {
         try {
+            // 为了避免堆栈太深造成死循环，此处加了次数限制。
+            int attempts = 0;
             // 由于此异常可能是多种原因导致的，所以此处需要继续判断caused by的异常类型是否为主键冲突异常
             Throwable rootCause = e;
-            while (rootCause.getCause() != null) {
+            // 如果caused by不为空，并且没有超过最大次数10
+            while (rootCause.getCause() != null && attempts < Constants.CONSTANT_NUMBER_TEN) {
                 rootCause = rootCause.getCause();
                 // 如果是主键冲突异常则直接打印日志，不重试
                 if (rootCause instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException) {
                     return true;
                 }
+                attempts ++;
             }
         } catch (Exception ex) {
-            logger.error("JyOperateFlowMqConsumer|判断是否是主键冲突异常时出现错误,ex=", ex);
+            logger.error("JyOperateFlowMqConsumer|判断是否是主键冲突异常时出现错误:messageText={},ex=", messageText, ex);
         }
         return false;
     }
