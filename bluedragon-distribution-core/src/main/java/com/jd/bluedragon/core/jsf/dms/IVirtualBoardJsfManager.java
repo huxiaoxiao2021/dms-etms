@@ -92,4 +92,12 @@ public interface IVirtualBoardJsfManager {
      * @return
      */
     Response<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode);
+
+    /**
+     * 通过条形码和站点编号获取板信息
+     * @param boxCode 箱子条形码
+     * @param siteCode 站点编号
+     * @return 板信息响应
+     */
+    Board getBoardByBarCode(String boxCode, Integer siteCode);
 }

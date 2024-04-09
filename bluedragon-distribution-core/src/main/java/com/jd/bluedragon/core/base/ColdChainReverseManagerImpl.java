@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseResult;
@@ -43,8 +42,6 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
     private ColdChainReverseService coldChainReverseService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    @Autowired
-    private ColdDmsPackingConsumableApi coldDmsPackingConsumableApi;
     /**
      * 二次换单限制次数
      */
@@ -165,27 +162,5 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         }
     }
 
-    /**
-     * 检查需不需要确认包装耗材
-     * @param waybillCode
-     * @return
-     */
-    @Override
-    @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.checkIsNeedConfirmed", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Boolean checkIsNeedConfirmed(String waybillCode) {
-        if(StringUtils.isBlank(waybillCode)){
-            return false;
-        }
-        boolean flag = false;
-        try{
-            BaseResponse<Boolean>  baseResponse = coldDmsPackingConsumableApi.checkIsNeedConfirmed(waybillCode);
-            logger.warn("checkIsNeedConfirmed检查需不需要确认冷链包装耗材,入参：{}  结果：{}",waybillCode,JsonHelper.toJson(baseResponse));
-            if(Objects.nonNull(baseResponse) && baseResponse.getCode() == BaseResponse.OK_CODE){
-                flag = baseResponse.getData();
-            }
-        }catch (Exception e){
-            logger.error("checkIsNeedConfirmed检查需不需要确认冷链包装耗材发生异常,入参：" + waybillCode,e);
-        }
-        return flag;
-    }
+
 }

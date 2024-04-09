@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 
 /**
- * 小件集包网关服务
+ * 集包岗网关服务
  */
 public interface JyCollectPackageGatewayService {
 

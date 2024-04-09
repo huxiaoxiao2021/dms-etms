@@ -339,7 +339,7 @@
 		<property name="jyWarehouseTaskCreateTimeBeginHours" value="${jyWarehouseTaskCreateTimeBeginHours:168}"/>
 		<property name="jyWarehouseManualTaskKeyVehicleTypes" value="${jyWarehouseManualTaskKeyVehicleTypes:''}"/>
 		<property name="storageBoxDetailMaxSizeLimit" value="${storageBoxDetailMaxSizeLimit:400}"/>
-		<property name="waybillZeroWeightInterceptSwitch" value="${waybillZeroWeightInterceptSwitch:true}"/>
+		<property name="waybillZeroWeightInterceptSites" value="${waybillZeroWeightInterceptSites:910}"/>
 		<property name="automaticWeightVolumeUpperCheckSwitch" value="${automaticWeightVolumeUpperCheckSwitch:true}"/>
 		<property name="thanosSwitch" value="${thanosSwitch:false}"/>
 		<property name="allowEntryHours" value="${allowEntryHours:1}"/>
@@ -356,6 +356,15 @@
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
+		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
+		<property name="LLContainBoxNumberLimit" value="${LLContainBoxNumberLimit:100}"/>
+		<property name="packageArriveAutoInspectionRetryMinutes" value="${packageArriveAutoInspectionRetryMinutes:300}"/>
+		<property name="packageArriveAutoInspectionNullTaskRetryMinutes" value="${packageArriveAutoInspectionNullTaskRetryMinutes:30}"/>
+		<property name="pdaUnloadAndAutoInspectionRejectSwitch" value="${pdaUnloadAndAutoInspectionRejectSwitch:false}"/>
+		<property name="operateFlowNewSwitch" value="${operateFlowNewSwitch:false}"/>
+		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
+		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
+		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
 		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
 		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
 	</bean>
@@ -683,7 +692,7 @@
 				<value>uccPropertyConfiguration.jyWarehouseTaskCreateTimeBeginHours</value>
 				<value>uccPropertyConfiguration.jyWarehouseManualTaskKeyVehicleTypes</value>
 				<value>uccPropertyConfiguration.storageBoxDetailMaxSizeLimit</value>
-				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.waybillZeroWeightInterceptSites</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeUpperCheckSwitch</value>
 				<value>uccPropertyConfiguration.thanosSwitch</value>
 				<value>uccPropertyConfiguration.allowEntryHours</value>
@@ -699,6 +708,15 @@
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
+				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
+				<value>uccPropertyConfiguration.LLContainBoxNumberLimit</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionRetryMinutes</value>
+				<value>uccPropertyConfiguration.pdaUnloadAndAutoInspectionRejectSwitch</value>
+				<value>uccPropertyConfiguration.packageArriveAutoInspectionNullTaskRetryMinutes</value>
+				<value>uccPropertyConfiguration.operateFlowNewSwitch</value>
+				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
+				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
+				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
 				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 			</list>

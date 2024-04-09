@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.collectpackage;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,6 +16,11 @@ public class BatchCancelCollectPackageMqDto implements Serializable {
     private Integer updateUserCode;
     private Integer siteCode;
     private String siteName;
+    /**
+     * 操作数据对象
+     */
+    private OperatorData operatorData;
+
 
 
 }

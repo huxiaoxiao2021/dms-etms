@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.collectpackage.response.CollectPackStatusCou
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
@@ -343,6 +344,12 @@ public class JyBizTaskCollectPackageServiceImpl implements JyBizTaskCollectPacka
         sortingRequest.setOperateTime(DateUtil.format(dto.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
         sortingRequest.setSiteCode(dto.getSiteCode());
         sortingRequest.setSiteName(dto.getSiteName());
+        OperatorData operatorData = dto.getOperatorData();
+        sortingRequest.setOperatorData(operatorData);
+        if (operatorData != null) {
+            sortingRequest.setOperatorId(operatorData.getOperatorId());
+            sortingRequest.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+        }
         return sortingRequest;
     }
 

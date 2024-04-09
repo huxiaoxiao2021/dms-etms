@@ -62,6 +62,11 @@ public class BoxMaterialRelationMQ {
 
     private String receiveSiteName;
 
+    /**
+     * 是否为箱套箱
+     */
+    private Boolean boxHasChildBox;
+
     public String getMaterialCode() {
         return materialCode;
     }
@@ -148,5 +153,13 @@ public class BoxMaterialRelationMQ {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public Boolean getBoxHasChildBox() {
+        return boxHasChildBox;
+    }
+
+    public void setBoxHasChildBox(Boolean boxHasChildBox) {
+        this.boxHasChildBox = boxHasChildBox;
     }
 }

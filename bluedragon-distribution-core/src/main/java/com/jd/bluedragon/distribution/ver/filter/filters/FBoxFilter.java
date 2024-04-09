@@ -42,11 +42,11 @@ public class FBoxFilter implements Filter {
                 throw new SortingCheckException(SortingResponse.CODE_29011,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_HAS_SENT_GOODS, request.getFuncModule()));
             }
-
-            if (BoxHelper.isOrdinaryForWarehouse(request.getBox())) {
+            // 去掉退货箱号类型校验
+            /*if (BoxHelper.isOrdinaryForWarehouse(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29004,
                         HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_COMMON_REVERSE, request.getFuncModule()));
-            }
+            }*/
             // 去掉奢侈品箱号类型校验
             /*else if (BoxHelper.isLuxuryForWarehouse(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29008,

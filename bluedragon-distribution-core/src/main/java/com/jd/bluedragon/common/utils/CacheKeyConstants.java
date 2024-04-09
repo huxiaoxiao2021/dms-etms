@@ -230,6 +230,12 @@ public class CacheKeyConstants {
     public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "ul:scan:%s:%s:%s";
 
     /**
+     * 卸车扫描-不更新卸车进度的缓存key
+     *  单号+场地+卸车任务
+     */
+    public static final String JY_UNLOAD_SCAN_NOT_UPDATE_PROCESS_KEY = JY_CACHE_PREFIX + "ul:scan:nup:%s:%s:%s";
+
+    /**
      * 拣运卸车任务主键
      * bizId
      */

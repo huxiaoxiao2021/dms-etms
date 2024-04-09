@@ -1,4 +1,8 @@
-package com.jd.bluedragon.distribution.api.request;
+package com.jd.bluedragon.distribution.capability.send.domain;
+
+import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+
+import java.util.Date;
 
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 
@@ -31,6 +35,16 @@ public class SendRequest extends PackageSendRequest {
      */
     private ValidateIgnore validateIgnore;
 
+    /**
+     * 发货链处理模式
+     */
+    private SendChainModeEnum sendChainModeEnum;
+
+    /**
+     * 是否使用自定义操作时间，使用基本类型模式不使用，不使用时操作时间为服务器时间。
+     */
+    private boolean useCustomOperateTime;
+
     public String getBarCode() {
         return barCode;
     }
@@ -62,4 +76,22 @@ public class SendRequest extends PackageSendRequest {
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
     }
+
+    public SendChainModeEnum getSendChainModeEnum() {
+        return sendChainModeEnum;
+    }
+
+    public void setSendChainModeEnum(SendChainModeEnum sendChainModeEnum) {
+        this.sendChainModeEnum = sendChainModeEnum;
+    }
+
+    public boolean getUseCustomOperateTime() {
+        return useCustomOperateTime;
+    }
+
+    public void setUseCustomOperateTime(boolean useCustomOperateTime) {
+        this.useCustomOperateTime = useCustomOperateTime;
+    }
+
+
 }

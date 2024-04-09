@@ -915,6 +915,11 @@ public class Constants {
     public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
+     * 揽收终止原因配置
+     */
+    public static final String SYS_CONFIG_COLLECT_TERMINATE_REASON= "collect_terminate_reason";
+
+    /**
      * 安卓菜单可用性配置
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
@@ -1668,6 +1673,11 @@ public class Constants {
     public static final int CONSTANT_TWO_HUNDRED = 200;
 
     /**
+     * 常量值：500
+     * */
+    public static final int CONSTANT_FIVE_HUNDRED = 500;
+
+    /**
      * 常量值：1000
      * */
     public static final int CONSTANT_ONE_THOUSAND = 1000;
@@ -1767,6 +1777,11 @@ public class Constants {
      * 数字：1
      */
     public static final Integer NUMBER_ONE = 1;
+
+    /**
+     * 数字：2
+     */
+    public static final Integer NUMBER_TWO = 2;
 
     /**
      * SendD取消状态
@@ -2427,7 +2442,7 @@ public class Constants {
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
 
     /**
-     *  配置信息-基于排班自动签退试用场地列表
+     * 配置信息-基于排班自动签退试用场地列表
      */
     public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
 
@@ -2440,6 +2455,23 @@ public class Constants {
      * 签到开始日期前1天
      * */
     public static final Integer SIGN_BEFORE_ONE_DAY = -1;
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
+
+    /**
+     * 配置信息-司机到达B2B业务类型列表
+     */
+    public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
+
 
     /**
      * 评价申诉权限 0 关闭
