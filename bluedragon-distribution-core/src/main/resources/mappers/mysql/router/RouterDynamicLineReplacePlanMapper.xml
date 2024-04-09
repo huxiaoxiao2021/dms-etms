@@ -432,8 +432,11 @@
         <if test="newEndSiteId != null">
             AND new_end_site_id = #{newEndSiteId}
         </if>
-        <if test="effectTime != null">
-            AND (enable_time &lt;= #{effectTime} AND disable_time &gt;= #{effectTime})
+        <if test="effectTimeStart != null">
+            AND enable_time &lt;= #{effectTimeStart}
+        </if>
+        <if test="effectTimeEnd != null">
+            AND disable_time &gt;= #{effectTimeEnd})
         </if>
         <if test="pushTime != null">
             AND push_time = #{pushTime}

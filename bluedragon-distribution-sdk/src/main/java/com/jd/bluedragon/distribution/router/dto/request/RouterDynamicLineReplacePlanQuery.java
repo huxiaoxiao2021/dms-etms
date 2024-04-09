@@ -46,7 +46,8 @@ public class RouterDynamicLineReplacePlanQuery extends Page implements Serializa
      */
     private List<Integer> enableStatusList;
 
-    private Date effectTime;
+    private Date effectTimeStart;
+    private Date effectTimeEnd;
 
     private Long pushTime;
 
@@ -100,12 +101,20 @@ public class RouterDynamicLineReplacePlanQuery extends Page implements Serializa
         this.enableStatusList = enableStatusList;
     }
 
-    public Date getEffectTime() {
-        return effectTime;
+    public Date getEffectTimeStart() {
+        return effectTimeStart;
     }
 
-    public void setEffectTime(Date effectTime) {
-        this.effectTime = effectTime;
+    public void setEffectTimeStart(Date effectTimeStart) {
+        this.effectTimeStart = effectTimeStart;
+    }
+
+    public Date getEffectTimeEnd() {
+        return effectTimeEnd;
+    }
+
+    public void setEffectTimeEnd(Date effectTimeEnd) {
+        this.effectTimeEnd = effectTimeEnd;
     }
 
     public Long getPushTime() {
@@ -133,7 +142,6 @@ public class RouterDynamicLineReplacePlanQuery extends Page implements Serializa
                 ", oldEndSiteId=" + oldEndSiteId +
                 ", newEndSiteId=" + newEndSiteId +
                 ", enableStatusList=" + enableStatusList +
-                ", effectTime=" + effectTime +
                 ", pushTime=" + pushTime +
                 ", yn=" + yn +
                 '}';

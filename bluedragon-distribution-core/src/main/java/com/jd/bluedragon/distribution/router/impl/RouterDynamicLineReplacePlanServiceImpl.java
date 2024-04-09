@@ -85,8 +85,6 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
                 return result.toFail(checkResult.getMessage(), checkResult.getCode());
             }
 
-            // todo 相同老-新线路如何更新的逻辑待确认
-
             // step 处理上下文
             DynamicLineReplacePlanMqContext dynamicLineReplacePlanMqContext = new DynamicLineReplacePlanMqContext();
             final Result<Boolean> handleContextResult = this.handleRouterDynamicLineReplacePlanMqContext(dynamicLineReplacePlanMq, dynamicLineReplacePlanMqContext);
@@ -304,7 +302,8 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
         routerDynamicLineReplacePlanQuery.setStartSiteId(req.getStartSiteId());
         routerDynamicLineReplacePlanQuery.setOldEndSiteId(req.getOldEndSiteId());
         routerDynamicLineReplacePlanQuery.setNewEndSiteId(req.getNewEndSiteId());
-        routerDynamicLineReplacePlanQuery.setEffectTime(req.getEffectTime());
+        routerDynamicLineReplacePlanQuery.setEffectTimeStart(req.getEffectTime());
+        routerDynamicLineReplacePlanQuery.setEffectTimeEnd(req.getEffectTime());
         routerDynamicLineReplacePlanQuery.setEnableStatusList(new ArrayList<>(Collections.singletonList(RouterDynamicLineStatusEnum.ENABLE.getCode())));
         return routerDynamicLineReplacePlanQuery;
     }
@@ -358,14 +357,16 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             final RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery = new RouterDynamicLineReplacePlanQuery();
             routerDynamicLineReplacePlanQuery.setStartSiteId(req.getCurrentOperate().getSiteCode());
             // 查询生效时间前24小时的数据
-            Date effectTime = new Date(System.currentTimeMillis() - 24 * 3600 * 1000L);
-            routerDynamicLineReplacePlanQuery.setEffectTime(effectTime);
+            final long currentTimeMillis = System.currentTimeMillis();
+            Date effectTimeStart = new Date(currentTimeMillis + 24 * 3600 * 1000L);
+            Date effectTimeEnd = new Date(currentTimeMillis - 24 * 3600 * 1000L);
+            routerDynamicLineReplacePlanQuery.setEffectTimeStart(effectTimeStart);
+            routerDynamicLineReplacePlanQuery.setEffectTimeEnd(effectTimeEnd);
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
             final Long total = routerDynamicLineReplacePlanDao.queryCount(routerDynamicLineReplacePlanQuery);
             pageData.setTotal(total);
 
             if (total > 0) {
-                final long currentTimeMillis = System.currentTimeMillis();
                 final List<RouterDynamicLineReplacePlan> dataRawList = routerDynamicLineReplacePlanDao.queryListOrderByStatus(routerDynamicLineReplacePlanQuery);
 
                 // step 组装数据实体
