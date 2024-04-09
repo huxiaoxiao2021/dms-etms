@@ -474,6 +474,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 				// 是否静默升级
 				result.getData().getBusinessConfigInfo().setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
+
+				// 是否启用临时线路切换功能
+                result.getData().getBusinessConfigInfo().setRouterDynamicLineReplaceLineEnable(dmsConfigManager.getPropertyConfig().isRouterDynamicLineReplaceEnableSite(dmsClientHeartbeatRequest.getSiteCode()));
 			}
 		}
 		return result;

@@ -357,7 +357,9 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             // step 拼接查询参数
             final RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery = new RouterDynamicLineReplacePlanQuery();
             routerDynamicLineReplacePlanQuery.setStartSiteId(req.getCurrentOperate().getSiteCode());
-            routerDynamicLineReplacePlanQuery.setEffectTime(new Date());
+            // 查询生效时间前24小时的数据
+            Date effectTime = new Date(new Date().getTime() - 24 * 3600 * 1000L);
+            routerDynamicLineReplacePlanQuery.setEffectTime(effectTime);
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
             final Long total = routerDynamicLineReplacePlanDao.queryCount(routerDynamicLineReplacePlanQuery);
             pageData.setTotal(total);
