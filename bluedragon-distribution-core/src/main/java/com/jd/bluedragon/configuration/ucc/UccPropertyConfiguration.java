@@ -4696,6 +4696,7 @@ public class UccPropertyConfiguration{
 
     public void setRouterDynamicLineReplaceEnableSiteStr(String routerDynamicLineReplaceEnableSiteStr) {
         this.routerDynamicLineReplaceEnableSiteStr = routerDynamicLineReplaceEnableSiteStr;
+        this.setRouterDynamicLineReplaceEnableSiteList();
     }
 
     public List<Integer> getRouterDynamicLineReplaceEnableSiteList() {
