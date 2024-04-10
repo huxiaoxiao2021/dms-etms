@@ -50,6 +50,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -713,6 +714,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
                 filterContext.setWaybillVasDtos( waybillVasInfos.getData());
             }
+            // 初始化运单基础信息
+            WaybillCache waybillCache = this.waybillCacheService.getNoCache(WaybillUtil.getWaybillCode(boardCombinationRequest.getBoxOrPackageCode()));
+            filterContext.setWaybillCache(waybillCache);
         }
         return filterContext;
     }
