@@ -3039,15 +3039,22 @@ public class WaybillResource {
 	@Path("/dy/getOrderByPackCode/{deliveryId}")
 	@JProfiler(jKey = "DMS.WEB.CommandResource.getWaybillPackageList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<PackDTO>> getWaybillPackageList(@PathParam("deliveryId") String deliveryId) {
-		log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
 		InvokeResult<List<PackDTO>> result = new InvokeResult<>();
-		ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
-		if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
-			log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
-			result.error("getWaybillPackageList 查询不到包裹");
+		try {
+			log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
+			ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
+			if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
+				log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
+				result.error("getWaybillPackageList 查询不到包裹");
+				return result;
+			}
+			result.setData(resultObject.getData());
+			return result;
+		} catch (Exception e) {
+			log.info("查询B商家订单异常 getWaybillPackageList deliveryId={}", deliveryId, e);
+			result.error("查询B商家订单后端出现异常-getWaybillPackageList，请联系分拣小秘处理！");
 			return result;
 		}
-		result.setData(resultObject.getData());
-		return result;
+
 	}
 }
