@@ -21,6 +21,9 @@
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
     <result column="task_date" jdbcType="VARCHAR" property="taskDate" />
+    <result column="grid_code" jdbcType="VARCHAR" property="gridCode" />
+    <result column="grid_name" jdbcType="VARCHAR" property="gridName" />
+    <result column="clean_site_user" jdbcType="VARCHAR" property="cleanSiteUser" />
   </resultMap>
 
 
@@ -33,7 +36,7 @@
   <sql id="Base_Column_List">
     id, biz_id, work_grid_key, site_code, wave_start_time, wave_end_time, task_status,
     wait_find_count, have_find_count, photo_status, create_user_erp, create_user_name,
-    update_user_erp, update_user_name, create_time, update_time, yn, ts ,task_date
+    update_user_erp, update_user_name, create_time, update_time, yn, ts ,task_date, grid_code, grid_name, clean_site_user
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -119,6 +122,12 @@
       <if test="taskDate != null">
         task_date,
       </if>
+      <if test="gridCode != null">
+        grid_code,
+      </if>
+      <if test="gridName != null">
+        grid_name,
+    </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -177,6 +186,12 @@
       </if>
       <if test="taskDate != null">
         #{taskDate,jdbcType=VARCHAR},
+      </if>
+      <if test="gridCode != null">
+        #{gridCode,jdbcType=VARCHAR},
+    </if>
+      <if test="gridName != null">
+        #{gridName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -319,6 +334,7 @@
     update jy_biz_task_find_goods
     set
       photo_status = #{photoStatus},
+      clean_site_user =#{cleanSiteUser},
       update_time = #{updateTime}
     where yn = 1 and biz_id = #{bizId}
   </update>
