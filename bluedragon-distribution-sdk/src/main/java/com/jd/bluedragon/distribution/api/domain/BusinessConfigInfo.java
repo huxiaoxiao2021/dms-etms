@@ -38,6 +38,11 @@ public class BusinessConfigInfo implements Serializable {
      */
     private Boolean silentUpdate;
 
+    /**
+     * 图像清晰度判断阈值
+     */
+    private String imageClarityThreshold;
+
     public List<JyDemotionConfigInfo> getJyDemotionConfigList() {
         return jyDemotionConfigList;
     }
@@ -76,5 +81,13 @@ public class BusinessConfigInfo implements Serializable {
 
     public void setSilentUpdate(Boolean silentUpdate) {
         this.silentUpdate = silentUpdate;
+    }
+
+    public String getImageClarityThreshold() {
+        return imageClarityThreshold;
+    }
+
+    public void setImageClarityThreshold(String imageClarityThreshold) {
+        this.imageClarityThreshold = imageClarityThreshold;
     }
 }

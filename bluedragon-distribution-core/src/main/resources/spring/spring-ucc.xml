@@ -366,6 +366,7 @@
 		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
 		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
+		<property name="imageClarityThreshold" value="${imageClarityThreshold:'500'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -717,6 +718,7 @@
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
+				<value>uccPropertyConfiguration.imageClarityThreshold</value>
 			</list>
 		</property>
 	</bean>
