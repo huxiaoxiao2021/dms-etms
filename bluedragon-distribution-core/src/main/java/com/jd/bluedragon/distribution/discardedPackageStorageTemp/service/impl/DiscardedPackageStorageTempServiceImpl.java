@@ -581,7 +581,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         return result;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {JyBizException.class, CompletionException.class})
     public void saveToDb(List<SendDetail> cancelSendByBox, ScanDiscardedPackagePo paramObj, HashMap<String, BaseEntity<BigWaybillDto>> entityHashMap){
         List<CompletableFuture<Result<Boolean>>> futures = new ArrayList<>();
         BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(paramObj.getOperateUser().getSiteCode());
