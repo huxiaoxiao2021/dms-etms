@@ -812,7 +812,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             return false;
         }
         SysConfig siteConfig =
-            sysConfigService.findConfigContentByConfigName(Constants.DISCARDED_STORAGE_LIMIT_SITE_TYPE_CONFIG);
+            sysConfigService.findConfigContentByConfigName(Constants.DISCARDED_STORAGE_LIMIT_POSITION_CONFIG);
         if (siteConfig == null) {
             log.warn("获取包裹补打限制站点配置为空！");
             return false;

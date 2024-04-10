@@ -2507,8 +2507,8 @@ public class Constants {
     public static final Integer EVALUATE_TYPE_LOAD = 1;
 
     /**
-     * 弃件暂存站点类型限制配置
+     * 弃件暂存岗位限制配置
      */
-    public static final String DISCARDED_STORAGE_LIMIT_SITE_TYPE_CONFIG  = "discarded.storage.limit.siteType.config";
+    public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
 
 }
