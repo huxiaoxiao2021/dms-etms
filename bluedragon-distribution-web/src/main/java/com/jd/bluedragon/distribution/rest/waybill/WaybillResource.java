@@ -3043,6 +3043,7 @@ public class WaybillResource {
 		try {
 			log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
 			ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
+			log.info("ldopManager getPackLists result={}", JsonHelper.toJson(resultObject));
 			if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
 				log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
 				result.error("getWaybillPackageList 查询不到包裹");
