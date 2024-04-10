@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao
 import com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlanLog;
+import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanChangeStatusDto;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
 import com.jd.bluedragon.distribution.router.manager.IRouterDynamicLineReplacePlanManager;
 import lombok.extern.slf4j.Slf4j;
@@ -54,40 +55,41 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
         final User user = req.getUser();
         Date currentTime = new Date();
         // step 更新数据
-        final RouterDynamicLineReplacePlan routerDynamicLineReplacePlan = getRouterDynamicLineReplacePlan(req, currentTime, user);
-        routerDynamicLineReplacePlanDao.updateByPrimaryKeySelective(routerDynamicLineReplacePlan);
+        final RouterDynamicLineReplacePlanChangeStatusDto routerDynamicLineReplacePlan = getRouterDynamicLineReplacePlanChangeStatusDto(req, routerDynamicLineReplacePlanExist, currentTime, user);
+        final int updateCount = routerDynamicLineReplacePlanDao.updatesStatusByPrimaryKeySelective(routerDynamicLineReplacePlan);
+        if(updateCount > 0){
+            // step 同步数据至自动化系统
+            RouterDynamicLineReplacePlanQuery conditon = new RouterDynamicLineReplacePlanQuery();
+            conditon.setId(routerDynamicLineReplacePlan.getId());
+            RouterDynamicLineReplacePlan source = routerDynamicLineReplacePlanDao.selectOne(conditon);
+            RouterDynamicLineReplacePlanDto dest = new RouterDynamicLineReplacePlanDto();
+            BeanUtils.copyProperties(source,dest);
+            BaseDmsAutoJsfResponse<Boolean> response = routerDynamicLineReplacePlanJsfService.syncRouterLine(dest);
+            if (response == null || !response.getData()){
+                log.warn("同步路由数据至自动化系统失败，提示用户重试！");
+                throw new RuntimeException("同步路由数据至自动化系统失败，提示用户重试！");
+            }
 
-        // step 同步数据至自动化系统
-        RouterDynamicLineReplacePlanQuery conditon = new RouterDynamicLineReplacePlanQuery();
-        conditon.setId(routerDynamicLineReplacePlan.getId());
-        RouterDynamicLineReplacePlan source = routerDynamicLineReplacePlanDao.selectOne(conditon);
-        RouterDynamicLineReplacePlanDto dest = new RouterDynamicLineReplacePlanDto();
-        BeanUtils.copyProperties(source,dest);
-        BaseDmsAutoJsfResponse<Boolean> response = routerDynamicLineReplacePlanJsfService.syncRouterLine(dest);
-        if (response == null || !response.getData()){
-            log.warn("同步路由数据至自动化系统失败，提示用户重试！");
-            throw new RuntimeException("同步路由数据至自动化系统失败，提示用户重试！");
+            // step 写入日志
+            final RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog = new RouterDynamicLineReplacePlanLog();
+            routerDynamicLineReplacePlanLog.setRefId(req.getId());
+            routerDynamicLineReplacePlanLog.setStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
+            routerDynamicLineReplacePlanLog.setStatusTarget(req.getEnableStatus());
+            routerDynamicLineReplacePlanLog.setCreateTime(currentTime);
+            routerDynamicLineReplacePlanLog.setOperateTime(currentTime);
+            routerDynamicLineReplacePlanLog.setCreateUserId(user.getUserCode());
+            routerDynamicLineReplacePlanLog.setCreateUserErp(user.getUserErp());
+            routerDynamicLineReplacePlanLog.setCreateUserName(user.getUserName());
+            routerDynamicLineReplacePlanLogDao.insertSelective(routerDynamicLineReplacePlanLog);
         }
-
-        // step 写入日志
-        final RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog = new RouterDynamicLineReplacePlanLog();
-        routerDynamicLineReplacePlanLog.setRefId(req.getId());
-        routerDynamicLineReplacePlanLog.setStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
-        routerDynamicLineReplacePlanLog.setStatusTarget(req.getEnableStatus());
-        routerDynamicLineReplacePlanLog.setCreateTime(currentTime);
-        routerDynamicLineReplacePlanLog.setOperateTime(currentTime);
-        routerDynamicLineReplacePlanLog.setCreateUserId(user.getUserCode());
-        routerDynamicLineReplacePlanLog.setCreateUserErp(user.getUserErp());
-        routerDynamicLineReplacePlanLog.setCreateUserName(user.getUserName());
-        routerDynamicLineReplacePlanLogDao.insertSelective(routerDynamicLineReplacePlanLog);
-
-        return false;
+        return true;
     }
 
-    private RouterDynamicLineReplacePlan getRouterDynamicLineReplacePlan(RouterDynamicLineReplacePlanChangeStatusReq req, Date currentTime, User user) {
-        final RouterDynamicLineReplacePlan routerDynamicLineReplacePlan = new RouterDynamicLineReplacePlan();
+    private RouterDynamicLineReplacePlanChangeStatusDto getRouterDynamicLineReplacePlanChangeStatusDto(RouterDynamicLineReplacePlanChangeStatusReq req, RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist, Date currentTime, User user) {
+        final RouterDynamicLineReplacePlanChangeStatusDto routerDynamicLineReplacePlan = new RouterDynamicLineReplacePlanChangeStatusDto();
         routerDynamicLineReplacePlan.setId(req.getId());
         routerDynamicLineReplacePlan.setEnableStatus(req.getEnableStatus());
+        routerDynamicLineReplacePlan.setEnableStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
         routerDynamicLineReplacePlan.setUpdateTime(currentTime);
         routerDynamicLineReplacePlan.setUpdateUserId(user.getUserCode());
         routerDynamicLineReplacePlan.setUpdateUserCode(user.getUserErp());

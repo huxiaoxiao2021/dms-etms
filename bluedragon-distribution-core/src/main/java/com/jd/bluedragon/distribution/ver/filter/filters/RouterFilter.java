@@ -173,11 +173,11 @@ public class RouterFilter implements Filter {
         routerDynamicLineReplacePlanMatchedEnableLineReq.setNewEndSiteId(request.getReceiveSiteCode());
         final Result<RouterDynamicLineReplacePlan> matchedEnableLineResult = routerDynamicLineReplacePlanService.getMatchedEnableLine(routerDynamicLineReplacePlanMatchedEnableLineReq);
         if (!matchedEnableLineResult.isSuccess()) {
-            logger.warn("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine fail {}, {}, {}", JsonHelper.toJson(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJson(request), JsonHelper.toJson(routeNextDto));
+            logger.error("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine fail {}, {}, {}", JsonHelper.toJsonMs(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJsonMs(request), JsonHelper.toJsonMs(routeNextDto));
             return false;
         } else {
             if (matchedEnableLineResult.getData() != null) {
-                logger.warn("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine exist {}, {}, {}, {}", JsonHelper.toJson(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJson(matchedEnableLineResult.getData()), JsonHelper.toJson(request), JsonHelper.toJson(routeNextDto));
+                logger.info("RouterFilter hasMatchedEnableDynamicLine getMatchedEnableLine exist {}, {}, {}, {}", JsonHelper.toJsonMs(routerDynamicLineReplacePlanMatchedEnableLineReq), JsonHelper.toJsonMs(matchedEnableLineResult.getData()), JsonHelper.toJsonMs(request), JsonHelper.toJsonMs(routeNextDto));
                 return true;
             }
         }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.router.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan;
+import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanChangeStatusDto;
 import com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery;
 
 import java.util.List;
@@ -38,12 +39,16 @@ public class RouterDynamicLineReplacePlanDao extends BaseDao<RouterDynamicLineRe
         return this.getSqlSession().selectList(NAMESPACE + ".queryListOrderByStatus", routerDynamicLineReplacePlanQuery);
     }
 
-    public RouterDynamicLineReplacePlan updateByPrimaryKeySelective(RouterDynamicLineReplacePlan routerDynamicLineReplacePlan) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".updateByPrimaryKeySelective", routerDynamicLineReplacePlan);
+    public int updateByPrimaryKeySelective(RouterDynamicLineReplacePlan routerDynamicLineReplacePlan) {
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", routerDynamicLineReplacePlan);
     }
 
     public RouterDynamicLineReplacePlan selectLatestOne(RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery) {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectLatestOne", routerDynamicLineReplacePlanQuery);
+    }
+
+    public int updatesStatusByPrimaryKeySelective(RouterDynamicLineReplacePlanChangeStatusDto routerDynamicLineReplacePlanChangeStatusDto) {
+        return this.getSqlSession().update(NAMESPACE + ".updatesStatusByPrimaryKeySelective", routerDynamicLineReplacePlanChangeStatusDto);
     }
 
 }

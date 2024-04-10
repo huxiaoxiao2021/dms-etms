@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.router.dynamicLine.enums.RouterDynamicLineSt
 import com.jd.bluedragon.common.dto.router.dynamicLine.request.RouterDynamicLineReplacePlanChangeStatusReq;
 import com.jd.bluedragon.common.dto.router.dynamicLine.request.RouterDynamicLineReplacePlanListReq;
 import com.jd.bluedragon.common.dto.router.dynamicLine.response.RouterDynamicLineReplacePlanVo;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -27,6 +28,8 @@ import com.jd.dms.java.utils.sdk.base.PageData;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -66,6 +69,9 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
+    @Autowired
+    private JimDbLock jimDbLock;
+
     /**
      * 消费路由消息服务
      *
@@ -73,16 +79,24 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
      * @return 处理结果
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> consumeDynamicLineReplacePlan(DynamicLineReplacePlanMq dynamicLineReplacePlanMq) {
         if(log.isInfoEnabled()){
-            log.info("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan param: {}", JsonHelper.toJson(dynamicLineReplacePlanMq));
+            log.info("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan param: {}", JsonHelper.toJsonMs(dynamicLineReplacePlanMq));
         }
         Result<Boolean> result = Result.success();
+        // step 基础入参校验
+        final Result<Void> checkResult = this.checkParam4consumeDynamicLineReplacePlan(dynamicLineReplacePlanMq);
+        if(!checkResult.isSuccess()){
+            return result.toFail(checkResult.getMessage(), checkResult.getCode());
+        }
+
+        final String uniqueCacheKey = this.getUniqueCacheKey(dynamicLineReplacePlanMq);
         try {
-            // step 基础入参校验
-            final Result<Void> checkResult = this.checkParam4consumeDynamicLineReplacePlan(dynamicLineReplacePlanMq);
-            if(!checkResult.isSuccess()){
-                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+
+            // 消费锁
+            if (!jimDbLock.lock(uniqueCacheKey, Constants.STRING_FLG_TRUE, CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK_EXPIRE, TimeUnit.MINUTES)) {
+                return result.toFail("数据处理中，请稍后重试");
             }
 
             // step 处理上下文
@@ -96,7 +110,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             final RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery = getRouterDynamicLineReplacePlanQuery(dynamicLineReplacePlanMq, dynamicLineReplacePlanMqContext);
             final RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist = routerDynamicLineReplacePlanDao.selectOne(routerDynamicLineReplacePlanQuery);
             if (routerDynamicLineReplacePlanExist != null) {
-                log.warn("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan same data {}", JsonHelper.toJson(dynamicLineReplacePlanMq));
+                log.warn("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan same data {}", JsonHelper.toJsonMs(dynamicLineReplacePlanMq));
                 return result;
             }
 
@@ -105,10 +119,16 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             this.assembleRouterDynamicLineReplacePlan(routerDynamicLineReplacePlanAdd, dynamicLineReplacePlanMqContext);
             routerDynamicLineReplacePlanDao.insertSelective(routerDynamicLineReplacePlanAdd);
         }catch (Exception e){
-            log.error("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan param: {}", JsonHelper.toJson(dynamicLineReplacePlanMq), e);
+            log.error("RouterDynamicLineReplacePlanServiceImpl.consumeDynamicLineReplacePlan param: {}", JsonHelper.toJsonMs(dynamicLineReplacePlanMq), e);
             result.toFail("系统异常");
+        }finally {
+            jimDbLock.releaseLock(uniqueCacheKey, Constants.STRING_FLG_TRUE);
         }
         return result;
+    }
+
+    private String getUniqueCacheKey(DynamicLineReplacePlanMq req) {
+        return String.format(CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK, String.format("%s_%s_%s_%s_%s", req.getVersionId(), req.getPushTime(), req.getStartNodeCode(), req.getOldEndNodeCode(), req.getNewEndNodeCode()));
     }
 
     private RouterDynamicLineReplacePlanQuery getRouterDynamicLineReplacePlanQuery(DynamicLineReplacePlanMq dynamicLineReplacePlanMq, DynamicLineReplacePlanMqContext dynamicLineReplacePlanMqContext) {
@@ -168,19 +188,19 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     private Result<Boolean> handleRouterDynamicLineReplacePlanMqContext(DynamicLineReplacePlanMq dynamicLineReplacePlanMq, DynamicLineReplacePlanMqContext dynamicLineReplacePlanMqContext){
         Result<Boolean> result = Result.success();
         dynamicLineReplacePlanMqContext.setDynamicLineReplacePlanMq(dynamicLineReplacePlanMq);
-        final BaseStaffSiteOrgDto baseSiteStart = baseMajorManager.getBaseSiteByDmsCode(dynamicLineReplacePlanMq.getStartNodeCode());
+        final BaseStaffSiteOrgDto baseSiteStart = baseMajorManager.getBaseSiteByCodeIncludeStore(dynamicLineReplacePlanMq.getStartNodeCode());
         if (baseSiteStart == null) {
-            log.error("handleRouterDynamicLineReplacePlanMqContext empty baseSiteStart {}", JsonHelper.toJson(dynamicLineReplacePlanMq));
+            log.error("handleRouterDynamicLineReplacePlanMqContext empty baseSiteStart {}", JsonHelper.toJsonMs(dynamicLineReplacePlanMq));
             return result.toFail("始发场地数据查询为空");
         }
         dynamicLineReplacePlanMqContext.setBaseSiteStart(baseSiteStart);
-        final BaseStaffSiteOrgDto baseSiteEndOld = baseMajorManager.getBaseSiteByDmsCode(dynamicLineReplacePlanMq.getOldEndNodeCode());
+        final BaseStaffSiteOrgDto baseSiteEndOld = baseMajorManager.getBaseSiteByCodeIncludeStore(dynamicLineReplacePlanMq.getOldEndNodeCode());
         if (baseSiteEndOld == null) {
-            log.error("handleRouterDynamicLineReplacePlanMqContext empty baseSiteEndOld {}", JsonHelper.toJson(dynamicLineReplacePlanMq));
+            log.error("handleRouterDynamicLineReplacePlanMqContext empty baseSiteEndOld {}", JsonHelper.toJsonMs(dynamicLineReplacePlanMq));
             return result.toFail("原目的场地数据查询为空");
         }
         dynamicLineReplacePlanMqContext.setBaseSiteEndOld(baseSiteEndOld);
-        final BaseStaffSiteOrgDto baseSiteEndNew = baseMajorManager.getBaseSiteByDmsCode(dynamicLineReplacePlanMq.getNewEndNodeCode());
+        final BaseStaffSiteOrgDto baseSiteEndNew = baseMajorManager.getBaseSiteByCodeIncludeStore(dynamicLineReplacePlanMq.getNewEndNodeCode());
         dynamicLineReplacePlanMqContext.setBaseSiteEndNew(baseSiteEndNew);
         return result;
     }
@@ -207,44 +227,6 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     }
 
     /**
-     * 根据条件查询动态线路替换方案列表
-     *
-     * @param req 请求入参
-     * @return 数据列表
-     * @author fanggang7
-     * @time 2024-04-02 10:53:44 周二
-     */
-    @Override
-    public Result<List<RouterDynamicLineReplacePlan>> queryListByCondition(RouterDynamicLineReplacePlanQuery req) {
-        if(log.isInfoEnabled()){
-            log.info("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition param: {}", JsonHelper.toJson(req));
-        }
-        Result<List<RouterDynamicLineReplacePlan>> result = Result.success();
-        try {
-            // step 校验参数
-            final Result<Void> checkResult = this.checkParam4queryListByCondition(req);
-            if(!checkResult.isSuccess()){
-                return result.toFail(checkResult.getMessage(), checkResult.getCode());
-            }
-            // step 查询数据
-            final List<RouterDynamicLineReplacePlan> dataList = routerDynamicLineReplacePlanDao.queryList(req);
-            result.setData(dataList);
-        }catch (Exception e){
-            log.error("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition param: {}", JsonHelper.toJson(req), e);
-            result.toFail("系统异常");
-        }
-        return result;
-    }
-
-    private Result<Void> checkParam4queryListByCondition(RouterDynamicLineReplacePlanQuery req){
-        Result<Void> result = Result.success();
-        if (req.getStartSiteId() == null) {
-            return result.toFail("参数错误, startSiteId不能为空");
-        }
-        return result;
-    }
-
-    /**
      * 根据条件查询可用的动态线路替换方案列表
      *
      * @param req 请求入参
@@ -253,9 +235,10 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
      * @time 2024-04-03 17:45:38 周三
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<RouterDynamicLineReplacePlan> getMatchedEnableLine(RouterDynamicLineReplacePlanMatchedEnableLineReq req) {
         if(log.isInfoEnabled()){
-            log.info("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJson(req));
+            log.info("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJsonMs(req));
         }
         Result<RouterDynamicLineReplacePlan> result = Result.success();
         try {
@@ -284,13 +267,13 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             final RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist = routerDynamicLineReplacePlanDao.selectLatestOne(routerDynamicLineReplacePlanQuery);
             // step 设置缓存 为空设置为-1
             if (routerDynamicLineReplacePlanExist != null) {
-                redisClientOfJy.setEx(uniqueCacheKey, JsonHelper.toJson(routerDynamicLineReplacePlanExist), CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_TIME_OUT, TimeUnit.MINUTES);
+                redisClientOfJy.setEx(uniqueCacheKey, JsonHelper.toJsonMs(routerDynamicLineReplacePlanExist), CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_TIME_OUT, TimeUnit.HOURS);
             } else {
-                redisClientOfJy.setEx(uniqueCacheKey, CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_VAL_NULL, CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_TIME_OUT, TimeUnit.MINUTES);
+                redisClientOfJy.setEx(uniqueCacheKey, CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_VAL_NULL, CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_TIME_OUT, TimeUnit.HOURS);
             }
             result.setData(routerDynamicLineReplacePlanExist);
         }catch (Exception e){
-            log.error("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJson(req), e);
+            log.error("RouterDynamicLineReplacePlanServiceImpl.getMatchedEnableLine param: {}", JsonHelper.toJsonMs(req), e);
             result.toFail("系统异常");
         }
         return result;
@@ -338,9 +321,10 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
      * @time 2024-04-02 10:53:44 周二
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<PageData<RouterDynamicLineReplacePlanVo>> queryListByCondition4Client(RouterDynamicLineReplacePlanListReq req) {
         if(log.isInfoEnabled()){
-            log.info("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client param: {}", JsonHelper.toJson(req));
+            log.info("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client param: {}", JsonHelper.toJsonMs(req));
         }
         Result<PageData<RouterDynamicLineReplacePlanVo>> result = Result.success();
         List<RouterDynamicLineReplacePlanVo> dataList = new ArrayList<>();
@@ -382,7 +366,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             }
 
         }catch (Exception e){
-            log.error("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client param: {}", JsonHelper.toJson(req), e);
+            log.error("RouterDynamicLineReplacePlanServiceImpl.queryListByCondition4Client param: {}", JsonHelper.toJsonMs(req), e);
             result.toFail("系统异常");
         }
         return result;
@@ -448,9 +432,10 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
      * @time 2024-04-02 10:53:44 周二
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> changeStatus4Client(RouterDynamicLineReplacePlanChangeStatusReq req) {
         if(log.isInfoEnabled()){
-            log.info("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJson(req));
+            log.info("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJsonMs(req));
         }
         Result<Boolean> result = Result.success(true);
         try {
@@ -493,7 +478,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             }
 
         }catch (Exception e){
-            log.error("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJson(req), e);
+            log.error("RouterDynamicLineReplacePlanServiceImpl.changeStatus4Client param: {}", JsonHelper.toJsonMs(req), e);
             result.toFail("系统异常");
         }
         return result;

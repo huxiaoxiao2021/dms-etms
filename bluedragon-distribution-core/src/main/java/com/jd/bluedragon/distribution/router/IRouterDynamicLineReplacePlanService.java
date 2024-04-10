@@ -29,16 +29,6 @@ public interface IRouterDynamicLineReplacePlanService {
     Result<Boolean> consumeDynamicLineReplacePlan(DynamicLineReplacePlanMq dynamicLineReplacePlanMq);
 
     /**
-     * 根据条件查询动态线路替换方案列表
-     *
-     * @param req 请求入参
-     * @return 数据列表
-     * @author fanggang7
-     * @time 2024-04-02 10:53:44 周二
-     */
-    Result<List<RouterDynamicLineReplacePlan>> queryListByCondition(RouterDynamicLineReplacePlanQuery req);
-
-    /**
      * 根据条件查询可用的动态线路替换方案列表
      *
      * @param req 请求入参
