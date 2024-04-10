@@ -61,6 +61,7 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
             // step 同步数据至自动化系统
             RouterDynamicLineReplacePlanQuery conditon = new RouterDynamicLineReplacePlanQuery();
             conditon.setId(routerDynamicLineReplacePlan.getId());
+            conditon.setStartSiteId(routerDynamicLineReplacePlan.getStartSiteId());
             RouterDynamicLineReplacePlan source = routerDynamicLineReplacePlanDao.selectOne(conditon);
             RouterDynamicLineReplacePlanDto dest = new RouterDynamicLineReplacePlanDto();
             BeanUtils.copyProperties(source,dest);

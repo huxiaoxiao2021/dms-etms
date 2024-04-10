@@ -406,16 +406,10 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM `router_dynamic_line_replace_plan`
-        <include refid="where"/>
+        where start_site_id = #{startSiteId}
+        <include refid="sql_if_not_null"/>
         limit 1
     </select>
-    <!-- where条件 -->
-    <sql id="where">
-        <where>
-            start_site_id = #{startSiteId}
-            <include refid="sql_if_not_null"/>
-        </where>
-    </sql>
     <!-- 判断空值 -->
     <sql id="sql_if_not_null">
         <if test="id != null">
@@ -452,17 +446,17 @@
     <!-- 查询行数 -->
     <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
         SELECT count(1) FROM `router_dynamic_line_replace_plan`
-        <include refid="where"/>
+        where start_site_id = #{startSiteId}
+            <include refid="sql_if_not_null"/>
     </select>
     <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
     <select id="queryList" resultMap="RM_RouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
         SELECT
         <include refid="Base_Column_List" />
         FROM `router_dynamic_line_replace_plan`
-        <include refid="where"/>
-        <if test="pageNumber > 0">
-            limit #{limitStart}, #{pageSize}
-        </if>
+        where start_site_id = #{startSiteId}
+        <include refid="sql_if_not_null"/>
+        limit #{limitStart}, #{pageSize}
     </select>
     <!-- 伪删除（更新删除行的识别码） -->
     <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.router.domain.RouterDynamicLineReplacePlan">
@@ -480,7 +474,8 @@
                 when enable_status = 0 then 0
             end enable_status
         FROM `router_dynamic_line_replace_plan` t
-        <include refid="where"/>
+        where start_site_id = #{startSiteId}
+        <include refid="sql_if_not_null"/>
         order by enable_status desc, update_time desc
         limit #{limitStart}, #{pageSize}
     </select>
@@ -490,7 +485,8 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM `router_dynamic_line_replace_plan`
-        <include refid="where"/>
+        where start_site_id = #{startSiteId}
+        <include refid="sql_if_not_null"/>
         order by version_id desc
         limit 1
     </select>
