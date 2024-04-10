@@ -1318,7 +1318,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 return;
             }
             for (JyExceptionEntity entity:jyExceptionEntities){
-                updateExceptionResult(entity.getBizId(),printDto.getUserErp(),printDto.getOperateTime(),false);
+                updateExceptionResult(entity.getBizId(),printDto.getUserErp(),printDto.getOperateTime(),false, JyBizTaskExceptionCycleTypeEnum.DAMAGE_REVERSE_RETURN_FINISH);
             }
         }
 
@@ -1443,7 +1443,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 logger.info("客服回传其他状态不做处理!");
                 return;
         }
-        // 更新异常任务表状态
+        // 更新异常任务表状态 todo
         //updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), jyExCustomerNotifyMQ.getOperateErp(), new Date(), true);
     }
 
@@ -1563,7 +1563,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     @Override
-    public void updateExceptionResult(String bizId, String operateErp, Date dateTime, boolean precessComplete) {
+    public void updateExceptionResult(String bizId, String operateErp, Date dateTime, boolean precessComplete, JyBizTaskExceptionCycleTypeEnum jyBizTaskExceptionCycleTypeEnum) {
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -1577,6 +1577,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.error("获取异常业务数据失败！");
             return;
         }
+        if (jyBizTaskExceptionCycleTypeEnum == null) {
+            jyBizTaskExceptionCycleTypeEnum = JyBizTaskExceptionCycleTypeEnum.CLOSE;
+        }
+
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operateErp);
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
@@ -1588,12 +1592,25 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (precessComplete){
             conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
             conditon.setProcessEndTime(dateTime);
-            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESSED,conditon);
+            recordLog(jyBizTaskExceptionCycleTypeEnum,conditon);
         }
         jyBizTaskExceptionDao.updateByBizId(conditon);
-        recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE,conditon);
+        recordLog(jyBizTaskExceptionCycleTypeEnum,conditon);
         //发送修改状态消息
         sendScheduleTaskStatusMsg(bizTaskException.getBizId(), operateErp, JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
+    }
+
+    /**
+     * 更新异常任务结果
+     *
+     * @param barCode                         单号
+     * @param operateErp                      操作人
+     * @param dateTime                        时间
+     * @param precessComplete                 是否处理完成
+     */
+    @Override
+    public void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete) {
+        updateExceptionResult(barCode, operateErp, dateTime, precessComplete, null);
     }
 
     @Override
@@ -2549,7 +2566,34 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
 
         // 3.3 插入流水记录
-        recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE, bizTaskExceptionUpdate);
+        recordLog(getJyBizTaskExceptionCycleType(businessInterceptDisposeRecord, targetProcessStatus), bizTaskExceptionUpdate);
+    }
+
+    private JyBizTaskExceptionCycleTypeEnum getJyBizTaskExceptionCycleType(BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Integer targetProcessStatus) {
+        JyBizTaskExceptionCycleTypeEnum targetEnum = JyBizTaskExceptionCycleTypeEnum.CLOSE;
+        final Integer disposeNode = businessInterceptDisposeRecord.getDisposeNode();
+        if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeExchangeWaybill())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_EXCHANGE_PRINT;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeFinishWeight())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_UPLOAD_WEIGHT_VOLUME;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReprint())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REPRINT;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeUnpack())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_UNPACK;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReverseSend())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REVERSE_SEND;
+        }
+        else if(Objects.equals(disposeNode, businessInterceptConfigHelper.getInterceptDisposeNodeReprintNewWaybill())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_REPRINT_NEW_WAYBILL;
+        }
+        if(Objects.equals(targetProcessStatus, JyBizTaskExceptionProcessStatusEnum.INTERCEPT_RECALL.getCode())){
+            targetEnum = JyBizTaskExceptionCycleTypeEnum.INTERCEPT_DISPOSE_RECALL;
+        }
+        return targetEnum;
     }
 
     /**
