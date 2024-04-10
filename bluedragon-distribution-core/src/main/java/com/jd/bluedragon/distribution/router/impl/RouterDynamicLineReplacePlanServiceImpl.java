@@ -358,8 +358,8 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             routerDynamicLineReplacePlanQuery.setStartSiteId(req.getCurrentOperate().getSiteCode());
             // 查询生效时间前24小时的数据
             final long currentTimeMillis = System.currentTimeMillis();
-            Date effectTimeStart = new Date(currentTimeMillis + 24 * 3600 * 1000L);
-            Date effectTimeEnd = new Date(currentTimeMillis - 24 * 3600 * 1000L);
+            Date effectTimeStart = new Date(currentTimeMillis - 24 * 3600 * 1000L);
+            Date effectTimeEnd = new Date(currentTimeMillis + 24 * 3600 * 1000L);
             routerDynamicLineReplacePlanQuery.setEffectTime(new Date(currentTimeMillis));
             routerDynamicLineReplacePlanQuery.setEffectTimeStart(effectTimeStart);
             routerDynamicLineReplacePlanQuery.setEffectTimeEnd(effectTimeEnd);
