@@ -476,8 +476,12 @@
     <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
     <select id="queryListOrderByStatus" resultMap="RM_RouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
         SELECT
-        <include refid="Base_Column_List" />
-        FROM `router_dynamic_line_replace_plan`
+        t.*, case
+                when (enable_time &gt; #{effectTime} OR disable_time &lt; #{effectTime}) then -1
+                when enable_status = 1 then 1
+                when enable_status = 0 then 0
+            end enable_status
+        FROM `router_dynamic_line_replace_plan` t
         <include refid="where"/>
         order by enable_status desc, update_time desc
         <if test="pageNumber > 0">

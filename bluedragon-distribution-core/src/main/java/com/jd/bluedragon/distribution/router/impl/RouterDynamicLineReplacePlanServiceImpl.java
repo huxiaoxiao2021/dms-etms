@@ -360,6 +360,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             final long currentTimeMillis = System.currentTimeMillis();
             Date effectTimeStart = new Date(currentTimeMillis + 24 * 3600 * 1000L);
             Date effectTimeEnd = new Date(currentTimeMillis - 24 * 3600 * 1000L);
+            routerDynamicLineReplacePlanQuery.setEffectTime(new Date(currentTimeMillis));
             routerDynamicLineReplacePlanQuery.setEffectTimeStart(effectTimeStart);
             routerDynamicLineReplacePlanQuery.setEffectTimeEnd(effectTimeEnd);
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);

@@ -46,6 +46,7 @@ public class RouterDynamicLineReplacePlanQuery extends Page implements Serializa
      */
     private List<Integer> enableStatusList;
 
+    private Date effectTime;
     private Date effectTimeStart;
     private Date effectTimeEnd;
 
@@ -99,6 +100,14 @@ public class RouterDynamicLineReplacePlanQuery extends Page implements Serializa
 
     public void setEnableStatusList(List<Integer> enableStatusList) {
         this.enableStatusList = enableStatusList;
+    }
+
+    public Date getEffectTime() {
+        return effectTime;
+    }
+
+    public void setEffectTime(Date effectTime) {
+        this.effectTime = effectTime;
     }
 
     public Date getEffectTimeStart() {
