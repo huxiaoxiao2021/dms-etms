@@ -751,6 +751,11 @@ public class LDOPManagerImpl implements LDOPManager {
     @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.getPackLists",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public ResultObject<List<PackDTO>> getPackLists(String deliveryId) {
-        return orderInfoServiceJsf.getPackLists(deliveryId, null);
+        try {
+            return orderInfoServiceJsf.getPackLists(deliveryId, null);
+        } catch (Exception e) {
+            log.info("orderInfoServiceJsf getPackLists异常！{}", deliveryId, e);
+            throw e;
+        }
     }
 }
