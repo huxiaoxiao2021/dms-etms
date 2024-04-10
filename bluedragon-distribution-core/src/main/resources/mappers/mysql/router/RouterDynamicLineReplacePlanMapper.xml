@@ -475,8 +475,8 @@
 
     <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
     <select id="queryListOrderByStatus" resultMap="RM_RouterDynamicLineReplacePlan" parameterType="com.jd.bluedragon.distribution.router.dto.request.RouterDynamicLineReplacePlanQuery">
-        SELECT
-        t.*, case
+        SELECT t.id, t.version_id, t.start_site_id, t.start_site_name, t.old_end_site_id, t.old_end_site_name, t.old_plan_line_code, t.old_plan_flow_code, t.old_plan_departure_time, t.new_end_site_id, t.new_end_site_name, t.new_plan_line_code, t.new_plan_flow_code, t.new_plan_departure_time, t.enable_time, t.disable_time, t.push_time, t.enable_status, t.create_time, t.update_time, t.update_user_id, t.update_user_code, t.update_user_name, t.yn, t.ts,
+            case
                 when (enable_time &gt; #{effectTime} OR disable_time &lt; #{effectTime}) then -1
                 when enable_status = 1 then 1
                 when enable_status = 0 then 0
