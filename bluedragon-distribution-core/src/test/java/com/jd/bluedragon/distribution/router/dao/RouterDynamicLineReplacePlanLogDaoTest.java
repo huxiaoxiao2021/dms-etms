@@ -53,8 +53,8 @@ public class RouterDynamicLineReplacePlanLogDaoTest extends AbstractDaoIntegrati
         update.setUpdateUserId(1234);
         update.setUpdateUserCode("fanggang7");
         update.setUpdateUserName("方刚");
-        final RouterDynamicLineReplacePlan result = routerDynamicLineReplacePlanDao.updateByPrimaryKeySelective(update);
-        System.out.println(JsonHelper.toJson(result));
+        final int i = routerDynamicLineReplacePlanDao.updateByPrimaryKeySelective(update);
+        System.out.println(i);
     }
 
     @Test
