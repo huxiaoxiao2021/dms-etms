@@ -2506,4 +2506,9 @@ public class Constants {
      */
     public static final Integer EVALUATE_TYPE_LOAD = 1;
 
+    /**
+     * 配置信息-视频中台文件上传域名内外网转换
+     */
+    public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
+
 }
