@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
+import com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -58,7 +60,7 @@ public class SendScanCallbackReqDto implements Serializable {
     /**
      * 扫描单号类型
      */
-    private Integer barCodeType;
+    private SendVehicleScanTypeEnum barCodeType;
     /**
      * 集包袋号
      */
@@ -78,6 +80,14 @@ public class SendScanCallbackReqDto implements Serializable {
      */
     private Boolean forceSubmit;
 
+    /**
+     * 装卸商编码
+     */
+    private String merchantCode;
+    /**
+     * 装卸商名称
+     */
+    private String merchantName;
 
     //==================================
 
@@ -161,11 +171,11 @@ public class SendScanCallbackReqDto implements Serializable {
         this.barCode = barCode;
     }
 
-    public Integer getBarCodeType() {
+    public SendVehicleScanTypeEnum getBarCodeType() {
         return barCodeType;
     }
 
-    public void setBarCodeType(Integer barCodeType) {
+    public void setBarCodeType(SendVehicleScanTypeEnum barCodeType) {
         this.barCodeType = barCodeType;
     }
 
@@ -199,5 +209,21 @@ public class SendScanCallbackReqDto implements Serializable {
 
     public void setForceSubmit(Boolean forceSubmit) {
         this.forceSubmit = forceSubmit;
+    }
+
+    public String getMerchantCode() {
+        return merchantCode;
+    }
+
+    public void setMerchantCode(String merchantCode) {
+        this.merchantCode = merchantCode;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
     }
 }

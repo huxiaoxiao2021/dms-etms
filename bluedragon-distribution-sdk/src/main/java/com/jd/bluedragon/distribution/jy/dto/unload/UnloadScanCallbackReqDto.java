@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class UnloadScanCallbackReqDto implements Serializable {
     /**
      * 扫描方式
      */
-    private Integer scanType;
+    private UnloadScanTypeEnum scanType;
     /**
      * 任务主键
      */
@@ -65,6 +67,14 @@ public class UnloadScanCallbackReqDto implements Serializable {
      *操作时间
      */
     private Date operateTime;
+    /**
+     * 装卸商编码
+     */
+    private String merchantCode;
+    /**
+     * 装卸商名称
+     */
+    private String merchantName;
 
     //==================================
 
@@ -76,11 +86,11 @@ public class UnloadScanCallbackReqDto implements Serializable {
         this.barCode = barCode;
     }
 
-    public Integer getScanType() {
+    public UnloadScanTypeEnum getScanType() {
         return scanType;
     }
 
-    public void setScanType(Integer scanType) {
+    public void setScanType(UnloadScanTypeEnum scanType) {
         this.scanType = scanType;
     }
 
@@ -170,5 +180,21 @@ public class UnloadScanCallbackReqDto implements Serializable {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMerchantCode() {
+        return merchantCode;
+    }
+
+    public void setMerchantCode(String merchantCode) {
+        this.merchantCode = merchantCode;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
     }
 }
