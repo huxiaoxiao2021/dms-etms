@@ -1267,7 +1267,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private UnloadScanCallbackReqDto transferDto(UnloadScanRequest request){
         UnloadScanCallbackReqDto callbackReqDto = new UnloadScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
-        callbackReqDto.setScanType(request.getScanType());
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())){
+            callbackReqDto.setScanType(Constants.NUMBER_ONE);
+        }else if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            callbackReqDto.setScanType(Constants.NUMBER_TWO);
+        }else {
+            //兜底，默认扫描逻辑
+            callbackReqDto.setScanType(request.getScanType());
+        }
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
@@ -1276,6 +1283,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             callbackReqDto.setUserName(request.getUser().getUserName());
         }
         callbackReqDto.setOperateTime(new Date());
+        if(request.getStevedoringMerchant() != null){
+            callbackReqDto.setMerchantCode(request.getStevedoringMerchant().getMerchantCode());
+            callbackReqDto.setMerchantName(request.getStevedoringMerchant().getMerchantName());
+        }
         return callbackReqDto;
     }
 
