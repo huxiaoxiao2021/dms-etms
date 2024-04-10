@@ -348,6 +348,8 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             routerDynamicLineReplacePlanQuery.setEffectTimeStart(effectTimeStart);
             routerDynamicLineReplacePlanQuery.setEffectTimeEnd(effectTimeEnd);
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
+            routerDynamicLineReplacePlanQuery.setPageNumber(req.getPageNumber());
+            routerDynamicLineReplacePlanQuery.setPageSize(req.getPageSize());
             final Long total = routerDynamicLineReplacePlanDao.queryCount(routerDynamicLineReplacePlanQuery);
             pageData.setTotal(total);
 
