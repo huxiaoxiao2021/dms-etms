@@ -747,6 +747,11 @@
         <jmq:listener topic="${jmq.topic.directDeliverySort.collect}" listener="directDeliverySortCollectConsumer"/>
     </jmq:consumer>
 
+    <!-- 消费判责系统暴力分拣消息 -->
+    <jmq:consumer id="jmq.violentSortingFixDutyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.violent.sorting.fix.duty}" listener="violentSortingFixDutyConsumer"/>
+    </jmq:consumer>
+
     <!--  路由推送临时线路切换消息  -->
     <jmq:consumer id="jmq.jyDynamicLineReplacePlanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.router.dynamicLineReplacePlanConsumer}" listener="dynamicLineReplacePlanConsumer"/>

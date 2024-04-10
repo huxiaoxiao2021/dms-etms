@@ -6,22 +6,23 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightNoTraceDTO;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -38,6 +39,10 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("weighByWaybillProducer")
     private DefaultJMQProducer weighByWaybillProducer;
+
+    @Autowired
+    @Qualifier("waybillWeightFlowNoTraceProducer")
+    private DefaultJMQProducer waybillWeightFlowNoTraceProducer;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -80,11 +85,70 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
 
-    	/* 处理称重对象 */
         entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
+        
         //上传-超长超重服务信息
     	uploadOverWeightInfo(entity);
-    	
+        
+        // 上传运单称重数据
+        uploadWaybillWeightInfo(entity);
+
+        // 记录称重操作流水
+        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_WAYBILL);
+        
+        // 记录自己内部称重流水表
+        recordOwnWeightTable(entity);
+    }
+
+    private void recordOwnWeightTable(WeightVolumeEntity entity) {
+        /* 记录原始的称重流水 */
+        DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();
+        dmsWeightFlow.setBusinessType(Constants.BUSINESS_TYPE_WEIGHT);
+        dmsWeightFlow.setOperateType(Constants.OPERATE_TYPE_WEIGHT_BY_WAYBILL);
+        dmsWeightFlow.setDmsSiteCode(entity.getOperateSiteCode());
+        dmsWeightFlow.setDmsSiteName(entity.getOperateSiteName());
+        dmsWeightFlow.setWaybillCode(entity.getWaybillCode());
+        dmsWeightFlow.setWeight(entity.getWeight());
+        dmsWeightFlow.setVolume(entity.getVolume());
+        dmsWeightFlow.setOperateTime(entity.getOperateTime());
+        dmsWeightFlow.setOperatorCode(entity.getOperatorId());
+        dmsWeightFlow.setOperatorName(entity.getOperatorName());
+        boolean bool = dmsWeightFlowService.saveOrUpdate(dmsWeightFlow);
+        if (!bool) {
+            logger.error("记录称重流水库失败：{}",JsonHelper.toJson(entity));
+        }
+    }
+
+    private void uploadWaybillWeightInfo(WeightVolumeEntity entity) {
+        if(entity.getUploadWaybillFlowFlag()){
+            if(entity.getRecordWaybillTraceFlag()){
+                // 即上传运单称重流水也发全程跟踪
+                unloadWaybillWeightFlowWithTrace(entity);
+            }else {
+                // 只上传运单称重流水不发全程跟踪
+                unloadWaybillWeightFlowWithNoTrace(entity);
+            }
+        }
+    }
+
+    private void unloadWaybillWeightFlowWithNoTrace(WeightVolumeEntity entity) {
+        WaybillWeightNoTraceDTO waybillWeightNoTraceDTO = WaybillWeightNoTraceDTO.builder()
+                .waybillCode(entity.getWaybillCode())
+                .weight(BigDecimal.valueOf(entity.getWeight()))
+                // 因运单维度没有长宽高，故取 长=体积、宽=1、高=1 的方式设置（运单那边不想支持，所以只能沿用京牛的消息。。。。）
+                .pLength(BigDecimal.valueOf(entity.getVolume())).pWidth(BigDecimal.valueOf(1)).pHigh(BigDecimal.valueOf(1))
+                .operatorId(entity.getOperatorId()).operatorName(entity.getOperatorName())
+                .opeSiteId(entity.getOperateSiteCode()).opeSiteName(entity.getOperateSiteName())
+                .operateTimeMillis(entity.getOperateTime() == null ? System.currentTimeMillis() : entity.getOperateTime().getTime())
+                .build();
+        String waybillWeightNoTraceMsg = JsonHelper.toJson(waybillWeightNoTraceDTO);
+        if(logger.isInfoEnabled()){
+            logger.info("单号:{}上传称重流水不发全程跟踪，消息体:{}", entity.getWaybillCode(), waybillWeightNoTraceMsg);
+        }
+        waybillWeightFlowNoTraceProducer.sendOnFailPersistent(entity.getWaybillCode(), waybillWeightNoTraceMsg);
+    }
+
+    private void unloadWaybillWeightFlowWithTrace(WeightVolumeEntity entity) {
         WaybillWeightDTO weightDTO = new WaybillWeightDTO();
         weightDTO.setWaybillCode(entity.getWaybillCode());
         weightDTO.setOperatorSiteCode(entity.getOperateSiteCode());
@@ -93,46 +157,19 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         weightDTO.setOperatorName(entity.getOperatorName());
         weightDTO.setWeight(entity.getWeight());
         weightDTO.setLongPackage(entity.getLongPackage());
-        
         if (NumberHelper.gt0(entity.getVolume())) {
             weightDTO.setVolume(entity.getVolume());
         } else if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
             weightDTO.setVolume(entity.getHeight() * entity.getWidth() * entity.getLength());
         }
         weightDTO.setOperateTimeMillis(entity.getOperateTime().getTime());
-        try {
-            //todo 梳理是否还有运单不存在的情况
-            BaseEntity<Waybill> baseWaybillEntity = waybillQueryManager.getWaybillByWaybillCode(entity.getWaybillCode());
-            if (baseWaybillEntity != null && null != baseWaybillEntity.getData()) {
-                weightDTO.setStatus(10);
-            } else {
-                weightDTO.setStatus(20);
-            }
-            weighByWaybillProducer.send(entity.getWaybillCode(), JsonHelper.toJson(weightDTO));
-
-            // 记录称重操作流水
-            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_WAYBILL);
-
-            /* 记录原始的称重流水 */
-            DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();
-            dmsWeightFlow.setBusinessType(Constants.BUSINESS_TYPE_WEIGHT);
-            dmsWeightFlow.setOperateType(Constants.OPERATE_TYPE_WEIGHT_BY_WAYBILL);
-            dmsWeightFlow.setDmsSiteCode(entity.getOperateSiteCode());
-            dmsWeightFlow.setDmsSiteName(entity.getOperateSiteName());
-            dmsWeightFlow.setWaybillCode(entity.getWaybillCode());
-            dmsWeightFlow.setWeight(entity.getWeight());
-            dmsWeightFlow.setVolume(entity.getVolume());
-            dmsWeightFlow.setOperateTime(entity.getOperateTime());
-            dmsWeightFlow.setOperatorCode(entity.getOperatorId());
-            dmsWeightFlow.setOperatorName(entity.getOperatorName());
-            boolean bool = dmsWeightFlowService.saveOrUpdate(dmsWeightFlow);
-            if (!bool) {
-                logger.error("记录称重流水库失败：{}",JsonHelper.toJson(entity));
-            }
-
-        } catch (JMQException e) {
-            logger.error("发送MQ-TOPIC【{}】消息失败，消息体为：{}",weighByWaybillProducer.getTopic(),JsonHelper.toJson(weightDTO));
+        BaseEntity<Waybill> baseWaybillEntity = waybillQueryManager.getWaybillByWaybillCode(entity.getWaybillCode());
+        if (baseWaybillEntity != null && null != baseWaybillEntity.getData()) {
+            weightDTO.setStatus(10);
+        } else {
+            weightDTO.setStatus(20);
         }
+        weighByWaybillProducer.sendOnFailPersistent(entity.getWaybillCode(), JsonHelper.toJson(weightDTO));
     }
 
 }

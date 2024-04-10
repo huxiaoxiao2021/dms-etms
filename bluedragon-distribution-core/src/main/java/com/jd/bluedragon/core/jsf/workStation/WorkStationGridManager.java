@@ -2,6 +2,9 @@ package com.jd.bluedragon.core.jsf.workStation;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.common.utils.PageDto;
@@ -59,5 +62,8 @@ public interface WorkStationGridManager {
      * @return
      */
 	List<WorkStationGrid> queryListForManagerSiteScan(WorkStationGridQuery workStationGridQuery);
-
+    
+    List<WorkStationGrid> queryListForWorkGridVo(WorkStationGridQuery workStationGridQuery);
+    
+    List<String> queryBusinessKeyByRefWorkGridKeys(List<String> refWorkGridKeys);
 }

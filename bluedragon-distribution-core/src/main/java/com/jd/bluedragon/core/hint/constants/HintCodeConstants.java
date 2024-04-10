@@ -1114,6 +1114,12 @@ public class HintCodeConstants {
     public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
     public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
 
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40039";
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您扫描的岗位码是特安作业区，禁止操作非特安件";
+
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
+
     public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE = "40041";
     public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT = "切换后，在波次结束前，A流向（原线路目的地）的货物会自动落入B流向（临时方案线路目的地）的格口，按新流向发货不会错发";
 

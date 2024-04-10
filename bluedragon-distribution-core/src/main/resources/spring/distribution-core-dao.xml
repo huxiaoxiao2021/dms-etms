@@ -944,6 +944,14 @@
     <bean id="jyEvaluateRecordDao" class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyEvaluateAppealPermissionsDao"
+          class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyEvaluateRecordAppealDao"
+          class="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordAppealDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
 
     <bean id="jyBizTaskStrandReportDao" class="com.jd.bluedragon.distribution.jy.dao.strand.JyBizTaskStrandReportDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
@@ -958,6 +966,9 @@
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
     <bean id="jyBizTaskWorkGridManagerDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyWorkGridManagerResponsibleInfoDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerResponsibleInfoDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyWorkGridManagerCaseDao" class="com.jd.bluedragon.distribution.jy.dao.work.JyWorkGridManagerCaseDao">
