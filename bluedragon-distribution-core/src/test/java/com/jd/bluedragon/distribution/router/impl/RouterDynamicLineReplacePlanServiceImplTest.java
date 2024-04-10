@@ -62,22 +62,6 @@ public class RouterDynamicLineReplacePlanServiceImplTest {
     }
 
     /**
-     * 根据条件查询动态线路替换方案列表
-     *
-     * @author fanggang7
-     * @time 2024-04-02 10:53:44 周二
-     */
-    @Test
-    public void queryListByConditionTest(){
-        RouterDynamicLineReplacePlanQuery req = new RouterDynamicLineReplacePlanQuery();
-        req.setStartSiteId(40140);
-        req.setOldEndSiteId(910);
-        req.setNewEndSiteId(39);
-        final Result<List<RouterDynamicLineReplacePlan>> listResult = routerDynamicLineReplacePlanService.queryListByCondition(req);
-        System.out.println(JsonHelper.toJson(listResult));
-    }
-
-    /**
      * 根据条件查询可用的动态线路替换方案列表
      *
      * @author fanggang7
