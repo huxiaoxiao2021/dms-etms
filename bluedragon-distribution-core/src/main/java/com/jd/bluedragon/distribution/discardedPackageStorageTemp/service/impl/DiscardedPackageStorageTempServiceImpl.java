@@ -481,7 +481,6 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 // 如果是箱号，走批量逻辑
                 if (BusinessUtil.isBoxcode(paramObj.getBarCode())){
                     log.info("scanDiscardedPackage，弃件暂存-扫描箱号 boxCode: {}", paramObj.getBarCode());
-                    //todo null
                     List<SendDetail> cancelSendByBox = deliveryService.getCancelSendByBox(paramObj.getBarCode());
                     if (CollectionUtils.isEmpty(cancelSendByBox)){
                         return result.toFail("根据箱号未查询到运单号，请联系营业部处理");
@@ -591,7 +590,6 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             CompletableFuture<Result<Boolean>> future = processDataAsync(context);
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         // 遍历futures列表获取每个异步任务的返回值
         for (CompletableFuture<Result<Boolean>> future : futures) {
