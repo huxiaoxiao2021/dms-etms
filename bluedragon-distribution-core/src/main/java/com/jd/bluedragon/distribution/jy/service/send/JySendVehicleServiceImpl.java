@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
@@ -1927,14 +1928,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private SendScanCallbackReqDto transferDto(SendScanRequest request) {
         SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
-        if(Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType())){
-            callbackReqDto.setBarCodeType(Constants.NUMBER_ONE);
-        }else if(Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())){
-            callbackReqDto.setBarCodeType(Constants.NUMBER_TWO);
-        }else{
-            //兜底
-            callbackReqDto.setBarCodeType(request.getBarCodeType());
+        com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum.getEnumByCode(request.getBarCodeType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
         }
+        callbackReqDto.setBarCodeType(currEnum);
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());

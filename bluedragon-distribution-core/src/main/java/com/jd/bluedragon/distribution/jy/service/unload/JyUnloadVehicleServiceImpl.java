@@ -1267,14 +1267,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private UnloadScanCallbackReqDto transferDto(UnloadScanRequest request){
         UnloadScanCallbackReqDto callbackReqDto = new UnloadScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
-        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())){
-            callbackReqDto.setScanType(Constants.NUMBER_ONE);
-        }else if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
-            callbackReqDto.setScanType(Constants.NUMBER_TWO);
-        }else {
-            //兜底，默认扫描逻辑
-            callbackReqDto.setScanType(request.getScanType());
+        com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum.getEnumByCode(request.getScanType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
         }
+        callbackReqDto.setScanType(currEnum);
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());
