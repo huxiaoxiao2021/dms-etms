@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.print.domain.JdPositionConfig;
 import com.jd.bluedragon.distribution.print.domain.JdSiteTypeConfig;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
@@ -816,21 +817,21 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             log.warn("获取包裹补打限制站点配置为空！");
             return false;
         }
-        JdSiteTypeConfig jdSiteTypeConfig = JsonHelper.fromJson(siteConfig.getConfigContent(), JdSiteTypeConfig.class);
-        if (jdSiteTypeConfig == null) {
+        JdPositionConfig jdPositionConfig = JsonHelper.fromJson(siteConfig.getConfigContent(), JdPositionConfig.class);
+        if (jdPositionConfig == null) {
             log.warn("获取弃件暂存限制站点配置为空！");
             return false;
         }
-        boolean checkSwitch = jdSiteTypeConfig.isDiscardedStorageCheckSwitch();
+        boolean checkSwitch = jdPositionConfig.isDiscardedStorageCheckSwitch();
         if (!checkSwitch) {
             log.warn("分拣中心 弃件暂存功能拦截功能关闭!");
             return false;
         }
         if (log.isInfoEnabled()) {
-            log.info("获取弃件暂存限制站点配置-{}", JSON.toJSONString(jdSiteTypeConfig));
+            log.info("获取弃件暂存限制站点配置-{}", JSON.toJSONString(jdPositionConfig));
         }
 
-        List<String> positionCodes = jdSiteTypeConfig.getPositionCodes();
+        List<String> positionCodes = jdPositionConfig.getDiscardedStoragePositionCodes();
         com.jdl.basic.common.utils.Result<JyUser> jyUserDtoResult = jyUserManager.queryUserInfo(userCode);
         log.info("根据erp 获取人员信息出参-{}", JSON.toJSONString(jyUserDtoResult));
         JyUser data = jyUserDtoResult.getData();
