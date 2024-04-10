@@ -449,6 +449,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
 
             // step 查询已有数据
             final RouterDynamicLineReplacePlanQuery routerDynamicLineReplacePlanQuery = new RouterDynamicLineReplacePlanQuery();
+            routerDynamicLineReplacePlanQuery.setStartSiteId(req.getCurrentOperate().getSiteCode());
             routerDynamicLineReplacePlanQuery.setId(req.getId());
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
             final RouterDynamicLineReplacePlan routerDynamicLineReplacePlanExist = routerDynamicLineReplacePlanDao.selectOne(routerDynamicLineReplacePlanQuery);
