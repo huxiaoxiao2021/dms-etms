@@ -367,6 +367,8 @@
 		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
 		<property name="imageClarityThreshold" value="${imageClarityThreshold:'500'}"/>
+		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
+		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -719,6 +721,8 @@
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 				<value>uccPropertyConfiguration.imageClarityThreshold</value>
+				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
+				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 			</list>
 		</property>
 	</bean>

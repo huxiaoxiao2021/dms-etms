@@ -16,7 +16,13 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.evaluate.AppealDimensionReq;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto;
+import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateAppealServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -57,6 +63,62 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
 
     @Autowired
     private NewSealVehicleGatewayService newSealVehicleGatewayService;
+
+    @Autowired
+    private JyEvaluateAppealServiceImpl jyEvaluateAppealService;
+
+    @Test
+    public void test(){
+        JyEvaluateRecordAppealRes jyEvaluateRecordAppealRes = new JyEvaluateRecordAppealRes();
+
+        jyEvaluateRecordAppealRes.setUpdateUserName("pctest");
+        jyEvaluateRecordAppealRes.setUpdateUserErp("pc");
+        jyEvaluateRecordAppealRes.setSourceBizId("SC24010900039222");
+        jyEvaluateRecordAppealRes.setTargetBizId("SST24010800000035");
+        ArrayList<AppealDimensionReq> appealDimensionReqs = new ArrayList<>();
+        AppealDimensionReq req = new AppealDimensionReq();
+        AppealDimensionReq req1 = new AppealDimensionReq();
+
+        appealDimensionReqs.add(req);
+        appealDimensionReqs.add(req1);
+
+        jyEvaluateRecordAppealRes.setDimensionList(appealDimensionReqs);
+        JyEvaluateRecordAppealUpdateDto updateDto = new JyEvaluateRecordAppealUpdateDto();
+        updateDto.setDimensionCodeList(Arrays.asList(100));
+        //jyEvaluateAppealService.esDataUpdate(jyEvaluateRecordAppealRes, updateDto);
+    }
+
+    @Test
+    public void test1(){
+        JyEvaluateRecordAppealRes jyEvaluateRecordAppealRes = new JyEvaluateRecordAppealRes();
+
+        jyEvaluateRecordAppealRes.setUpdateUserName("pctest");
+        jyEvaluateRecordAppealRes.setUpdateUserErp("pc");
+        jyEvaluateRecordAppealRes.setSourceBizId("SC23122900039187");
+        jyEvaluateRecordAppealRes.setTargetBizId("SST23122900000059");
+        ArrayList<AppealDimensionReq> appealDimensionReqs = new ArrayList<>();
+        AppealDimensionReq req = new AppealDimensionReq();
+        AppealDimensionReq req1 = new AppealDimensionReq();
+
+        req.setDimensionCode(100);
+        appealDimensionReqs.add(req);
+        appealDimensionReqs.add(req1);
+
+        jyEvaluateRecordAppealRes.setSourceSiteCode(910L);
+        jyEvaluateRecordAppealRes.setTargetSiteCode(40240L);
+
+        List<Map<String, Integer>> maps = new ArrayList<>();
+        HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
+        stringIntegerHashMap.put("id", 5);
+        stringIntegerHashMap.put("opinion", 2);
+        maps.add(stringIntegerHashMap);
+        jyEvaluateRecordAppealRes.setAppealList(maps);
+        jyEvaluateAppealService.checkAppeal(jyEvaluateRecordAppealRes);
+
+        Response<List<JyEvaluateRecordAppealDto>> listByCondition =
+            jyEvaluateAppealService.getListByCondition(Arrays.asList("SST23122900000059", "SST24010200000041"));
+        System.out.println(JsonHelper.toJson(listByCondition));
+    }
 
 
     @Test
