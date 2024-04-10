@@ -587,13 +587,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("提货任务不存在");
             return ret;
         }
-        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
-            if(PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
-                ret.error("该任务已经完成，无需提报异常");
-                return ret;
-            }
+        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus()) && PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+            ret.error("该任务已经完成，无需提报异常");
+            return ret;
         }
-        if(PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+        if(Objects.isNull(entity.getCompleteNode()) || PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
             jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
         }
 
