@@ -15,7 +15,9 @@ public enum JyAttachmentBizTypeEnum {
     CONTRABAND_UPLOAD_EXCEPTION("contraband_upload_exception","违禁品上报图片"),
     WAYBILL_CONTRABAND_UPLOAD_EXCEPTION("waybill_contraband_upload_exception","违禁品包裹面单上报图片"),
     PANORAMA_CONTRABAND_UPLOAD_EXCEPTION("panorama_contraband_upload_exception","违禁品包裹全景上报图片"),
-    DEVICE_SPOT_APPEAL("device_spot_appeal","设备抽检申诉附件")
+    DEVICE_SPOT_APPEAL("device_spot_appeal","设备抽检申诉附件"),
+
+    EVALUATE_RECORD_APPEAL("evaluate_record_appeal","装车评价申诉")
     ;
 
     private final String code;
