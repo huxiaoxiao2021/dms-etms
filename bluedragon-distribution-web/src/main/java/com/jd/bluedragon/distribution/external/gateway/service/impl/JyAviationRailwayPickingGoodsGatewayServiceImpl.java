@@ -12,6 +12,7 @@ import com.jd.bluedragon.external.gateway.service.JyAviationRailwayPickingGoodsG
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +105,10 @@ public class JyAviationRailwayPickingGoodsGatewayServiceImpl implements JyAviati
             //基本参数校验
             baseParamValidateService.checkUserAndSiteAndGroupAndPost(
                     req.getUser(), req.getCurrentOperate(), req.getGroupCode(), req.getPost());
-
+            if(Objects.isNull(req.getCurrentOperate().getOperatorData())
+                    || StringUtils.isBlank(req.getCurrentOperate().getOperatorData().getPositionCode())) {
+                return new JdCResponse<>(JdCResponse.CODE_FAIL, "岗位码为空", null);
+            }
             if(log.isInfoEnabled()) {
                 log.info("{}请求信息={}", methodDesc, JsonHelper.toJson(req));
             }

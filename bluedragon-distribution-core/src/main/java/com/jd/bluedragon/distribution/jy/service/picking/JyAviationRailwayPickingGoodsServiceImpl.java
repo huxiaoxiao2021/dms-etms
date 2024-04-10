@@ -600,7 +600,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         String title = "空铁提货任务异常提报提醒";
         String template = "航班号%s提货差异异常，待提件数、已提件数、多提件数，请尽快联系上游排查";
         String content = String.format(template, req.getServiceNumber());
-        InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(req.getUser().getUserErp(), req.getPositionCode(), title, content);
+        String positionCode = req.getCurrentOperate().getOperatorData().getPositionCode();
+        InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(req.getUser().getUserErp(), positionCode, title, content);
         if(!invokeResult.codeSuccess()) {
             log.error("异常提报推送网格负责人失败,req={}, invokeResult={]", JSON.toJSONString(req), JSON.toJSONString(invokeResult));
             ret.error("异常提报推送网格负责人失败");
