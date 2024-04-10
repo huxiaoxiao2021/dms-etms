@@ -426,7 +426,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 dmsScrapNoticeKFProducer.sendOnFailPersistent(bizId, JsonHelper.toJson(jyExNoticeCustomerMQ));
             }
             // add log
-            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS_CUSTOMER, exScrapTaskEntity);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.SCRAPPED_APPROVAL_PASSED_FINISH, exScrapTaskEntity);
         }
     }
 

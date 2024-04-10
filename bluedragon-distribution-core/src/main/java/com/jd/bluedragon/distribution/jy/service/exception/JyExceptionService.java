@@ -126,6 +126,16 @@ public interface JyExceptionService {
     void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete);
 
     /**
+     * 更新异常任务结果
+     *
+     * @param barCode 单号
+     * @param operateErp 操作人
+     * @param dateTime 时间
+     * @param precessComplete 是否处理完成
+     */
+    void updateExceptionResult(String barCode, String operateErp, Date dateTime, boolean precessComplete, JyBizTaskExceptionCycleTypeEnum jyBizTaskExceptionCycleTypeEnum);
+
+    /**
      *校验当前登录erp是否是负责人
      * @return
      */
