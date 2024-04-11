@@ -142,7 +142,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)，直接返回已评价
         if (Boolean.TRUE.equals(request.getCheckOverTimeFlag()) && exceedOverPeriod(request, sealCarDto)) {
             LOGGER.warn("checkIsEvaluate|校验装车任务是否已评价,结果为距离解封车6小时以上禁止评价:sealCarCode={}", request.getSourceBizId());
-            throw new JyBizException(LOAD_EVALUATE_OVER_TIME_CODE + Constants.SEPARATOR_HYPHEN + LOAD_EVALUATE_OVER_TIME_MSG);
+            throw new JyBizException(LOAD_EVALUATE_OVER_TIME_CODE, LOAD_EVALUATE_OVER_TIME_MSG);
         }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
         if (evaluateRecord == null) {
@@ -304,7 +304,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
 
         // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)
         if (Boolean.TRUE.equals(request.getCheckOverTimeFlag())  && exceedOverPeriod(request, sealCarDto)) {
-            throw new JyBizException(LOAD_EVALUATE_OVER_TIME_MSG);
+            throw new JyBizException(LOAD_EVALUATE_OVER_TIME_CODE, LOAD_EVALUATE_OVER_TIME_MSG);
         }
 
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
