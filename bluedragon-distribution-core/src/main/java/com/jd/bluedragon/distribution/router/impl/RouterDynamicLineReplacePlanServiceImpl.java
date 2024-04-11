@@ -343,10 +343,8 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
             // 查询生效时间前24小时的数据
             final long currentTimeMillis = System.currentTimeMillis();
             Date effectTimeStart = new Date(currentTimeMillis - 24 * 3600 * 1000L);
-            Date effectTimeEnd = new Date(currentTimeMillis + 24 * 3600 * 1000L);
             routerDynamicLineReplacePlanQuery.setEffectTime(new Date(currentTimeMillis));
             routerDynamicLineReplacePlanQuery.setEffectTimeStart(effectTimeStart);
-            routerDynamicLineReplacePlanQuery.setEffectTimeEnd(effectTimeEnd);
             routerDynamicLineReplacePlanQuery.setYn(Constants.YN_YES);
             routerDynamicLineReplacePlanQuery.setPageNumber(req.getPageNumber());
             routerDynamicLineReplacePlanQuery.setPageSize(req.getPageSize());
@@ -392,7 +390,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     private void assembleRouterDynamicLineReplacePlanVo(RouterDynamicLineReplacePlan routerDynamicLineReplacePlan, RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo, long currentTimeMillis) {
         BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
         // 失效状态
-        if(routerDynamicLineReplacePlan.getDisableTime().getTime() < currentTimeMillis){
+        if(routerDynamicLineReplacePlan.getDisableTime().getTime() < currentTimeMillis || routerDynamicLineReplacePlan.getEnableTime().getTime() > currentTimeMillis){
             routerDynamicLineReplacePlanVo.setEnableStatus(RouterDynamicLineStatusEnum.OUT_OF_DATE.getCode());
         }
     }

@@ -427,9 +427,6 @@
         <if test="effectTimeStart != null">
             AND disable_time &gt;= #{effectTimeStart}
         </if>
-        <if test="effectTimeEnd != null">
-            AND disable_time &lt;= #{effectTimeEnd}
-        </if>
         <if test="pushTime != null">
             AND push_time = #{pushTime}
         </if>
