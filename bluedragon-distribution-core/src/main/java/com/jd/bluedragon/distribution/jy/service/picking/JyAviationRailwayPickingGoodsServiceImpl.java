@@ -598,8 +598,8 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         this.closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
 
         String title = "空铁提货任务异常提报提醒";
-        String template = "航班号%s提货差异异常，待提件数、已提件数、多提件数，请尽快联系上游排查";
-        String content = String.format(template, req.getServiceNumber());
+        String template = "航班号%s提货差异异常，待提件数%s、已提件数%s、多提件数%s，请尽快联系上游排查";
+        String content = String.format(template, req.getServiceNumber(), req.getCurrentSiteWaitScan(), req.getCurrentSiteHaveScanned(), req.getCurrentSiteMultipleScan());
         String positionCode = req.getCurrentOperate().getOperatorData().getPositionCode();
         InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(req.getUser().getUserErp(), positionCode, title, content);
         if(!invokeResult.codeSuccess()) {
@@ -1201,17 +1201,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
     }
 
-//    @Override
-//    public boolean isFirstScanInTask(String bizId, Long siteId) {
-//        if (pickingGoodsCacheService.lockPickingGoodTaskFirstScan(bizId, siteId)) {
-//            Integer count = jyPickingSendRecordService.countTaskRealScanItemNum(bizId, siteId);
-//            if (!NumberHelper.gt0(count)) {
-//                logInfo("提货任务{}首次扫描.{}", bizId);
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishTaskWhenWaitScanEqZero",
