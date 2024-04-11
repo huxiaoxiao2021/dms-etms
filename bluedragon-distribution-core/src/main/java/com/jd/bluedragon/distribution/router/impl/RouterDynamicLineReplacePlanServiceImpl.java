@@ -390,7 +390,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     private void assembleRouterDynamicLineReplacePlanVo(RouterDynamicLineReplacePlan routerDynamicLineReplacePlan, RouterDynamicLineReplacePlanVo routerDynamicLineReplacePlanVo, long currentTimeMillis) {
         BeanCopyUtil.copy(routerDynamicLineReplacePlan, routerDynamicLineReplacePlanVo);
         // 失效状态
-        if(routerDynamicLineReplacePlan.getDisableTime().getTime() < currentTimeMillis || routerDynamicLineReplacePlan.getEnableTime().getTime() > currentTimeMillis){
+        if(routerDynamicLineReplacePlan.getDisableTime().getTime() < currentTimeMillis){
             routerDynamicLineReplacePlanVo.setEnableStatus(RouterDynamicLineStatusEnum.OUT_OF_DATE.getCode());
         }
     }
