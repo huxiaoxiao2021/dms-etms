@@ -50,6 +50,16 @@ public class BoxRelationQ extends BasePagerCondition implements Serializable {
      */
     private List<String> boxCodes;
 
+    /**
+     * 省区编码
+     */
+    private String provinceAgencyCode;
+
+    /**
+     * 枢纽编码
+     */
+    private String areaHubCode;
+
     public Long getSiteCode() {
         return siteCode;
     }
@@ -104,5 +114,21 @@ public class BoxRelationQ extends BasePagerCondition implements Serializable {
 
     public void setBoxCodes(List<String> boxCodes) {
         this.boxCodes = boxCodes;
+    }
+
+    public String getProvinceAgencyCode() {
+        return provinceAgencyCode;
+    }
+
+    public void setProvinceAgencyCode(String provinceAgencyCode) {
+        this.provinceAgencyCode = provinceAgencyCode;
+    }
+
+    public String getAreaHubCode() {
+        return areaHubCode;
+    }
+
+    public void setAreaHubCode(String areaHubCode) {
+        this.areaHubCode = areaHubCode;
     }
 }
