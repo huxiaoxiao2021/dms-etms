@@ -1,8 +1,10 @@
-package com.jd.bluedragon.distribution.api.request;
+package com.jd.bluedragon.common.dto.jyexpection.request;
 
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
-import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
-import com.jd.bluedragon.distribution.jy.dto.User;
+
+
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
+import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
 

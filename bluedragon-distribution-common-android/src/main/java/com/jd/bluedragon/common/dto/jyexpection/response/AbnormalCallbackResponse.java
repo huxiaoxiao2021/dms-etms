@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.api.response;
+package com.jd.bluedragon.common.dto.jyexpection.response;
 
 import java.io.Serializable;
 
