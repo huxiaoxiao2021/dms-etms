@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.evaluate.request.Evaluat
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.DimensionOption;
 import com.jd.bluedragon.common.dto.operation.workbench.evaluate.response.EvaluateDimensionDto;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateDimensionDao;
@@ -22,13 +23,13 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.distribution.sealVehicle.domain.TransTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD;
 
 @Service("jyEvaluateService")
-@Slf4j
 public class JyEvaluateServiceImpl implements JyEvaluateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JyEvaluateServiceImpl.class);
@@ -83,7 +83,6 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
      * 分拣系统标识
      */
     private static final Integer SOURCE_SYSTEM = 3;
-
 
     @Autowired
     private JyEvaluateDimensionDao jyEvaluateDimensionDao;
@@ -126,10 +125,17 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.checkIsEvaluate", mState = {JProEnum.TP})
     public Boolean checkIsEvaluate(EvaluateTargetReq request) {
         // 装车评价开关如果关闭，直接返回已评价
         if (!dmsConfigManager.getPropertyConfig().isLoadCarEvaluateSwitch()) {
+            return Boolean.TRUE;
+        }
+        // 根据封车编码查询封车与解封车信息
+        SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
+        // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)，直接返回已评价
+        if (Boolean.TRUE.equals(request.getCheckOverTimeFlag()) && exceedOverPeriod(request, sealCarDto)) {
+            LOGGER.warn("checkIsEvaluate|校验装车任务是否已评价,结果为距离解封车6小时以上禁止评价:sealCarCode={}", request.getSourceBizId());
             return Boolean.TRUE;
         }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
@@ -140,7 +146,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.findTargetEvaluateInfo", mState = {JProEnum.TP})
     public List<EvaluateDimensionDto> findTargetEvaluateInfo(EvaluateTargetReq request) {
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findUnsatisfiedRecordsBySourceBizId(request.getSourceBizId());
         if (CollectionUtils.isEmpty(recordList)) {
@@ -161,7 +167,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.saveTargetEvaluate", mState = {JProEnum.TP})
     public String saveTargetEvaluate(EvaluateTargetReq request) {
         try {
             // 获取锁
@@ -172,8 +178,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
+            // 根据封车编码查询封车与解封车信息
+            SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
             // 校验操作合法性
-            checkEvaluateValidity(request, targetInitDto);
+            checkEvaluateValidity(request, targetInitDto, sealCarDto);
             // 构造评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
@@ -181,7 +189,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
             // 发送图片数据给质控
-            sendAssignResponsibilityMQ(request);
+            sendAssignResponsibilityMQ(request, sealCarDto);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -200,12 +208,12 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         // 查询评价的来源场地
         JyBizTaskUnloadVehicleEntity unloadVehicle = jyEvaluateCommonService.findUnloadTaskByBizId(request.getSourceBizId());
         int sideCode = unloadVehicle.getEndSiteId().intValue();
-        log.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 判断站点是否有评价权限，站点：{}", sideCode);
+        LOGGER.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 判断站点是否有评价权限，站点：{}", sideCode);
         // 获取场地是否有评价权限记录
         JyEvaluateAppealPermissionsEntity permissions =
             jyEvaluateAppealPermissionsDao.queryByCondition(sideCode);
-        if (log.isInfoEnabled()){
-            log.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 站点：{}，权限对象：{}", sideCode, JsonHelper.toJson(permissions));
+        if (LOGGER.isInfoEnabled()){
+            LOGGER.info("JyEvaluateServiceImpl.checkSiteCanEvaluate 站点：{}，权限对象：{}", sideCode, JsonHelper.toJson(permissions));
         }
 
         // 判断场地评价权限是否关闭
@@ -264,7 +272,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateServiceImpl.updateTargetEvaluate", mState = {JProEnum.TP})
     public String updateTargetEvaluate(EvaluateTargetReq request) {
         try {
             // 获取锁
@@ -275,8 +283,10 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             checkSiteCanEvaluate(request);
             // 报表加工MQ实体
             EvaluateTargetInitDto targetInitDto = new EvaluateTargetInitDto();
+            // 根据封车编码查询封车与解封车信息
+            SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
             // 校验操作合法性
-            checkEvaluateValidity(request, targetInitDto);
+            checkEvaluateValidity(request, targetInitDto, sealCarDto);
             // 评价明细列表
             List<JyEvaluateRecordEntity> recordList = createEvaluateRecords(request);
             // 保存评价明细(前面都是对象组装，事务都加在这一层)
@@ -284,7 +294,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
             // 发送报表加工异步消息
             sendEvaluateMQ(request, targetInitDto);
             // 发送图片数据给质控
-            sendAssignResponsibilityMQ(request);
+            sendAssignResponsibilityMQ(request, sealCarDto);
         } finally {
             unLock(request.getSourceBizId());
         }
@@ -308,7 +318,18 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         evaluateTargetInitProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(targetInitDto));
     }
 
-    private void sendAssignResponsibilityMQ(EvaluateTargetReq request) {
+    private void sendAssignResponsibilityMQ(EvaluateTargetReq request, SealCarDto sealCarDto) {
+
+        if (sealCarDto != null) {
+            // 运输线路类型
+            Integer transWay = sealCarDto.getTransWay();
+            // 如果是【零担】或【空铁】线路类型，则不发送
+            if (TransTypeEnum.LINGDAN_TYPE.contains(transWay) || TransTypeEnum.AR_TYPE.contains(transWay)) {
+                LOGGER.warn("sendAssignResponsibilityMQ|装车评价运输线路类型为:{},不发送质控:request={}", transWay, JsonHelper.toJson(request));
+                return;
+            }
+        }
+
         if (EVALUATE_STATUS_SATISFIED.equals(request.getStatus()) || CollectionUtils.isEmpty(request.getDimensionList())) {
             return;
         }
@@ -335,15 +356,16 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
         imgInfos.add(info);
 
-        SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
         AssignResponsibilityDto dto = new AssignResponsibilityDto();
         dto.setSourceSystemId(UUID.randomUUID().toString());
         dto.setSourceSystem(SOURCE_SYSTEM);
-        dto.setLoadSiteCode(String.valueOf(sealCarDto.getStartSiteId()));
-        dto.setLoadSiteName(sealCarDto.getStartSiteName());
+        if (sealCarDto != null) {
+            dto.setLoadSiteCode(String.valueOf(sealCarDto.getStartSiteId()));
+            dto.setLoadSiteName(sealCarDto.getStartSiteName());
+            dto.setBatchCodes(sealCarDto.getBatchCodes());
+        }
         dto.setUnloadSiteCode(String.valueOf(request.getCurrentOperate().getSiteCode()));
         dto.setUnloadSiteName(request.getCurrentOperate().getSiteName());
-        dto.setBatchCodes(sealCarDto.getBatchCodes());
         dto.setLink(LINK_UNLOAD);
         dto.setEvaluatorErp(request.getUser().getUserErp());
         dto.setEvaluateTime(new Date());
@@ -353,7 +375,12 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         evaluateInfoToQcProducer.sendOnFailPersistent(dto.getSourceSystemId(), JsonHelper.toJson(dto));
     }
 
-    private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto) {
+    private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto, SealCarDto sealCarDto) {
+
+        // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)
+        if (Boolean.TRUE.equals(request.getCheckOverTimeFlag())  && exceedOverPeriod(request, sealCarDto)) {
+            throw new JyBizException(HintCodeConstants.LOAD_EVALUATE_OVER_TIME_MSG);
+        }
 
         List<JyEvaluateRecordEntity> recordList = jyEvaluateRecordDao.findRecordsBySourceBizId(request.getSourceBizId());
         // 如果记录为空，代表首次评价
@@ -450,7 +477,28 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         }
     }
 
-
+    /**
+     * 校验装车评价是否已超过有效期
+     */
+    private boolean exceedOverPeriod(EvaluateTargetReq request, SealCarDto sealCarDto) {
+        if (sealCarDto == null) {
+            LOGGER.warn("exceedOverPeriod|校验评价是否在允许的时间范围,运输接口返回的解封车详情为空:request={}", JsonHelper.toJson(request));
+            return false;
+        }
+        // 解封车时间
+        Date deSealCarTime = sealCarDto.getDesealCarTime();
+        // 如果卸车任务上的解封车时间为空，再次查询运输接口
+        if (deSealCarTime == null) {
+            LOGGER.warn("exceedOverPeriod|校验评价是否在允许的时间范围,运输接口返回的解封车时间为空:request={}", JsonHelper.toJson(request));
+            return false;
+        }
+        // 比较当前时间距离解封车时间是否已超过6小时
+        if ((System.currentTimeMillis() - deSealCarTime.getTime()) > DateHelper.SIX_HOUR_MILLI) {
+            LOGGER.warn("exceedOverPeriod|当前时间距离解封车时间已超过6小时,不允许评价:request={}", JsonHelper.toJson(request));
+            return true;
+        }
+        return false;
+    }
 
 
     private List<JyEvaluateRecordEntity> createEvaluateRecords(EvaluateTargetReq request) {

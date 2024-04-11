@@ -77,6 +77,11 @@ public class DateHelper {
     public static final long Three_HOUR_MILLI = 3 * 60 * 60 * 1000;
 
     /**
+     * 六小时的毫秒数
+     */
+    public static final long SIX_HOUR_MILLI = 6 * 60 * 60 * 1000;
+
+    /**
      * 一天的毫秒数
      */
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;

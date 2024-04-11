@@ -1120,4 +1120,10 @@ public class HintCodeConstants {
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
 
+    /**
+     * 距离解封车已超过6小时，禁止提交评价
+     */
+    public static String LOAD_EVALUATE_OVER_TIME_MSG = "距离解封车已超过6小时，禁止提交评价";
+
+
 }
