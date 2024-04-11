@@ -10,15 +10,19 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -48,10 +52,16 @@ public class XmlHelper {
 
     public static Object toObject(String request, Class<?> clazz) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             StringReader reader = new StringReader(request);
-            return unmarshaller.unmarshal(reader);
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+            Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(reader));
+            JAXBContext jc = JAXBContext.newInstance(clazz);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            return unmarshaller.unmarshal(xmlSource);
         } catch (Exception e) {
             XmlHelper.log.error("反序列化XML发生异常， 异常信息为：{}" , e.getMessage(), e);
         }
