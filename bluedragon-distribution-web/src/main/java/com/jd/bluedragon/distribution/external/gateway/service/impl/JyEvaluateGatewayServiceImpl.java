@@ -138,7 +138,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             } else {
                 result.toFail();
             }
-            result.toError(e.getMessage());
+            result.setMessage(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
             LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
@@ -187,7 +187,7 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             } else {
                 result.toFail();
             }
-            result.toError(e.getMessage());
+            result.setMessage(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
             LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
