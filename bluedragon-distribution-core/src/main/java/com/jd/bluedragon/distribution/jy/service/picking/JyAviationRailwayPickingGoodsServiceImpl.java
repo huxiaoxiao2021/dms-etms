@@ -581,6 +581,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
+        if(pickingGoodsCacheService.existCachePickingExceptionSubmitValue(req.getBizId())) {
+            ret.error("该任务已操作提报异常");
+            return ret;
+        }
 
         JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(req.getBizId(), false);
         if(Objects.isNull(entity)) {
@@ -607,6 +611,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.error("异常提报推送网格负责人失败");
             return ret;
         }
+        pickingGoodsCacheService.saveCachePickingExceptionSubmit(req.getBizId());
         return ret;
     }
 
