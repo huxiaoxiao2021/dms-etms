@@ -2252,6 +2252,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 3.2 更新明细
         JyExceptionInterceptDetail jyExceptionInterceptDetailUpdate = new JyExceptionInterceptDetail();
         jyExceptionInterceptDetailUpdate.setBizId(taskExist.getBizId());
+        jyExceptionInterceptDetailUpdate.setSiteId(businessInterceptReport.getSiteCode());
         jyExceptionInterceptDetailUpdate.setCreateTime(taskEntityUpdate.getCreateTime());
         jyExceptionInterceptDetailUpdate.setCreateUserCode(taskEntityUpdate.getCreateUserErp());
         jyExceptionInterceptDetailUpdate.setCreateUserName(taskEntityUpdate.getCreateUserName());

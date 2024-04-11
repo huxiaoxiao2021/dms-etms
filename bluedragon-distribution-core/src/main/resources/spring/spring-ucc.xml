@@ -369,9 +369,9 @@
 		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
 		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
+		<property name="imageClarityThreshold" value="${imageClarityThreshold:'500'}"/>
 		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
 		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
-		<property name="imageClarityThreshold" value="${imageClarityThreshold:'500'}"/>
 		<property name="jyCollectPackCheckBoxEndSiteMatchSwitch" value="${jyCollectPackCheckBoxEndSiteMatchSwitch:true}"/>
 
 	</bean>
@@ -746,9 +746,9 @@
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
+				<value>uccPropertyConfiguration.imageClarityThreshold</value>
 				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
 				<value>uccPropertyConfiguration.checkOvertimeHour</value>
-				<value>uccPropertyConfiguration.imageClarityThreshold</value>
 				<value>uccPropertyConfiguration.jyCollectPackCheckBoxEndSiteMatchSwitch</value>
 			</list>
 		</property>

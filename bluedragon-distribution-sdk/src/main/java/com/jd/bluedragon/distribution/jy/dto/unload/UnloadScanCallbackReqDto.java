@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,7 +20,7 @@ public class UnloadScanCallbackReqDto implements Serializable {
     /**
      * 扫描方式
      */
-    private UnloadScanTypeEnum scanType;
+    private Integer scanType;
     /**
      * 任务主键
      */
@@ -86,11 +84,11 @@ public class UnloadScanCallbackReqDto implements Serializable {
         this.barCode = barCode;
     }
 
-    public UnloadScanTypeEnum getScanType() {
+    public Integer getScanType() {
         return scanType;
     }
 
-    public void setScanType(UnloadScanTypeEnum scanType) {
+    public void setScanType(Integer scanType) {
         this.scanType = scanType;
     }
 
