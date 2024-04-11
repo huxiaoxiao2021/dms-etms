@@ -40,6 +40,11 @@ public class EvaluateTargetReq implements Serializable {
      */
     private CurrentOperate currentOperate;
 
+    /**
+     * 版本号
+     */
+    private Integer version;
+
     public String getSourceBizId() {
         return sourceBizId;
     }
@@ -86,5 +91,13 @@ public class EvaluateTargetReq implements Serializable {
 
     public void setCurrentOperate(CurrentOperate currentOperate) {
         this.currentOperate = currentOperate;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

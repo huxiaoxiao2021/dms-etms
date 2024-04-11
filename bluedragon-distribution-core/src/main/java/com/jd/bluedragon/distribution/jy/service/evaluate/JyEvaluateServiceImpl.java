@@ -128,7 +128,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
         // 根据封车编码查询封车与解封车信息
         SealCarDto sealCarDto = jyEvaluateCommonService.findSealCarInfoBySealCarCodeOfTms(request.getSourceBizId());
         // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)，直接返回已评价
-        if (exceedOverPeriod(request, sealCarDto)) {
+        if (Constants.NUMBER_ONE.equals(request.getVersion()) && exceedOverPeriod(request, sealCarDto)) {
             throw new JyBizException("601-距离解封车已超过6小时，禁止提交评价");
         }
         JyEvaluateRecordEntity evaluateRecord = jyEvaluateRecordDao.findRecordBySourceBizId(request.getSourceBizId());
@@ -290,7 +290,7 @@ public class JyEvaluateServiceImpl implements JyEvaluateService {
     private void checkEvaluateValidity(EvaluateTargetReq request, EvaluateTargetInitDto targetInitDto, SealCarDto sealCarDto) {
 
         // 如果已超过允许评价的时间范围(距离解封车6小时以上就算超过)
-        if (exceedOverPeriod(request, sealCarDto)) {
+        if (Constants.NUMBER_ONE.equals(request.getVersion()) && exceedOverPeriod(request, sealCarDto)) {
             throw new JyBizException("距离解封车已超过6小时，禁止提交评价");
         }
 
