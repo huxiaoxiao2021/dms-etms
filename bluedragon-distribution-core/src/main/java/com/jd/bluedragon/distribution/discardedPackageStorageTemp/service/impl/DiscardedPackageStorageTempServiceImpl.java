@@ -36,7 +36,6 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.Discar
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.print.domain.JdPositionConfig;
-import com.jd.bluedragon.distribution.print.domain.JdSiteTypeConfig;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -73,7 +72,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
 /**
@@ -749,7 +747,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 // 权限校验
                 boolean flag = interceptSiteDiscardedStorage(paramObj);
                 if (flag){
-                    return result.toFail(DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT, ResultCodeConstant.NO_PERMISSION);
+                    return result.toFail(HintService.getHint(
+                        HintCodeConstants.DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE, Boolean.FALSE),
+                        Integer.parseInt(HintCodeConstants.DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE));
                 }
                 // 运单号或者箱号校验
                 if (!WaybillUtil.isWaybillCode(barCode) && !BusinessUtil.isBoxcode(barCode)){
