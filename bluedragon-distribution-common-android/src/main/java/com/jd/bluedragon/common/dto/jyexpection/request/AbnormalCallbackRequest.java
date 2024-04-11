@@ -1,7 +1,5 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
-
-
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.request.User;
@@ -31,14 +29,9 @@ public class AbnormalCallbackRequest implements Serializable {
     private OperatorData operatorData;
 
     /**
-     * 运单号
+     * 包裹号或运单号
      */
-    private String waybillCode;
-
-    /**
-     * 包裹号
-     */
-    private String packageCode;
+    private String barCode;
 
     /**
      * 业务主键
@@ -62,20 +55,12 @@ public class AbnormalCallbackRequest implements Serializable {
         this.user = user;
     }
 
-    public String getWaybillCode() {
-        return waybillCode;
+    public String getBarCode() {
+        return barCode;
     }
 
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public String getBusinessId() {

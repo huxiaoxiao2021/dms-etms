@@ -289,8 +289,7 @@ public class QualityControlService {
         // 质控H5页面提报业务主键，与与simple_wp_abnormal_record主题消息体中的id字段一一对应，每次请求都是唯一的
         String businessId = request.getBusinessId();
         if (log.isInfoEnabled()) {
-            log.info("abnormalH5Callback|质控H5页面回调接口请求参数:businessId={},waybillCode={},packageCode={}",
-                    businessId, request.getWaybillCode(), request.getPackageCode());
+            log.info("abnormalH5Callback|质控H5页面回调接口请求参数:businessId={},barCode={}", businessId, request.getBarCode());
         }
         // 校验参数
         if (StringUtils.isBlank(businessId)) {
