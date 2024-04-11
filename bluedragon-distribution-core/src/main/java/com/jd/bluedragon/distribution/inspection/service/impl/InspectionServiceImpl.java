@@ -1373,16 +1373,16 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 final PdaOperateRequest pdaOperateRequest = getPdaOperateRequest4InspectionRequest(request);
                 final SortingJsfResponse interceptResult = sortingCheckService.inspectionCheckAndReportIntercept(pdaOperateRequest);
                 if (!interceptResult.getCode().equals(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
-					
+
 					// waybillCancel拦截不通过，设置waybillCancelResult
 					WaybillCancelResultDto waybillCancelResult = response.getData().getInspectionResultDto().getWaybillCancelResultDto();
 					waybillCancelResult.setInterceptFlag(true);
 					waybillCancelResult.setInterceptCode(interceptResult.getCode());
 					waybillCancelResult.setInterceptMsg(interceptResult.getMessage());
 
-					if(interceptResult.getCode().equals(SortingResponse.CODE_29467)){
+                    if(interceptResult.getCode().equals(SortingResponse.CODE_29467) || interceptResult.getCode().equals(SortingResponse.CODE_29468)){
                         response.toFail(interceptResult.getMessage());
-                        response.addInterceptBox(SortingResponse.CODE_29467, interceptResult.getMessage());
+                        response.addInterceptBox(interceptResult.getCode(), interceptResult.getMessage());
                         return response;
                     } else {
                         response.addPromptBox(interceptResult.getCode(), interceptResult.getMessage());
@@ -1415,7 +1415,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	/**
 	 * 初始化response
-	 * 
+	 *
 	 * @return
 	 */
 	private JdVerifyResponse<InspectionCheckResultDto> initCheckInspectionResult() {

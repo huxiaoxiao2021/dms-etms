@@ -918,7 +918,7 @@ public class Constants {
      * 揽收终止原因配置
      */
     public static final String SYS_CONFIG_COLLECT_TERMINATE_REASON= "collect_terminate_reason";
-    
+
     /**
      * 安卓菜单可用性配置
      */
@@ -2471,5 +2471,44 @@ public class Constants {
      * 配置信息-司机到达B2B业务类型列表
      */
     public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
+
+
+    /**
+     * 评价申诉权限 0 关闭
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_0 = 0;
+    /**
+     * 评价申诉权限 1 开启
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_1 = 1;
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_ID = "id";
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_OPINION = "opinion";
+    /**
+     * 审核记录统计数
+     */
+    public static final Integer APPEAL_COUNT_NUM = 3;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_SATISFIED = 1;
+    /**
+     * 评价类型：1-装车 2-卸车
+     */
+    public static final Integer EVALUATE_TYPE_LOAD = 1;
+
+    /**
+     * 配置信息-视频中台文件上传域名内外网转换
+     */
+    public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
 
 }

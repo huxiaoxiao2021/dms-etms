@@ -354,6 +354,7 @@
 		<property name="skipOffLineCheckByBoxTypeList" value="${skipOffLineCheckByBoxTypeList:''}"/>
 		<property name="collectPackageSitePermitList" value="${collectPackageSitePermitList:'0'}"/>
 		<property name="teanWorkAreaCodes" value="${teanWorkAreaCodes:'ALL'}"/>
+		<property name="teanMixScanWorkAreaCodes" value="${teanMixScanWorkAreaCodes:'ALL'}"/>
 		<property name="teanSiteIdWhiteListStr4InterceptFilter" value="${teanSiteIdWhiteListStr4InterceptFilter:'-1'}"/>
 		<property name="teanSiteIdEnableListStr4InterceptFilter" value="${teanSiteIdEnableListStr4InterceptFilter:'-1'}"/>
 		<property name="needCollectLoadingBoxflowCheck" value="${needCollectLoadingBoxflowCheck:true}"/>
@@ -365,6 +366,9 @@
 		<property name="waybillJFWeightInterceptSwitch" value="${waybillJFWeightInterceptSwitch:false}"/>
 		<property name="pdaSilentUpdateSwitch" value="${pdaSilentUpdateSwitch:true}"/>
 		<property name="interceptExceptionSiteIdEnableListStr" value="${interceptExceptionSiteIdEnableListStr:'-1'}"/>
+		<property name="imageClarityThreshold" value="${imageClarityThreshold:'500'}"/>
+		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
+		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -704,6 +708,7 @@
 				<value>uccPropertyConfiguration.skipOffLineCheckByBoxTypeList</value>
 				<value>uccPropertyConfiguration.collectPackageSitePermitList</value>
 				<value>uccPropertyConfiguration.teanWorkAreaCodes</value>
+				<value>uccPropertyConfiguration.teanMixScanWorkAreaCodes</value>
 				<value>uccPropertyConfiguration.teanSiteIdWhiteListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.teanSiteIdEnableListStr4InterceptFilter</value>
 				<value>uccPropertyConfiguration.needCollectLoadingBoxflowCheck</value>
@@ -715,6 +720,9 @@
 				<value>uccPropertyConfiguration.waybillJFWeightInterceptSwitch</value>
 				<value>uccPropertyConfiguration.pdaSilentUpdateSwitch</value>
 				<value>uccPropertyConfiguration.interceptExceptionSiteIdEnableListStr</value>
+				<value>uccPropertyConfiguration.imageClarityThreshold</value>
+				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
+				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 			</list>
 		</property>
 	</bean>

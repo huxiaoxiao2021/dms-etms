@@ -33,7 +33,6 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryByBusinessKey",mState={JProEnum.TP,JProEnum.FunctionError})
-
     public Result<WorkStationGrid> queryByBusinessKey(WorkStationGrid data) {
         Result<WorkStationGrid> result = new Result<>();
         result.toFail("获取三定场地网格工序数据失败");
@@ -131,4 +130,32 @@ public class WorkStationGridManagerImpl implements WorkStationGridManager {
         return result;
 	}
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryListForWorkGridVo",
+            mState={JProEnum.TP,JProEnum.FunctionError})
+    @Override
+    public List<WorkStationGrid> queryListForWorkGridVo(WorkStationGridQuery workStationGridQuery) {
+        List<WorkStationGrid> result= new ArrayList<>();
+        try {
+            log.info("根据网格businessKey获取工序信息 queryListForWorkGridVo param:"+ JSON.toJSONString(workStationGridQuery));
+            return basicWorkStationGridJsfService.queryListForWorkGridVo(workStationGridQuery);
+        } catch (Exception e) {
+            log.error("根据网格businessKey获取工序信息 {}",  e.getMessage(),e);
+        }
+        return result;
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "WorkStationGridManagerImpl.queryBusinessKeyByRefWorkGridKeys",
+            mState={JProEnum.TP,JProEnum.FunctionError})
+    @Override
+    public List<String> queryBusinessKeyByRefWorkGridKeys(List<String> refWorkGridKeys) {
+        try {
+            log.info("根据网格refWorkGridKeys获取工序主键 param:{}", String.join(",", refWorkGridKeys));
+            return basicWorkStationGridJsfService.queryBusinessKeyByRefWorkGridKeys(refWorkGridKeys);
+        } catch (Exception e) {
+            log.error("根据网格refWorkGridKeys获取工序主键 {}",  e.getMessage(),e);
+        }
+        return null;
+    }
+    
+    
 }

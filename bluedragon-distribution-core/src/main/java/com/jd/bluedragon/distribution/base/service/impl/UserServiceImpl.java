@@ -474,6 +474,8 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 				// 是否静默升级
 				result.getData().getBusinessConfigInfo().setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
+				// 图像清晰度判断阈值
+				result.getData().getBusinessConfigInfo().setImageClarityThreshold(dmsConfigManager.getPropertyConfig().getImageClarityThreshold());
 			}
 		}
 		return result;

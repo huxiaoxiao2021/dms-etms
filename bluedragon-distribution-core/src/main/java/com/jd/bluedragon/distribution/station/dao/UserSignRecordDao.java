@@ -203,4 +203,6 @@ public interface UserSignRecordDao {
 
 	UserSignRecord queryFirstExistGridRecord(UserSignRecordQuery query);
 	
+	List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
+	
 }
