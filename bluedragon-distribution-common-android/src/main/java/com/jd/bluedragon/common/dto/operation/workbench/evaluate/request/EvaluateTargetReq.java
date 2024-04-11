@@ -41,9 +41,9 @@ public class EvaluateTargetReq implements Serializable {
     private CurrentOperate currentOperate;
 
     /**
-     * 版本号
+     * 是否校验评价超时开关
      */
-    private Integer version;
+    private Boolean checkOverTimeFlag;
 
     public String getSourceBizId() {
         return sourceBizId;
@@ -93,11 +93,11 @@ public class EvaluateTargetReq implements Serializable {
         this.currentOperate = currentOperate;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Boolean getCheckOverTimeFlag() {
+        return checkOverTimeFlag;
     }
 
-    public void setVersion(Integer version) {
-        this.version = version;
+    public void setCheckOverTimeFlag(Boolean checkOverTimeFlag) {
+        this.checkOverTimeFlag = checkOverTimeFlag;
     }
 }
