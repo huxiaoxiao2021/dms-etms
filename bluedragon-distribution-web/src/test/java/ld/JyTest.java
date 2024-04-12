@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jddl.common.utils.thread.NamedThreadFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,10 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -37,9 +35,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyTest {
-    ExecutorService executorService =  new ThreadPoolExecutor(10, 10,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5,5,1,
+            TimeUnit.MINUTES,new LinkedBlockingDeque<>(),new NamedThreadFactory("jytest"));
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
@@ -68,7 +65,7 @@ public class JyTest {
 
     @Test
     public void testChangeStatus(){
-        executorService.execute(new Runnable() {
+        threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
@@ -78,7 +75,7 @@ public class JyTest {
             }
         });
 
-        executorService.execute(new Runnable() {
+        threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity2 = new JyBizTaskUnloadVehicleEntity();
