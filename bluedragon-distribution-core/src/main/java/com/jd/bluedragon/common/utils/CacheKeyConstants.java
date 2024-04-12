@@ -455,4 +455,10 @@ public class CacheKeyConstants {
      * 空铁提货岗添加流向
      */
     public static final String CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW = JY_CACHE_PREFIX + "AIR_RAIL_ADD_SEND_FLOW:%s";
+
+    /**
+     * 质控H5页面回调接口网格缓存key
+     */
+    public static final String CACHE_KEY_ABNORMAL_H5_CALLBACK = "abnormal:h5:callback:";
+
 }
