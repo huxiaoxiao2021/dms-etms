@@ -284,7 +284,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "";
         try {
-            log.info("开始调用运输封车接口,params:{}",JsonHelper.toJson(doSealCarDtos));
+            log.info("开始调用运输封车接口【T运力不校验空批次】,params:{}",JsonHelper.toJson(doSealCarDtos));
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg = "封车JSF接口返回为空";
@@ -647,7 +647,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     }
                 }
             }
-            log.info("提交运输传站封车入参，{}",JSON.toJSONString(param));
+            log.info("提交运输传站封车入参【T运力不校验空批次】，{}",JSON.toJSONString(param));
             CommonDto<String> sealCarInfo = vosManager.doSealCarWithVehicleJob(param);
             if (sealCarInfo == null) {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
