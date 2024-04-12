@@ -67,6 +67,11 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             result.setData(flag);
         }  catch (JyBizException e) {
             LOGGER.warn("checkIsEvaluate|查询目标评价与否接口自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
+            if (e.getCode() != null) {
+                result.setCode(e.getCode());
+            } else {
+                result.toFail();
+            }
             result.setMessage(e.getMessage());
             return result;
         } catch (Exception e) {
@@ -128,7 +133,12 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             jyEvaluateService.saveTargetEvaluate(request);
         } catch (JyBizException e) {
             LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
-            result.toError(e.getMessage());
+            if (e.getCode() != null) {
+                result.setCode(e.getCode());
+            } else {
+                result.toFail();
+            }
+            result.setMessage(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
             LOGGER.warn("saveTargetEvaluate|创建评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
@@ -172,7 +182,12 @@ public class JyEvaluateGatewayServiceImpl implements JyEvaluateGatewayService {
             jyEvaluateService.updateTargetEvaluate(request);
         } catch (JyBizException e) {
             LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
-            result.toError(e.getMessage());
+            if (e.getCode() != null) {
+                result.setCode(e.getCode());
+            } else {
+                result.toFail();
+            }
+            result.setMessage(e.getMessage());
             return result;
         } catch (LoadIllegalException e) {
             LOGGER.warn("updateTargetEvaluate|修改评价目标基础信息自定义异常:msg={},request={}", e.getMessage(), JsonHelper.toJson(request));
