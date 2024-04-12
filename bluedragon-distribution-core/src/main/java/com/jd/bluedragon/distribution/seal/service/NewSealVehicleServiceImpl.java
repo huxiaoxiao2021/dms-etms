@@ -218,6 +218,22 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+
+    /**
+     * 空批次合法场景校验， true:合法，false：不合法
+     * 合法场景
+     * 1、 T运力不做空批次校验  兼容循环物资场景封车场景，允许无批次、空批次封车，运输系统同步改造  20240412
+     */
+    private boolean nullBatchCodesLegalVerification(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        if(Objects.nonNull(sealCars)
+                && Objects.nonNull(sealCars.get(0))
+                && StringUtils.isNotBlank(sealCars.get(0).getTransportCode())
+                && sealCars.get(0).getTransportCode().startsWith("T")) {
+            return true;
+        }
+        return false;
+    }
+
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception{
@@ -230,11 +246,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         //去除空批次，并记录去除数据
         SealCarResultDto sealCarResultDto = getEmptyBatchAndSealData(paramList);
-        emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
         //需要操作封车的数据
-        List<SealCarDto> doSealCarDtos = sealCarResultDto.getSealCarDtos();
+        List<SealCarDto> doSealCarDtos = new ArrayList<>();
         //被剔除空批次的封车数据
-        List<SealCarDto> removeSealCarDtos = sealCarResultDto.getRemoveCarDtos();
+        List<SealCarDto> removeSealCarDtos = new ArrayList<>();
+        if(nullBatchCodesLegalVerification(sealCars)) {
+            doSealCarDtos.addAll(sealCarResultDto.getSealCarDtos());
+            doSealCarDtos.addAll(sealCarResultDto.getRemoveCarDtos());
+        }else {
+            emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
+            doSealCarDtos = sealCarResultDto.getSealCarDtos();
+            removeSealCarDtos = sealCarResultDto.getRemoveCarDtos();
+        }
 
         CommonDto<String> sealCarInfo = null;
         if (CollectionUtils.isEmpty(doSealCarDtos)){
@@ -591,33 +614,37 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             String transportCode = param.getTransportCode();
 
             if(CollectionUtils.isNotEmpty(param.getBatchCodes())){
-                // 循环验证封车批次号是否有发货记录，如果没有则删除批次
-                List<String> keepBatchCodes=new ArrayList<>();
-                List<String> removeBatchCodes=new ArrayList<>();
-                for (String item : param.getBatchCodes()) {
-                    if (checkBatchCodeIsSendPreSealVehicle(item)) {
-                        keepBatchCodes.add(item);
-                    }else {
-                        log.warn("批次内发货信息。车牌号[{}]批次[{}]",param.getVehicleNumber(),item);
-                        emptyBatchCode.put(item, param.getVehicleNumber());
-                        removeBatchCodes.add(item);
-                    }
-                }
-                if(CollectionUtils.isNotEmpty(removeBatchCodes)){
-                    //把剔除空批次的封车记录加入到待保存
-                    SealCarDto temp=new SealCarDto();
-                    BeanUtils.copyProperties(param,temp);
-                    temp.setBatchCodes(removeBatchCodes);
-                    saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(temp),SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
-                }
-                if(CollectionUtils.isNotEmpty(keepBatchCodes)){
-                    param.setBatchCodes(keepBatchCodes);
+                if(StringUtils.isNotBlank(transportCode) && transportCode.startsWith("T")) {
+                    param.setBatchCodes(param.getBatchCodes());
                 }else {
-                    log.warn("封车批次全部为空批次，不进行封车操作[{}]。",JsonHelper.toJson(param));
-                    singleErrorMsg="运力编码封车批次全部没有发货数据：" + transportCode;
-                    errorMsg += singleErrorMsg;
-                    emptyCount++;
-                    continue;
+                    // 循环验证封车批次号是否有发货记录，如果没有则删除批次
+                    List<String> keepBatchCodes=new ArrayList<>();
+                    List<String> removeBatchCodes=new ArrayList<>();
+                    for (String item : param.getBatchCodes()) {
+                        if (checkBatchCodeIsSendPreSealVehicle(item)) {
+                            keepBatchCodes.add(item);
+                        }else {
+                            log.warn("批次内发货信息。车牌号[{}]批次[{}]",param.getVehicleNumber(),item);
+                            emptyBatchCode.put(item, param.getVehicleNumber());
+                            removeBatchCodes.add(item);
+                        }
+                    }
+                    if(CollectionUtils.isNotEmpty(removeBatchCodes)){
+                        //把剔除空批次的封车记录加入到待保存
+                        SealCarDto temp=new SealCarDto();
+                        BeanUtils.copyProperties(param,temp);
+                        temp.setBatchCodes(removeBatchCodes);
+                        saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(temp),SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+                    }
+                    if(CollectionUtils.isNotEmpty(keepBatchCodes)){
+                        param.setBatchCodes(keepBatchCodes);
+                    }else {
+                        log.warn("封车批次全部为空批次，不进行封车操作[{}]。",JsonHelper.toJson(param));
+                        singleErrorMsg="运力编码封车批次全部没有发货数据：" + transportCode;
+                        errorMsg += singleErrorMsg;
+                        emptyCount++;
+                        continue;
+                    }
                 }
             }
             log.info("提交运输传站封车入参，{}",JSON.toJSONString(param));
