@@ -2457,6 +2457,10 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.jd.etms.receive</groupId>
+					<artifactId>eclp-b2c-api</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
