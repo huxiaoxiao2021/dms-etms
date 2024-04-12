@@ -22,6 +22,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -33,7 +37,9 @@ import java.math.BigDecimal;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyTest {
-
+    ExecutorService executorService =  new ThreadPoolExecutor(10, 10,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
@@ -62,8 +68,7 @@ public class JyTest {
 
     @Test
     public void testChangeStatus(){
-
-        new Thread(new Runnable() {
+        executorService.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
@@ -71,8 +76,9 @@ public class JyTest {
                 entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
                 jyBizTaskUnloadVehicleService.changeStatus(entity);
             }
-        },"LD1").start();
-        new Thread(new Runnable() {
+        });
+
+        executorService.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity2 = new JyBizTaskUnloadVehicleEntity();
@@ -80,8 +86,7 @@ public class JyTest {
                 entity2.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
                 jyBizTaskUnloadVehicleService.changeStatus(entity2);
             }
-        },"LD2").start();
-
+        });
         System.out.println("end");
     }
 
