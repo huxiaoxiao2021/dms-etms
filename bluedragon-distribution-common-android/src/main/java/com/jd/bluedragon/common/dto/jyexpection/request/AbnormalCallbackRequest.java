@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 质控H5页面回调接口请求参数
@@ -29,9 +30,9 @@ public class AbnormalCallbackRequest implements Serializable {
     private OperatorData operatorData;
 
     /**
-     * 包裹号或运单号
+     * 包裹号或运单号列表
      */
-    private String barCode;
+    private List<String> barCodeList;
 
     /**
      * 业务主键
@@ -55,12 +56,12 @@ public class AbnormalCallbackRequest implements Serializable {
         this.user = user;
     }
 
-    public String getBarCode() {
-        return barCode;
+    public List<String> getBarCodeList() {
+        return barCodeList;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setBarCodeList(List<String> barCodeList) {
+        this.barCodeList = barCodeList;
     }
 
     public String getBusinessId() {

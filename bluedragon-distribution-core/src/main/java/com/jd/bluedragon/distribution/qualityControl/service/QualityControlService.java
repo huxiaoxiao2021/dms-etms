@@ -289,7 +289,7 @@ public class QualityControlService {
         // 质控H5页面提报业务主键，与与simple_wp_abnormal_record主题消息体中的id字段一一对应，每次请求都是唯一的
         String businessId = request.getBusinessId();
         if (log.isInfoEnabled()) {
-            log.info("abnormalH5Callback|质控H5页面回调接口请求参数:businessId={},barCode={}", businessId, request.getBarCode());
+            log.info("abnormalH5Callback|质控H5页面回调接口请求参数:businessId={},barCodeList={}", businessId, request.getBarCodeList());
         }
         // 校验参数
         if (StringUtils.isBlank(businessId)) {
@@ -836,6 +836,8 @@ public class QualityControlService {
 
             String barCodes = qcReportJmqDto.getPackageNumber();
             String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+            // 从异常提报(新)质控H5页面回调接口的缓存中获取网格信息
+            OperatorData operatorData = getOperatorDataFromCache(qcReportJmqDto);
 
             for (String barCode : barCodeList) {
                 final QualityControlRequest qualityControlRequest = new QualityControlRequest();
@@ -861,7 +863,6 @@ public class QualityControlService {
                 // 设置菜单来源
                 qualityControlRequest.setBizSource(AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType());
                 // 设置网格信息
-                OperatorData operatorData = getOperatorDataFromCache(qcReportJmqDto);
                 qualityControlRequest.setOperatorData(operatorData);
 
                 Task task = new Task();
