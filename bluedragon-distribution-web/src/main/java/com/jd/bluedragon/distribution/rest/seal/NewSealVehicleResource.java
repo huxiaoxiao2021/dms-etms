@@ -672,6 +672,11 @@ public class NewSealVehicleResource {
             response.setMessage(JdCResponse.MESSAGE_SUCCESS);
             return response;
         }
+        if(StringUtils.isNotBlank(request.getTransportCode()) && request.getTransportCode().startsWith("T")) {
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            return response;
+        }
         try{
             SealCarDto sealCarDto = new SealCarDto();
             sealCarDto.setSource(request.getSource());
