@@ -784,5 +784,9 @@
     <jmq:consumer id="jmq.directDeliverySortCollectConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.directDeliverySort.collect}" listener="directDeliverySortCollectConsumer"/>
     </jmq:consumer>
+    <!--  箱号绑定循环物资  -->
+    <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
+    </jmq:consumer>
 </beans>
 
