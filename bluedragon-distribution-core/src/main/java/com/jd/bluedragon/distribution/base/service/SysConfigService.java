@@ -83,6 +83,14 @@ public interface SysConfigService {
 	List<String> getStringListConfig(String configName);
 
 	/**
+	 * 获取是否匹配具体的字符串，如果配置内容是ALL那么就直接返回成功
+	 * @param configName 配置项
+	 * @param containStr 包含的字符串
+	 * @return
+	 */
+	boolean getByListContainOrAllConfig(String configName,String containStr);
+
+	/**
 	 * 从sysconfig表里获取工种自动签退时间配置
 	 * @return
 	 */
