@@ -71,6 +71,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 
@@ -487,8 +488,12 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                     log.info("scanDiscardedPackage，弃件暂存-扫描箱号，箱内包裹数 {}", cancelSendByBox.size());
 
                     HashMap<String, BaseEntity<BigWaybillDto>> entityHashMap = new HashMap<>();
-                    for (SendDetail sendByBox : cancelSendByBox) {
-                        Result<Boolean> booleanResult = validateData(sendByBox.getWaybillCode(), entityHashMap);
+                    // 存在一笔订单下有多个包裹场景
+                    Set<String> uniqueWaybillCodes = cancelSendByBox.stream()
+                        .map(SendDetail::getWaybillCode)
+                        .collect(Collectors.toSet());
+                    for (String waybillCode : uniqueWaybillCodes) {
+                        Result<Boolean> booleanResult = validateData(waybillCode, entityHashMap);
                         if (Objects.nonNull(booleanResult) && booleanResult.isFail()){
                             log.warn("scanDiscardedPackage，运单不符合弃件条件 param: {}， 错误原因：{}",
                                 JsonHelper.toJson(paramObj), booleanResult.getMessage());
@@ -496,7 +501,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                         }
                     }
                     // 校验通过，插入数据库
-                    saveToDb(cancelSendByBox, paramObj, entityHashMap);
+                    saveToDb(uniqueWaybillCodes, paramObj, entityHashMap);
 
                     // 查询扫描后未提交的数据
                     final List<DiscardedWaybillScanResultItemDto> discardedPackageScanResultItemDtoList =
@@ -580,12 +585,12 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
     }
 
     @Transactional(rollbackFor = {JyBizException.class, CompletionException.class})
-    public void saveToDb(List<SendDetail> cancelSendByBox, ScanDiscardedPackagePo paramObj, HashMap<String, BaseEntity<BigWaybillDto>> entityHashMap){
+    public void saveToDb(Set<String> uniqueWaybillCodes, ScanDiscardedPackagePo paramObj, HashMap<String, BaseEntity<BigWaybillDto>> entityHashMap){
         List<CompletableFuture<Result<Boolean>>> futures = new ArrayList<>();
         BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(paramObj.getOperateUser().getSiteCode());
-        for (SendDetail sendDetail : cancelSendByBox) {
-            BaseEntity<BigWaybillDto> baseEntity = entityHashMap.get(sendDetail.getWaybillCode());
-            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, sendDetail, siteDto, baseEntity);
+        for (String waybillCode : uniqueWaybillCodes) {
+            BaseEntity<BigWaybillDto> baseEntity = entityHashMap.get(waybillCode);
+            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, waybillCode, siteDto, baseEntity);
             CompletableFuture<Result<Boolean>> future = processDataAsync(context);
             futures.add(future);
         }
@@ -600,9 +605,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         }
 
         // 数据库全部保存成功之后，发送全程跟踪
-        for (SendDetail sendDetail : cancelSendByBox) {
-            BaseEntity<BigWaybillDto> baseEntity = entityHashMap.get(sendDetail.getWaybillCode());
-            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, sendDetail, siteDto, baseEntity);
+        for (String waybillCode : uniqueWaybillCodes) {
+            BaseEntity<BigWaybillDto> baseEntity = entityHashMap.get(waybillCode);
+            final DiscardedStorageContext context = getDiscardedStorageContext(paramObj, waybillCode, siteDto, baseEntity);
             boxCodeHandler.handleAfterWithBoxCode(context);
         }
     }
@@ -611,13 +616,12 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
      * 根据扫描的废弃包裹信息对象和发货详情，构建废弃存储上下文对象    。
      * 该方法会查询与运单号相关的详细信息，并设置到上下文对象中    。
      * @param paramObj 扫描废弃包裹信息对象，包含操作用户信息
-     * @param sendDetail 发货详情对象，包含运单号
+     * @param waybillCode 运单号
      * @return DiscardedStorageContext 构建的废弃存储上下文对象，包含了查询到的所有相关信息
      */
-    private DiscardedStorageContext getDiscardedStorageContext(ScanDiscardedPackagePo paramObj, SendDetail sendDetail,
+    private DiscardedStorageContext getDiscardedStorageContext(ScanDiscardedPackagePo paramObj, String waybillCode,
         BaseStaffSiteOrgDto siteDto, BaseEntity<BigWaybillDto> baseEntity) {
-        String waybillCode = sendDetail.getWaybillCode();
-        paramObj.setBarCode(sendDetail.getWaybillCode());
+        paramObj.setBarCode(waybillCode);
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
         choice.setQueryPackList(true);
