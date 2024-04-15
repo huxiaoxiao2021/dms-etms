@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
@@ -11,6 +13,8 @@ import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
@@ -31,6 +35,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.jd.bluedragon.Constants.*;
+import static com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill.SEPARATOR_APPEND;
+import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_FENCE;
+import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_GATEWAY;
 
 @Service("cenConfirmService")
 public class CenConfirmServiceImpl implements CenConfirmService {
@@ -54,7 +63,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
     @Autowired
     private InspectionNotifyService inspectionNotifyService;
-	
+
 	@Override
 	public CenConfirm createCenConfirmByReceive(Receive receive) {
 		return createCenConfirm(null, receive);
@@ -341,7 +350,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		tWaybillStatus.setOperateFlowId(cenConfirm.getOperateFlowId());
 		return tWaybillStatus;
 	}
-	
+
 	private WaybillStatus setOperateType(CenConfirm cenConfirm,
 			WaybillStatus tWaybillStatus) {
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
