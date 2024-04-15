@@ -882,11 +882,6 @@
         <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" listener="jyRecycleMaterialAutoInspectionPackageConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费判责系统暴力分拣消息 -->
-    <jmq:consumer id="jmq.violentSortingFixDutyConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.violent.sorting.fix.duty}" listener="violentSortingFixDutyConsumer"/>
-    </jmq:consumer>
-
     <!--  直送分拣揽收  -->
     <jmq:consumer id="jmq.directDeliverySortCollectConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.directDeliverySort.collect}" listener="directDeliverySortCollectConsumer"/>
