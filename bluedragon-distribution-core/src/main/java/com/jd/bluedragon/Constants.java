@@ -924,7 +924,7 @@ public class Constants {
      * 揽收终止原因配置
      */
     public static final String SYS_CONFIG_COLLECT_TERMINATE_REASON= "collect_terminate_reason";
-    
+
     /**
      * 安卓菜单可用性配置
      */
@@ -2565,5 +2565,10 @@ public class Constants {
      * 评价类型：1-装车 2-卸车
      */
     public static final Integer EVALUATE_TYPE_LOAD = 1;
+
+    /**
+     * 配置信息-视频中台文件上传域名内外网转换
+     */
+    public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
 
 }

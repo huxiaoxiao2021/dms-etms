@@ -2055,7 +2055,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (currEnum == null) {
             throw new JyBizException("扫描类型转换不正确");
         }
-        callbackReqDto.setBarCodeType(currEnum);
+        callbackReqDto.setBarCodeType(request.getBarCodeType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
         callbackReqDto.setSiteName(request.getCurrentOperate().getSiteName());

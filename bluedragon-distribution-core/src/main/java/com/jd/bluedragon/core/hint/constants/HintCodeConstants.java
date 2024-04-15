@@ -1123,4 +1123,7 @@ public class HintCodeConstants {
 
     public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE = "40041";
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT = "切换后，在波次结束前，A流向（原线路目的地）的货物会自动落入B流向（临时方案线路目的地）的格口，按新流向发货不会错发";
+
 }
