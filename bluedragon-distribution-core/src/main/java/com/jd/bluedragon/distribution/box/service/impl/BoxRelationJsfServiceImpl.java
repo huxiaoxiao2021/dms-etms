@@ -49,6 +49,10 @@ public class BoxRelationJsfServiceImpl implements BoxRelationJsfService {
                     dto.setSiteCode(resultRow.getCreateSiteCode());
                     dto.setUserErp(resultRow.getCreateUserErp());
                     dto.setCreateTime(resultRow.getCreateTime());
+                    dto.setProvinceAgencyCode(resultRow.getProvinceAgencyCode());
+                    dto.setProvinceAgencyName(resultRow.getProvinceAgencyName());
+                    dto.setAreaHubCode(resultRow.getAreaHubCode());
+                    dto.setAreaHubName(resultRow.getAreaHubName());
                     rows.add(dto);
                 }
 
