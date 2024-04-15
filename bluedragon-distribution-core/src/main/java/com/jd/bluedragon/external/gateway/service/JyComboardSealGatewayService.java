@@ -8,19 +8,8 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
@@ -143,4 +132,18 @@ public interface JyComboardSealGatewayService {
    * @return
    */
   JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request);
+
+  /***
+   * 根据bizId查询封车任务的举报数据,查询前进行权限校验
+   * @param request
+   * @return
+   */
+  JdCResponse<DriverViolationReportingDto> checkAndQueryViolationReporting(DriverViolationReportingRequest request);
+  /***
+   * 提交司机违规举报数据
+   * @param request
+   * @return
+   */
+  JdCResponse<Void> submitViolationReporting(DriverViolationReportingAddRequest request);
+
 }

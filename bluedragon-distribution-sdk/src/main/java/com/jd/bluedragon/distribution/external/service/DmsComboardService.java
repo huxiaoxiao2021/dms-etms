@@ -1,12 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.external.domain.BoardQueryRequest;
-import com.jd.bluedragon.distribution.external.domain.BoardQueryResponse;
-import com.jd.bluedragon.distribution.external.domain.CountBoardRequest;
-import com.jd.bluedragon.distribution.external.domain.CountBoardResponse;
-import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardRequest;
-import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardResponse;
+import com.jd.bluedragon.distribution.external.domain.*;
 
 public interface DmsComboardService {
 
@@ -27,4 +22,13 @@ public interface DmsComboardService {
    * @return
    */
   InvokeResult<CountBoardResponse> countBoardGroupBySendFlow(CountBoardRequest request);
+
+  /**
+   * 根据bizId集合查询组板任务的司机违规举报数据
+   * @param request
+   * @return
+   */
+  InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizIdList(
+      QueryDriverViolationReportingReq request);
+
 }

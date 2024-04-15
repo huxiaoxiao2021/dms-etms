@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.CountBoardDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskComboardSourceEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.send.IJyDriverViolationReportingService;
 import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -58,6 +59,9 @@ public class DmsComboardServiceImpl implements DmsComboardService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private IJyDriverViolationReportingService driverViolationReportingService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.listComboardBySendFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -217,6 +221,13 @@ public class DmsComboardServiceImpl implements DmsComboardService {
         CountBoardResponse response =new CountBoardResponse();
         response.setComboardFlowDtoList(comboardFlowDtoList);
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,response);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.getDriverViolationReportingByBizIdList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizIdList(
+        QueryDriverViolationReportingReq request) {
+        return driverViolationReportingService.queryViolationReporting(request);
     }
 
     private void checkCountBoardRequest(CountBoardRequest request) {

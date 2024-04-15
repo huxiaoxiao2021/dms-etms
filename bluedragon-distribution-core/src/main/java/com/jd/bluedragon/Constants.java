@@ -2525,4 +2525,9 @@ public class Constants {
      * 人工验货全程跟踪话术
      */
     public static final String TRACE_INSPECTION_REMARK = "%s场地已验货";
+    /**
+     * 租板发货-司机违规举报锁前缀
+     */
+    public static final String JY_DRIVER_VIOLATION_REPORTING_LOCK_PREFIX  = "jy_driver_violation_reporting_lock_%s";
+
 }
