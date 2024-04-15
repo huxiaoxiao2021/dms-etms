@@ -1671,4 +1671,9 @@
                   lazy="${jsf.consumer.lazy}"
                   alias="${jsf.alias.goldShieldData}">
     </jsf:consumer>
+    <!-- automatic分拣自动化同步路由数据  -->
+    <jsf:consumer id="routerDynamicLineReplacePlanJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.router.RouterDynamicLineReplacePlanJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>
