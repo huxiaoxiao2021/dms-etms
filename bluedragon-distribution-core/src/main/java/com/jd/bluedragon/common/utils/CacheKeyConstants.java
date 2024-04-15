@@ -455,4 +455,22 @@ public class CacheKeyConstants {
      * 空铁提货岗添加流向
      */
     public static final String CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW = JY_CACHE_PREFIX + "AIR_RAIL_ADD_SEND_FLOW:%s";
+
+    /**
+     * 质控H5页面回调接口网格缓存key
+     */
+    public static final String CACHE_KEY_ABNORMAL_H5_CALLBACK = "abnormal:h5:callback:";
+
+
+    /**
+     * 动态线路切换方案消费锁
+     */
+    public static final String CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK = "router:dynamic:line:replace:consume:lock:%s";
+    public static final int CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK_EXPIRE = 5;
+    /**
+     * 动态线路切换方案缓存
+     */
+    public static final String CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE = "router_dynamic_line_replace:%s";
+    public static final String CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_VAL_NULL = "-1";
+    public static final int CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_TIME_OUT = 5;
 }
