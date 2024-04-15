@@ -550,7 +550,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         if(request.getForceFlag()==null){
             request.setForceFlag(Boolean.TRUE);
         }
-        //自动化设备不校验  解绑不校验
+        //自动化设备不校验  解绑不校验  终端不校验
         if(!shouldSkipValidation(request)){
 
             InvokeResult businessCheck = boxMaterialRelationAlterOfCheck(request);
