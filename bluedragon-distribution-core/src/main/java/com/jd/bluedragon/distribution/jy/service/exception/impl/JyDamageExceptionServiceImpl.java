@@ -220,8 +220,15 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             logger.warn("abnormalDocumentNum or createDept 为空！");
             return;
         }
-        String barCode = qcReportJmqDto.getAbnormalDocumentNum();
-        String bizId = getBizId(barCode, new Integer(qcReportJmqDto.getCreateDept()));
+        String barCodes = qcReportJmqDto.getPackageNumber();
+        String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+        for (String packageCode : barCodeList) {
+            dealByPackageNumber(qcReportJmqDto, packageCode);
+        }
+    }
+
+    private void dealByPackageNumber(QcReportJmqDto qcReportJmqDto, String packageCode) {
+        String bizId = getBizId(packageCode, Integer.valueOf(qcReportJmqDto.getCreateDept()));
         String existKey = "DMS.EXCEPTION.DAMAGE:" + bizId;
         try {
             if (!redisClient.set(existKey, "1", 1, TimeUnit.SECONDS, false)) {
@@ -246,9 +253,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
 
-            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(barCode));
+            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(packageCode));
             if(waybill == null){
-                logger.warn("查询运单waybillSign失败!-{}", barCode);
+                logger.warn("查询运单waybillSign失败!-{}", packageCode);
                 throw new JyBizException("获取运单信息失败！");
             }
 
@@ -265,7 +272,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setUpdateTime(new Date());
             updateDamageEntity.setSaveType(JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
-            boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity,waybill);
+            boolean sendMQFlag = sendMQNoticCustomerCheck(packageCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity,waybill);
             logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
             logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
             if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
