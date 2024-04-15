@@ -2571,4 +2571,9 @@ public class Constants {
      */
     public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
 
+    /**
+     * 弃件暂存岗位限制配置
+     */
+    public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
+
 }
