@@ -196,7 +196,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
                 && !Objects.equals(updateDto.getManualUploadWeight(), Constants.CONSTANT_NUMBER_ONE) 
                 && (
                     // 3.1、开关打开则所有抽检来源都需要上传
-                    dmsWeightVolumeService.checkWaybillNotZeroWeightInterceptSwitchOn(updateDto.getReviewSiteCode())
+                    dmsWeightVolumeService.checkWaybillNotZeroWeightInterceptSwitchOn(updateDto.getReviewSiteCode(), spotCheckNotifyMQ.getWaybillCode(), null)
                     // 3.2、开关未打开则只有人工抽检需要上传      
                     || SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(updateDto.getReviewSource())
                 );
