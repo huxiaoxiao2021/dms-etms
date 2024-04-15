@@ -81,6 +81,11 @@ public class InspectionRequest extends JdRequest{
 	 * 操作流水表主键
 	 */
 	private Long operateFlowId;
+
+	/**
+	 * 车牌号
+	 */
+	private String vehicleNumber;
 	
     public int getPageNo() {
         return pageNo;
@@ -295,5 +300,13 @@ public class InspectionRequest extends JdRequest{
 
 	public void setOperateFlowId(Long operateFlowId) {
 		this.operateFlowId = operateFlowId;
+	}
+
+	public String getVehicleNumber() {
+		return vehicleNumber;
+	}
+
+	public void setVehicleNumber(String vehicleNumber) {
+		this.vehicleNumber = vehicleNumber;
 	}
 }

@@ -30,6 +30,11 @@ public class InspectionVO implements Serializable {
      * 操作信息对象
      */
 	private OperatorData operatorData;
+
+    /**
+     * 车牌号
+     */
+    private String vehicleNumber;
     public List<String> getBarCodes() {
         return barCodes;
     }
@@ -93,4 +98,12 @@ public class InspectionVO implements Serializable {
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
 	}
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 }
