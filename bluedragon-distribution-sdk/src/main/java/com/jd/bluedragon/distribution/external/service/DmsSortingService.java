@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingRequestDto;
+import com.jd.bluedragon.distribution.sorting.dto.request.SortingReq;
 
 import java.util.List;
 
@@ -39,4 +40,14 @@ public interface DmsSortingService {
      * @return
      */
     InvokeResult<Boolean> cancelSorting(SortingRequestDto request);
+
+    /**
+     * 根据包裹号查询最近一条装箱记录，如果装的不是真实箱则不返回数据
+     * 跨场地查询，传入的siteCode只是为了记录入参
+     * @param sortingReq 请求入参
+     * @return 装箱记录
+     * @author fanggang7
+     * @time 2024-04-10 21:09:57 周三
+     */
+    InvokeResult<SortingDto> findLatestSortingBoxByPackageCode(SortingReq sortingReq);
 }
