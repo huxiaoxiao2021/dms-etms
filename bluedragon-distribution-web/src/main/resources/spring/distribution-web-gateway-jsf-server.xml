@@ -763,4 +763,13 @@
                   ref="weightAndVolumeGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--动态线路替换方案配置-->
+    <bean id="routerDynamicLineReplacePlanGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.RouterDynamicLineReplacePlanGatewayServiceImpl" />
+    <jsf:provider id="jsfRouterDynamicLineReplacePlanGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.IRouterDynamicLineReplacePlanGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="routerDynamicLineReplacePlanGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
