@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -17,24 +16,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.AviationSendVehicleProgressResp;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.send.res.TransportDataDto;
 import com.jd.bluedragon.common.dto.seal.request.ShuttleTaskSealCarReq;
-import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
-import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageSiteDepartTypeEnum;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageStorageTempStatusEnum;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
-import com.jd.bluedragon.distribution.jy.evaluate.AppealDimensionReq;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto;
-import com.jd.bluedragon.distribution.jy.service.evaluate.JyEvaluateAppealServiceImpl;
+import com.jd.bluedragon.distribution.station.gateway.impl.UserSignGatewayServiceImpl;
 import com.jd.bluedragon.external.gateway.service.JyAviationRailwaySendSealGatewayService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,64 +61,10 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
     private NewSealVehicleGatewayService newSealVehicleGatewayService;
 
     @Autowired
-    private JyEvaluateAppealServiceImpl jyEvaluateAppealService;
-
-    @Test
-    public void test(){
-        JyEvaluateRecordAppealRes jyEvaluateRecordAppealRes = new JyEvaluateRecordAppealRes();
-
-        jyEvaluateRecordAppealRes.setUpdateUserName("pctest");
-        jyEvaluateRecordAppealRes.setUpdateUserErp("pc");
-        jyEvaluateRecordAppealRes.setSourceBizId("SC24010900039222");
-        jyEvaluateRecordAppealRes.setTargetBizId("SST24010800000035");
-        ArrayList<AppealDimensionReq> appealDimensionReqs = new ArrayList<>();
-        AppealDimensionReq req = new AppealDimensionReq();
-        AppealDimensionReq req1 = new AppealDimensionReq();
-
-        appealDimensionReqs.add(req);
-        appealDimensionReqs.add(req1);
-
-        jyEvaluateRecordAppealRes.setDimensionList(appealDimensionReqs);
-        JyEvaluateRecordAppealUpdateDto updateDto = new JyEvaluateRecordAppealUpdateDto();
-        updateDto.setDimensionCodeList(Arrays.asList(100));
-        //jyEvaluateAppealService.esDataUpdate(jyEvaluateRecordAppealRes, updateDto);
-    }
-
-    @Test
-    public void test1(){
-        JyEvaluateRecordAppealRes jyEvaluateRecordAppealRes = new JyEvaluateRecordAppealRes();
-
-        jyEvaluateRecordAppealRes.setUpdateUserName("pctest");
-        jyEvaluateRecordAppealRes.setUpdateUserErp("pc");
-        jyEvaluateRecordAppealRes.setSourceBizId("SC23122900039187");
-        jyEvaluateRecordAppealRes.setTargetBizId("SST23122900000059");
-        ArrayList<AppealDimensionReq> appealDimensionReqs = new ArrayList<>();
-        AppealDimensionReq req = new AppealDimensionReq();
-        AppealDimensionReq req1 = new AppealDimensionReq();
-
-        req.setDimensionCode(100);
-        appealDimensionReqs.add(req);
-        appealDimensionReqs.add(req1);
-
-        jyEvaluateRecordAppealRes.setSourceSiteCode(910L);
-        jyEvaluateRecordAppealRes.setTargetSiteCode(40240L);
-
-        List<Map<String, Integer>> maps = new ArrayList<>();
-        HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
-        stringIntegerHashMap.put("id", 5);
-        stringIntegerHashMap.put("opinion", 2);
-        maps.add(stringIntegerHashMap);
-        jyEvaluateRecordAppealRes.setAppealList(maps);
-        jyEvaluateAppealService.checkAppeal(jyEvaluateRecordAppealRes);
-
-        Response<List<JyEvaluateRecordAppealDto>> listByCondition =
-            jyEvaluateAppealService.getListByCondition(Arrays.asList("SST23122900000059", "SST24010200000041"));
-        System.out.println(JsonHelper.toJson(listByCondition));
-    }
+    private UserSignGatewayServiceImpl userSignGatewayService;
 
 
-    @Autowired
-    private DiscardedPackageStorageTempService discardedPackageStorageTempService;
+
     @Test
     public void newCheckTranCodeAndBatchCode(){
         String json = "{\n" +
@@ -727,26 +660,9 @@ public class JyAviationRailwaySendSealGatewayServiceTest {
         }
         System.out.println("succ");
     }
-
     @Test
-    public void testScanDiscardedPackage() {
-        final ScanDiscardedPackagePo paramObj = new ScanDiscardedPackagePo();
-        paramObj.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode()).setOperateUser(genOperateUser());
-        paramObj.setBarCode("BC1001240408250000300125");
-        paramObj.setStatus(DiscardedPackageStorageTempStatusEnum.TEMP_STORAGE.getCode());
-        paramObj.setOperateType(WasteOperateTypeEnum.STORAGE.getCode());
-        paramObj.setWaybillType(WasteWaybillTypeEnum.PACKAGE.getCode());
-        final Result<List<DiscardedWaybillScanResultItemDto>> result = discardedPackageStorageTempService.scanDiscardedPackage(paramObj);
-        System.out.println(JsonHelper.toJson(result));
-    }
-
-    private OperateUser genOperateUser(){
-        OperateUser operateUser = new OperateUser();
-        operateUser.setUserCode("xumigen");
-        operateUser.setUserName("徐迷根");
-        operateUser.setSiteCode(10186);
-        operateUser.setSiteName("名称");
-        operateUser.setUserId(10186L);
-        return operateUser;
+    public void test() {
+        JdCResponse<List<JyJobType>> listJdCResponse = userSignGatewayService.queryAllJyJobType();
+        System.out.println(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(listJdCResponse));
     }
 }
