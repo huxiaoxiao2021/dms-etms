@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.dao.common;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.slf4j.Logger;
@@ -46,6 +47,15 @@ public class JyOperateFlowDao extends BaseDao<JyOperateFlowDto> {
             logger.info("JyOperateFlowDao-insert|最终insert:entity={}", JsonHelper.toJson(entity));
         }
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    /**
+     * 根据分区键和id查询一条记录
+     * @param entity
+     * @return
+     */
+    public JyOperateFlowDto findByOperateBizKeyAndId(JyOperateFlowDto entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByOperateBizKeyAndId", entity);
     }
 
 }
