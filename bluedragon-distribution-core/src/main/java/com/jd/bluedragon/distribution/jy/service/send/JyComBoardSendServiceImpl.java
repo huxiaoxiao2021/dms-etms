@@ -1499,7 +1499,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void execSend(ComboardScanReq request) {
     SendM sendM = toSendMDomain(request);
     //切换新服务
-    if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(request.getCurrentOperate().getSiteCode()))){
+    if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(request.getCurrentOperate().getSiteCode()))){
       log.info("传站组板发货 启用新模式 {}",request.getBarCode());
       //新接口
       JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(toSendRequest(request,sendM));
