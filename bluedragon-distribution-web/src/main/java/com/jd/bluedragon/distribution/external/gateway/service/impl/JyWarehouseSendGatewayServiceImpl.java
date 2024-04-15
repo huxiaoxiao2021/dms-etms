@@ -1090,7 +1090,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     public JdCResponse<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
         if (StringUtils.isEmpty(sealVehicleReq.getPalletCount())
                 || !NumberUtils.isDigits(sealVehicleReq.getPalletCount().trim())
-                || !(Integer.parseInt(sealVehicleReq.getPalletCount().trim()) > 0)){
+                || !(Integer.parseInt(sealVehicleReq.getPalletCount().trim()) >= 0)){
             return new JdCResponse<>(JdCResponse.CODE_FAIL,"请录入正确托盘数！");
         }
         return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
