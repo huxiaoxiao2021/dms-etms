@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
@@ -1927,6 +1928,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private SendScanCallbackReqDto transferDto(SendScanRequest request) {
         SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
+        com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum.getEnumByCode(request.getBarCodeType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
+        }
         callbackReqDto.setBarCodeType(request.getBarCodeType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1936,6 +1941,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             callbackReqDto.setUserName(request.getUser().getUserName());
         }
         callbackReqDto.setOperateTime(new Date());
+        if(request.getStevedoringMerchant() != null){
+            callbackReqDto.setMerchantCode(request.getStevedoringMerchant().getMerchantCode());
+            callbackReqDto.setMerchantName(request.getStevedoringMerchant().getMerchantName());
+        }
         return callbackReqDto;
     }
 
