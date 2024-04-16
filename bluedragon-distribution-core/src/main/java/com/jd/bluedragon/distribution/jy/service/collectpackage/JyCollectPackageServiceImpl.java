@@ -96,6 +96,7 @@ import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCo
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
+import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
@@ -385,6 +386,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         sealBoxCheck(request);
     }
 
+    /**
+     * BX 开头的箱号，只能扫描目的地只能是 三方配送公司
+     * @param siteInfo
+     */
+    public static boolean bxBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo) {
+        return isThirdSite(siteInfo);
+    }
     private void sealBoxCheck(CollectPackageReq request) {
         /*if (request.getSkipSealBoxCheck()){
             return;
