@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.qualityControl.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -42,20 +44,17 @@ import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -76,12 +75,13 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.weaver.ast.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import com.jd.bluedragon.common.dto.jyexpection.request.AbnormalCallbackRequest;
+import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalCallbackResponse;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -278,6 +278,34 @@ public class QualityControlService {
         result.setCode(QualityControlResponse.CODE_OK);
         result.setMessage(QualityControlResponse.MESSAGE_OK);
         return result;
+    }
+
+
+    @JProfiler(jKey = "DMSWEB.QualityControlService.abnormalH5Callback",jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<AbnormalCallbackResponse> abnormalH5Callback(AbnormalCallbackRequest request) {
+        JdVerifyResponse<AbnormalCallbackResponse> jdVerifyResponse = new JdVerifyResponse<>();
+        jdVerifyResponse.toSuccess();
+        // 质控H5页面提报业务主键，与与simple_wp_abnormal_record主题消息体中的id字段一一对应，每次请求都是唯一的
+        String businessId = request.getBusinessId();
+        if (log.isInfoEnabled()) {
+            log.info("abnormalH5Callback|质控H5页面回调接口请求参数:businessId={},barCodeList={}", businessId, request.getBarCodeList());
+        }
+        // 校验参数
+        if (StringUtils.isBlank(businessId)) {
+            log.warn("abnormalH5Callback|质控H5页面回调接口请求参数中businessId为空:request={}", JsonHelper.toJsonMs(request));
+            jdVerifyResponse.toFail("businessId不能为空");
+            return jdVerifyResponse;
+        }
+        try {
+            // 设置缓存,格式为：key是业务主键，value是网格数据
+            cacheService.setEx(CacheKeyConstants.CACHE_KEY_ABNORMAL_H5_CALLBACK + businessId,
+                    JsonHelper.toJsonMs(request.getOperatorData()), Constants.NUMBER_ONE, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.error("abnormalH5Callback|质控H5页面回调接口设置缓存出现异常:request={}", JsonHelper.toJsonMs(request), e);
+            jdVerifyResponse.toError();
+        }
+        return jdVerifyResponse;
     }
 
     private Result<Void> checkCanSubmit(QualityControlRequest request){
@@ -531,13 +559,17 @@ public class QualityControlService {
 
         tWaybillStatus.setPackageCode(waybillCode); //异常 节点运单只接收运单维度
 
-        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
+        if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())
+                || AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
             // 透传操作流水主键
             sendDetail.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            // 透传网格数据
+            sendDetail.setOperatorData(request.getOperatorData());
             if (log.isInfoEnabled()) {
                 log.info("convert2AbnormalWayBills|配送异常生成主键:sendDetail={}", JsonHelper.toJson(sendDetail));
             }
             tWaybillStatus.setOperateFlowId(sendDetail.getOperateFlowId());
+            tWaybillStatus.setOperatorData(sendDetail.getOperatorData());
             // 发送操作轨迹
             jyOperateFlowService.sendOperateTrack(tWaybillStatus);
         }
@@ -635,6 +667,8 @@ public class QualityControlService {
         OperateBizSubTypeEnum operateBizSubTypeEnum = null;
         if (AbnormalBizSourceEnum.ABNORMAL_HANDLE.getType().equals(request.getBizSource())) {
             operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_HANDLE;
+        } else if (AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType().equals(request.getBizSource())) {
+            operateBizSubTypeEnum = OperateBizSubTypeEnum.ABNORMAL_REPORT_H5;
         }
 
         for (SendDetail sendDetail : sendDetails){
@@ -802,6 +836,8 @@ public class QualityControlService {
 
             String barCodes = qcReportJmqDto.getPackageNumber();
             String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+            // 从异常提报(新)质控H5页面回调接口的缓存中获取网格信息
+            OperatorData operatorData = getOperatorDataFromCache(qcReportJmqDto);
 
             for (String barCode : barCodeList) {
                 final QualityControlRequest qualityControlRequest = new QualityControlRequest();
@@ -826,6 +862,8 @@ public class QualityControlService {
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 // 设置菜单来源
                 qualityControlRequest.setBizSource(AbnormalBizSourceEnum.ABNORMAL_REPORT_H5.getType());
+                // 设置网格信息
+                qualityControlRequest.setOperatorData(operatorData);
 
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
@@ -849,6 +887,27 @@ public class QualityControlService {
             result.toFail("handleQcReportConsume exception " + e.getMessage());
         }
         return result;
+    }
+
+    private OperatorData getOperatorDataFromCache(QcReportJmqDto qcReportJmqDto) {
+        if (qcReportJmqDto.getId() == null) {
+            log.warn("handleQcReportConsume|异常上报ID为空:businessId={}", qcReportJmqDto.getId());
+            return null;
+        }
+        try {
+            // 从缓存中获取网格信息
+            String operatorDataStr = cacheService.get(CacheKeyConstants.CACHE_KEY_ABNORMAL_H5_CALLBACK + qcReportJmqDto.getId());
+            if (StringUtils.isBlank(operatorDataStr)) {
+                log.warn("handleQcReportConsume|根据异常上报ID查询网格缓存为空:businessId={}", qcReportJmqDto.getId());
+                return null;
+            }
+            // json字符串反序列为对象
+            OperatorData operatorData = JsonHelper.fromJson(operatorDataStr, OperatorData.class);
+            return operatorData;
+        } catch (Exception e) {
+            log.error("handleQcReportConsume|根据异常上报ID查询网格缓存出现异常:qcReportJmqDto={}", JsonHelper.toJsonMs(qcReportJmqDto), e);
+        }
+        return null;
     }
 
     private void QcfindGridAndSendMQ(QcReportJmqDto qcReportJmqDto) {

@@ -1,5 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.AbnormalCallbackRequest;
+import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalCallbackResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
@@ -31,5 +34,12 @@ public interface ExceptionHandleGatewayService {
      * @return
      */
     QualityControlResponse exceptionSubmit(QualityControlRequest request);
+
+    /**
+     * 异常提报(新)质控H5页面回调接口
+     * @param request 请求参数
+     * @return 回调结果
+     */
+    JdVerifyResponse<AbnormalCallbackResponse> abnormalH5Callback(AbnormalCallbackRequest request);
 
 }
