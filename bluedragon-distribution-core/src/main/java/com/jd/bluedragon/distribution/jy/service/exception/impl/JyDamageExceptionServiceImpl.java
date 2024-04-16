@@ -875,7 +875,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 case HANDOVER:
                     //2.直接下传
                     JyBizTaskExceptionCycleTypeEnum targetEnum = JyBizTaskExceptionCycleTypeEnum.DAMAGE_INNER_DIRECT_SEND_FINISH;
-                    if (Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(), req.getDamageType())) {
+                    if (Objects.equals(JyExceptionDamageEnum.DamagedTypeEnum.OUTSIDE_PACKING_DAMAGE.getCode(), oldEntity.getDamageType())) {
                         targetEnum = JyBizTaskExceptionCycleTypeEnum.DAMAGE_OUTER_DIRECT_SEND_FINISH;
                     }
                     this.finishFlow(req, entity, targetEnum);
