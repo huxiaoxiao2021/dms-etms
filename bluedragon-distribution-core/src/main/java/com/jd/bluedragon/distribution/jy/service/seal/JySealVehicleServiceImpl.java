@@ -610,8 +610,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(validSendCodeReq.getSendCode());
                     Integer endNodeId = commonDto.getData().getEndNodeId();
-                    if (SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(validSendCodeReq.getSealCarSource())
-                            && newsealVehicleService.isAirTransport(commonDto.getData())
+                    if (newsealVehicleService.isAirTransport(commonDto.getData())
                             && validSendCodeReq.getTransportCode().startsWith("T")) {
                         Integer createSiteCodeInSendCode = BusinessUtil.getCreateSiteCodeFromSendCode(validSendCodeReq.getSendCode());
                         Integer receiveSiteCodeInSendCode = BusinessUtil.getReceiveSiteCodeFromSendCode(validSendCodeReq.getSendCode());

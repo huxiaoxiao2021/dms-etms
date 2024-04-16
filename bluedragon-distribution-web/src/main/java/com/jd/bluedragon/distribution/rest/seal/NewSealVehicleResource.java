@@ -443,8 +443,7 @@ public class NewSealVehicleResource {
             if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
 
                 if (Constants.RESULT_SUCCESS == vtsDto.getCode()) { //JSF接口调用成功
-                    if (Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), null)
-                            && newsealVehicleService.isAirTransport(vtsDto.getData())
+                    if (newsealVehicleService.isAirTransport(vtsDto.getData())
                             && transportCode.startsWith("T")) {
 
                     } else if (SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode).equals(vtsDto.getData().getEndNodeId())) {  // 目标站点一致
@@ -1346,8 +1345,7 @@ public class NewSealVehicleResource {
 
         //2.是否已经封车: 同一个批次号，T开头空铁运力封几次都行 ， 非T空铁运力的只能封一次，不能重复封车 【空铁新增逻辑】
         CommonDto<Boolean> isSealed = null;
-        boolean flag = Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), sealCarSource)
-                && newsealVehicleService.isAirTransport(transportResourceDto)
+        boolean flag = newsealVehicleService.isAirTransport(transportResourceDto)
                 && transportResourceDto.getTransCode().startsWith("T");
         if (!flag) {
             //空铁摆渡T运力不校验批次号是否封车

@@ -1072,8 +1072,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
         //2.是否已经封车: 同一个批次号，T开头空铁运力封几次都行 ， 非T空铁运力的只能封一次，不能重复封车 【空铁新增逻辑】
         CommonDto<Boolean> isSealed = null;
-        boolean flag = Objects.equals(SealCarSourceEnum.FERRY_SEAL_CAR.getCode(), validSendCodeReq.getSealCarSource())
-                && this.isAirTransport(transportResourceDto)
+        boolean flag = this.isAirTransport(transportResourceDto)
                 && transportResourceDto.getTransCode().startsWith("T");
         //空铁摆渡T运力不校验批次号是否封车
         if (!flag) {
