@@ -1174,10 +1174,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         // 批次号没有运单发货记录，也没有物资发货记录，判定为不存在
-        if (JdResponse.CODE_OK.equals(result.getCode()) && !checkBatchCodeIsNewSealVehicle(batchCode)) {
-            log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
-            result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-            result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+        if (JdResponse.CODE_OK.equals(result.getCode())) {
+            if(StringUtils.isNotBlank(validSendCodeReq.getTransportCode()) && !validSendCodeReq.getTransportCode().startsWith("T") && !checkBatchCodeIsNewSealVehicle(batchCode)) {
+                log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
+                result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+            }
         }
         return result;
     }
@@ -1253,6 +1255,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCarDto
      * @return
      */
+    @Override
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vosBusinessWS.verifySealVehicleVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public CommonDto<String> verifySealVehicleVolume(SealCarDto sealCarDto){
         CommonDto<String> commonDto = vosBusinessWS.checkSealCarData(sealCarDto);
@@ -1265,6 +1268,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param vehicleNumber 车牌号
      * @return
      */
+    @Override
     @Deprecated
     public CommonDto<String> verifyVehicleJobByVehicleNumber(String transportCode,String vehicleNumber){
         VerifyVehicleJobDto dto = new VerifyVehicleJobDto();
@@ -1278,6 +1282,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCarPreRequest
      * @return
      */
+    @Override
     public CommonDto<String> newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest){
         VerifyVehicleJobDto dto = new VerifyVehicleJobDto();
         dto.setTransportCode(sealCarPreRequest.getTransportCode());
