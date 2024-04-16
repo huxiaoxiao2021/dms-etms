@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.abnormalorder;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -42,6 +43,12 @@ public class QcAbnormalReportReportConsumer extends MessageBaseConsumer {
             log.warn("QcAbnormalReportReportConsumer 消息转换失败！[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());
             return;
         }
+        // 因为质控那边数据状态发生变化会一直发送这个MQ，而我们只需要消费一次，所以只处理abnormalStatus = 1的数据，这个状态是刚创建
+        if (!String.valueOf(Constants.NUMBER_ONE).equals(qcReportJmqDto.getAbnormalStatus())) {
+            log.warn("QcAbnormalReportReportConsumer|非创建状态不需要消费[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());
+            return;
+        }
+
         //处理异常破损数据
         jyDamageExceptionService.dealExpDamageInfoByAbnormalReportOutCall(qcReportJmqDto);
         final Result<Void> checkMqParamResult = qualityControlService.checkMqParam(qcReportJmqDto);
