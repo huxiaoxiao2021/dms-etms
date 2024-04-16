@@ -2087,6 +2087,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String concurrencyCacheKey = String.format(JyCacheKeyConstants.JY_EXCEPTION_TASK_INTERCEPT_SITE_PACKAGE_CONCURRENCY_KEY, businessInterceptReport.getPackageCode(), businessInterceptReport.getSiteCode());
         try {
             if (!dmsConfigManager.getPropertyConfig().isInterceptExceptionSiteIdEnable(businessInterceptReport.getSiteCode())) {
+                logger.info("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload not enable {} {}", JsonHelper.toJson(businessInterceptReport), JsonHelper.toJsonMs(dmsConfigManager.getPropertyConfig().getInterceptExceptionSiteIdEnableList()));
                 return result;
             }
             if(!businessInterceptConfig.getExceptionJobNeedHandleInterceptTypeNodeList().contains(String.valueOf(businessInterceptReport.getInterceptType()))){
