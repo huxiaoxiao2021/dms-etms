@@ -403,7 +403,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
         JyExpDamageNoticCustomerMQ mq = new JyExpDamageNoticCustomerMQ();
 
         mq.setDealType(ASCPContants.DEAL_TYPE);
-        mq.setCodeInfo(entity.getBarCode());
+        mq.setCodeInfo(WaybillUtil.getWaybillCode(entity.getBarCode()));
         mq.setCodeType(ASCPContants.CODE_TYPE);
         mq.setExptCreateTime(DateHelper.formatDateTime(entity.getCreateTime()));
         mq.setExptCreator(entity.getCreateUserErp());
