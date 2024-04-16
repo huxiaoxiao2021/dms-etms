@@ -847,6 +847,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             reFillUnloadScanContext(unloadScanContextDto, verifyResponse);
             
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
+                deleteScanedCache(unloadScanContextDto);
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
                 return false;

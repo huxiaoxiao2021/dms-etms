@@ -108,6 +108,9 @@ import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
+import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
 @Service("jyCollectPackageService")
 @Slf4j

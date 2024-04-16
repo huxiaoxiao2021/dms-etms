@@ -3052,7 +3052,7 @@ public class WaybillResource {
 			result.setData(resultObject.getData());
 			return result;
 		} catch (Exception e) {
-			log.info("查询B商家订单异常 getWaybillPackageList deliveryId={}", deliveryId, e);
+			log.error("查询B商家订单异常 getWaybillPackageList deliveryId={}", deliveryId, e);
 			result.error("查询B商家订单后端出现异常-getWaybillPackageList，请联系分拣小秘处理！");
 			return result;
 		}
