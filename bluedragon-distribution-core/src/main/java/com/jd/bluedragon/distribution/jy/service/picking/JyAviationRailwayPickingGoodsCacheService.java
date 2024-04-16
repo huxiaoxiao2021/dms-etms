@@ -45,7 +45,7 @@ public class JyAviationRailwayPickingGoodsCacheService {
     private static final String LOCK_PICKING_SEND_BATCH_CODE_DELETE_PRE = "lock:picking:send:batch:code:delete:%s:%s";
     private static final Integer LOCK_PICKING_SEND_BATCH_CODE_DELETE_TIMEOUT_SECONDS = 120;
     //异常上报
-    private static final String CACHE_PICKING_EXCEPTION_SUBMIT_PRE = "cache:picking:exception:submit%s:%s";
+    private static final String CACHE_PICKING_EXCEPTION_SUBMIT_PRE = "cache:picking:exception:submit:%s";
     private static final Integer CACHE_PICKING_EXCEPTION_SUBMIT_TIMEOUT_HOURS = 24;
 
 
