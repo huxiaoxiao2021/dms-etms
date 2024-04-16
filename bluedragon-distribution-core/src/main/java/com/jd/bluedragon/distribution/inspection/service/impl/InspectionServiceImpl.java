@@ -1251,6 +1251,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			if(vo.getOperatorData() != null) {
 				map.put("operatorDataJson", JsonHelper.toJson(vo.getOperatorData()));
 			}
+			if (StringUtils.isNotEmpty(vo.getVehicleNumber())) {
+				map.put("vehicleNumber", vo.getVehicleNumber());
+			}
 			if(BusinessUtil.isBoxcode(barCode)){
 				//箱号
 				map.put("packOrBox",barCode);
