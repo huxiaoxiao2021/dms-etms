@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.request;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.StevedoringMerchant;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
@@ -98,6 +99,11 @@ public class SendScanRequest implements Serializable {
      * 前置下一流向
      */
     private Long preNextSiteCode;
+
+    /**
+     * 装卸商信息
+     */
+    private StevedoringMerchant stevedoringMerchant;
 
     public User getUser() {
         return user;
@@ -249,5 +255,13 @@ public class SendScanRequest implements Serializable {
 
     public void setPost(String post) {
         this.post = post;
+    }
+
+    public StevedoringMerchant getStevedoringMerchant() {
+        return stevedoringMerchant;
+    }
+
+    public void setStevedoringMerchant(StevedoringMerchant stevedoringMerchant) {
+        this.stevedoringMerchant = stevedoringMerchant;
     }
 }
