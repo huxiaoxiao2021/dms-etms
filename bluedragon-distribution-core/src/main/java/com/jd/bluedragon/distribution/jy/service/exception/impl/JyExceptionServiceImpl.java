@@ -2462,7 +2462,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptDisposeRecord.getSiteCode().longValue());
             // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
             // 0重量拦截的，待处理状态，需要置为完结状态
-            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            if(!Objects.equals(businessInterceptDisposeRecord.getDisposeNode(), businessInterceptConfigHelper.getInterceptDisposeNodeFinishWeight())){
+                jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            }
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
 
             if (currentSiteSamePackageTaskExist != null) {
