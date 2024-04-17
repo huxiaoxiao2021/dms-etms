@@ -2541,6 +2541,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void finishInterceptTaskSuccess(JyBizTaskExceptionEntity taskExist, BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Date currentDate, Integer targetProcessStatus){
+        logger.info("finishInterceptTaskSuccess {}", taskExist.getBarCode());
         if (targetProcessStatus == null) {
             targetProcessStatus = JyBizTaskExceptionProcessStatusEnum.DONE.getCode();
         }
@@ -2552,6 +2553,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizTaskExceptionUpdate.setUpdateUserName(businessInterceptDisposeRecord.getDisposeUserName());
         bizTaskExceptionUpdate.setUpdateTime(new Date(businessInterceptDisposeRecord.getDisposeTime()));
         jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
+        logger.info("finishInterceptTaskSuccess jyBizTaskExceptionDao_updateByBizId {}", taskExist.getBarCode());
         // 3.2 更新明细
         JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
         jyExceptionInterceptDetail.setBizId(taskExist.getBizId());
@@ -2566,6 +2568,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetail.setUpdateUserName(jyExceptionInterceptDetail.getDisposeUserName());
         jyExceptionInterceptDetail.setUpdateTime(bizTaskExceptionUpdate.getUpdateTime());
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
+        logger.info("finishInterceptTaskSuccess jyExceptionInterceptDetailDao_updateByBizId {}", taskExist.getBarCode());
 
         // 3.3 插入流水记录
         logger.info("finishInterceptTaskSuccess recordLog {}", JsonHelper.toJsonMs(bizTaskExceptionUpdate));
