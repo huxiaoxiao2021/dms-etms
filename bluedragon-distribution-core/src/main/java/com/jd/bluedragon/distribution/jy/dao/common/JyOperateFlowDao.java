@@ -48,4 +48,13 @@ public class JyOperateFlowDao extends BaseDao<JyOperateFlowDto> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
+    /**
+     * 根据分区键和id查询一条记录
+     * @param entity
+     * @return
+     */
+    public JyOperateFlowDto findByOperateBizKeyAndId(JyOperateFlowDto entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByOperateBizKeyAndId", entity);
+    }
+
 }

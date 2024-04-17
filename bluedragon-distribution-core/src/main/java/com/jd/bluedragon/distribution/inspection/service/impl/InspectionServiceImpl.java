@@ -411,6 +411,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		addOperationLog(inspection, methodName);
         JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
         inspectionFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.INSPECTION.getCode());
+		inspectionFlowMq.setId(jyOperateFlowService.createOperateFlowId());
 		jyOperateFlowService.sendMq(inspectionFlowMq);
 		cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
 				.createCenConfirmByInspection(inspection));

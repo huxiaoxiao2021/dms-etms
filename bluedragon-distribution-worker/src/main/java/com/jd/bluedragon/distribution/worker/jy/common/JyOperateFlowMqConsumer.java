@@ -1,7 +1,9 @@
 
 package com.jd.bluedragon.distribution.worker.jy.common;
 
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 分拣操作流水mq消费
  *
@@ -28,67 +32,66 @@ import com.jd.ump.profiler.proxy.Profiler;
 public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(JyOperateFlowMqConsumer.class);
+
+    /**
+     * 操作流水锁前缀
+     */
+    private static final String JY_OPERATE_FLOW_PREFIX = "jy:operate:flow:";
     
     @Autowired
 	@Qualifier("jyOperateFlowService")
     private JyOperateFlowService jyOperateFlowService;
-    
+
+    @Autowired
+    private JimDbLock jimDbLock;
+
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("jyOperateFlowMqConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
+
+        if (!JsonHelper.isJsonString(message.getText())) {
+            logger.warn("JyOperateFlowMq消息体非JSON格式，内容为【{}】", message.getText());
+            return;
+        }
+        JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
+        if (logger.isInfoEnabled()) {
+            logger.info("JyOperateFlowMqConsumer:消息text={},jyOperateFlowMqData={}", message.getText(), JsonHelper.toJsonMs(jyOperateFlowMqData));
+        }
+        if (jyOperateFlowMqData == null) {
+            logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
+            return;
+        }
+        JyOperateFlowDto jyOperateFlowDto = BeanConverter.convertToJyOperateFlowDto(jyOperateFlowMqData);
+        if (logger.isInfoEnabled()) {
+            logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
+        }
+
+        // 操作流水表主键
+        Long id = jyOperateFlowDto.getId();
+        // 操作流水锁前缀
+        String mutexKey = JY_OPERATE_FLOW_PREFIX + id;
+        // 加锁防止并发问题
+        if (!jimDbLock.lock(mutexKey, String.valueOf(id), Constants.CONSTANT_NUMBER_TEN, TimeUnit.SECONDS)) {
+            logger.warn("操作流水保存正在处理中,稍后重试:jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
+            throw new JyBizException("id:" + id + "-操作流水保存正在处理中,稍后重试");
+        }
+
         try {
-            if (!JsonHelper.isJsonString(message.getText())) {
-                logger.warn("JyOperateFlowMq消息体非JSON格式，内容为【{}】", message.getText());
+            // 根据分区键和id查询一条记录
+            if (jyOperateFlowService.findByOperateBizKeyAndId(jyOperateFlowDto) != null) {
+                // 如果不为空则为重复消费
+                logger.warn("操作流水重复消费忽略:jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
                 return;
             }
-            JyOperateFlowMqData jyOperateFlowMqData = JsonHelper.fromJson(message.getText(), JyOperateFlowMqData.class);
-            if (logger.isInfoEnabled()) {
-                logger.info("JyOperateFlowMqConsumer:消息text={},jyOperateFlowMqData={}", message.getText(), JsonHelper.toJsonMs(jyOperateFlowMqData));
-            }
-            if (jyOperateFlowMqData == null) {
-                logger.warn("JyOperateFlowMq消息内容无效，内容为【{}】", message.getText());
-                return;
-            }
-            JyOperateFlowDto jyOperateFlowDto = BeanConverter.convertToJyOperateFlowDto(jyOperateFlowMqData);
-            if (logger.isInfoEnabled()) {
-                logger.info("JyOperateFlowMqConsumer:实体jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
-            }
+            // 如果查不到则新增
             jyOperateFlowService.insert(jyOperateFlowDto);
         } catch (Exception e) {
-            // 由于mq底层机制导致消息可能会重复消费，一直报主键冲突异常。如果用幂等方式解决可能会影响性能。此处采用只记录日志不重试的方式
-            if (isConstraintViolationException(e, message.getText())) {
-                logger.warn("JyOperateFlowMq-重复消费,消息体:{}", message.getText());
-                return;
-            }
             Profiler.functionError(info);
             logger.error("JyOperateFlowMq-消费异常-e, 消息体:{}", message.getText(), e);
             throw e;
         } finally {
+            jimDbLock.releaseLock(mutexKey, String.valueOf(id));
             Profiler.registerInfoEnd(info);
         }
-    }
-
-    /**
-     * 判断异常是否是由于MySQLIntegrityConstraintViolationException引起
-     */
-    private boolean isConstraintViolationException(Exception e, String messageText) {
-        try {
-            // 为了避免堆栈太深造成死循环，此处加了次数限制。
-            int attempts = 0;
-            // 由于此异常可能是多种原因导致的，所以此处需要继续判断caused by的异常类型是否为主键冲突异常
-            Throwable rootCause = e;
-            // 如果caused by不为空，并且没有超过最大次数10
-            while (rootCause.getCause() != null && attempts < Constants.CONSTANT_NUMBER_TEN) {
-                rootCause = rootCause.getCause();
-                // 如果是主键冲突异常则直接打印日志，不重试
-                if (rootCause instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException) {
-                    return true;
-                }
-                attempts ++;
-            }
-        } catch (Exception ex) {
-            logger.error("JyOperateFlowMqConsumer|判断是否是主键冲突异常时出现错误:messageText={},ex=", messageText, ex);
-        }
-        return false;
     }
 }
