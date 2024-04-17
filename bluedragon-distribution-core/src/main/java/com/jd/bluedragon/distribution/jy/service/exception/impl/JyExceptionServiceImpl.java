@@ -1443,7 +1443,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 logger.info("客服回传其他状态不做处理!");
                 return;
         }
-        // 更新异常任务表状态 todo
+        // 更新异常任务表状态
         //updateExceptionResult(jyExCustomerNotifyMQ.getBusinessId(), jyExCustomerNotifyMQ.getOperateErp(), new Date(), true);
     }
 
@@ -2464,7 +2464,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             jyBizTaskExceptionQuery.setSiteCode(businessInterceptDisposeRecord.getSiteCode().longValue());
             // 非0重量拦截类型的，待领取状态，不置为完结状态，只有处理中的才置为完结状态
             // 0重量拦截的，待处理状态，需要置为完结状态
-            jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            if(!Objects.equals(businessInterceptDisposeRecord.getDisposeNode(), businessInterceptConfigHelper.getInterceptDisposeNodeFinishWeight())){
+                jyBizTaskExceptionQuery.setExcludeStatusList(new ArrayList<>(Arrays.asList(JyExpStatusEnum.COMPLETE.getCode())));
+            }
             final JyBizTaskExceptionEntity currentSiteSamePackageTaskExist = jyBizTaskExceptionDao.selectOneByCondition(jyBizTaskExceptionQuery);
 
             if (currentSiteSamePackageTaskExist != null) {
@@ -2480,7 +2482,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     } else {
                         // 0重量拦截的，待处理状态，需要置为完结状态
                         if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
-                            List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
+                            List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode(), JyExpStatusEnum.COMPLETE.getCode()));
                             if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                                 // 完结已有任务
                                 this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
@@ -2541,6 +2543,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private void finishInterceptTaskSuccess(JyBizTaskExceptionEntity taskExist, BusinessInterceptDisposeRecord businessInterceptDisposeRecord, Date currentDate, Integer targetProcessStatus){
+        logger.info("finishInterceptTaskSuccess {}", taskExist.getBarCode());
         if (targetProcessStatus == null) {
             targetProcessStatus = JyBizTaskExceptionProcessStatusEnum.DONE.getCode();
         }
@@ -2550,8 +2553,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizTaskExceptionUpdate.setProcessingStatus(targetProcessStatus);
         bizTaskExceptionUpdate.setUpdateUserErp(businessInterceptDisposeRecord.getDisposeUser());
         bizTaskExceptionUpdate.setUpdateUserName(businessInterceptDisposeRecord.getDisposeUserName());
-        bizTaskExceptionUpdate.setUpdateTime(new Date(businessInterceptDisposeRecord.getDisposeNode()));
+        bizTaskExceptionUpdate.setUpdateTime(new Date(businessInterceptDisposeRecord.getDisposeTime()));
         jyBizTaskExceptionDao.updateByBizId(bizTaskExceptionUpdate);
+        logger.info("finishInterceptTaskSuccess jyBizTaskExceptionDao_updateByBizId {}", taskExist.getBarCode());
         // 3.2 更新明细
         JyExceptionInterceptDetail jyExceptionInterceptDetail = new JyExceptionInterceptDetail();
         jyExceptionInterceptDetail.setBizId(taskExist.getBizId());
@@ -2564,10 +2568,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyExceptionInterceptDetail.setUpdateUserId(jyExceptionInterceptDetail.getDisposeUserId());
         jyExceptionInterceptDetail.setUpdateUserCode(jyExceptionInterceptDetail.getDisposeUserCode());
         jyExceptionInterceptDetail.setUpdateUserName(jyExceptionInterceptDetail.getDisposeUserName());
-        jyExceptionInterceptDetail.setUpdateTime(currentDate);
+        jyExceptionInterceptDetail.setUpdateTime(bizTaskExceptionUpdate.getUpdateTime());
         jyExceptionInterceptDetailDao.updateByBizId(jyExceptionInterceptDetail);
+        logger.info("finishInterceptTaskSuccess jyExceptionInterceptDetailDao_updateByBizId {}", taskExist.getBarCode());
 
         // 3.3 插入流水记录
+        logger.info("finishInterceptTaskSuccess recordLog {}", JsonHelper.toJsonMs(bizTaskExceptionUpdate));
         recordLog(getJyBizTaskExceptionCycleType(businessInterceptDisposeRecord, targetProcessStatus), bizTaskExceptionUpdate);
     }
 
