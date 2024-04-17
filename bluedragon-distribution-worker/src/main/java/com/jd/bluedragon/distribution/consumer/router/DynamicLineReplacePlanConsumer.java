@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.router;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.router.IRouterDynamicLineReplacePlanService;
 import com.jd.bluedragon.distribution.router.dto.DynamicLineReplacePlanMq;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
  * @time 2024-04-01 18:13:55 周一
  */
 @Service("dynamicLineReplacePlanConsumer")
-public class DynamicLineReplacePlanConsumer extends MessageBaseConsumer {
+public class DynamicLineReplacePlanConsumer extends MessageBaseWithoutUATConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(DynamicLineReplacePlanConsumer.class);
 
