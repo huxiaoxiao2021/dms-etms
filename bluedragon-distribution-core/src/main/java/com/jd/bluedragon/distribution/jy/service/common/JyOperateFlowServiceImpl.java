@@ -84,6 +84,20 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		return jyOperateFlowDao.insert(data);
 	}
 
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.findByOperateBizKeyAndId", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JyOperateFlowDto findByOperateBizKeyAndId(JyOperateFlowDto data) {
+		if (data == null || StringUtils.isBlank(data.getOperateBizKey())) {
+			logger.warn("jyOperateFlowService-findByOperateBizKeyAndId-fail! operateBizKey为空！");
+			return null;
+		}
+		if (data.getId() == null || Constants.LONG_ZERO.equals(data.getId())) {
+			logger.warn("jyOperateFlowService-findByOperateBizKeyAndId-fail! id为空或0！");
+			return null;
+		}
+		return jyOperateFlowDao.findByOperateBizKeyAndId(data);
+	}
+
 	@Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMq", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public int sendMq(JyOperateFlowMqData mqData) {
