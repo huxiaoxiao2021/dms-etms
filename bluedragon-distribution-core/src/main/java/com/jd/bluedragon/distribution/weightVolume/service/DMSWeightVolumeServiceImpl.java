@@ -824,8 +824,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         InvokeResult<Void> result = new InvokeResult<>();
         result.success();
 
+        // 获取运单信息
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        BigWaybillDto bigWaybill = getWaybillBaseEntity(waybillCode);
+        if (bigWaybill == null || bigWaybill.getWaybill() == null || bigWaybill.getWaybill().getWaybillSign() == null) {
+            logger.info("未获取运单信息{}", waybillCode);
+            return result;
+        }
+        
         // 拦截开关
-        if(!checkWaybillNotZeroWeightInterceptSwitchOn(entity.getOperateSiteCode())){
+        if(!checkWaybillNotZeroWeightInterceptSwitchOn(entity.getOperateSiteCode(), waybillCode, bigWaybill)){
             return result;
         }
 
@@ -844,14 +852,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         // 根据erp判断当前操作人员所属机构是否为分拣场地人员
         if (checkErpBindingSite(operatorCode, barCode, sourceCode)) {
             logger.info("{}操作人员非分拣场地人员", barCode);
-            return result;
-        }
-
-        // 获取运单信息
-        String waybillCode = WaybillUtil.getWaybillCode(barCode);
-        BigWaybillDto bigWaybill = getWaybillBaseEntity(waybillCode);
-        if (bigWaybill == null || bigWaybill.getWaybill() == null || bigWaybill.getWaybill().getWaybillSign() == null) {
-            logger.info("未获取运单信息{}", waybillCode);
             return result;
         }
 
@@ -892,8 +892,25 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     }
 
     @Override
-    public boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode) {
+    public boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode, String waybillCode, BigWaybillDto bigWaybillDto) {
         String waybillZeroWeightInterceptSites = dmsConfigManager.getPropertyConfig().getWaybillZeroWeightInterceptSites();
+        if(bigWaybillDto == null){
+            bigWaybillDto = getWaybillBaseEntity(waybillCode);
+        }
+        if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
+            logger.warn("运单号:{}无运单信息!", waybillCode);
+            return false;
+        }
+        if(BusinessUtil.isDirectDeliverySort(bigWaybillDto.getWaybill().getWaybillSign())){
+            // 直送分拣揽收单跳过拦截校验，直接上传称重（特殊场景）
+            Integer pickupSiteId = bigWaybillDto.getWaybillPickup() == null ? null : bigWaybillDto.getWaybillPickup().getPickupSiteId();
+            if(pickupSiteId != null){
+                BaseStaffSiteOrgDto packupSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
+                boolean directSortCollect = packupSite != null
+                        && Objects.equals(packupSite.getDmsId() == null ? pickupSiteId : packupSite.getDmsId(), operateSiteCode);
+                return !directSortCollect;
+            }
+        }
         return Objects.equals(waybillZeroWeightInterceptSites, STR_ALL)
                 || Arrays.stream(waybillZeroWeightInterceptSites.split(SEPARATOR_COMMA))
                 .map(Integer::valueOf)

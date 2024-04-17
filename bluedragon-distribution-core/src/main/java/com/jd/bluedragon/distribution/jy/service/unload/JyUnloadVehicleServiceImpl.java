@@ -847,6 +847,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             reFillUnloadScanContext(unloadScanContextDto, verifyResponse);
             
             if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
+                deleteScanedCache(unloadScanContextDto);
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
                 return false;
@@ -1267,6 +1268,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private UnloadScanCallbackReqDto transferDto(UnloadScanRequest request){
         UnloadScanCallbackReqDto callbackReqDto = new UnloadScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
+        com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.UnloadScanTypeEnum.getEnumByCode(request.getScanType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
+        }
         callbackReqDto.setScanType(request.getScanType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1276,6 +1281,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             callbackReqDto.setUserName(request.getUser().getUserName());
         }
         callbackReqDto.setOperateTime(new Date());
+        if(request.getStevedoringMerchant() != null){
+            callbackReqDto.setMerchantCode(request.getStevedoringMerchant().getMerchantCode());
+            callbackReqDto.setMerchantName(request.getStevedoringMerchant().getMerchantName());
+        }
         return callbackReqDto;
     }
 

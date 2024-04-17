@@ -98,6 +98,11 @@ public class InspectionPackageMQ implements Serializable {
      */
     private Long operateFlowId;
 
+    /**
+     * 车牌号
+     */
+    private String vehicleNumber;
+
 
     public String getPackageCode() {
         return packageCode;
@@ -249,5 +254,13 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setOperateFlowId(Long operateFlowId) {
         this.operateFlowId = operateFlowId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 }

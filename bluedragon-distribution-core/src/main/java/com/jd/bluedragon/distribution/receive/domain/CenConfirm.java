@@ -86,6 +86,16 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
 	 */
 	private Long operateFlowId;
 
+	/**
+	 * 操作来源
+	 */
+	private Integer bizSource;
+
+	/**
+	 * 车牌号
+	 */
+	private String vehicleNumber;
+
 	public CenConfirm() {
 		super();
 	}
@@ -315,7 +325,23 @@ public class CenConfirm implements java.io.Serializable,Comparable<CenConfirm>{
         }
     }
 
-    public static  class Builder{
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
+	}
+
+	public String getVehicleNumber() {
+		return vehicleNumber;
+	}
+
+	public void setVehicleNumber(String vehicleNumber) {
+		this.vehicleNumber = vehicleNumber;
+	}
+
+	public static  class Builder{
 		/*Required parameters*/
 	    /*包裹号*/
 	    private String packageBarcode;
