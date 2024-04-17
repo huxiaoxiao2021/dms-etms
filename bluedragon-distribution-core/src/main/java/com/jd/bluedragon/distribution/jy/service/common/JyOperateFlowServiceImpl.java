@@ -246,6 +246,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			// 填充操作信息对象
 			OperatorData operatorData = request.getOperatorData();
 			jyOperateFlowData.setOperatorData(operatorData);
+			unsealFlowMq.setId(createOperateFlowId());
 			// 业务子类型
 			unsealFlowMq.setOperateBizSubType(request.getBizType());
 			sendMq(unsealFlowMq);
@@ -387,6 +388,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			JyOperateFlowMqData weightVolumeFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
 			// 业务子类型
 			weightVolumeFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			weightVolumeFlowMq.setId(createOperateFlowId());
 			sendMq(weightVolumeFlowMq);
 		} catch (Exception e) {
 			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJsonMs(entity), e);
