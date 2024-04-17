@@ -2478,7 +2478,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     } else {
                         // 0重量拦截的，待处理状态，需要置为完结状态
                         if (Objects.equals(exceptionInterceptDetailExist.getInterceptType(), BusinessInterceptConfig.WITHOUT_WEIGHT_INTERCEPT_TYPE)) {
-                            List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode()));
+                            List<Integer> zeroWeightInterceptTypeNeedChangeTaskStatusList = new ArrayList<>(Arrays.asList(JyExpStatusEnum.TO_PROCESS.getCode(), JyExpStatusEnum.PROCESSING.getCode(), JyExpStatusEnum.COMPLETE.getCode()));
                             if (zeroWeightInterceptTypeNeedChangeTaskStatusList.contains(currentSiteSamePackageTaskExist.getStatus())) {
                                 // 完结已有任务
                                 this.finishInterceptTaskSuccess(currentSiteSamePackageTaskExist, businessInterceptDisposeRecord, currentDate);
