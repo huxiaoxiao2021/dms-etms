@@ -1,9 +1,9 @@
 
 package com.jd.bluedragon.distribution.worker.jy.common;
 
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.jim.cli.Cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +43,7 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
     private JyOperateFlowService jyOperateFlowService;
 
     @Autowired
-    @Qualifier("redisClientOfJy")
-    private Cluster redisClientOfJy;
+    private JimDbLock jimDbLock;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -71,8 +70,8 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
         Long id = jyOperateFlowDto.getId();
         // 操作流水锁前缀
         String mutexKey = JY_OPERATE_FLOW_PREFIX + id;
-        // 运单加锁防止并发问题
-        if (!redisClientOfJy.set(mutexKey, Constants.EMPTY_FILL, Constants.CONSTANT_NUMBER_ONE, TimeUnit.MINUTES, false)) {
+        // 加锁防止并发问题
+        if (!jimDbLock.lock(mutexKey, String.valueOf(id), Constants.CONSTANT_NUMBER_TEN, TimeUnit.SECONDS)) {
             logger.warn("操作流水保存正在处理中,稍后重试:jyOperateFlowDto={}", JsonHelper.toJsonMs(jyOperateFlowDto));
             throw new JyBizException("id:" + id + "-操作流水保存正在处理中,稍后重试");
         }
@@ -91,7 +90,7 @@ public class JyOperateFlowMqConsumer extends MessageBaseConsumer {
             logger.error("JyOperateFlowMq-消费异常-e, 消息体:{}", message.getText(), e);
             throw e;
         } finally {
-            redisClientOfJy.del(mutexKey);
+            jimDbLock.releaseLock(mutexKey, String.valueOf(id));
             Profiler.registerInfoEnd(info);
         }
     }
