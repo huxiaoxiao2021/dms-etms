@@ -100,6 +100,7 @@ public class ShapeCalculateHandler implements Handler<WaybillPrintContext,JdResu
 		List<PackageDetailDTO> packageDetailDtoList = new ArrayList<>();
 		PackageDetailDTO detailDTO = new PackageDetailDTO();
 		packageDetailDtoList.add(detailDTO);
+		dto.setPackageDetailDtoList(packageDetailDtoList);
 
 		//拼装详细入参
 		dto.setWaybillCode(waybillCode);
