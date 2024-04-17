@@ -128,7 +128,7 @@ public class RouterDynamicLineReplacePlanServiceImpl implements IRouterDynamicLi
     }
 
     private String getUniqueCacheKey(DynamicLineReplacePlanMq req) {
-        return String.format(CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK, String.format("%s_%s_%s_%s_%s", req.getVersionId(), req.getPushTime(), req.getStartNodeCode(), req.getOldEndNodeCode(), req.getNewEndNodeCode()));
+        return String.format(CacheKeyConstants.CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK, String.format("%s_%s_%s", req.getEnableTime().getTime(), req.getOldPlanLineCode(), req.getNewPlanLineCode()));
     }
 
     private RouterDynamicLineReplacePlanQuery getRouterDynamicLineReplacePlanQuery(DynamicLineReplacePlanMq dynamicLineReplacePlanMq, DynamicLineReplacePlanMqContext dynamicLineReplacePlanMqContext) {
