@@ -2809,6 +2809,11 @@
 			<groupId>com.jdl.sorting.tech</groupId>
 			<artifactId>tenant-jsf-filter-sdk</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.jd.lbcc.rule</groupId>
+			<artifactId>lbcc-rule-api</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>
