@@ -332,11 +332,6 @@ public class TextConstants {
     public static final String COMMON_TEXT_MEDICINE_COLD = "医冷零担";
 
     /**
-     *
-     */
-    public static final String SPECIAL_MARK_NC_TEXT ="NC";
-
-    /**
      * 药
      */
     public static final String COMMON_TEXT_MEDICINE = "药";
