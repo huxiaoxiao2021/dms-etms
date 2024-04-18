@@ -2525,4 +2525,9 @@ public class Constants {
      * 人工验货全程跟踪话术
      */
     public static final String TRACE_INSPECTION_REMARK = "%s场地已验货";
+    /**
+     * 弃件暂存岗位限制配置
+     */
+    public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
+
 }
