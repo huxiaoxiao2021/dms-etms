@@ -681,7 +681,8 @@
                 <entry key="100311"  value-ref="siteTerminalPrintCompleteHandler"/>
 				<entry key="100317" value-ref="plateReprintCompleteHandler"/>
 				<entry key="100321" value-ref="siteTerminalPrintCompleteHandler"/>
-            </map>
+				<entry key="100322" value-ref="siteTerminalPrintCompleteHandler"/>
+			</map>
         </property>
     </bean>
 
