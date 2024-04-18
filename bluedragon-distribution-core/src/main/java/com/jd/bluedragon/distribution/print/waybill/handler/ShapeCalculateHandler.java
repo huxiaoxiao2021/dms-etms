@@ -93,7 +93,7 @@ public class ShapeCalculateHandler implements Handler<WaybillPrintContext,JdResu
 
 		//获取托托寄物
 		String consignmentName = StringUtils.isBlank(context.getRequest().getConsignWare()) ?
-				waybillQueryManager.getConsignmentNameFromWaybillExt(waybillDto.getWaybill().getWaybillExt()):context.getRequest().getConsignWare();
+				getConsignWare(waybillDto) :context.getRequest().getConsignWare();
 
 		//组装入参结构体
 		PackageTypeQueryDTO dto = new PackageTypeQueryDTO();
@@ -128,5 +128,16 @@ public class ShapeCalculateHandler implements Handler<WaybillPrintContext,JdResu
 
 
 		return dto;
+	}
+
+	/**
+	 * 获取寄托物名称
+	 * @return
+	 */
+	private static String getConsignWare(BigWaybillDto waybillDto) {
+		if (waybillDto.getWaybill().getWaybillExt() == null) {
+			return "";
+		}
+		return waybillDto.getWaybill().getWaybillExt().getConsignWare();
 	}
 }

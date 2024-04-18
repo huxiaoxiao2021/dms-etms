@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jddl.common.utils.thread.NamedThreadFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -39,7 +41,8 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyTest {
-
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5,5,1,
+            TimeUnit.MINUTES,new LinkedBlockingDeque<>(),new NamedThreadFactory("jytest"));
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
@@ -96,8 +99,7 @@ public class JyTest {
 
     @Test
     public void testChangeStatus(){
-
-        new Thread(new Runnable() {
+        threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
@@ -105,8 +107,9 @@ public class JyTest {
                 entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
                 jyBizTaskUnloadVehicleService.changeStatus(entity);
             }
-        },"LD1").start();
-        new Thread(new Runnable() {
+        });
+
+        threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 JyBizTaskUnloadVehicleEntity entity2 = new JyBizTaskUnloadVehicleEntity();
@@ -114,8 +117,7 @@ public class JyTest {
                 entity2.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
                 jyBizTaskUnloadVehicleService.changeStatus(entity2);
             }
-        },"LD2").start();
-
+        });
         System.out.println("end");
     }
 
