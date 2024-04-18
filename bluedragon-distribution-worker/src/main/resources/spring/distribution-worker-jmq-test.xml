@@ -810,5 +810,9 @@
     <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
     </jmq:consumer>
+    <!-- 拣运封车批次  -->
+    <jmq:consumer id="jmq.JySealCarBatchCodesConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jySealCarBatchCodes}" listener="jySealCarBatchCodesConsume"/>
+    </jmq:consumer>
 </beans>
 
