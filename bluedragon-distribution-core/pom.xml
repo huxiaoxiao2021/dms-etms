@@ -615,7 +615,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.7.4-HOTFIX-T8</version>
+			<version>jsf-1.7.7-HOTFIX-T2</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -1723,6 +1723,10 @@
                     <artifactId>log4j-api</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>jsf</artifactId>
+				</exclusion>
             </exclusions>
 		</dependency>
 
@@ -2223,6 +2227,12 @@
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-sdk</artifactId>
 			<version>${workbench-report-sdk.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>jsf</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.tys</groupId>
