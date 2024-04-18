@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 import static com.jd.bluedragon.Constants.RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF;
-import static com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSendArriveAndBookConsumer.isSiteTypeValid;
+import static com.jd.bluedragon.utils.BusinessHelper.isSiteTypeValid;
 
 /**
  * 物资循环操作记录

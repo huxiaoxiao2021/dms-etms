@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jd.bluedragon.Constants.TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF;
+import static com.jd.bluedragon.utils.BusinessHelper.isSiteTypeValid;
 
 /**
  * 运输系统-围栏到车后发送包裹到达消息
@@ -195,15 +196,5 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
             return false;
         }
         return true;
-    }
-
-    public static boolean isSiteTypeValid(AutoInspectionSiteTypeConf siteTypeConf, BaseStaffSiteOrgDto baseSite) {
-        return isTypeListValid(siteTypeConf.getSortTypeList(), baseSite.getSortType()) ||
-                isTypeListValid(siteTypeConf.getSortSubTypeList(), baseSite.getSortSubType()) ||
-                isTypeListValid(siteTypeConf.getSortThirdTypeList(), baseSite.getSortThirdType());
-    }
-
-    public static boolean isTypeListValid(List<Integer> typeList, Integer siteType) {
-        return CollectionUtils.isNotEmpty(typeList) && typeList.contains(siteType);
     }
 }
