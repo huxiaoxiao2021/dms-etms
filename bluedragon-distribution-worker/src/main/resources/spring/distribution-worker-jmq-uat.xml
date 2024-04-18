@@ -498,6 +498,10 @@
     <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
     </jmq:consumer>
+    <!-- 换单打印包裹纬度数据消费 -->
+    <jmq:consumer id="jmq.waybillExchangePrintPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybillExchangePrintPackage}" listener="waybillExchangePrintPackageConsumer"/>
+    </jmq:consumer>
 
     <!-- 作业工作台自动关闭任务 -->
     <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
