@@ -8,11 +8,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionDamageE
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.Consumable;
 import com.jd.bluedragon.distribution.jy.dto.JyExceptionDamageDto;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionDamageEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExpCustomerReturnMQ;
-import com.jd.bluedragon.distribution.jy.exception.JyExpWaybillDeliveryDto;
+import com.jd.bluedragon.distribution.print.domain.WaybillExchangePrintPackageDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
-import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
+import com.jd.dms.java.utils.sdk.base.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -98,4 +97,11 @@ public interface JyDamageExceptionService {
 
 
     JdCResponse<List<Consumable>> getConsumables();
+
+    /**
+     * 处理换单打印后的数据
+     * @param printDto
+     * @return
+     */
+    Result<Boolean> dealWaybillExchangePrintPackage(WaybillExchangePrintPackageDto printDto);
 }
