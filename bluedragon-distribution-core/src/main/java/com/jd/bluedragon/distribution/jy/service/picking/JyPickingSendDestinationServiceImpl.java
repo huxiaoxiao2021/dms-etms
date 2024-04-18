@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQueryDto;
 import com.jd.bluedragon.distribution.jy.constants.JyPickingSendTaskEnum;
 import com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingSendDestinationDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeSealCarDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailCondition;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
@@ -143,6 +144,20 @@ public class JyPickingSendDestinationServiceImpl implements JyPickingSendDestina
         entity.setTaskType(req.getTaskType());
         entity.setScanItemNum(req.getScanItemNum());
         jyPickingSendDestinationDetailDao.finishSendTask(entity);
+        return true;
+    }
+
+    @Override
+    public Boolean batchUpdateBatchCodeSealCarStatus(BatchCodeSealCarDto req) {
+        Date now = new Date();
+        JyPickingSendDestinationDetailCondition condition = new JyPickingSendDestinationDetailCondition();
+        condition.setStatus(JyPickingSendTaskEnum.SEALED.getCode());
+        condition.setSendCodeList(req.getSuccessSealBatchCodeList());
+        condition.setCompleteTime(req.getOperateTime());
+        condition.setUpdateTime(now);
+        condition.setUpdateUserErp(req.getOperatorErp());
+        condition.setUpdateUserName(null);
+        jyPickingSendDestinationDetailDao.updateBySendCodes(condition);
         return true;
     }
 

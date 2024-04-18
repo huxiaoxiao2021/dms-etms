@@ -37,4 +37,9 @@ public class JyPickingSendDestinationDetailDao extends BaseDao<JyPickingSendDest
     public List<JyPickingSendDestinationDetailEntity> pageFetchSendBatchCodeDetailList(JyPickingSendDestinationDetailCondition condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".pageFetchSendBatchCodeDetailList", condition);
     }
+    //按批次号修改
+    public int updateBySendCodes(JyPickingSendDestinationDetailCondition condition) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBySendCodes", condition);
+
+    }
 }

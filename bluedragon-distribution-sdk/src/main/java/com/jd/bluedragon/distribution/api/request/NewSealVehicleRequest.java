@@ -92,6 +92,13 @@ public class NewSealVehicleRequest extends JdRequest {
 	 */
 	private OperatorData operatorData;
 
+	/**
+	 * 岗位类型
+	 * JyFuncCodeEnum
+	 */
+	private String post;
+
+
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
@@ -230,5 +237,13 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	public void setOperatorData(OperatorData operatorData) {
 		this.operatorData = operatorData;
+	}
+
+	public String getPost() {
+		return post;
+	}
+
+	public void setPost(String post) {
+		this.post = post;
 	}
 }

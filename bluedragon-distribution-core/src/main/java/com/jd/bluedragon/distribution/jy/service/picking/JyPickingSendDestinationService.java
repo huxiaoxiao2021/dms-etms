@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeSealCarDto;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
 
 /**
@@ -34,6 +35,8 @@ public interface JyPickingSendDestinationService {
     boolean existSendNextSite(Long curSiteId, Long nextSiteId, Integer taskType);
 
     Boolean finishSendTask(FinishSendTaskReq req);
+    //批量修改提货岗发货批次为已封状态
+    Boolean batchUpdateBatchCodeSealCarStatus(BatchCodeSealCarDto req);
 
     /**
      * 查询已维护流向信息
