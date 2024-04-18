@@ -1852,7 +1852,7 @@ public class WaybillResource {
 			}else {
 				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
 				// fill request
-				request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+				request.setReverseReasonCode(waybillService.queryReverseReasonCode(request.getWaybillCode()));
 				// build waybillReverseDTO
 				DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 				waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
@@ -1876,29 +1876,7 @@ public class WaybillResource {
         return invokeResult;
 	}
 
-	private Integer queryReverseReasonCode(String waybillCode) {
-		// 外单逆向换单
-		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）(国际单同港澳单)
-		// 2、快运单子-默认设置1
-		// 3、其它-默认不设置
-		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-		if(waybill != null){ 
-			String waybillSign = waybill.getWaybillSign();
-			String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
-			String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
-			if(BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
-				if(waybillTraceManager.isExReturn(waybillCode)){
-					// fill reverseReasonCode
-					return Constants.INTERCEPT_REVERSE_CODE_3;
-				}
-				return Constants.INTERCEPT_REVERSE_CODE_1;
-			}
-			if(BusinessUtil.isKyWaybillOfReverseExchange(waybillSign)){
-				return Constants.INTERCEPT_REVERSE_CODE_1;
-			}
-		}
-		return null;
-	}
+
 
 
 	/**
@@ -1928,7 +1906,7 @@ public class WaybillResource {
 
 		try {
 			// fill request
-			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+			request.setReverseReasonCode(waybillService.queryReverseReasonCode(request.getWaybillCode()));
 			// build waybillReverseDTO
 			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();

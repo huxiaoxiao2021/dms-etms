@@ -299,7 +299,7 @@ public class JyWorkGridManagerResponsibleInfoServiceImpl implements JyWorkGridMa
         }
         //外包工 身份证或名称为空
         if(OUTWORKER.getCode().equals(workType)
-                && (StringUtils.isBlank(responsibleInfo.getIdCard()) || StringUtils.isBlank(responsibleInfo.getName()))){
+                && StringUtils.isBlank(responsibleInfo.getIdCard())){
             result.toFail("请选择外包工责任人");
             log.info("责任人工种为外包，idCard或名称为空,bizId:{},idCard:{},name:{}", bizId, responsibleInfo.getIdCard(),
                     responsibleInfo.getName());
