@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.consumer.jy.material;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.jy.dto.material.MaterialOperateNodeV2Enum;
 import com.jd.bluedragon.distribution.jy.dto.material.RecycleMaterialOperateRecordDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.AutoInspectionSiteTypeConf;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.RecycleMaterialAutoInspectionDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
@@ -23,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static com.jd.bluedragon.Constants.RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF;
+import static com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSendArriveAndBookConsumer.isSiteTypeValid;
 
 /**
  * 物资循环操作记录
@@ -44,6 +50,9 @@ public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
     private JyTrustHandoverAutoInspectionService jyTrustHandoverAutoInspectionService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private void logInfo(String message, Object... objects) {
         if (logger.isInfoEnabled()) {
@@ -142,6 +151,25 @@ public class RecycleMaterialOperateRecordConsumer extends MessageBaseConsumer {
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(mqBody.getOperateSiteId()));
             if(Objects.isNull(baseSite) || Objects.isNull(baseSite.getSiteCode()) || !BusinessUtil.isSorting(baseSite.getSiteType())) {
                 logInfo("循环物资操作监听，，到达场地{}基础资料不存在或者非分拣中心，无效数据剔除，mqBody={},baseSite={}", mqBody.getOperateSiteId(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
+                return false;
+            }
+             if(!sysConfigService.getByListContainOrAllConfig(Constants.RECYCLE_MATERIAL_OPERATE_RECORD_SITE_CONF,String.valueOf(baseSite.getSiteCode()))){
+                logInfo("循环物资操作监听场地开关过滤，到达场地{}，mqBody={},site={}", baseSite.getSiteCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
+                return false;
+            }
+            // 站点类型白名单校验
+            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF);
+            if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
+                logInfo("循环物资操作监听场地类型白名单过滤，未配置场地类型白名单！");
+                return false;
+            }
+            AutoInspectionSiteTypeConf siteTypeConf = JsonHelper.fromJson(sysConfig.getConfigContent(), AutoInspectionSiteTypeConf.class);
+            if (siteTypeConf == null) {
+                logInfo("循环物资操作监听未获取到配置场地类型白名单！");
+                return false;
+            }
+            if (!isSiteTypeValid(siteTypeConf, baseSite)) {
+                logInfo("循环物资操作监听消息场地类型过滤，到达场地{}，mqBody={},site={}", mqBody.getOperateSiteId(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
                 return false;
             }
         }
