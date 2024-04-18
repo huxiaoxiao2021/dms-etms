@@ -615,7 +615,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>jsf-1.7.7-HOTFIX-T2</version>
+			<version>1.7.7-HOTFIX-T2</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
