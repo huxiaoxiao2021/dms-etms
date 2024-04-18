@@ -1120,4 +1120,7 @@ public class HintCodeConstants {
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
 
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE = "40042";
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT = "ERP在人资系统中不是【异常岗】，无法操作弃件暂存功能，请联系异常岗人员操作。";
+
 }
