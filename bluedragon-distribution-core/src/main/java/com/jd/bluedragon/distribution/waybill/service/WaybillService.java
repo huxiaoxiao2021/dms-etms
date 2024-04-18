@@ -284,4 +284,11 @@ public interface WaybillService {
     InvokeResult<String> checkWaybillForPreSortOnSiteToDebon(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest,Waybill waybill);
 
     boolean isHKorMOWaybill(String waybillCode);
+
+    /**
+     * 根据运单号获取逆向原因编码
+     * @param waybillCode
+     * @return
+     */
+    Integer queryReverseReasonCode(String waybillCode);
 }
