@@ -358,28 +358,28 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount())
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
                 flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.FIRST.getCount());
-                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.FIRST.getCode());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.FIRST.getCode(), historyApprove.getFinishTime());
                 break;
             case SECOND:
                 logger.info("生鲜报废工单号:{}的二级审批结果:{}", bizId, historyApprove.getState());
                 approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount())
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
                 flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.SECOND.getCount());
-                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.SECOND.getCode());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.SECOND.getCode(), historyApprove.getFinishTime());
                 break;
             case THIRD:
                 logger.info("生鲜报废工单号:{}的三级审批结果:{}", bizId, historyApprove.getState());
                 approveFinalResult = approveFinalResult && Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount())
                         && Objects.equals(historyApprove.getState(), ApprovalResult.AGREE.getValue());
                 flowEndFlag = flowEndFlag || Objects.equals(approveCount, JyExScrapApproveStageEnum.THIRD.getCount());
-                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.THIRD.getCode());
+                updateApproveResult(bizId, approveStatus, approveErp, JyExScrapApproveStageEnum.THIRD.getCode(), historyApprove.getFinishTime());
                 break;
             default:
                 logger.warn("未知节点编码:{}", bizId);
                 return;
         }
         // 更新异常任务表审批状态
-        updateTaskApproveResult(bizId, flowEndFlag, approveFinalResult);
+        updateTaskApproveResult(bizId, flowEndFlag, approveFinalResult, historyApprove.getFinishTime());
         // 审批通过异步通知客服
         noticeKF(bizId, approveFinalResult);
     }
@@ -458,7 +458,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
 
     }
 
-    private void updateTaskApproveResult(String bizId, boolean flowEndFlag, boolean approveFinalResult) {
+    private void updateTaskApproveResult(String bizId, boolean flowEndFlag, boolean approveFinalResult, Date finishTime) {
         if(!flowEndFlag){
             return;
         }
@@ -468,7 +468,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
                 ? JyBizTaskExceptionProcessStatusEnum.APPROVE_PASS.getCode() : JyBizTaskExceptionProcessStatusEnum.APPROVE_REJECT.getCode();
         entity.setProcessingStatus(processStatus);
         entity.setStatus(JyExpStatusEnum.COMPLETE.getCode());
-        entity.setUpdateTime(new Date());
+        entity.setUpdateTime(finishTime != null ? finishTime : new Date());
         jyBizTaskExceptionDao.updateByBizId(entity);
     }
 
@@ -501,7 +501,7 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
      * @param approveErp    审批人
      * @param approveStage  审批阶段
      */
-    private void updateApproveResult(String bizId, int approveStatus, String approveErp, int approveStage) {
+    private void updateApproveResult(String bizId, int approveStatus, String approveErp, int approveStage, Date finishTime) {
         if (Objects.equals(approveStatus, JyApproveStatusEnum.UNKNOWN.getCode())) {
             logger.warn("生效报废审批结果未知!");
             return;
@@ -509,22 +509,22 @@ public class JyScrappedExceptionServiceImpl extends JyExceptionStrategy implemen
         // 更新生鲜报废明细表数据
         JyExceptionScrappedPO po = new JyExceptionScrappedPO();
         po.setBizId(bizId);
-        Date now = new Date();
-        po.setUpdateTime(now);
+        Date opereateTime = finishTime != null ? finishTime : new Date();
+        po.setUpdateTime(opereateTime);
         if (Objects.equals(JyExScrapApproveStageEnum.FIRST.getCode(), approveStage)) {
             po.setFirstChecker(approveErp);
             po.setFirstCheckStatus(approveStatus);
-            po.setFirstCheckTime(now);
+            po.setFirstCheckTime(opereateTime);
         }
         if (Objects.equals(JyExScrapApproveStageEnum.SECOND.getCode(), approveStage)) {
             po.setSecondChecker(approveErp);
             po.setSecondCheckStatus(approveStatus);
-            po.setSecondCheckTime(now);
+            po.setSecondCheckTime(opereateTime);
         }
         if (Objects.equals(JyExScrapApproveStageEnum.THIRD.getCode(), approveStage)) {
             po.setThirdChecker(approveErp);
             po.setThirdCheckStatus(approveStatus);
-            po.setThirdCheckTime(now);
+            po.setThirdCheckTime(opereateTime);
         }
         jyExceptionScrappedDao.updateByBizId(po);
     }

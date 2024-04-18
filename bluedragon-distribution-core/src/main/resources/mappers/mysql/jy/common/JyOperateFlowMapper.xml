@@ -79,4 +79,10 @@
 			</trim>
 			)
 	</insert>
+
+	<select id="findByOperateBizKeyAndId" parameterType="com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto" resultMap="JyOperateFlowDto">
+		select <include refid="Base_Column_List"/>
+		    from jy_operate_flow
+		    where operate_biz_key = #{operateBizKey,jdbcType=VARCHAR} and id = #{id,jdbcType=BIGINT} limit 1
+	</select>
 </mapper>
