@@ -1679,7 +1679,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
     }
 
-    private void sendScheduleTaskStatusMsg(String bizId, String userErp,
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JyExceptionServiceImpl.sendScheduleTaskStatusMsg", mState = {JProEnum.TP})
+    public void sendScheduleTaskStatusMsg(String bizId, String userErp,
                                            JyScheduleTaskStatusEnum status, DefaultJMQProducer producer) {
         //通知任务调度系统状态修改
         JyScheduleTaskChangeStatusReq req = new JyScheduleTaskChangeStatusReq();
