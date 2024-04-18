@@ -578,6 +578,10 @@
     <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.change.order.print}" listener="changeOrderPrintConsumer"/>
     </jmq:consumer>
+    <!-- 换单打印包裹纬度数据消费 -->
+    <jmq:consumer id="jmq.changeOrderPrintConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybillExchangePrintPackage}" listener="changeOrderPrintConsumer"/>
+    </jmq:consumer>
 
     <!-- 作业工作台自动关闭任务 -->
     <jmq:consumer id="jmq.jyBizTaskAutoCloseConsumer" transport="jmq4.dmsWorker.transport">
@@ -899,6 +903,10 @@
     <!--  箱号绑定循环物资  -->
     <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
+    </jmq:consumer>
+    <!-- 拣运封车批次  -->
+    <jmq:consumer id="jmq.JySealCarBatchCodesConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jySealCarBatchCodes}" listener="jySealCarBatchCodesConsume"/>
     </jmq:consumer>
 </beans>
 

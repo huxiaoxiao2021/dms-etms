@@ -784,6 +784,11 @@
         <property name="topic" value="${jmq.topic.change.order.print}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--换单打印时的包裹纬度打印消息 -->
+    <bean id="waybillExchangePrintPackageProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.waybillExchangePrintPackage}" />
+        <property name="timeout" value="1000" />
+    </bean>
 
     <!--发送作业任务自动关闭消息 -->
     <bean id="jyBizTaskAutoCloseProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
@@ -1111,6 +1116,11 @@
     <!-- 直送分拣揽收消息 -->
     <bean id="directDeliverySortCollectProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.directDeliverySort.collect}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 干支封车批次 -->
+    <bean id="jySealCarBatchCodesProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jySealCarBatchCodes}"/>
         <property name="timeout" value="1000"/>
     </bean>
 </beans>
