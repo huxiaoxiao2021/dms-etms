@@ -68,32 +68,11 @@ public class WaybillExchangePrintPackageConsumer extends MessageBaseWithoutUATCo
             if(!result){
                 return ;
             }
-            JyExceptionPrintDto dto = getJyExceptionPrintDto(waybillExchangePrintPackageDto);
-            jyExceptionService.printSuccess(dto);
-            jyDamageExceptionService.dealDamageExpTaskStatus(waybillExchangePrintPackageDto.getPackageCodeNew(), waybillExchangePrintPackageDto.getSiteId());
+            jyDamageExceptionService.dealWaybillExchangePrintPackage(waybillExchangePrintPackageDto);
         }finally {
             redisClientOfJy.del(lockKey);
         }
 
     }
 
-    /**
-     * 获取三无单换单打印实体
-     *
-     * @return
-     */
-    private JyExceptionPrintDto getJyExceptionPrintDto(WaybillExchangePrintPackageDto mq) {
-        JyExceptionPrintDto dto = new JyExceptionPrintDto();
-        dto.setOperateType(mq.getOperateType());
-        dto.setSiteCode(mq.getSiteId());
-        dto.setSiteName(mq.getSiteName());
-        dto.setWaybillCode(mq.getWaybillCodeOld());
-        dto.setPackageCode(mq.getPackageCodeOld());
-        dto.setOperateTime(new Date(mq.getOperateUnixTime()));
-        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(mq.getOperateUserId());
-        if(baseStaff != null){
-            dto.setUserErp(baseStaff.getErp());
-        }
-        return dto;
-    }
 }

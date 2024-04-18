@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.jy.service.attachment.JyAttachmentDetailSe
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionStrategy;
+import com.jd.bluedragon.distribution.print.domain.WaybillExchangePrintPackageDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -41,6 +42,7 @@ import com.jd.bluedragon.utils.ASCPContants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillVasDto;
@@ -50,6 +52,7 @@ import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,14 +63,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -131,6 +127,10 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     @Autowired
     private DmsConfigManager dmsConfigManager;
+
+    @Autowired
+    @Qualifier("scheduleTaskChangeStatusWorkerProducer")
+    private DefaultJMQProducer scheduleTaskChangeStatusWorkerProducer;
 
 
     public Integer getExceptionType() {
@@ -1359,5 +1359,44 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
 
     }
 
-
+    /**
+     * 处理换单打印后的数据
+     *
+     * @param printDto
+     * @return
+     */
+    @Override
+    public Result<Boolean> dealWaybillExchangePrintPackage(WaybillExchangePrintPackageDto printDto) {
+        Result<Boolean> result = Result.success();
+        try{
+            // step 查询异常任务
+            String bizId = getBizId(printDto.getPackageCodeOld(), printDto.getSiteId());
+            final JyBizTaskExceptionEntity jyBizTaskExceptionExist = jyBizTaskExceptionDao.findByBizId(bizId);
+            if (jyBizTaskExceptionExist == null) {
+                return result.setData(true);
+            }
+            // step 查询 破损任务数据
+            final JyExceptionDamageEntity jyExceptionDamageExist = jyExceptionDamageDao.selectOneByBizId(bizId);
+            if (jyExceptionDamageExist == null) {
+                return result.setData(true);
+            }
+            if (!Objects.equals(jyExceptionDamageExist.getFeedBackType(), JyExceptionDamageEnum.FeedBackTypeEnum.REVERSE_RETURN.getCode())) {
+                return result.setData(true);
+            }
+            final JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
+            update.setBizId(bizId);
+            update.setStatus(JyExpStatusEnum.COMPLETE.getCode());
+            update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+            update.setUpdateUserErp(printDto.getOperateUserErp());
+            update.setUpdateUserName(printDto.getOperateUserName());
+            update.setUpdateTime(new Date(printDto.getOperateUnixTime()));
+            jyBizTaskExceptionDao.updateByBizId(update);
+            jyExceptionService.recordLog(JyBizTaskExceptionCycleTypeEnum.DAMAGE_REVERSE_RETURN_FINISH, update);
+            //发送修改状态消息
+            jyExceptionService.sendScheduleTaskStatusMsg(bizId, printDto.getOperateUserErp(), JyScheduleTaskStatusEnum.CLOSED, scheduleTaskChangeStatusWorkerProducer);
+        }catch (Exception e){
+            logger.error("处理破损异常任务状态异常-{}", JsonHelper.toJsonMs(printDto),e);
+        }
+        return result;
+    }
 }
