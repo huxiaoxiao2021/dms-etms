@@ -7106,7 +7106,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             // 分拣机发货
             //切换新服务
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(domain.getCreateSiteCode()))){
                 log.info("自动化分拣机发货 启用新模式 {}",domain.getBoxCode());
                 //新接口
                 SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);
@@ -7119,7 +7119,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         } else {
             //切换新服务
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(domain.getCreateSiteCode()))){
                 log.info("自动化龙门架发货 启用新模式 {}",domain.getBoxCode());
                 //新接口
                 SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);

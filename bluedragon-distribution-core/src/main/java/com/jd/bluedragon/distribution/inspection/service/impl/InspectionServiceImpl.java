@@ -413,6 +413,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
         addOperationLog(inspection,methodName);
         JyOperateFlowMqData inspectionFlowMq = BeanConverter.convertToJyOperateFlowMqData(inspection);
         inspectionFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.INSPECTION.getCode());
+		inspectionFlowMq.setId(jyOperateFlowService.createOperateFlowId());
 		jyOperateFlowService.sendMq(inspectionFlowMq);
         cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
                 .createCenConfirmByInspection(inspection));
@@ -1250,6 +1251,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			}
 			if(vo.getOperatorData() != null) {
 				map.put("operatorDataJson", JsonHelper.toJson(vo.getOperatorData()));
+			}
+			if (StringUtils.isNotEmpty(vo.getVehicleNumber())) {
+				map.put("vehicleNumber", vo.getVehicleNumber());
 			}
 			if(BusinessUtil.isBoxcode(barCode)){
 				//箱号

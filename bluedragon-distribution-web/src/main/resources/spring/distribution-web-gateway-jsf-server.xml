@@ -738,6 +738,15 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 分拣运单称重上传 -->
+    <bean id="weightAndVolumeGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WeightAndVolumeGatewayServiceImpl"/>
+    <jsf:provider id="jsfWeightAndVolumeGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WeightAndVolumeGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="weightAndVolumeGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--动态线路替换方案配置-->
     <bean id="routerDynamicLineReplacePlanGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.RouterDynamicLineReplacePlanGatewayServiceImpl" />
     <jsf:provider id="jsfRouterDynamicLineReplacePlanGatewayService"

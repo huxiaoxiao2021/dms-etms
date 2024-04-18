@@ -435,6 +435,12 @@ public class CacheKeyConstants {
     public static final String CACHE_KEY_AIR_RAIL_ADD_SEND_FLOW = JY_CACHE_PREFIX + "AIR_RAIL_ADD_SEND_FLOW:%s";
 
     /**
+     * 质控H5页面回调接口网格缓存key
+     */
+    public static final String CACHE_KEY_ABNORMAL_H5_CALLBACK = "abnormal:h5:callback:";
+
+
+    /**
      * 动态线路切换方案消费锁
      */
     public static final String CACHE_KEY_ROUTER_DYNAMIC_LINE_REPLACE_CONSUME_LOCK = "router:dynamic:line:replace:consume:lock:%s";
