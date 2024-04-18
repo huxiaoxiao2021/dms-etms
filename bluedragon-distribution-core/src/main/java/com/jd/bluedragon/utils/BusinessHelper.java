@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.AutoInspectionSiteTypeConf;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.waybillVas.VasSourceEnum;
 import com.jd.bluedragon.dms.utils.*;
@@ -1298,4 +1299,21 @@ public class BusinessHelper {
         return waybill.getWaybillExt() == null || com.jd.common.util.StringUtils.isEmpty(waybill.getWaybillExt().getProductSolutionID());
     }
 
+    /**
+     * 站点类型校验
+     * @return
+     */
+    public static boolean isSiteTypeValid(AutoInspectionSiteTypeConf siteTypeConf, BaseStaffSiteOrgDto baseSite) {
+        return isTypeListValid(siteTypeConf.getSortTypeList(), baseSite.getSortType()) ||
+                isTypeListValid(siteTypeConf.getSortSubTypeList(), baseSite.getSortSubType()) ||
+                isTypeListValid(siteTypeConf.getSortThirdTypeList(), baseSite.getSortThirdType());
+    }
+
+    /**
+     * 站点类型匹配
+     * @return
+     */
+    public static boolean isTypeListValid(List<Integer> typeList, Integer siteType) {
+        return org.apache.commons.collections.CollectionUtils.isNotEmpty(typeList) && typeList.contains(siteType);
+    }
 }

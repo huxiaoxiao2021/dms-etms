@@ -2590,4 +2590,25 @@ public class Constants {
      */
     public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
 
+
+
+    /**
+     * 围栏到车验货场地配置
+     */
+    public static final String TMS_SEND_ARRIVE_AND_BOOK_SITE_CONF = "tms.send.arrive.and.book.site.conf";
+
+    /**
+     * 循环物资验货场地配置
+     */
+    public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_CONF = "recycle.material.operate.record.site.conf";
+
+    /**
+     * 围栏到车验货场地类型配置
+     */
+    public static final String TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF = "tms.send.arrive.and.book.site.conf.type.conf";
+
+    /**
+     * 循环物资验货场地类型配置
+     */
+    public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF = "recycle.material.operate.record.site.type.conf";
 }
