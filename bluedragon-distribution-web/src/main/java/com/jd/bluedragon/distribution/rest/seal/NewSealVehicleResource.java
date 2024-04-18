@@ -30,10 +30,8 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
-import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeSealCarDto;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
-import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
@@ -174,12 +172,8 @@ public class NewSealVehicleResource {
     @Qualifier("createTransAbnormalAndUnsealProducer")
     private DefaultJMQProducer createTransAbnormalAndUnsealProducer;
     @Autowired
-    private JyAviationRailwaySendSealService jyAviationRailwaySendSealService;
-    @Autowired
-    @Qualifier("aviationRailwayShuttleSealProducer")
-    private DefaultJMQProducer aviationRailwayShuttleSealProducer;
-
-
+    @Qualifier("jySealCarBatchCodesProducer")
+    private DefaultJMQProducer jySealCarBatchCodesProducer;
     /**
      * 校验并获取运力编码信息
      *
@@ -806,7 +800,8 @@ public class NewSealVehicleResource {
                     }
                     List<String> sealCarBatchCodes = request.getData().stream().map(o -> o.getBatchCodes()).flatMap(Collection::stream).collect(Collectors.toList());
                     sealCarBatchCodes.removeAll(new ArrayList<>(emptyBatchCode.keySet()));
-                    this.aviationRailwayTrunkSendTaskHandler(request, sealCarBatchCodes);
+                    this.jySealCarSuccessBatchCodesHandler(request, sealCarBatchCodes);
+
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
@@ -819,33 +814,30 @@ public class NewSealVehicleResource {
         return sealVehicleResponse;
     }
 
-    //空铁发货岗干支发货任务相关逻辑处理
-    private void aviationRailwayTrunkSendTaskHandler(NewSealVehicleRequest request, List<String> successSealCarBatchCodes) {
-        if(!JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(request.getPost())) {
+    //封车成功批次
+    private void jySealCarSuccessBatchCodesHandler(NewSealVehicleRequest request, List<String> successSealCarBatchCodes) {
+        if (CollectionUtils.isEmpty(successSealCarBatchCodes)) {
             return;
         }
-        if(CollectionUtils.isEmpty(successSealCarBatchCodes)) {
-            return;
-        }
-        try{
+        try {
             String transportCode = request.getData().get(0).getTransportCode();
 
-            BatchCodeShuttleSealDto shuttleSealDto = new BatchCodeShuttleSealDto();
+            BatchCodeSealCarDto shuttleSealDto = new BatchCodeSealCarDto();
             shuttleSealDto.setSuccessSealBatchCodeList(successSealCarBatchCodes);
             shuttleSealDto.setOperateTime(new Date());
             shuttleSealDto.setTransportCode(transportCode);
             shuttleSealDto.setOperatorErp(StringUtils.isBlank(request.getUserErp()) ? Constants.SYS_DMS : request.getUserErp());
-            if(!Objects.isNull(request.getDmsSiteId())) {
+            if (!Objects.isNull(request.getDmsSiteId())) {
                 shuttleSealDto.setOperateSiteId(request.getDmsSiteId());
             }
+            shuttleSealDto.setPost(request.getPost());
 
             String msg = com.jd.bluedragon.utils.JsonHelper.toJson(shuttleSealDto);
-            if(log.isInfoEnabled()) {
-                log.info("支线封车后处理空铁发货干线任务支线已封逻辑消息生产：businessId={},msg={}", transportCode, msg);
+            if (log.isInfoEnabled()) {
+                log.info("封车成功批次异步处理：businessId={},msg={}", transportCode, msg);
             }
-            aviationRailwayShuttleSealProducer.sendOnFailPersistent(transportCode, msg);
-//            jyAviationRailwaySendSealService.batchCodeShuttleSealMark(shuttleSealDto);
-        }catch (Exception ex) {
+            jySealCarBatchCodesProducer.sendOnFailPersistent(transportCode, msg);
+        } catch (Exception ex) {
             log.error("支线封车成功后触发修改航空干线封车支线已封标识失败，errMsg={},封车成功批次为{}，request={}",
                     ex.getMessage(), JSONObject.toJSONString(successSealCarBatchCodes), JSONObject.toJSONString(request), ex);
         }
