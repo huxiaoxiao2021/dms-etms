@@ -1047,7 +1047,7 @@
         <property name="timeout" value="1000"/>
     </bean>
     <!-- 干支封车批次 -->
-    <bean id="jySealCarBatchCodesProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="jySealCarBatchCodesProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jySealCarBatchCodes}"/>
         <property name="timeout" value="1000"/>
     </bean>
