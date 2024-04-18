@@ -803,12 +803,6 @@
         <property name="timeout" value="1000" />
     </bean>
 
-
-    <!--换单打印时的包裹信息 -->
-    <bean id="changeWaybillPrintProducer" parent="jmq4DmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.change.order.print}" />
-        <property name="timeout" value="1000" />
-    </bean>
     <!--换单打印时的包裹纬度打印消息 -->
     <bean id="waybillExchangePrintPackageProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.waybillExchangePrintPackage}" />
