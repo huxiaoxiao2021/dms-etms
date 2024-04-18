@@ -39,11 +39,7 @@ import com.jd.bluedragon.distribution.qualityControl.service.QualityControlServi
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
 import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
-import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
-import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
-import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
-import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
@@ -101,6 +97,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
 /**
  * 逆向换单打印
@@ -865,6 +864,18 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }catch (Exception ex){
             log.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
             result.error("获取订单拦截信息异常");
+            return result;
+        }
+        try {
+            // 破损标识
+            if (abnormalWayBillService.isDamagedWaybill(domain.getWaybillCode(), domain.getSiteId())) {
+                domain.setDamagedPackageFlag(INTEGER_ONE);
+            }else {
+                domain.setDamagedPackageFlag(INTEGER_ZERO);
+            }
+        }catch (Exception ex){
+            log.error("获取运单{}异常提报信息异常：", domain.getWaybillCode(), ex);
+            result.error("获取订单异常提报信息异常");
             return result;
         }
         try{

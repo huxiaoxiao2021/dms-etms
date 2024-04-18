@@ -2511,4 +2511,9 @@ public class Constants {
      */
     public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
 
+    /**
+     * 取消退货组，异常原因 白名单仓配置
+     */
+    public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
+
 }

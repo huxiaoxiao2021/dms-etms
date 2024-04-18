@@ -1,19 +1,31 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+
+import static com.jd.bluedragon.Constants.CANCEL_RETURN_GROUP_WHITE_LIST_CONF;
+import static com.jd.bluedragon.Constants.DB_SQL_IN_LIMIT_NUM;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 
 /**
  * 异常操作服务接口实现
@@ -24,6 +36,12 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
 
     @Autowired
     AbnormalWayBillDao abnormalWayBillDao;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 根据运单号查找异常处理记录
@@ -131,5 +149,58 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
             abnormalWayBillQuery.setPageNumber(1);
         }
         return abnormalWayBillDao.queryPageListByQueryParam(abnormalWayBillQuery);
+    }
+
+    /**
+     * 是否为破损订单 1. 只针对一单一件的场景 2. 真针对特定异常编码
+     * @param waybillCode
+     * @param siteId
+     * @return
+     */
+    @Override
+    public boolean isDamagedWaybill(String waybillCode, Integer siteId) {
+        // 只针对一单一件的场景
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null || !Objects.equals(waybill.getGoodNumber(), INTEGER_ONE)) {
+            return false;
+        }
+
+        // 异常编码校验
+        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(CANCEL_RETURN_GROUP_WHITE_LIST_CONF);
+        if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
+            return false;
+        }
+        CancelReturnGroupWhiteListConf conf = JsonHelper.fromJson(sysConfig.getConfigContent(), CancelReturnGroupWhiteListConf.class);
+        if (conf == null || CollectionUtils.isEmpty(conf.getAbnormalCauseList())) {
+            return false;
+        }
+        // 获取异常提报记录
+        List<AbnormalWayBill> abnormalWayBills = this.queryPageListByQueryParam(convertAbnormalWayBillQuery(waybillCode, siteId));
+        if (CollectionUtils.isEmpty(abnormalWayBills)) {
+            return false;
+        }
+
+        for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
+            if (conf.getAbnormalCauseList().contains(abnormalWayBill.getQcCode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 组装参数
+     * @param waybillCode
+     * @param siteId
+     * @return
+     */
+    private AbnormalWayBillQuery convertAbnormalWayBillQuery(String waybillCode, Integer siteId) {
+        AbnormalWayBillQuery query = new AbnormalWayBillQuery();
+        query.setWaybillCode(waybillCode);
+        query.setCreateSiteCode(siteId);
+        query.setPageNumber(INTEGER_ONE);
+        // 查询100条记录
+        query.setLimit(DB_SQL_IN_LIMIT_NUM);
+        return query;
     }
 }

@@ -72,4 +72,12 @@ public interface AbnormalWayBillService {
      * @time 2023-08-22 15:21:15 周二
      */
     List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery);
+
+    /**
+     * 是否为破损运单
+     * @param waybillCode
+     * @param siteId
+     * @return
+     */
+    boolean isDamagedWaybill(String waybillCode, Integer siteId);
 }
