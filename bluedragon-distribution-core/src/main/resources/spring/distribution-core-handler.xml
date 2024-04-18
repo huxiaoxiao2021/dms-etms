@@ -279,7 +279,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="c2cInterceptHandler"/>
+				<ref bean="commonOperateInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
