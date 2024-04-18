@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.print.domain.ChangeOrderPrintMq;
+import com.jd.bluedragon.distribution.print.domain.WaybillExchangePrintPackageDto;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
@@ -56,6 +57,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
 import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
@@ -240,6 +242,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private DefaultJMQProducer changeWaybillPrintProducer;
 
     @Autowired
+    @Qualifier("waybillExchangePrintPackageProducer")
+    private DefaultJMQProducer waybillExchangePrintPackageProducer;
+
+    @Autowired
     private WaybillAddApi waybillAddApi;
 
     @Autowired
@@ -321,6 +327,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             if(WaybillUtil.isPackageCode(domain.getNewPackageCode())){
                 // 发送拦截报表 按包裹换单打印时处理
                 this.sendDisposeAfterInterceptMsgByPackageCode(domain);
+                // 发送换单打印包裹打印纬度消息
+                this.sendWaybillExchangePrintPackageMq(domain);
             }
         }
 
@@ -661,6 +669,38 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         } catch (Exception e) {
             log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsgByPackageCode exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
             result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 发送消息
+     * @param reversePrintRequest 换单请求参数
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Result<Void> sendWaybillExchangePrintPackageMq(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendWaybillExchangePrintPackageMq {}", JSON.toJSONString(reversePrintRequest));
+        Result<Void> result = Result.success();
+        try {
+            final WaybillExchangePrintPackageDto waybillExchangePrintPackageDto = new WaybillExchangePrintPackageDto();
+            waybillExchangePrintPackageDto.setWaybillCodeOld(reversePrintRequest.getOldCode());
+            waybillExchangePrintPackageDto.setWaybillCodeNew(reversePrintRequest.getNewCode());
+            waybillExchangePrintPackageDto.setPackageCodeNew(reversePrintRequest.getNewPackageCode());
+            final String packageCodeOld = WaybillUtil.genPackageCodeByPackNumAndPackIndex(reversePrintRequest.getOldCode(), WaybillUtil.getPackNumByPackCode(reversePrintRequest.getNewPackageCode()), WaybillUtil.getPackIndexByPackCode(reversePrintRequest.getNewPackageCode()));
+            waybillExchangePrintPackageDto.setPackageCodeOld(packageCodeOld);
+            waybillExchangePrintPackageDto.setOperateUserId(reversePrintRequest.getStaffId());
+            waybillExchangePrintPackageDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
+            waybillExchangePrintPackageDto.setOperateUserName(reversePrintRequest.getStaffRealName());
+            waybillExchangePrintPackageDto.setSiteId(reversePrintRequest.getSiteCode());
+            waybillExchangePrintPackageDto.setSiteName(reversePrintRequest.getSiteName());
+            waybillExchangePrintPackageDto.setOperateType(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());
+            waybillExchangePrintPackageDto.setOperateUnixTime(reversePrintRequest.getOperateUnixTime());
+            waybillExchangePrintPackageProducer.sendOnFailPersistent(waybillExchangePrintPackageDto.getPackageCodeNew(), JsonHelper.toJson(waybillExchangePrintPackageDto));
+        } catch (Exception e) {
+            log.error("ReversePrintServiceImpl sendWaybillExchangePrintPackageMq exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
+            result.toFail("发送换单打印包裹纬度打印消息失败，失败提示：" + e.getMessage());
         }
         return result;
     }
