@@ -1479,7 +1479,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
     private String getOwnerUserErpByGridCode(String gridCode) {
         WorkStationGridQuery query = new WorkStationGridQuery();
         query.setGridCode(gridCode);
-        Result<PageDto<WorkStationGrid>> pageDtoResult = workStationGridManager.queryPageList(query);
+        com.jdl.basic.common.utils.Result <PageDto<WorkStationGrid>> pageDtoResult = workStationGridManager.queryPageList(query);
         if (pageDtoResult.isSuccess() && Objects.nonNull(pageDtoResult.getData())) {
             List<WorkStationGrid> result = pageDtoResult.getData().getResult();
             if (Objects.nonNull(result) && result.size() > 0) {
