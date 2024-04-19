@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
+import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
@@ -17,8 +18,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -153,12 +152,13 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
 
     /**
      * 是否为破损订单 1. 只针对一单一件的场景 2. 真针对特定异常编码
+     *
      * @param waybillCode
-     * @param siteId
+     * @param request
      * @return
      */
     @Override
-    public boolean isDamagedWaybill(String waybillCode, Integer siteId) {
+    public boolean isDamagedWaybill(String waybillCode, QualityControlRequest request) {
         // 只针对一单一件的场景
         com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if (waybill == null || !Objects.equals(waybill.getGoodNumber(), INTEGER_ONE)) {
@@ -174,16 +174,8 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
         if (conf == null || CollectionUtils.isEmpty(conf.getAbnormalCauseList())) {
             return false;
         }
-        // 获取异常提报记录
-        List<AbnormalWayBill> abnormalWayBills = this.queryPageListByQueryParam(convertAbnormalWayBillQuery(waybillCode, siteId));
-        if (CollectionUtils.isEmpty(abnormalWayBills)) {
-            return false;
-        }
-
-        for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
-            if (conf.getAbnormalCauseList().contains(abnormalWayBill.getQcCode())) {
-                return true;
-            }
+        if (conf.getAbnormalCauseList().contains(request.getQcCode())) {
+            return true;
         }
         return false;
     }
