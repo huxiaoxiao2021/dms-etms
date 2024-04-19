@@ -25,6 +25,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @Author zhengchengfa
+ * @Date 2024/4/2 20:59
+ * @Description  提货岗测试类
+ */
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
@@ -33,17 +38,17 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
     private static final CurrentOperate SITE_910 = new CurrentOperate(910,"马驹桥分拣中心",new Date());
     public static final CurrentOperate SITE_40240 = new CurrentOperate(40240, "北京通州分拣中心", new Date());
 
-    public static final User USER_wuyoude = new User(65396,"吴有德");
+    public static final User USER_WUYOUDE = new User(65396,"吴有德");
 
     public static final String GROUP_CODE = "G00000130001";
     public static final String POST = JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode();
 
     static {
-        USER_wuyoude.setUserErp("wuyoude");
+        USER_WUYOUDE.setUserErp("wuyoude");
     }
 
     private void setBaseReq(BaseReq req) {
-        req.setUser(USER_wuyoude);
+        req.setUser(USER_WUYOUDE);
         req.setCurrentOperate(SITE_40240);
         req.setGroupCode(GROUP_CODE);
         req.setPost(POST);
@@ -111,12 +116,17 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
 
     @Test
     public void finishSendTaskTest() {
-        FinishSendTaskReq req = new FinishSendTaskReq();
-        setBaseReq(req);
-        req.setSendCode("send_code_01");
-        req.setNextSiteId(40240);
-        req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
-        jyAviationRailwayPickingGoodsGatewayService.finishSendTask(req);
+        try{
+            FinishSendTaskReq req = new FinishSendTaskReq();
+            setBaseReq(req);
+            req.setSendCode("40240-910-20240328193484630");
+            req.setNextSiteId(910);
+            req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+            //        jyAviationRailwayPickingGoodsGatewayService.finishSendTask(req);
+            Object obj = jyAviationRailwayPickingGoodsGatewayService.completePickingSendTask(req);
+        }catch (Exception e) {
+            log.error("error:{}", e.getMessage(), e);
+        }
     }
 
     @Test
@@ -192,7 +202,6 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
             request.setBeforeSwitchNextSiteId(null);
             request.setBeforeSwitchNextSiteName(null);
             JdCResponse<PickingGoodsRes> res = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request);
-            System.out.println("end");
 
             if (res.isSucceed()) {
                 //非第一次提货、走上一次bizId
@@ -210,7 +219,6 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 request2.setBeforeSwitchNextSiteId(null);
                 request2.setBeforeSwitchNextSiteName(null);
                 JdCResponse<PickingGoodsRes> res2 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request2);
-                System.out.println("end");
 
                 //非第一次提货、走已存在自建任务
                 PickingGoodsReq request3 = new PickingGoodsReq();
@@ -227,7 +235,6 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 request3.setBeforeSwitchNextSiteId(null);
                 request3.setBeforeSwitchNextSiteName(null);
                 JdCResponse<PickingGoodsRes> res3 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request3);
-                System.out.println("end");
 
             }
         }
@@ -238,7 +245,7 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
             String barCode = "BC1001210816140000000505";
             barCode = "JD0003423499306-12-50-";
 
-            Long nextSiteId = 910l;
+            Long nextSiteId = 910L;
             String nextSiteName = "马驹桥分拣中心";
             //首次提发货
             PickingGoodsReq request = new PickingGoodsReq();
@@ -255,7 +262,6 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
             request.setBeforeSwitchNextSiteId(null);
             request.setBeforeSwitchNextSiteName(null);
             JdCResponse<PickingGoodsRes> res = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request);
-            System.out.println("end");
 
             if (PickingGoodsRes.CODE_30001.equals(res.getCode())) {
                 //强发同流向场景
@@ -273,7 +279,6 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 request2.setBeforeSwitchNextSiteId(null);
                 request2.setBeforeSwitchNextSiteName(null);
                 JdCResponse<PickingGoodsRes> res2 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request2);
-                System.out.println("end");
 
 
                 //强发切换流向场景
@@ -284,14 +289,13 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 request3.setLastScanTaskBizId(null);
                 request3.setSendGoodFlag(true);
                 request3.setForceSendFlag(true);
-                request3.setNextSiteId(10186l);
+                request3.setNextSiteId(10186L);
                 request3.setNextSiteName("凉水河测试");
                 request3.setBoxConfirmNextSiteKey(null);
                 request3.setSendNextSiteSwitch(true);
                 request3.setBeforeSwitchNextSiteId(nextSiteId);
                 request3.setBeforeSwitchNextSiteName(nextSiteName);
                 JdCResponse<PickingGoodsRes> res3 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request3);
-                System.out.println("end");
             }
 
 
@@ -311,8 +315,42 @@ public class JyAviationRailwayPickingGoodsGatewayServiceTest {
                 request4.setBeforeSwitchNextSiteId(null);
                 request4.setBeforeSwitchNextSiteName(null);
                 JdCResponse<PickingGoodsRes> res4 = jyAviationRailwayPickingGoodsGatewayService.pickingGoodsScan(request4);
-                System.out.println("end");
             }
         }
     }
+
+
+    @Test
+    public void delBatchCodesTest(){
+        try{
+            DelBatchCodesReq req = new DelBatchCodesReq();
+            req.setUser(USER_WUYOUDE);
+            req.setCurrentOperate(SITE_40240);
+            req.setGroupCode(GROUP_CODE);
+            req.setPost(POST);
+            req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+            req.setNextSiteId(910);
+            List<String> list = Arrays.asList("40240-910-20240328193484630","40240-910-20240328183484533","40240-910-20240328113483844");
+            req.setSendCodeList(list);
+            Object obj = jyAviationRailwayPickingGoodsGatewayService.delBatchCodes(req);
+        }catch (Exception e) {
+            log.error("error:{}", e.getMessage(), e);
+        }
+    }
+
+    @Test
+    public void pageFetchSendBatchCodeDetailListTest() {
+        try{
+            PickingSendBatchCodeDetailReq req = new PickingSendBatchCodeDetailReq();
+            setBaseReq(req);
+            req.setTaskType(PickingGoodTaskTypeEnum.AVIATION.getCode());
+            req.setNextSiteId(910);
+            req.setPageNum(1);
+            req.setPageSize(3);
+            Object obj = jyAviationRailwayPickingGoodsGatewayService.pageFetchSendBatchCodeDetailList(req);
+        }catch (Exception e) {
+            log.error("error:{}", e.getMessage(), e);
+        }
+    }
+
 }

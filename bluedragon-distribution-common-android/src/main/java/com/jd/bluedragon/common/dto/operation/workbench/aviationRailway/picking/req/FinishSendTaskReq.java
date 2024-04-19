@@ -21,6 +21,10 @@ public class FinishSendTaskReq extends BaseReq implements Serializable {
      * @see com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum
      */
     private Integer taskType;
+    /**
+     * 已扫件数
+     */
+    private Integer scanItemNum;
 
     public Integer getNextSiteId() {
         return nextSiteId;
@@ -44,5 +48,13 @@ public class FinishSendTaskReq extends BaseReq implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public Integer getScanItemNum() {
+        return scanItemNum;
+    }
+
+    public void setScanItemNum(Integer scanItemNum) {
+        this.scanItemNum = scanItemNum;
     }
 }

@@ -19,11 +19,12 @@
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="yn" property="yn" jdbcType="BIT" />
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="scan_item_num" property="scanItemNum" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     id, create_site_id, next_site_id, send_code, status, seal_flag, first_scan_time, 
     complete_time, task_type, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts
+    create_time, update_time, yn, ts, scan_item_num
   </sql>
 
 
@@ -145,11 +146,28 @@
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
             update_time = #{updateTime},
-            complete_time = #{completeTime}
+            complete_time = #{completeTime},
+            scan_item_num = #{scanItemNum}
     where   yn = 1
     and     status = 1
     and     send_code = #{sendCode}
     and     task_type = #{taskType}
+  </update>
+
+  <update id="updateBySendCodes" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailCondition">
+    update  jy_picking_send_destination_detail
+    set
+    <if test="status != null" >
+      status = #{status},
+    </if>
+    update_user_erp = #{updateUserErp},
+    update_user_name = #{updateUserName},
+    update_time = #{updateTime}
+    where   yn = 1
+    and     send_code in
+    <foreach collection="sendCodeList" item="item" index="index" open="(" separator="," close=")">
+      #{item}
+    </foreach>
   </update>
 
   <select id="getSendDetailBySiteId" resultMap="BaseResultMap">
@@ -161,5 +179,34 @@
     and     next_site_id = #{nextSiteId}
     and     task_type = #{taskType}
     and     status = #{status}
+  </select>
+
+  <update id="delBatchCodes" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailCondition">
+    update  jy_picking_send_destination_detail
+    set  yn = 0,
+    update_user_erp = #{updateUserErp},
+    update_user_name = #{updateUserName},
+    update_time = #{updateTime}
+    where   yn = 1
+    and     task_type = #{taskType}
+    and     create_site_id = #{createSiteId}
+    and     next_site_id = #{nextSiteId}
+    and     send_code in
+            <foreach collection="sendCodeList" item="item" index="index" open="(" separator="," close=")">
+              #{item}
+            </foreach>
+  </update>
+
+  <select id="pageFetchSendBatchCodeDetailList" parameterType="com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailCondition" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List"/>
+    from jy_picking_send_destination_detail
+    where yn = 1
+    and create_site_id = #{createSiteId}
+    and next_site_id = #{nextSiteId}
+    and status = #{status}
+    and task_type = #{taskType}
+    and complete_time > #{completeTimeRangeStart}
+    order by complete_time desc
+    limit #{offset}, #{pageSize}
   </select>
 </mapper>
