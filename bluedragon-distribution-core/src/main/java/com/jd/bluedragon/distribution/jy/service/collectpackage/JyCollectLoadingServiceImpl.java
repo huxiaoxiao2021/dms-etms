@@ -204,6 +204,7 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
         taskBody.setSiteCode(request.getCurrentOperate().getSiteCode());
         taskBody.setSiteName(request.getCurrentOperate().getSiteName());
         taskBody.setPackageCode(request.getBarCode());
+        taskBody.setOperateTime(DateHelper.formatDateTime(request.getCurrentOperate().getOperateTime()));
         taskBody.setReceiveSiteCode(request.getBoxReceiveId().intValue());
         taskBody.setReceiveSiteName(request.getBoxReceiveName());
         taskBody.setUserCode(request.getUser().getUserCode());

@@ -55,6 +55,7 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
             currentOperate.setSiteCode(req.getSiteCode().intValue());
             currentOperate.setSiteName(site.getName());
         }
+        currentOperate.setOperateTime(req.getOperateTime());
         request.setCurrentOperate(currentOperate);
         User user = new User();
         user.setUserErp(req.getUserErp());
