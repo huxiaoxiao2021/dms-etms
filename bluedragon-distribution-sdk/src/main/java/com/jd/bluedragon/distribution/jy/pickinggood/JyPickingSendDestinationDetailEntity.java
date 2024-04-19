@@ -73,7 +73,10 @@ public class JyPickingSendDestinationDetailEntity implements Serializable {
     private Integer yn;
 
     private Date ts;
-
+    /**
+     * 已扫件数
+     */
+    private Integer scanItemNum;
 
     public Long getId() {
         return id;
@@ -209,5 +212,13 @@ public class JyPickingSendDestinationDetailEntity implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getScanItemNum() {
+        return scanItemNum;
+    }
+
+    public void setScanItemNum(Integer scanItemNum) {
+        this.scanItemNum = scanItemNum;
     }
 }

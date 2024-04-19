@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -43,7 +44,9 @@ public  class SendMDao extends BaseDao<SendM>  {
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectOneBySendCode(String sendCode) {
         Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
-        if(null == createSiteCode) return Collections.emptyList();
+        if(null == createSiteCode) {
+        	return Collections.emptyList();
+		}
 		SendM querySendM = new SendM();
 		querySendM.setSendCode(sendCode);
         querySendM.setCreateSiteCode(createSiteCode);
@@ -68,7 +71,9 @@ public  class SendMDao extends BaseDao<SendM>  {
 
 	public SendM selectBySendCode(String sendCode) {
         Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
-        if(null == createSiteCode) return null;
+        if(null == createSiteCode) {
+        	return null;
+		}
         SendM querySendM = new SendM();
         querySendM.setCreateSiteCode(createSiteCode);
         querySendM.setSendCode(sendCode);
@@ -314,6 +319,8 @@ public  class SendMDao extends BaseDao<SendM>  {
 	}
 
 	//查询批次内件数
+	@JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendMDao.countBoxCodeNumBySendCode",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
 	public Integer countBoxCodeNumBySendCode(String batchCode, Integer siteId){
 		SendM querySendM = new SendM();
 		querySendM.setCreateSiteCode(siteId);

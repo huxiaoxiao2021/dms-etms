@@ -57,7 +57,9 @@ public class JySealCarBatchCodesConsume extends MessageBaseConsumer {
             log.info("消费处理JySealCarBatchCodesConsume开始，内容{}",message.getText());
         }
         try{
-            if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(mqBody.getPost())) {
+            if(JyFuncCodeEnum.AVIATION_RAILWAY_PICKING_GOOD_POSITION.getCode().equals(mqBody.getPost())) {
+                this.aviationRailwayPickingSendSealService(mqBody);
+            }else if(JyFuncCodeEnum.AVIATION_RAILWAY_SEND_SEAL_POSITION.getCode().equals(mqBody.getPost())) {
                 this.aviationRailwaySendSealService(mqBody);
             }
         }catch (Exception e) {
@@ -78,4 +80,7 @@ public class JySealCarBatchCodesConsume extends MessageBaseConsumer {
         jyAviationRailwaySendSealService.batchCodeShuttleSealMark(dto);
     }
 
+    private void aviationRailwayPickingSendSealService(BatchCodeSealCarDto mqBody) {
+        jyPickingSendDestinationService.batchUpdateBatchCodeSealCarStatus(mqBody);
+    }
 }

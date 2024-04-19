@@ -5461,40 +5461,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         final String positionCode = operatorData.getPositionCode();
-
-        // 再根据网格码查询网格
-        final com.jdl.basic.common.utils.Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
-        if (positionDetailRecordResult == null) {
+        InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(userErp, positionCode, title, content);
+        if(!invokeResult.codeSuccess()) {
             return result.toFail();
         }
-        if (!positionDetailRecordResult.isSuccess()) {
-            return result.toFail();
-        }
-        final PositionDetailRecord positionDetailRecord = positionDetailRecordResult.getData();
-        if (positionDetailRecord == null) {
-            return result.toFail();
-        }
-
-        // 再根据网格信息查询网格负责人
-        final com.jdl.basic.common.utils.Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(positionDetailRecord.getRefWorkGridKey());
-        if (workGridResult == null) {
-            return result.toFail();
-        }
-        if (!workGridResult.isSuccess()) {
-            return result.toFail();
-        }
-        final WorkGrid workGrid = workGridResult.getData();
-        if (workGrid == null) {
-            return result.toFail();
-        }
-
-        List<String> erpList = new ArrayList<>(Arrays.asList(workGrid.getOwnerUserErp()));
-
-        if(log.isInfoEnabled()){
-            log.info("特安待扫咚咚提醒信息-content-{}，当前人erp-{}，上级erp-{}",JSON.toJSONString(content),userErp,erpList);
-        }
-        NoticeUtils.noticeToTimelineWithNoUrl(title, content, erpList);
-
         return result;
     }
 
