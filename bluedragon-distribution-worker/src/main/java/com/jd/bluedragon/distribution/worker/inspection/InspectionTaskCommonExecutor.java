@@ -1,18 +1,16 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
-import com.jd.bluedragon.distribution.material.dto.RecycleMaterialOperateRecordPublicDto;
-import com.jd.bluedragon.distribution.material.enums.MaterialFlowActionDetailV2Enum;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -24,17 +22,12 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jdl.basic.common.utils.DateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @ClassName InspectionTaskCommonExecutor
@@ -54,9 +47,6 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
     private BaseService baseService;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
-
-    @Autowired
     private InspectionService inspectionService;
 
     @Autowired
@@ -64,10 +54,6 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
 
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
-
-    @Autowired
-    @Qualifier("recycleMaterialOperateRecordProducer")
-    private DefaultJMQProducer recycleMaterialOperateRecordProducer;
 
     @Override
     protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
@@ -97,57 +83,7 @@ public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTas
     @Override
     protected boolean otherOperation(InspectionRequest request, InspectionTaskExecuteContext context) {
 
-        // 发送物资消息
-        this.sendRecycleMaterialOperateRecordMq(request);
-
         return true;
-    }
-
-    private void sendRecycleMaterialOperateRecordMq(InspectionRequest inspectionRequest) {
-        LOGGER.info("InspectionTaskCommonExecutor sendRecycleMaterialOperateRecordMq {}", JsonHelper.toJson(inspectionRequest));
-        try {
-            final RecycleMaterialOperateRecordPublicDto recycleMaterialOperateRecordDto = new RecycleMaterialOperateRecordPublicDto();
-            recycleMaterialOperateRecordDto.setPackageCode(inspectionRequest.getPackageBarcode());
-            recycleMaterialOperateRecordDto.setOperateNodeCode(MaterialFlowActionDetailV2Enum.NODE_RECEIPT.getCode());
-            recycleMaterialOperateRecordDto.setOperateNodeName(MaterialFlowActionDetailV2Enum.NODE_RECEIPT.getDesc());
-            if (null != inspectionRequest.getUserCode() && inspectionRequest.getUserCode() > 0) {
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(inspectionRequest.getUserCode());
-                if (null != baseStaffSiteOrgDto) {
-                    recycleMaterialOperateRecordDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
-                    recycleMaterialOperateRecordDto.setOperateUserName(baseStaffSiteOrgDto.getStaffName());
-                }
-            }
-            recycleMaterialOperateRecordDto.setOperateSiteId(String.valueOf(inspectionRequest.getSiteCode()));
-            recycleMaterialOperateRecordDto.setOperateSiteName(inspectionRequest.getSiteName());
-            final String operateTimeStr = inspectionRequest.getOperateTime();
-            final long currentTimeMillis = System.currentTimeMillis();
-            if (StringUtils.isNotBlank(operateTimeStr)) {
-                recycleMaterialOperateRecordDto.setOperateTime(DateUtil.parse(operateTimeStr, DateUtil.FORMAT_DATE_TIME).getTime());
-            } else {
-                recycleMaterialOperateRecordDto.setOperateTime(currentTimeMillis);
-            }
-            if (inspectionRequest.getReceiveSiteCode() != null) {
-                recycleMaterialOperateRecordDto.setReceiveSiteId(inspectionRequest.getReceiveSiteCode().toString());
-
-                Integer receiveSiteId = inspectionRequest.getReceiveSiteCode();
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteId);
-                // 查询目的地，判断如果是仓，则取仓的仓号_配送中心号
-                if (baseStaffSiteOrgDto != null) {
-                    recycleMaterialOperateRecordDto.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
-                    if (StringUtils.isNotBlank(baseStaffSiteOrgDto.getStoreCode())) {
-                        String[] storeCodeArr = baseStaffSiteOrgDto.getStoreCode().split(Constants.SEPARATOR_HYPHEN);
-                        if(storeCodeArr.length == 3){
-                            // 仓号_配送中心号
-                            recycleMaterialOperateRecordDto.setReceiveSiteId(storeCodeArr[2] + Constants.UNDER_LINE + storeCodeArr[1]);
-                        }
-                    }
-                }
-            }
-            recycleMaterialOperateRecordDto.setSendTime(currentTimeMillis);
-            recycleMaterialOperateRecordProducer.sendOnFailPersistent(recycleMaterialOperateRecordDto.getPackageCode(), JsonHelper.toJson(recycleMaterialOperateRecordDto));
-        } catch (Exception e) {
-            LOGGER.error("InspectionTaskCommonExecutor sendRecycleMaterialOperateRecordMq exception {}", JsonHelper.toJson(inspectionRequest), e);
-        }
     }
 
     /**
