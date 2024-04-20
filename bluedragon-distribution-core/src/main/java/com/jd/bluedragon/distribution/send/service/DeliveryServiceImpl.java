@@ -3906,7 +3906,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             recycleMaterialOperateRecordDto.setOperateNodeCode(MaterialFlowActionDetailV2Enum.NODE_DELIVERY_CANCEL.getCode());
             recycleMaterialOperateRecordDto.setOperateNodeName(MaterialFlowActionDetailV2Enum.NODE_DELIVERY_CANCEL.getDesc());
             if (null != sendDetail.getCreateUserCode() && sendDetail.getCreateSiteCode() > 0) {
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateSiteCode());
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateUserCode());
                 if (null != baseStaffSiteOrgDto) {
                     recycleMaterialOperateRecordDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
                     recycleMaterialOperateRecordDto.setOperateUserName(baseStaffSiteOrgDto.getStaffName());
