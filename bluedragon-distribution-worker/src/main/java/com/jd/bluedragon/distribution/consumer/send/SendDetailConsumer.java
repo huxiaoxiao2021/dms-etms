@@ -23,10 +23,13 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.consumer.send.dto.SendDetailContext;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyDamageExceptionService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.dto.RecycleMaterialOperateRecordPublicDto;
+import com.jd.bluedragon.distribution.material.enums.MaterialFlowActionDetailV2Enum;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
@@ -41,7 +44,6 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -208,6 +210,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private JyDamageExceptionService jyDamageExceptionService;
 
+    @Autowired
+    @Qualifier("recycleMaterialOperateRecordProducer")
+    private DefaultJMQProducer recycleMaterialOperateRecordProducer;
+
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -308,6 +314,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
+
+                final SendDetailContext sendDetailContext = new SendDetailContext();
+                sendDetailContext.setSendDetail(sendDetail);
+                BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+                BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
+                sendDetailContext.setCreateSiteDto(createSiteDto);
+                sendDetailContext.setReceiveSiteDto(receiveSiteDto);
+
+                BaseStaffSiteOrgDto operateUserStaffDto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateUserCode());
+                sendDetailContext.setOperateUserStaffDto(operateUserStaffDto);
+
                 // 杭州亚运会特殊全程跟踪处理
                 this.handleSecurityCheckWaybillTrace(sendDetail);
                 if(uccPropertyConfiguration.isDmsToVendorSendMQSwitch()){
@@ -331,6 +348,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.doColdIntercept(waybill,sendDetail);
                 // 构建并发送MQ给邮管局消息
                 this.sendToEmsWaybillInfoMQ(sendDetail, waybill,waybillPickup);
+                // 发送消息给物资平台
+                this.sendRecycleMaterialOperateRecordMq(sendDetailContext);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -1070,5 +1089,50 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
+    }
+
+    private void sendRecycleMaterialOperateRecordMq(SendDetailContext sendDetailContext) {
+        log.info("SendDetailConsumer sendRecycleMaterialOperateRecordMq {}", JsonHelper.toJson(sendDetailContext));
+        try {
+            final SendDetailMessage sendDetail = sendDetailContext.getSendDetail();
+            final RecycleMaterialOperateRecordPublicDto recycleMaterialOperateRecordDto = new RecycleMaterialOperateRecordPublicDto();
+            recycleMaterialOperateRecordDto.setPackageCode(sendDetail.getPackageBarcode());
+            recycleMaterialOperateRecordDto.setOperateNodeCode(MaterialFlowActionDetailV2Enum.NODE_DELIVERY.getCode());
+            recycleMaterialOperateRecordDto.setOperateNodeName(MaterialFlowActionDetailV2Enum.NODE_DELIVERY.getDesc());
+            if (null != sendDetail.getCreateUserCode() && sendDetail.getCreateSiteCode() > 0) {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateSiteCode());
+                if (null != baseStaffSiteOrgDto) {
+                    recycleMaterialOperateRecordDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
+                    recycleMaterialOperateRecordDto.setOperateUserName(baseStaffSiteOrgDto.getStaffName());
+                }
+            }
+            recycleMaterialOperateRecordDto.setOperateSiteId(String.valueOf(sendDetail.getCreateSiteCode()));
+            final BaseStaffSiteOrgDto createSiteDto = sendDetailContext.getCreateSiteDto();
+            if (createSiteDto != null) {
+                recycleMaterialOperateRecordDto.setOperateSiteName(createSiteDto.getSiteName());
+            }
+            final Long operateTimeMillSeconds = sendDetail.getOperateTime() != null ? sendDetail.getOperateTime() : System.currentTimeMillis();
+            recycleMaterialOperateRecordDto.setOperateTime(operateTimeMillSeconds);
+            if (sendDetail.getReceiveSiteCode() != null) {
+                recycleMaterialOperateRecordDto.setReceiveSiteId(sendDetail.getReceiveSiteCode().toString());
+
+                BaseStaffSiteOrgDto receiveSiteDto = sendDetailContext.getReceiveSiteDto();
+                // 查询目的地，判断如果是仓，则取仓的仓号_配送中心号
+                if (receiveSiteDto != null) {
+                    recycleMaterialOperateRecordDto.setReceiveSiteName(receiveSiteDto.getSiteName());
+                    if (org.apache.commons.lang.StringUtils.isNotBlank(receiveSiteDto.getStoreCode())) {
+                        String[] storeCodeArr = receiveSiteDto.getStoreCode().split(Constants.SEPARATOR_HYPHEN);
+                        if(storeCodeArr.length == 3){
+                            // 仓号_配送中心号
+                            recycleMaterialOperateRecordDto.setReceiveSiteId(storeCodeArr[2] + Constants.UNDER_LINE + storeCodeArr[1]);
+                        }
+                    }
+                }
+            }
+            recycleMaterialOperateRecordDto.setSendTime(System.currentTimeMillis());
+            recycleMaterialOperateRecordProducer.sendOnFailPersistent(recycleMaterialOperateRecordDto.getPackageCode(), JsonHelper.toJson(recycleMaterialOperateRecordDto));
+        } catch (Exception e) {
+            log.error("SendDetailConsumer sendRecycleMaterialOperateRecordMq exception {}", JsonHelper.toJson(sendDetailContext), e);
+        }
     }
 }
