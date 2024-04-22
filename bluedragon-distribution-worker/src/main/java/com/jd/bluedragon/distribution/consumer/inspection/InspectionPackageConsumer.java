@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.inspection;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackageMQ;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.material.dto.RecycleMaterialOperateRecordPublicDto;
+import com.jd.bluedragon.distribution.material.enums.MaterialFlowActionDetailV2Enum;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -41,12 +44,9 @@ import javax.annotation.Resource;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.*;
-import static com.jd.bluedragon.Constants.Numbers.INTEGER_ZERO;
 import static com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill.SEPARATOR_APPEND;
 import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_FENCE;
 import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.ELECTRONIC_GATEWAY;
-import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
-import static org.apache.commons.lang3.math.NumberUtils.INTEGER_TWO;
 
 /**
  * @ClassName InspectionPackageConsumer
@@ -95,6 +95,13 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
     public static final String  ELE_FENCE = "eleFence";
 
     public static final String  ELE_GATEWAY = "eleGateway";
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier("recycleMaterialOperateRecordProducer")
+    private DefaultJMQProducer recycleMaterialOperateRecordProducer;
 
 
     @Override
@@ -151,6 +158,9 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
             // 推送冷链验货消息
             pushColdChainOperateMQ(record);
+
+            // 发送物资消息
+            this.sendRecycleMaterialOperateRecordMq(record);
 
         }
         catch (Exception ex) {
@@ -367,5 +377,53 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         operationLog.setReceiveSiteCode(record.getReceiveSiteCode());
         operationLog.setMethodName("InspectionServiceImpl#saveOpLog");
         operationLogService.add(operationLog);
+    }
+
+    private void sendRecycleMaterialOperateRecordMq(Inspection record) {
+        LOGGER.info("InspectionPackageConsumer sendRecycleMaterialOperateRecordMq {}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(record));
+        try {
+            final RecycleMaterialOperateRecordPublicDto recycleMaterialOperateRecordDto = new RecycleMaterialOperateRecordPublicDto();
+            recycleMaterialOperateRecordDto.setPackageCode(record.getPackageBarcode());
+            recycleMaterialOperateRecordDto.setOperateNodeCode(MaterialFlowActionDetailV2Enum.NODE_RECEIPT.getCode());
+            recycleMaterialOperateRecordDto.setOperateNodeName(MaterialFlowActionDetailV2Enum.NODE_RECEIPT.getDesc());
+            if (null != record.getOperatorId() && record.getCreateUserCode() > 0) {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(record.getCreateUserCode());
+                if (null != baseStaffSiteOrgDto) {
+                    recycleMaterialOperateRecordDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
+                    recycleMaterialOperateRecordDto.setOperateUserName(baseStaffSiteOrgDto.getStaffName());
+                }
+            }
+            recycleMaterialOperateRecordDto.setOperateSiteId(String.valueOf(record.getCreateSiteCode()));
+            final BaseStaffSiteOrgDto operateSiteDto = baseMajorManager.getBaseSiteBySiteId(record.getCreateSiteCode());
+            recycleMaterialOperateRecordDto.setOperateSiteName(operateSiteDto.getSiteName());
+            final Date inspectionTime = record.getOperateTime();
+            final long currentTimeMillis = System.currentTimeMillis();
+            if (inspectionTime != null) {
+                recycleMaterialOperateRecordDto.setOperateTime(inspectionTime.getTime());
+            } else {
+                recycleMaterialOperateRecordDto.setOperateTime(currentTimeMillis);
+            }
+            if (record.getReceiveSiteCode() != null) {
+                recycleMaterialOperateRecordDto.setReceiveSiteId(record.getReceiveSiteCode().toString());
+
+                Integer receiveSiteId = record.getReceiveSiteCode();
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteId);
+                // 查询目的地，判断如果是仓，则取仓的仓号_配送中心号
+                if (baseStaffSiteOrgDto != null) {
+                    recycleMaterialOperateRecordDto.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
+                    if (org.apache.commons.lang.StringUtils.isNotBlank(baseStaffSiteOrgDto.getStoreCode())) {
+                        String[] storeCodeArr = baseStaffSiteOrgDto.getStoreCode().split(Constants.SEPARATOR_HYPHEN);
+                        if(storeCodeArr.length == 3){
+                            // 仓号_配送中心号
+                            recycleMaterialOperateRecordDto.setReceiveSiteId(storeCodeArr[2] + Constants.UNDER_LINE + storeCodeArr[1]);
+                        }
+                    }
+                }
+            }
+            recycleMaterialOperateRecordDto.setSendTime(currentTimeMillis);
+            recycleMaterialOperateRecordProducer.sendOnFailPersistent(recycleMaterialOperateRecordDto.getPackageCode(), com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(recycleMaterialOperateRecordDto));
+        } catch (Exception e) {
+            LOGGER.error("inspectionWaybillTaskExecutor sendRecycleMaterialOperateRecordMq exception {}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(record), e);
+        }
     }
 }

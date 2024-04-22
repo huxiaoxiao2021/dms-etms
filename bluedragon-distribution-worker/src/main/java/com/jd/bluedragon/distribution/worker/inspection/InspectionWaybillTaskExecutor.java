@@ -91,9 +91,6 @@ public class InspectionWaybillTaskExecutor extends InspectionTaskCommonExecutor 
 
         this.sendInspectionMQ(request);
 
-        // 发送物资消息
-        this.sendRecycleMaterialOperateRecordMq(request);
-
         return true;
     }
 
