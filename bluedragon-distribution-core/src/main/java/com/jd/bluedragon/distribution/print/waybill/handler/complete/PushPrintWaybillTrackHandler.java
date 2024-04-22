@@ -115,8 +115,6 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
     private void kyAddressModifyReprintDeal(PrintCompleteRequest printData, WaybillStatus waybillStatus) {
         if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign())){
             BlockResponse blockResponse;
-            //todo zcf 是否有必要兼容快运改址换单
-
             if(WaybillUtil.isPackageCode(printData.getPackageBarcode())){
                 blockResponse = waybillService.checkPackageBlock(printData.getPackageBarcode(),
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);

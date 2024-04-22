@@ -728,7 +728,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private void loadUnloadWaybillIntercept(String waybillCode, String waybillSign, InvokeResult<Boolean> result) {
         // 运单维度快运改址拦截
         if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
-//            BlockResponse blockResponse = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
             BlockResponse blockResponse = waybillService.checkWaybillBlockByFeatureTypes(waybillCode, featureTypeList);
 
@@ -763,7 +762,6 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private void loadUnloadPackIntercept(String packageCode, String waybillSign, InvokeResult<Boolean> result) {
         // 包裹维度快运改址拦截
         if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
-//            BlockResponse blockResponse = waybillService.checkPackageBlock(packageCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
             BlockResponse blockResponse = waybillService.checkPackageBlockByFeatureTypes(packageCode, featureTypeList);
 

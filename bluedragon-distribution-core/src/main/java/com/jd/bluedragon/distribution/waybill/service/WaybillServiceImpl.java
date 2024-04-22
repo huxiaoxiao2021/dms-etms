@@ -1893,8 +1893,8 @@ public class WaybillServiceImpl implements WaybillService {
 		if(BusinessUtil.isChangeWaybillSign(waybillSign)) {
 			return true;
 		}
-		BlockResponse response = this.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
-		//todo zcf 是否有必要做改址换单打印的逻辑
+        List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_ORDER_MODIFY, CancelWaybill.FEATURE_TYPE_KD_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
+        BlockResponse response = this.checkWaybillBlockByFeatureTypes(waybillCode, featureTypeList);
         if(response != null
         		&& BlockResponse.BLOCK.equals(response.getCode())) {
         	return true;

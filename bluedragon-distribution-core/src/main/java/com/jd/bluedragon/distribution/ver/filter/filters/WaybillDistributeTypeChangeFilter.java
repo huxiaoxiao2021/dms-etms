@@ -45,10 +45,8 @@ public class WaybillDistributeTypeChangeFilter implements Filter {
         BlockResponse response = null;
         List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_ORDER_MODIFY, CancelWaybill.FEATURE_TYPE_KD_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
         if (WaybillUtil.isPackageCode(request.getPackageCode())) {
-//            response = waybillService.checkPackageBlock(request.getPackageCode(), CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
             response = waybillService.checkPackageBlockByFeatureTypes(request.getPackageCode(), featureTypeList);
         } else {
-//            response = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
             response = waybillService.checkWaybillBlockByFeatureTypes(request.getWaybillCode(), featureTypeList);
         }
         logger.info(MessageFormat.format("查询运单号：{0},是否为修改配送方式拦截，返回值{1}", waybillCode, JSON.toJSONString(response)));
