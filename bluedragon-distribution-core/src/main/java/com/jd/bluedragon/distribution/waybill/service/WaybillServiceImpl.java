@@ -1139,6 +1139,7 @@ public class WaybillServiceImpl implements WaybillService {
      * @param waybillCode
      * @return
      */
+    @Override
     public CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode){
         List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
         if (cancelWaybills == null || cancelWaybills.isEmpty()) {
@@ -1893,6 +1894,7 @@ public class WaybillServiceImpl implements WaybillService {
 			return true;
 		}
 		BlockResponse response = this.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
+		//todo zcf 是否有必要做改址换单打印的逻辑
         if(response != null
         		&& BlockResponse.BLOCK.equals(response.getCode())) {
         	return true;
