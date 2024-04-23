@@ -314,7 +314,7 @@ public class BoxResource {
         }
 
         // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
-        if (MIX_ENABLE.getCode().equals(boxResponse.getMixBoxType())) {
+        if (MIX_DISABLE.getCode().equals(boxResponse.getMixBoxType())) {
             boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
             boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
         }else {
