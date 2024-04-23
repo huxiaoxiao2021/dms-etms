@@ -35,10 +35,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BoxCodeUtil;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -327,6 +324,7 @@ public class BoxResource {
                 boxResponse.setCollectClaim(flowConf.getCollectClaim());
             }
         }
+        boxResponse.setCreateTime(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
     }
 
     /**
