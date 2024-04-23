@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
@@ -44,6 +45,10 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
+import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
+import com.jdl.basic.common.enums.CollectClaimEnum;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +62,13 @@ import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum.MIX_DISABLE;
+import static com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum.MIX_ENABLE;
+import static com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.DMS_TYPE;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RWMS_TYPE;
+import static com.jdl.basic.common.enums.CollectClaimEnum.FINISHED_PRODUCT;
 
 
 @Component
@@ -117,6 +129,9 @@ public class BoxResource {
 
     @Autowired
     private SortingService sortingService;
+
+    @Autowired
+    private BoxLimitConfigManager boxLimitConfigManager;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -265,7 +280,81 @@ public class BoxResource {
             }
             request.setType(boxSubTypeEnum.getParentTypeCode());
         }
-        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
+        BoxResponse boxResponse = boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), true);
+
+        // 获取其他打印信息
+        assemblyBoxResponseInfo(boxResponse);
+        return boxResponse;
+    }
+
+    /**
+     * 打印对象
+     * @param boxResponse
+     */
+    private void assemblyBoxResponseInfo(BoxResponse boxResponse) {
+        CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
+        // 始发地处理 去除接货仓 分拣中心字样
+        String createSiteName = boxResponse.getCreateSiteName();
+        if (createSiteName != null) {
+            String createSiteNameNew = createSiteName.replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
+            boxResponse.setCreateSiteName(createSiteNameNew);
+        }
+
+        // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
+        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseStaffByStaffId(boxResponse.getReceiveSiteCode());
+        if (receiveSiteInfo != null) {
+            String receiveSiteName = boxResponse.getCreateSiteName();
+            // 如果是营业部
+            if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
+                receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
+            }else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
+                // 获取包牌名称
+                if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
+                    receiveSiteName = flowConf.getBoxPkgName();
+                }
+            }
+            boxResponse.setReceiveSiteName(receiveSiteName);
+        }
+
+        // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
+        if (MIX_ENABLE.getCode().equals(boxResponse.getMixBoxType())) {
+            boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
+            boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
+        }else {
+            // 获取集包要求
+            if (flowConf != null && flowConf.getCollectClaim() != null) {
+                boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
+                boxResponse.setCollectClaim(flowConf.getCollectClaim());
+            }
+        }
+    }
+
+    /**
+     * 获取一条集包规则
+     * @param boxResponse
+     * @return
+     */
+    private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(BoxResponse boxResponse) {
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(boxResponse);
+        List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
+        // 获取包牌名称
+        if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
+           return flowDirectionConfList.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 组装获取集包规则参数
+     * @param boxResponse
+     * @return
+     */
+    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(BoxResponse boxResponse) {
+        CollectBoxFlowDirectionConf conf = new CollectBoxFlowDirectionConf();
+        conf.setStartSiteId(boxResponse.getCreateSiteCode());
+        conf.setBoxReceiveId(boxResponse.getReceiveSiteCode());
+        conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        return conf;
     }
 
     /**
@@ -845,6 +934,8 @@ public class BoxResource {
             boxResponse.setBoxTypes(BoxTypeEnum.getMap());
             boxResponse.setBoxSubTypes(BoxSubTypeEnum.ENUM_MAP);
         }
+        // 获取其他打印信息
+        assemblyBoxResponseInfo(boxResponse);
         return boxResponse;
     }
 

@@ -152,6 +152,15 @@ public class BoxResponse extends JdResponse {
      */
     private String materialCode;
 
+    /**
+     * 集包要求
+     */
+    private Integer collectClaim;
+
+    /**
+     * 集包要求描述
+     */
+    private String collectClaimDesc;
 
     public String getMaterialCode() {
         return materialCode;
@@ -375,4 +384,21 @@ public class BoxResponse extends JdResponse {
     public void setWhetherZyBoxCode(boolean whetherZyBoxCode) {
         this.whetherZyBoxCode = whetherZyBoxCode;
     }
+
+    public Integer getCollectClaim() {
+        return collectClaim;
+    }
+
+    public void setCollectClaim(Integer collectClaim) {
+        this.collectClaim = collectClaim;
+    }
+
+    public String getCollectClaimDesc() {
+        return collectClaimDesc;
+    }
+
+    public void setCollectClaimDesc(String collectClaimDesc) {
+        this.collectClaimDesc = collectClaimDesc;
+    }
+
 }
