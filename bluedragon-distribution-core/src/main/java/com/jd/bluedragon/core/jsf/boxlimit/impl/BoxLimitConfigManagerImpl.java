@@ -137,7 +137,7 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
         if (ObjectHelper.isNotNull(rs) && rs.isSuccess() && ObjectHelper.isNotNull(rs.getData()) && CollectionUtils.isNotEmpty(rs.getData().getData())){
 
             if (CollectionUtils.isEmpty(collectClaimList)){
-                list =  rs.getData().getData();
+                return rs.getData().getData();
             }
 
             for (CollectBoxFlowDirectionConf datum : rs.getData().getData()) {
