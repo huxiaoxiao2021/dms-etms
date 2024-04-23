@@ -2611,4 +2611,9 @@ public class Constants {
      * 循环物资验货场地类型配置
      */
     public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF = "recycle.material.operate.record.site.type.conf";
+    /**
+     * 弃件暂存岗位限制配置
+     */
+    public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
+
 }

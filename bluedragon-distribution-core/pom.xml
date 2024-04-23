@@ -1728,6 +1728,10 @@
                     <artifactId>log4j-api</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>jsf</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
 
@@ -2228,6 +2232,12 @@
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-sdk</artifactId>
 			<version>${workbench-report-sdk.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>jsf</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.tys</groupId>
