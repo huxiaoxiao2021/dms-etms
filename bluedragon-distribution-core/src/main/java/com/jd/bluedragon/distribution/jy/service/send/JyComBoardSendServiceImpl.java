@@ -1612,6 +1612,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
         }
       } else {
+        //判断是否需要自动集笼
+        checkIfNeedAutoCollectLoading(request);
         //生成新板任务，lock主要是lock的这个点
         generateNewBoard(request);
         //存储jy_task
@@ -1629,6 +1631,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         jimDbLock.releaseLock(sendFlowAndGroupLockKey, request.getRequestId());
       }
     }
+  }
+
+  private void checkIfNeedAutoCollectLoading(ComboardScanReq request) {
+    //前端有没有传入，传入校验流向和是否重复绑定
+    //
   }
 
   private void generateNewBoard(ComboardScanReq request) {
@@ -1783,6 +1790,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       request.setDestinationId(box.getReceiveSiteCode());
 
+      checkIfBoxIsEmpty(box);
+
       if (StringUtils.isNotBlank(request.getMaterialCode()) && BusinessHelper.isBoxcode(barCode)) {
         BoxMaterialRelationRequest req = getBoxMaterialRelationRequest(request, barCode);
         //暂时忽略弱校验 等待晓峰修改后在支持
@@ -1825,6 +1834,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("该单号已发货");
       }
     }
+  }
+
+  private void checkIfBoxIsEmpty(Box box) {
   }
 
   private BoxMaterialRelationRequest getBoxMaterialRelationRequest(ComboardScanReq request, String barCode) {
