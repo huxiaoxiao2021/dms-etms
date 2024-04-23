@@ -179,20 +179,4 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
         }
         return false;
     }
-
-    /**
-     * 组装参数
-     * @param waybillCode
-     * @param siteId
-     * @return
-     */
-    private AbnormalWayBillQuery convertAbnormalWayBillQuery(String waybillCode, Integer siteId) {
-        AbnormalWayBillQuery query = new AbnormalWayBillQuery();
-        query.setWaybillCode(waybillCode);
-        query.setCreateSiteCode(siteId);
-        query.setPageNumber(INTEGER_ONE);
-        // 查询100条记录
-        query.setLimit(DB_SQL_IN_LIMIT_NUM);
-        return query;
-    }
 }
