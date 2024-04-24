@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.abnormalwaybill.service;
 
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
+import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 
 import java.util.List;
 
@@ -72,4 +73,13 @@ public interface AbnormalWayBillService {
      * @time 2023-08-22 15:21:15 周二
      */
     List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery);
+
+    /**
+     * 是否为破损运单
+     *
+     * @param waybillCode
+     * @param request
+     * @return
+     */
+    boolean isDamagedWaybill(String waybillCode, QualityControlRequest request);
 }

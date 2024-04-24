@@ -96,6 +96,8 @@ import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYB
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.CANCEL;
 import static com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum.COMPENSATE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -550,6 +552,12 @@ public class QualityControlService {
         ownReverseTransferDomain.setUserId(request.getUserID());
         ownReverseTransferDomain.setUserRealName(request.getUserName());
         ownReverseTransferDomain.setSiteName(request.getDistCenterName());
+        // 破损标识
+        if (abnormalWayBillService.isDamagedWaybill(waybillCode, request)) {
+            ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ONE);
+        }else {
+            ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ZERO);
+        }
         return ownReverseTransferDomain;
     }
 
