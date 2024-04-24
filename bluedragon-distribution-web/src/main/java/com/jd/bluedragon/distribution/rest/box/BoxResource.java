@@ -279,6 +279,7 @@ public class BoxResource {
         }
         BoxResponse boxResponse = boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), true);
 
+        boxResponse.setReceiveSiteCode(request.getReceiveSiteCode());
         // 获取其他打印信息
         assemblyBoxResponseInfo(boxResponse);
         return boxResponse;
