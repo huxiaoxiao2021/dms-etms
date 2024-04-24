@@ -158,6 +158,11 @@ public class DateHelper {
     public static Date addHours(final Date date, int hours) {
         return DateHelper.add(date, Calendar.HOUR, hours);
     }
+
+    public static Date addSeconds(final Date date, int seconds) {
+        return DateHelper.add(date, Calendar.SECOND, seconds);
+    }
+
     public static Date addHoursByDay(final Date date, Double days) {
         int hours =(int)(days * 24);
         return DateHelper.add(date, Calendar.HOUR, hours);

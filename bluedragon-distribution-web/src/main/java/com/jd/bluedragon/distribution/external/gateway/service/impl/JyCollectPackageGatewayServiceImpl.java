@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
@@ -15,6 +16,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +46,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.collectScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<CollectPackageResp> collectScan(CollectPackageReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyCollectPackageServiceImpl.collectScan.seconds", false, true);
         try {
             //扫描循环集包袋
             if (BusinessUtil.isCollectionBag(request.getBarCode())) {
@@ -64,10 +68,13 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
                 return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
             }
         } catch (JyBizException e) {
+            Profiler.functionError(info);
             if (ObjectHelper.isNotNull(e.getCode())) {
                 return new JdCResponse(e.getCode(), e.getMessage());
             }
             return new JdCResponse(CODE_ERROR, e.getMessage());
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

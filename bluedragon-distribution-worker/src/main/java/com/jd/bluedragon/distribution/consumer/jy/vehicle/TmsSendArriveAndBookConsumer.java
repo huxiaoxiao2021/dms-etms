@@ -3,13 +3,18 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.AutoInspectionSiteTypeConf;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.PackageArriveAutoInspectionDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.trust.TmsSendArriveAndBookMqBody;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -21,9 +26,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Objects;
+
+import static com.jd.bluedragon.Constants.TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF;
+import static com.jd.bluedragon.utils.BusinessHelper.isSiteTypeValid;
 
 /**
  * 运输系统-围栏到车后发送包裹到达消息
@@ -39,12 +49,17 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
 
     // 操作类型	: 1是发车，2是到车 99:委托书;100:围栏发车，200：围栏到车，10-铁路发车，20-铁路到车，30-发货登记
     private static final Integer SEND_ARRIVE_TYPE_200 = 200;
+    @Value("${tmsArriveCarAutoInspectionOperateTimeDelaySeconds:10}")
+    private Integer tmsArriveCarAutoInspectionOperateTimeDelaySeconds;
 
 
     @Autowired
     private JyTrustHandoverAutoInspectionService jyTrustHandoverAutoInspectionService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private void logInfo(String message, Object... objects) {
         if (logger.isInfoEnabled()) {
@@ -117,11 +132,19 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
         dto.setArriveSiteId(baseSite.getSiteCode());
         dto.setArriveSiteName(StringUtils.isBlank(baseSite.getSiteName()) ? StringUtils.EMPTY : baseSite.getSiteName());
         dto.setCreateTime(mqBody.getCreateTime());
-        dto.setOperateTime(mqBody.getOperateTime());
+        Date operateTime = this.confirmOperateTime(mqBody.getOperateTime());
+        dto.setOperateTime(operateTime);
         dto.setFirstConsumerTime(System.currentTimeMillis());
         return dto;
     }
 
+    private Date confirmOperateTime(Date date) {
+        Integer delayTime = tmsArriveCarAutoInspectionOperateTimeDelaySeconds;
+        if(!NumberHelper.gt0(tmsArriveCarAutoInspectionOperateTimeDelaySeconds)) {
+            return date;
+        }
+        return DateHelper.addSeconds(date, delayTime);
+    }
 
     /**
      * 过滤无效数据  返回true 放行，false拦截
@@ -162,7 +185,27 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
             logInfo("运输围栏到车包裹到达消息过滤，到达场地{}基础资料不存在或者非分拣中心，mqBody={},site={}", mqBody.getEndNodeCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
             return false;
         }
+
+        if(!sysConfigService.getByListContainOrAllConfig(Constants.TMS_SEND_ARRIVE_AND_BOOK_SITE_CONF,String.valueOf(baseSite.getSiteCode()))){
+            logInfo("运输围栏到车包裹到达消息场地开关过滤，到达场地{}，mqBody={},site={}", mqBody.getEndNodeCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
+            return false;
+        }
+
+        // 站点类型白名单校验
+        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF);
+        if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
+            logInfo("运输围栏到车包裹到达消息场地类型白名单过滤，未配置场地类型白名单！");
+            return false;
+        }
+        AutoInspectionSiteTypeConf siteTypeConf = JsonHelper.fromJson(sysConfig.getConfigContent(), AutoInspectionSiteTypeConf.class);
+        if (siteTypeConf == null) {
+            logInfo("运输围栏到车未获取到配置场地类型白名单！");
+            return false;
+        }
+        if (!isSiteTypeValid(siteTypeConf, baseSite)) {
+            logInfo("运输围栏到车包裹到达消息场地类型过滤，到达场地{}，mqBody={},site={}", mqBody.getEndNodeCode(), JsonHelper.toJson(mqBody), JsonHelper.toJson(baseSite));
+            return false;
+        }
         return true;
     }
-
 }

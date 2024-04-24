@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -200,5 +202,29 @@ public class RouterServiceImpl implements RouterService {
             return baseMajorManager.getBaseSiteBySiteId(nextSiteId);
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        Integer siteCode = 678898;
+        String routerStr = "678898|422853|58176|418866|1325986";
+        String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        List<Integer> nextSiteIdList = Lists.newArrayList();
+        Integer firstNextSiteId = null;
+        int arrayLastIndex = routers.length - 1;
+        for (int i = arrayLastIndex; i >= 0; i--) {
+            Integer item = NumberHelper.convertToInteger(routers[i]);
+            if(Objects.equals(siteCode,item)){
+                final RouteNextDto routeNextDto = new RouteNextDto(firstNextSiteId, Boolean.TRUE, nextSiteIdList, 1);
+                System.out.println(JsonHelper.toJson(routeNextDto));
+                //return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList);
+            }
+            nextSiteIdList.add(0,item);
+            firstNextSiteId = item;
+        }
+
+        Map<String, Long> timeMap = new HashMap<>();
+        timeMap.put("1", System.currentTimeMillis());
+        timeMap.put("2", System.currentTimeMillis());
+        System.out.println(timeMap);
     }
 }

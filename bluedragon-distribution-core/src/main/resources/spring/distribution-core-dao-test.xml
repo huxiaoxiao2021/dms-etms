@@ -367,4 +367,10 @@
 	<bean id="jyExceptionInterceptDetailKvDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionInterceptDetailKvDao">
 		<property name="sqlSession" ref="sessionTemplate"/>
 	</bean>
+	<bean id="routerDynamicLineReplacePlanDao" class="com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanDao">
+		<property name="sqlSession" ref="sessionTemplate" />
+	</bean>
+	<bean id="routerDynamicLineReplacePlanLogDao" class="com.jd.bluedragon.distribution.router.dao.RouterDynamicLineReplacePlanLogDao">
+		<property name="sqlSession" ref="sessionTemplate" />
+	</bean>
 </beans>
