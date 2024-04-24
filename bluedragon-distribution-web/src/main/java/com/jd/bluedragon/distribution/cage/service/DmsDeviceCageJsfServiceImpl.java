@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.domain.Response;
@@ -17,8 +18,10 @@ import com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackage
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,8 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
     private SiteService siteService;
     @Autowired
     private BoxService boxService;
-
+    @Autowired
+    BaseMajorManager baseMajorManager;
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DeviceCageJsfServiceImpl.cage", mState = JProEnum.TP)
     public InvokeResult<CollectPackageResp> cage(CollectPackageReq req) {
@@ -55,10 +59,17 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
             currentOperate.setSiteCode(req.getSiteCode().intValue());
             currentOperate.setSiteName(site.getName());
         }
+        currentOperate.setOperateTime(req.getOperateTime());
         request.setCurrentOperate(currentOperate);
         User user = new User();
-        user.setUserErp(req.getUserErp());
-        user.setUserName(req.getUserName());
+        if (StringUtils.isNotEmpty(req.getUserErp())){
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(req.getUserErp());
+            if (baseStaffSiteOrgDto != null){
+                user.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+                user.setUserErp(req.getUserErp());
+                user.setUserName(req.getUserName());
+            }
+        }
         request.setUser(user);
         Box box = boxService.findBoxByCode(request.getBoxCode());
         if (box == null) {
