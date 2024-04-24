@@ -298,9 +298,9 @@ public class BoxResource {
         }
 
         // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
-        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseStaffByStaffId(boxResponse.getReceiveSiteCode());
+        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getReceiveSiteCode());
         if (receiveSiteInfo != null) {
-            String receiveSiteName = boxResponse.getCreateSiteName();
+            String receiveSiteName = boxResponse.getReceiveSiteName();
             // 如果是营业部
             if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
                 receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
