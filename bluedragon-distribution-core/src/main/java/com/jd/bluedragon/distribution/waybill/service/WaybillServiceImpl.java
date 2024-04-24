@@ -1139,7 +1139,6 @@ public class WaybillServiceImpl implements WaybillService {
      * @param waybillCode
      * @return
      */
-    @Override
     public CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode){
         List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
         if (cancelWaybills == null || cancelWaybills.isEmpty()) {
@@ -1893,8 +1892,7 @@ public class WaybillServiceImpl implements WaybillService {
 		if(BusinessUtil.isChangeWaybillSign(waybillSign)) {
 			return true;
 		}
-        List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_ORDER_MODIFY, CancelWaybill.FEATURE_TYPE_KD_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
-        BlockResponse response = this.checkWaybillBlockByFeatureTypes(waybillCode, featureTypeList);
+		BlockResponse response = this.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
         if(response != null
         		&& BlockResponse.BLOCK.equals(response.getCode())) {
         	return true;

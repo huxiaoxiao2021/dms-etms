@@ -45,7 +45,6 @@ public class ForceChangeWaybillSignFilter implements Filter {
         boolean kyAddressModify = BusinessUtil.isKyAddressModifyWaybill(request.getWaybillCache().getWaybillSign());
         List<Integer> featureTypeList = Lists.newArrayList(); // 拦截类型集合
         if(kdAddressModify){
-            featureTypeList.add(CancelWaybill.FEATURE_TYPE_KD_CHANGE_ADDRESS_CHANGE_WAYBILL);
             featureTypeList.add(CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
         }
         if(kyAddressModify){
@@ -66,8 +65,7 @@ public class ForceChangeWaybillSignFilter implements Filter {
         if (BlockResponse.BLOCK.equals(response.getCode())) {
             Integer currentFeatureType = response.getFeatureType();
             // 改址换单拦截
-            if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KD_CHANGE_ADDRESS_CHANGE_WAYBILL)
-                    || Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)){
+            if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)){
                 throw  new SortingCheckException(SortingResponse.CODE_29333,
                         HintService.getHintWithFuncModule(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT, request.getFuncModule()));
             }
