@@ -12,7 +12,9 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.inspection.JyTrustHandoverAutoInspectionService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -20,15 +22,14 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Date;
 import java.util.Objects;
 
 import static com.jd.bluedragon.Constants.TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF;
@@ -48,6 +49,8 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
 
     // 操作类型	: 1是发车，2是到车 99:委托书;100:围栏发车，200：围栏到车，10-铁路发车，20-铁路到车，30-发货登记
     private static final Integer SEND_ARRIVE_TYPE_200 = 200;
+    @Value("${tmsArriveCarAutoInspectionOperateTimeDelaySeconds:10}")
+    private Integer tmsArriveCarAutoInspectionOperateTimeDelaySeconds;
 
 
     @Autowired
@@ -129,11 +132,19 @@ public class TmsSendArriveAndBookConsumer extends MessageBaseConsumer {
         dto.setArriveSiteId(baseSite.getSiteCode());
         dto.setArriveSiteName(StringUtils.isBlank(baseSite.getSiteName()) ? StringUtils.EMPTY : baseSite.getSiteName());
         dto.setCreateTime(mqBody.getCreateTime());
-        dto.setOperateTime(mqBody.getOperateTime());
+        Date operateTime = this.confirmOperateTime(mqBody.getOperateTime());
+        dto.setOperateTime(operateTime);
         dto.setFirstConsumerTime(System.currentTimeMillis());
         return dto;
     }
 
+    private Date confirmOperateTime(Date date) {
+        Integer delayTime = tmsArriveCarAutoInspectionOperateTimeDelaySeconds;
+        if(!NumberHelper.gt0(tmsArriveCarAutoInspectionOperateTimeDelaySeconds)) {
+            return date;
+        }
+        return DateHelper.addSeconds(date, delayTime);
+    }
 
     /**
      * 过滤无效数据  返回true 放行，false拦截
