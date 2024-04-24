@@ -47,6 +47,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -245,6 +247,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sendScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanRes> sendScan(SendScanReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyWarehouseSendGatewayServiceImpl.sendScan.seconds", false, true);
         final String methodDesc = "JyWarehouseSendGatewayServiceImpl.sendScan:接货仓发货岗扫描：";
         try{
             //参数校验
@@ -301,11 +304,15 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             request.setPost(JyFuncCodeEnum.WAREHOUSE_SEND_POSITION.getCode());
             return jyWarehouseSendVehicleService.scan(request, res);
         }catch (JyBizException ex) {
+            Profiler.functionError(info);
             log.error("{}自定义异常捕获，请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage());
             return new JdVerifyResponse<>(JdCResponse.CODE_FAIL, ex.getMessage(), null);//400+自定义异常
         }catch (Exception ex) {
+            Profiler.functionError(info);
             log.error("{}请求信息={},errMsg={}", methodDesc, JsonHelper.toJson(request), ex.getMessage(), ex);
             return new JdVerifyResponse<>(JdCResponse.CODE_ERROR, JdCResponse.MESSAGE_ERROR, null);//500+非自定义异常
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
