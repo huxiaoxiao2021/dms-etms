@@ -2611,4 +2611,9 @@ public class Constants {
      * 循环物资验货场地类型配置
      */
     public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF = "recycle.material.operate.record.site.type.conf";
+    /**
+     * 取消退货组，异常原因 白名单仓配置
+     */
+    public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
+
 }

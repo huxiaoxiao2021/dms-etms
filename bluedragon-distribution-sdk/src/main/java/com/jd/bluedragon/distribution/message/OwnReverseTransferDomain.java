@@ -36,6 +36,11 @@ public class OwnReverseTransferDomain implements Serializable {
      */
     private String areaHubName;
 
+    /**
+     * 破损标识 0无破损 1有破损
+     */
+    private Integer damagedPackageFlag;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -146,5 +151,13 @@ public class OwnReverseTransferDomain implements Serializable {
 
     public void setAreaHubName(String areaHubName) {
         this.areaHubName = areaHubName;
+    }
+
+    public Integer getDamagedPackageFlag() {
+        return damagedPackageFlag;
+    }
+
+    public void setDamagedPackageFlag(Integer damagedPackageFlag) {
+        this.damagedPackageFlag = damagedPackageFlag;
     }
 }
