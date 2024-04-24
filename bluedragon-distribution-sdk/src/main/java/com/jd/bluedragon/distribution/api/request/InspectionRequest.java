@@ -76,6 +76,16 @@ public class InspectionRequest extends JdRequest{
 	private OperatorData operatorData;
 	
 	private String operatorDataJson;
+
+	/**
+	 * 操作流水表主键
+	 */
+	private Long operateFlowId;
+
+	/**
+	 * 车牌号
+	 */
+	private String vehicleNumber;
 	
     public int getPageNo() {
         return pageNo;
@@ -282,5 +292,21 @@ public class InspectionRequest extends JdRequest{
 
 	public void setOperatorDataJson(String operatorDataJson) {
 		this.operatorDataJson = operatorDataJson;
+	}
+
+	public Long getOperateFlowId() {
+		return operateFlowId;
+	}
+
+	public void setOperateFlowId(Long operateFlowId) {
+		this.operateFlowId = operateFlowId;
+	}
+
+	public String getVehicleNumber() {
+		return vehicleNumber;
+	}
+
+	public void setVehicleNumber(String vehicleNumber) {
+		this.vehicleNumber = vehicleNumber;
 	}
 }

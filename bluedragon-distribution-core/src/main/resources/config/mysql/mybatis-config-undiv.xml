@@ -408,5 +408,9 @@
         <!--设备抽检申诉 -->
         <mapper resource="mappers/mysql/spot/SpotCheckAppealMapper.xml" />
 
+        <!--动态配置线路-->
+        <mapper resource="mappers/mysql/router/RouterDynamicLineReplacePlanMapper.xml" />
+        <mapper resource="mappers/mysql/router/RouterDynamicLineReplacePlanLogMapper.xml" />
+
     </mappers>
 </configuration>

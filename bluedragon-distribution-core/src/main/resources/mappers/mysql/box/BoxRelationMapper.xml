@@ -61,6 +61,9 @@
       <if test="yn != null" >
         yn,
       </if>
+      <if test="source != null" >
+        source,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -95,6 +98,9 @@
       </if>
       <if test="yn != null" >
         #{yn,jdbcType=BIT},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -197,6 +203,16 @@
         WHERE
             yn = 1
         AND box_code = #{boxCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getByRelationCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        dms_box_relation
+        WHERE
+        yn = 1
+        AND relation_box_code = #{boxCode,jdbcType=VARCHAR}
     </select>
 
 </mapper>

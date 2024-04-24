@@ -26,10 +26,10 @@ public interface JyEvaluateService {
     /**
      * 评价提交
      */
-    void saveTargetEvaluate(EvaluateTargetReq request);
+    String saveTargetEvaluate(EvaluateTargetReq request);
 
     /**
      * 评价修改
      */
-    void updateTargetEvaluate(EvaluateTargetReq request);
+    String updateTargetEvaluate(EvaluateTargetReq request);
 }

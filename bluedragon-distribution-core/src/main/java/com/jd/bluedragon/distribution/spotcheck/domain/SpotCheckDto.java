@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -118,6 +119,8 @@ public class SpotCheckDto implements Serializable {
      * 版本号
      */
     private Integer version;
+
+    private Date operateTime;
 
     public String getBarCode() {
         return barCode;
@@ -309,5 +312,13 @@ public class SpotCheckDto implements Serializable {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
     }
 }

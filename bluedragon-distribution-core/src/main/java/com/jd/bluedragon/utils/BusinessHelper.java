@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.jss.oss.OssUrlNetTypeEnum;
+import com.jd.bluedragon.distribution.jy.dto.unload.trust.AutoInspectionSiteTypeConf;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.*;
 import com.jd.bluedragon.enums.WaybillFlowTypeEnum;
@@ -24,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_KY_0017;
 
 
 public class BusinessHelper {
@@ -1187,5 +1191,69 @@ public class BusinessHelper {
             }
         }
         return WaybillFlowTypeEnum.MAINLAND;
+    }
+
+    /**
+     * 判断是否保温箱运单
+     * @param waybillSign 运单标识
+     * @return 如果是BWX运单返回true，否则返回false
+     */
+    public static boolean isBwxWaybill(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_24, WaybillSignConstants.CHAR_24_G);
+    }
+
+    /**
+     * 判断是否寄付运单
+     * @param waybill 运单
+     * @return 如果是返回true，否则返回false
+     */
+    public static boolean isJfWaybill(Waybill waybill) {
+        if (Objects.isNull(waybill) || StringUtils.isEmpty(waybill.getWaybillSign())) {
+            return true;
+        }
+        return BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_3);
+    }
+
+    /**
+     * 校验运单是否为 特快重货、特快零担、特惠专配、快运零担
+     * @param waybill
+     * @return
+     */
+    public static boolean weightingProductCodeCheck(Waybill waybill) {
+        if (waybill.getWaybillExt() == null || com.jd.common.util.StringUtils.isEmpty(waybill.getWaybillExt().getProductType())) {
+            return false;
+        }
+        String productType = waybill.getWaybillExt().getProductType();
+        return PRODUCT_TYPE_KY_001.equals(productType)
+                || PRODUCT_TYPE_KY_0004.equals(productType)
+                || PRODUCT_TYPE_KY_0006.equals(productType)
+                || PRODUCT_TYPE_KY_0017.equals(productType);
+    }
+
+    /**
+     * 是否存在解决方案编码判断
+     * @param waybill
+     * @return
+     */
+    public static boolean productSolutionIsExist(Waybill waybill) {
+        return waybill.getWaybillExt() == null || com.jd.common.util.StringUtils.isEmpty(waybill.getWaybillExt().getProductSolutionID());
+    }
+
+    /**
+     * 站点类型校验
+     * @return
+     */
+    public static boolean isSiteTypeValid(AutoInspectionSiteTypeConf siteTypeConf, BaseStaffSiteOrgDto baseSite) {
+        return isTypeListValid(siteTypeConf.getSortTypeList(), baseSite.getSortType()) ||
+                isTypeListValid(siteTypeConf.getSortSubTypeList(), baseSite.getSortSubType()) ||
+                isTypeListValid(siteTypeConf.getSortThirdTypeList(), baseSite.getSortThirdType());
+    }
+
+    /**
+     * 站点类型匹配
+     * @return
+     */
+    public static boolean isTypeListValid(List<Integer> typeList, Integer siteType) {
+        return org.apache.commons.collections.CollectionUtils.isNotEmpty(typeList) && typeList.contains(siteType);
     }
 }

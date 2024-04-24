@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -67,5 +68,7 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
         allianceBusiDeliveryDto.setDatas(Collections.singletonList(detailDto));
 
         allianceBusiDeliveryDetailService.allianceBusiDelivery(allianceBusiDeliveryDto);
+        // 记录称重操作流水
+        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_HANDOVER);
     }
 }

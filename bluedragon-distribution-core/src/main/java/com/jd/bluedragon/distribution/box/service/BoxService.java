@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.api.request.box.BoxTypeReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxBindDto;
+import com.jd.bluedragon.distribution.box.domain.StoreBoxDetail;
 import com.jd.bluedragon.distribution.box.domain.UpdateBoxReq;
 import com.jd.bluedragon.dms.utils.RecycleBasketTypeEnum;
 import com.jd.dms.java.utils.sdk.base.Result;
@@ -102,6 +104,15 @@ public interface BoxService {
      */
     BoxResponse updateBox(UpdateBoxReq request);
 
+    /**
+     * 更新箱号绑定物资关系
+     * @param request 请求入参
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-02-24 13:00:58 周六
+     */
+    Result<Boolean> upsertBoxMaterialRelation4WmsBoxUsage(StoreBoxDetail request);
+
     void computeRouter(List<Map.Entry<Integer, String>> router);
 
     /**
@@ -120,4 +131,31 @@ public interface BoxService {
      * @time 2023-10-24 14:14:24 周二
      */
     Result<List<BoxTypeDto>> getBoxTypeList(BoxTypeReq boxTypeReq);
+
+
+    /**
+     * 存储箱号绑定关系
+     * @param containerBindDto
+     * @return
+     */
+    boolean saveBoxBindRelation(BoxBindDto containerBindDto);
+
+    /**
+     * 获取某个箱号的所有后代箱号
+     */
+    List<Box> listAllDescendantsByParentBox(Box box);
+
+    /**
+     * 获取子代箱号
+     */
+    List<Box> listSonBoxesByParentBox(Box box);
+
+    /**
+     * 获取父级箱号
+     * @param box 查询参数
+     * @return 父级箱号列表
+     * @author fanggang7
+     * @time 2024-03-10 09:44:33 周日
+     */
+    List<Box> listAllParentBox(Box box);
 }

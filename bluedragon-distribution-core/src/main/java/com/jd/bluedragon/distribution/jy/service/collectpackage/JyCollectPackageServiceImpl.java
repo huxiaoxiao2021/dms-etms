@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
 import com.jd.bluedragon.common.dto.collectpackage.response.*;
 import com.jd.bluedragon.common.dto.comboard.request.ExcepScanDto;
@@ -18,17 +20,23 @@ import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.ListTaskStatisticQueryDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskDto;
 import com.jd.bluedragon.core.jsf.collectpackage.dto.StatisticsUnderTaskQueryDto;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageFlowEntity;
@@ -53,6 +61,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -60,12 +69,14 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,6 +85,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -84,11 +96,11 @@ import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.getFromCo
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SITE_TYPE_WMS;
+import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 
-@Service
+@Service("jyCollectPackageService")
 @Slf4j
 public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
@@ -103,9 +115,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Autowired
     private BaseService baseService;
     @Autowired
-    private TaskService taskService;
-    @Autowired
-    private ISortingService dmsSortingService;
+    protected TaskService taskService;
     @Autowired
     BoxLimitConfigManager boxLimitConfigManager;
     @Autowired
@@ -141,6 +151,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private RouterService routerService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+    @Resource
+    private FuncSwitchConfigService funcSwitchConfigService;
+    @Autowired
+    BoxRelationService boxRelationService;
 
 
     /**
@@ -161,12 +175,34 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
     }
 
+    @Override
+    public InvokeResult<CollectPackageResp> collectBox(CollectPackageReq request) {
+        //基础校验
+        collectBoxBaseCheck(request);
+        //集装业务校验
+        collectBoxBizCheck(request);
+        //执行集装
+        CollectPackageResp response = new CollectPackageResp();
+        execCollectBox(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectPackageForMachine(CollectPackageReq request) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<CollectPackageResp> collectBoxForMachine(CollectPackageReq request) {
+        return null;
+    }
+
     /**
      * 执行集包操作
      * @param request 集包请求对象
      * @param response 集包响应对象
      */
-    private void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
+    protected void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -255,7 +291,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request 集包请求对象
      */
     private void saveJyCollectPackageScanRecord(CollectPackageReq request) {
-        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, request.getForceCollectPackage()?true:false);
+        JyCollectPackageEntity jyCollectPackageEntity = converJyCollectPackageEntity(request, false, request.getForceCollectPackage());
         jyCollectPackageScanRecordService.saveJyCollectPackageRecord(jyCollectPackageEntity);
     }
 
@@ -289,7 +325,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         jyCollectPackageEntity.setEndSiteId(request.getEndSiteId());
         jyCollectPackageEntity.setEndSiteName(request.getEndSiteName());
         jyCollectPackageEntity.setBoxEndSiteId(request.getBoxReceiveId());
-        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxCode());
+        jyCollectPackageEntity.setBoxEndSiteName(request.getBoxReceiveName());
         Date now = new Date();
         jyCollectPackageEntity.setCreateTime(now);
         jyCollectPackageEntity.setUpdateTime(now);
@@ -302,7 +338,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return jyCollectPackageEntity;
     }
 
-    private TaskRequest assembleTaskRequest(CollectPackageReq request) {
+    protected TaskRequest assembleTaskRequest(CollectPackageReq request) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(request.getBoxCode());
         taskRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -331,12 +367,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskBody.setUserCode(request.getUser().getUserCode());
         taskBody.setUserName(request.getUser().getUserName());
         taskBody.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
+        taskBody.setOperatorData(request.getCurrentOperate().getOperatorData());
         List<PackSortTaskBody> bodyList = new ArrayList<>();
         bodyList.add(taskBody);
         return JSON.toJSONString(bodyList);
     }
 
-    private void collectPackageBizCheck(CollectPackageReq request) {
+    public void collectPackageBizCheck(CollectPackageReq request) {
         //重复集包校验
         reCollectCheck(request);
         //校验箱号：是否存在 +是否已打印+状态合法性+是否已经发货
@@ -349,6 +386,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         sealBoxCheck(request);
     }
 
+    /**
+     * BX 开头的箱号，只能扫描目的地只能是 三方配送公司
+     * @param siteInfo
+     */
+    public static boolean bxBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo) {
+        return isThirdSite(siteInfo);
+    }
     private void sealBoxCheck(CollectPackageReq request) {
         /*if (request.getSkipSealBoxCheck()){
             return;
@@ -358,7 +402,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }*/
     }
 
-    private void reCollectCheck(CollectPackageReq request) {
+    public void reCollectCheck(CollectPackageReq request) {
         JyCollectPackageEntity query =new JyCollectPackageEntity();
         query.setPackageCode(request.getBarCode());
         query.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
@@ -375,7 +419,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private void flowCheck(CollectPackageReq request) {
+    public void flowCheck(CollectPackageReq request) {
         JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
         if (ObjectHelper.isEmpty(collectPackageTask)) {
             throw new JyBizException("集包任务不存在或者已经过期，请刷新界面！");
@@ -393,7 +437,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }
             //获取包裹预分拣站点
             Integer yufenjian = getYufenjianByPackage(waybill);
-            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){//如果预分拣站点不匹配箱号目的地，再去判断末级分拣
+            if (!checkYufenjianIfMatchDestination(yufenjian,request,collectPackageTask)){ //如果预分拣站点不匹配箱号目的地，再去判断末级分拣
                 //获取包裹的末级分拣中心
                 Integer lastDmsId = getLastDmsByPackage(waybill,collectPackageTask);
                 if (MixBoxTypeEnum.MIX_DISABLE.getCode().equals(collectPackageTask.getMixBoxType())) {
@@ -586,7 +630,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     }
 
 
-    private void execInterceptorChain(CollectPackageReq request) {
+    public void execInterceptorChain(CollectPackageReq request) {
         if (request.getForceCollectPackage() || request.getSkipInterceptChain()) {
             return;
         }
@@ -602,7 +646,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
     }
 
-    private PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
+    public PdaOperateRequest assemblePdaOperateRequest(CollectPackageReq request) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setBoxCode(request.getBoxCode());
         pdaOperateRequest.setBusinessType(request.getBusinessType());
@@ -611,17 +655,25 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         //pdaOperateRequest.setOperateType(request.getOperateType());
         pdaOperateRequest.setPackageCode(request.getBarCode());
         pdaOperateRequest.setReceiveSiteCode(request.getEndSiteId().intValue());
-        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
-        pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        final CurrentOperate currentOperate = request.getCurrentOperate();
+        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
+        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
+        pdaOperateRequest.setOperateTime(DateUtil.format(currentOperate.getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setInterceptChainBitCode(dmsConfigManager.getPropertyConfig().getJyCollectPackageInterceptBitCode());
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
         pdaOperateRequest.setJyCollectPackageFlag(true);
+        final OperatorData operatorData = currentOperate.getOperatorData();
+        if (operatorData != null) {
+            pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
+            pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
+            pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+        }
         return pdaOperateRequest;
     }
 
-    private void boxCheck(CollectPackageReq request) {
+    public void boxCheck(CollectPackageReq request) {
         Box box = boxService.findBoxByCode(request.getBoxCode());
         if (box == null) {
             throw new JyBizException("该箱号不存在或者已过期！");
@@ -638,6 +690,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         request.setBoxReceiveId(Long.valueOf(box.getReceiveSiteCode()));
         request.setBoxReceiveName(box.getReceiveSiteName());
+        request.setBoxType(box.getType());
         request.setBusinessType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
         if (ObjectHelper.isNotNull(request.getBoxReceiveId())){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseService.getSiteBySiteID(request.getBoxReceiveId().intValue());
@@ -810,7 +863,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 if (CollectionUtils.isEmpty(flowDtoList)) {
                     flowDtoList = new ArrayList<>();
                     // 添加建箱目的地流向
-                    CollectPackageFlowDto flowDto = taskMap.get(entity.getCollectPackageBizId());;
+                    CollectPackageFlowDto flowDto = taskMap.get(entity.getCollectPackageBizId());
                     flowDtoList.add(flowDto);
                     flowMap.put(entity.getCollectPackageBizId(), flowDtoList);
                 }
@@ -881,6 +934,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         CollectPackageTaskDto taskDto = new CollectPackageTaskDto();
         BeanUtils.copyProperties(task, taskDto);
+
+        if (BusinessUtil.isBoxcode(request.getBarCode()) && !BusinessUtil.isLLBoxcode(request.getBarCode())) {
+            // 查询箱子是否已经被放入LL箱子中
+            BoxRelation boxRelation = getBoxRelation(task);
+            InvokeResult<List<BoxRelation>> boxRelationRes = boxRelationService.queryBoxRelation(boxRelation);
+            taskDto.setHasBoundBoxFlag(boxRelationRes != null && !CollectionUtils.isEmpty(boxRelationRes.getData()));
+        }
+
         // 查询集包袋号
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
 
@@ -903,6 +964,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
         resp.setCollectPackageTaskDto(taskDto);
         return result;
+    }
+
+    private static BoxRelation getBoxRelation(JyBizTaskCollectPackageEntity task) {
+        BoxRelation boxRelation = new BoxRelation();
+        boxRelation.setRelationBoxCode(task.getBoxCode());
+        boxRelation.setCreateSiteCode(task.getStartSiteId());
+        return boxRelation;
     }
 
     private JyBizTaskCollectPackageEntity getTaskDetailByReq(TaskDetailReq request) {
@@ -1003,11 +1071,24 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         // LL类型和BC类型 绑定集包袋校验
         if (BusinessHelper.isLLBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))
                 || BusinessHelper.isBCBoxType(request.getSealingBoxDtoList().get(0).getBoxCode().substring(0, 2))) {
-            String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
-            if (StringUtils.isEmpty(materialRelation)) {
-                result.setCode(RESULT_THIRD_ERROR_CODE);
-                result.setMessage("该箱号未绑定集包袋，不允许封箱！");
-                return false;
+
+            if (ObjectHelper.isNotNull(request.getCurrentOperate()) && ObjectHelper.isNotNull(request.getCurrentOperate().getSiteCode())){
+                boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), request.getCurrentOperate().getSiteCode());
+                if (needBindMaterialBag){
+                    String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+                    if (StringUtils.isEmpty(materialRelation)) {
+                        result.setCode(RESULT_THIRD_ERROR_CODE);
+                        result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+                        return false;
+                    }
+                }
+            }else {
+                String materialRelation = cycleBoxService.getBoxMaterialRelation(request.getSealingBoxDtoList().get(0).getBoxCode());
+                if (StringUtils.isEmpty(materialRelation)) {
+                    result.setCode(RESULT_THIRD_ERROR_CODE);
+                    result.setMessage("该箱号未绑定集包袋，不允许封箱！");
+                    return false;
+                }
             }
         }
         return true;
@@ -1137,6 +1218,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         cancelCollectPackageDto.setUpdateUserErp(request.getUser().getUserErp());
         cancelCollectPackageDto.setUpdateUserName(request.getUser().getUserName());
         cancelCollectPackageDto.setUpdateUserCode(request.getUser().getUserCode());
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        cancelCollectPackageDto.setOperatorData(operatorData);
         return cancelCollectPackageDto;
     }
 
@@ -1183,6 +1267,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
         List<String> packageList = sortingList.stream().map(sorting -> sorting.getPackageCode()).collect(Collectors.toList());
         batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        batchCancelCollectPackageMqDto.setOperatorData(operatorData);
         return batchCancelCollectPackageMqDto;
     }
 
@@ -1373,6 +1460,123 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
+    protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
+        BoxRelation boxRelation =assmbleBoxRelation(request);
+        InvokeResult<Boolean> rs =boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
+        if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE != rs.getCode()){
+            throw new JyBizException("集箱失败！");
+        }
+        JyBizTaskCollectPackageEntity collectPackageTask = jyBizTaskCollectPackageService.findByBizId(request.getBizId());
+        if (ObjectHelper.isNotNull(collectPackageTask)){
+            checkIfNeedUpdateStatus(request,collectPackageTask);
+        }
+    }
+
+    protected BoxRelation assmbleBoxRelation(CollectPackageReq request) {
+        BoxRelation relation =new BoxRelation();
+        relation.setBoxCode(request.getBoxCode());
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_YES);
+        relation.setSource(OperatorTypeEnum.DMS_CLIENT.getCode());
+
+        Date now = new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        return relation;
+    }
+
+
+    private void collectBoxBizCheck(CollectPackageReq request) {
+        //外层箱的已发货校验
+        sendCheck(request);
+        //内外箱子的流向一致性校验
+        boxflowCheck(request);
+        //外层箱子最大可装入数量校验
+        countLimitCheck(request);
+        //内层箱是否为空箱校验
+        emptyBoxCheck(request);
+    }
+
+    private void boxflowCheck(CollectPackageReq request) {
+        if (!dmsConfigManager.getPropertyConfig().getNeedCollectLoadingBoxflowCheck()){
+            return;
+        }
+        Box outBox = boxService.findBoxByCode(request.getBoxCode());
+        Box innerBox = boxService.findBoxByCode(request.getBarCode());
+        if (ObjectHelper.isNotNull(outBox)  && ObjectHelper.isNotNull(innerBox)
+                && !ObjectUtils.equals(outBox.getReceiveSiteCode(), innerBox.getReceiveSiteCode())) {
+            throw new JyBizException("箱号目的地不一致");
+        }
+    }
+
+    private void emptyBoxCheck(CollectPackageReq request) {
+        Integer count =sortingService.getSumByBoxCode(request.getBarCode());
+        if (ObjectHelper.isEmpty(count) || count <= 0){
+            throw new JyBizException("该箱子"+ request.getBarCode()+"为空箱子！");
+        }
+        //TODO 再校验一下箱子里面还有没有箱子
+    }
+
+    private void countLimitCheck(CollectPackageReq request) {
+        BoxRelation relation = new BoxRelation();
+        relation.setBoxCode(request.getBoxCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_YES);
+        Date now =new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        int existRelations = boxRelationService.countByBoxCode(relation);
+        if (dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit() > 0
+                && existRelations >= dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()) {
+            throw new JyBizException("最大允许装箱"+dmsConfigManager.getPropertyConfig().getLLContainBoxNumberLimit()+"个");
+        }
+    }
+
+    private void sendCheck(CollectPackageReq request) {
+        if (boxService.checkBoxIsSent(request.getBoxCode(), request.getCurrentOperate().getSiteCode())) {
+            throw new JyBizException("该箱号"+ request.getBoxCode()+"已发货！");
+        }
+    }
+
+    private void collectBoxBaseCheck(CollectPackageReq request) {
+        if (!ObjectHelper.isNotNull(request.getBizId())) {
+            throw new JyBizException("参数错误：缺失任务bizId！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBoxCode())) {
+            throw new JyBizException("参数错误：缺失箱号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
+            throw new JyBizException("参数错误：不支持该类型箱号！");
+        }
+        if (!ObjectHelper.isNotNull(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失扫描单号！");
+        }
+        if (!BusinessUtil.isBoxcode(request.getBarCode())) {
+            throw new JyBizException("参数错误：请扫描箱号！");
+        }
+        String outerBoxType = request.getBoxCode().substring(0,2);
+        String innerBoxType =request.getBarCode().substring(0,2);
+
+        BoxTypeV2Enum outer =BoxTypeV2Enum.getFromCode(outerBoxType);
+        if (ObjectHelper.isEmpty(outer) || ObjectHelper.isEmpty(outer.getSupportEmbeddedTypes())){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌箱号");
+        }
+        if (!outer.getSupportEmbeddedTypes().contains(innerBoxType)){
+            throw new JyBizException("参数错误:"+outerBoxType+"箱号不支持内嵌"+innerBoxType+"类型的箱");
+        }
+    }
+
     private JyBizTaskCollectPackageQuery converUpdateData(List<Long> ids, UpdateMixFlowListReq request) {
         JyBizTaskCollectPackageQuery query = new JyBizTaskCollectPackageQuery();
         query.setIds(ids);
@@ -1493,6 +1697,51 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     private void checkCancelCollectPackageReq(CancelCollectPackageReq request) {
         if (!ObjectHelper.isNotNull(request.getBoxCode())) {
             throw new JyBizException("参数错误：缺失箱号！");
+        }
+    }
+
+    @Override
+    public InvokeResult<CancelCollectPackageResp> cancelCollectBox(CancelCollectPackageReq request) {
+        checkCancelCollectBox(request);
+        checkIfAllowCancelCollectBox(request);
+        CancelCollectPackageResp response = new CancelCollectPackageResp();
+        execCancelCollectBox(request, response);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, response);
+    }
+
+    private void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response) {
+        BoxRelation boxRelation =assmbleReleaseBoxRelation(request);
+        InvokeResult<Boolean> invokeResult =boxRelationService.releaseBoxRelation(boxRelation);
+        log.info("取消集装 outboxp:{},innerBox:{}",request.getBoxCode(),request.getBarCode());
+        if (ObjectHelper.isNotNull(invokeResult) && !invokeResult.codeSuccess()){
+            throw new JyBizException("取消装笼失败！");
+        }
+    }
+
+    private BoxRelation assmbleReleaseBoxRelation(CancelCollectPackageReq request) {
+        BoxRelation relation =new BoxRelation();
+        relation.setRelationBoxCode(request.getBarCode());
+        relation.setCreateSiteCode(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        relation.setCreateUserErp(request.getUser().getUserErp());
+        relation.setCreateUserName(request.getUser().getUserName());
+        relation.setUpdateUserErp(request.getUser().getUserErp());
+        relation.setUpdateUserName(request.getUser().getUserName());
+        relation.setYn(Constants.YN_NO);
+
+        Date now = new Date();
+        relation.setCreateTime(now);
+        relation.setUpdateTime(now);
+        return relation;
+    }
+
+    private void checkIfAllowCancelCollectBox(CancelCollectPackageReq request) {
+        //校验一下箱号是否已经发货
+
+    }
+
+    private void checkCancelCollectBox(CancelCollectPackageReq request) {
+        if (ObjectHelper.isEmpty(request.getBarCode())) {
+            throw new JyBizException("参数错误：缺失取消箱号！");
         }
     }
 

@@ -5,6 +5,7 @@ public enum JyExpSourceEnum {
     UNLOAD(1,"卸车入口"),
     SEND(2,"发货入口"),
     SANWU_PC(3,"三无系统"),
+    OPERATE_INTERCEPT(4,"拦截实操"),
     ;
 
 

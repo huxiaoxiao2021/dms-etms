@@ -78,6 +78,11 @@ public enum SortingBizSourceEnum {
      */
     INTERFACE_SORTING(76, "冷链车队绑定接口调用"),
 
+    /**
+     * 打印客户端：分拣-批量分拣
+     */
+    PRINT_CLIENT_BATCH_SORTING(77, "打印客户端-批量分拣"),
+
     ;
 
     /**

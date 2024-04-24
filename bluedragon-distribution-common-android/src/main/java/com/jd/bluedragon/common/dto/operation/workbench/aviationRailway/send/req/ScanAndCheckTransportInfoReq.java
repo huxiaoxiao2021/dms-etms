@@ -23,6 +23,12 @@ public class ScanAndCheckTransportInfoReq extends BaseReq implements Serializabl
      * SendTaskTypeEnum
       */
     private Integer taskType;
+    /**
+     * 中转属性开关
+     * true: 开启中转属性确认校验
+     * false: 不校验中转属性逻辑
+     */
+    private Boolean temporaryTransferSwitch;
 
     public String getTransportCode() {
         return transportCode;
@@ -48,4 +54,11 @@ public class ScanAndCheckTransportInfoReq extends BaseReq implements Serializabl
         this.taskType = taskType;
     }
 
+    public Boolean getTemporaryTransferSwitch() {
+        return temporaryTransferSwitch;
+    }
+
+    public void setTemporaryTransferSwitch(Boolean temporaryTransferSwitch) {
+        this.temporaryTransferSwitch = temporaryTransferSwitch;
+    }
 }

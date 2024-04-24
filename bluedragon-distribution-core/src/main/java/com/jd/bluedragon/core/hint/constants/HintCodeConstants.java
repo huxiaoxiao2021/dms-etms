@@ -1105,6 +1105,27 @@ public class HintCodeConstants {
      */
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE = "40036";
     public static String COLD_CHAIN_EXPRESS_SCRAP_NO_EXCHANGE_MSG = "该运单为冷链专送订单异常即报废单，不可以操作逆向换单";
+
+    // 您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_CODE = "40037";
+    public static String TEAN_WAYBILL_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您还未扫描岗位码或者岗位码未找到作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    // 您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
+    public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40039";
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您扫描的岗位码是特安作业区，禁止操作非特安件";
+
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
+
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE = "40042";
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT = "ERP在人资系统中不是【异常岗】，无法操作弃件暂存功能，请联系异常岗人员操作。";
+
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE = "40041";
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT = "切换后，在波次结束前，A流向（原线路目的地）的货物会自动落入B流向（临时方案线路目的地）的格口，按新流向发货不会错发";
+
     public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
 }

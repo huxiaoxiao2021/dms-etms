@@ -15,17 +15,21 @@ import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.MiniStoreSortingProcessEvent;
 import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ldop.center.api.receive.dto.SignTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +144,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	@Qualifier("miniStoreSortProcessProducer")
 	private DefaultJMQProducer miniStoreSortProcessProducer;
 
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
+
 	/**
 	 * 收货
 	 * 
@@ -150,6 +157,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录
 		saveReceive(taskContext);
+		// 记录收货操作流水
+		handleOperateFlow(taskContext);
 		// 必须有封车号，才更新封车表
 		updateSealVehicle(taskContext);
 		// 解封箱
@@ -176,6 +185,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		//移动微仓同步业务节点数据
 		pushMiniStoreProcessDataMQ(taskContext);
 		return true;
+	}
+
+	private void handleOperateFlow(TaskContext<T> taskContext) {
+		// 目前只记录1110类型收货
+		if (Task.TASK_TYPE_RECEIVE.equals(taskContext.getTask().getType())) {
+			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.RECEIVE);
+		}
 	}
 
 	private void pushMiniStoreProcessDataMQ(TaskContext<T> context) {
@@ -226,21 +242,61 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
             if (StringUtils.isNotBlank(receive.getBoxCode()) && BusinessUtil.isBoxcode(receive.getBoxCode())) {
                 String materialCode = cycleBoxService.getBoxMaterialRelation(receive.getBoxCode());
                 if (StringUtils.isNotBlank(materialCode)) {
-                    BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
-                    loopPackageMq.setBoxCode(receive.getBoxCode());
-                    loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
-                    loopPackageMq.setMaterialCode(materialCode);
-                    loopPackageMq.setOperatorCode(receive.getCreateUserCode() == null ? 0: receive.getCreateUserCode());
-                    loopPackageMq.setOperatorName(receive.getCreateUser());
-                    loopPackageMq.setSiteCode(receive.getCreateSiteCode() + "");
-                    loopPackageMq.setOperatorTime(receive.getUpdateTime());
-
-                    cycleMaterialSendMQ.sendOnFailPersistent(loopPackageMq.getMaterialCode(), JsonHelper.toJson(loopPackageMq));
+                    sendBoxMaterialMq(receive, materialCode);
+                    this.sendBoxNestMaterial(receive, 1);
                 }
             }
         }
 	    catch (Exception ex) {
 	        log.error("push cycle material mq error.", ex);
+        }
+    }
+
+    private void sendBoxMaterialMq(Receive receive, String materialCode) {
+        BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
+        loopPackageMq.setBoxCode(receive.getBoxCode());
+        loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
+        loopPackageMq.setMaterialCode(materialCode);
+        loopPackageMq.setOperatorCode(receive.getCreateUserCode() == null ? 0: receive.getCreateUserCode());
+        loopPackageMq.setOperatorName(receive.getCreateUser());
+        loopPackageMq.setSiteCode(receive.getCreateSiteCode() + "");
+        loopPackageMq.setOperatorTime(receive.getUpdateTime());
+
+        cycleMaterialSendMQ.sendOnFailPersistent(loopPackageMq.getMaterialCode(), JsonHelper.toJson(loopPackageMq));
+    }
+
+    /**
+     * 嵌套发送箱嵌套箱物资消息
+     * @param receive
+     */
+    private void sendBoxNestMaterial(Receive receive, Integer level){
+        if(level > Constants.BOX_NESTED_MAX_DEPTH){
+            return;
+        }
+        try {
+            Box boxNestParam = new Box();
+            boxNestParam.setCode(receive.getBoxCode());
+            final List<Box> boxNestList = boxService.listAllDescendantsByParentBox(boxNestParam);
+            if (CollectionUtils.isEmpty(boxNestList)) {
+                return;
+            }
+            for (Box box : boxNestList) {
+                String materialCode = cycleBoxService.getBoxMaterialRelation(box.getCode());
+                if (StringUtils.isBlank(materialCode)){
+                    continue;
+                }
+                final Receive receiveChild = new Receive();
+                BeanCopyUtil.copy(receive, receiveChild);
+                receiveChild.setBoxCode(box.getCode());
+                this.sendBoxMaterialMq(receiveChild, materialCode);
+
+                // 如果有嵌套子级
+                if (CollectionUtils.isNotEmpty(box.getChildren())) {
+                    sendBoxNestMaterial(receiveChild, level++);
+                }
+            }
+        } catch (Exception e) {
+            log.error("sendBoxNestMaterial exception {}", JsonHelper.toJson(receive), e);
         }
     }
 
@@ -263,6 +319,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		cenConfirm.setOperateTime(receive.getCreateTime());
 		cenConfirm.setOperateUser(receive.getCreateUser());
 		cenConfirm.setOperateUserCode(receive.getCreateUserCode());
+		cenConfirm.setOperatorData(receive.getOperatorData());
+		cenConfirm.setOperateFlowId(receive.getOperateFlowId());
 		return cenConfirm;
 	}
 
@@ -309,8 +367,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		turnoverBoxInfo.setMessageType("SORTING_REVERSE_RECEIVE_QUEUE");
 		turnoverBoxInfo.setOperatorId(receive.getCreateUserCode());
 		turnoverBoxInfo.setOperatorName(receive.getCreateUser());
-		turnoverBoxInfo.setOperateTime(DateHelper.formatDateTime(receive
-				.getCreateTime()));
+		turnoverBoxInfo.setOperateTime(DateHelper.formatDateTime(receive.getCreateTime()));
 		turnoverBoxInfo.setFlowFlag(receive.getReceiveType().toString());
 		try {
 			// messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo),
@@ -468,7 +525,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
 				sendTrack(taskContext,cenConfirm);
-
 				cenConfirmList.add(cenConfirm);
 			}
 		}

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.sorting.request;
 
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
+
 import java.io.Serializable;
 
 /**
@@ -67,6 +69,11 @@ public class PackSortTaskBody implements Serializable {
      * 分拣来源字段
      */
     private Integer bizSource;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public Integer getReceiveSiteCode() {
         return receiveSiteCode;
@@ -178,5 +185,13 @@ public class PackSortTaskBody implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

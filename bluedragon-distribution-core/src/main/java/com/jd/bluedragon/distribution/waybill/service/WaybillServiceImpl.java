@@ -9,6 +9,7 @@ import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
@@ -155,6 +156,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1604,6 +1608,11 @@ public class WaybillServiceImpl implements WaybillService {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
                 return result;
             }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
+                return result;
+            }
 
             //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
             if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
@@ -1763,6 +1772,11 @@ public class WaybillServiceImpl implements WaybillService {
             InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill, userInfo);
             if (!invokeResult.codeSuccess()) {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
+                return result;
+            }
+            //规则7
+            if (BusinessHelper.isBwxWaybill(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"该单为保温箱运单，请正常发货流转!");
                 return result;
             }
 
@@ -2043,5 +2057,31 @@ public class WaybillServiceImpl implements WaybillService {
             }
         }
         return false;
+    }
+
+    @Override
+    @JProfiler(jKey= "DMSWEB.WaybillServiceImpl.queryReverseReasonCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Integer queryReverseReasonCode(String waybillCode) {
+        // 外单逆向换单
+        // 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）(国际单同港澳单)
+        // 2、快运单子-默认设置1
+        // 3、其它-默认不设置
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill != null) {
+            String waybillSign = waybill.getWaybillSign();
+            String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
+            String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
+            if (BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
+                if (waybillTraceManager.isExReturn(waybillCode)) {
+                    // fill reverseReasonCode
+                    return Constants.INTERCEPT_REVERSE_CODE_3;
+                }
+                return Constants.INTERCEPT_REVERSE_CODE_1;
+            }
+            if (BusinessUtil.isKyWaybillOfReverseExchange(waybillSign)) {
+                return Constants.INTERCEPT_REVERSE_CODE_1;
+            }
+        }
+        return null;
     }
 }

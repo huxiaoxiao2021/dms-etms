@@ -307,7 +307,8 @@ public class WaybillStatus {
      *
      */
     public static final Integer WAYBILL_TRACK_RETURNED_PACKAGE = 21400;
-    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC = "安检查验退运";
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_1 = "安检查验退回";
+    public static final String WAYBILL_TRACK_SECURITY_CHECK_RETURNED_PACKAGE_DESC_2 = "安检查验转陆运";
 
 
     private Long id;
@@ -347,6 +348,11 @@ public class WaybillStatus {
 
     // 额外属性，同步运单全程跟踪对象属性
     private Map<String, Object> extendParamMap;
+
+    /**
+     * 操作流水表主键
+     */
+    private Long operateFlowId;
 
     public Long getId() {
         return this.id;
@@ -530,6 +536,14 @@ public class WaybillStatus {
 
     public void setExtendParamMap(Map<String, Object> extendParamMap) {
         this.extendParamMap = extendParamMap;
+    }
+
+    public Long getOperateFlowId() {
+        return operateFlowId;
+    }
+
+    public void setOperateFlowId(Long operateFlowId) {
+        this.operateFlowId = operateFlowId;
     }
 
     /**

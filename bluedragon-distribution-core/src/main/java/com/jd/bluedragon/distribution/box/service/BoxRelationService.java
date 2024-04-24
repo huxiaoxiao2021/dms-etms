@@ -27,11 +27,29 @@ public interface BoxRelationService {
      */
     InvokeResult<Boolean> saveBoxRelation(BoxRelation relation);
 
+    InvokeResult<Boolean> saveBoxRelationWithoutCheck(BoxRelation relation);
+
+    /**
+     * 解除绑定关系
+     * @param relation
+     * @return
+     */
+    InvokeResult<Boolean> releaseBoxRelation(BoxRelation relation);
+
     /**
      * 根据BC箱号获取绑定关系
      * @param boxCode
      * @return
      */
     InvokeResult<List<BoxRelation>> getRelationsByBoxCode(String boxCode);
+
+    int countByBoxCode(BoxRelation relation);
+
+    /**
+     * 根据子箱号获取父箱号
+     * @param boxCode
+     * @return
+     */
+    InvokeResult<List<BoxRelation>> getBoxCodeByRelationCode(String boxCode);
 
 }

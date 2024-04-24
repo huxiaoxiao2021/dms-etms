@@ -67,6 +67,20 @@ public class CollectPackageTaskDto implements Serializable {
      * 扫描件数
      */
     private Integer scanCount = 0;
+
+    /**
+     * 箱子是否已经被放入LL箱子中
+     */
+    private boolean hasBoundBoxFlag;
+
+    public boolean getHasBoundBoxFlag() {
+        return hasBoundBoxFlag;
+    }
+
+    public void setHasBoundBoxFlag(boolean hasBoundBoxFlag) {
+        this.hasBoundBoxFlag = hasBoundBoxFlag;
+    }
+
     public String getBizId() {
         return bizId;
     }

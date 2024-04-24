@@ -805,5 +805,67 @@
     <jmq:consumer id="jmq.jyPickingGoodScanSplitPackageConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.picking.good.scan.split.package}" listener="jyPickingGoodScanSplitPackageConsumer"/>
     </jmq:consumer>
+
+    <!-- 空铁摆渡封车处理干支任务监听逻辑  -->
+    <jmq:consumer id="jmq.JyAviationRailwayShuttleSealConsume" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.aviationRailwayShuttleSeal}" listener="jyAviationRailwayShuttleSealConsume"/>
+    </jmq:consumer>
+    <!-- 拦截数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptReportConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptReport}" listener="dmsBusinessInterceptReportConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截后处理数据消费 -->
+    <jmq:consumer id="jmq.dmsBusinessInterceptDisposeConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsBusinessInterceptDispose}" listener="dmsBusinessInterceptDisposeConsumer"/>
+    </jmq:consumer>
+
+    <!-- 组板 组大箱时拆分成小箱进行组板  -->
+    <jmq:consumer id="jmq.BoxComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.comboard.split.box}" listener="boxComboardConsumer"/>
+    </jmq:consumer>
+
+    <!-- 取消发货 大箱时拆分成小箱进行取消发货  -->
+    <jmq:consumer id="jmq.BoxCancelSendConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.cancel.send.split.box}" listener="boxCancelSendConsumer"/>
+    </jmq:consumer>
+    <!--运输围栏到车包裹维度消息-->
+    <jmq:consumer id="jmq.tmsSendArriveAndBookConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.sendArriveAndBook}" listener="tmsSendArriveAndBookConsumer"/>
+    </jmq:consumer>
+    <!--围栏到车包裹重试自动验货消息-->
+    <jmq:consumer id="jmq.jyArriveCarPackageRetryAutoInspectionConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.arriveCarPackageRetryAutoInspection}" listener="jyArriveCarPackageRetryAutoInspectionConsumer"/>
+    </jmq:consumer>
+    <!--循环物资操作记录-->
+    <jmq:consumer id="jmq.recycleMaterialOperateRecordConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.recycleMaterialOperateRecord}" listener="recycleMaterialOperateRecordConsumer"/>
+    </jmq:consumer>
+    <!--  循环物资进场自动验货箱维度消费  -->
+    <jmq:consumer id="jmq.jyRecycleMaterialAutoInspectionBoxConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionBox}" listener="jyRecycleMaterialAutoInspectionBoxConsumer"/>
+    </jmq:consumer>
+    <!--  循环物资进场自动验货包裹维度消费  -->
+    <jmq:consumer id="jmq.jyRecycleMaterialAutoInspectionPackageConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.jyRecycleMaterialAutoInspectionPackage}" listener="jyRecycleMaterialAutoInspectionPackageConsumer"/>
+    </jmq:consumer>
+
+    <!--  分拣机触发：直送分拣揽收  -->
+    <jmq:consumer id="jmq.directDeliverySortCollectConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.directDeliverySort.collect}" listener="directDeliverySortCollectConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费判责系统暴力分拣消息 -->
+    <jmq:consumer id="jmq.violentSortingFixDutyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.violent.sorting.fix.duty}" listener="violentSortingFixDutyConsumer"/>
+    </jmq:consumer>
+
+    <!--  路由推送临时线路切换消息  -->
+    <jmq:consumer id="jmq.jyDynamicLineReplacePlanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.router.dynamicLineReplacePlanConsumer}" listener="dynamicLineReplacePlanConsumer"/>
+    </jmq:consumer>
+    <!--  箱号绑定循环物资  -->
+    <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -97,6 +97,11 @@ public class DmsConstants {
     public static final Pattern RULE_CYCLE_BOX_REGEX = Pattern.compile("^AD(AD|[0-9]{2})[0-9]{12}$");
 
     /**
+     * 仓循环物资周转箱正则表达式
+     */
+    public static final Pattern RULE_CYCLE_TURNOVER_BOX_REGEX = Pattern.compile("^AZ[0-9]{13}$");
+
+    /**
      * 箱号正则表达式，新开放-德邦的箱号规则
      */
     public static final Pattern RULE_BOXCODE_REGEX_OPEN_DP = Pattern.compile("^B[0-9]{15}T99999$|^B[0-9]{15}T[0-9]{5}$|^B[0-9]{15}T[0-9]{6}$|^B[0-9]{15}T[0-9]{7}$|^B[0-9]{21,23}$");
@@ -247,6 +252,11 @@ public class DmsConstants {
      * 快运产品-特惠专配（fr-m-0004)\fr-m-0002)
      */
     public static final String PRODUCT_TYPE_KY_0017 = "fr-m-0017";
+
+    /**
+     * 快运产品-快运零担 fr-m-0017
+     */
+    public static final String PRODUCT_TYPE_KY_0006 = "fr-m-0006";
     /**
      * 工种类型
      */
@@ -503,6 +513,11 @@ public class DmsConstants {
      * 笼车前缀
      */
     public static final String COLLECTION_AL_PREFIX = "AL";
+
+    /**
+     * 仓周转箱循环物资前缀
+     */
+    public static final String COLLECTION_AZ_PREFIX = "AZ";
 
     /**
      * 围板箱前缀

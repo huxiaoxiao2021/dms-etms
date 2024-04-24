@@ -155,6 +155,8 @@
 		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
@@ -170,7 +172,8 @@
         r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
-        r.create_time,r.update_time,r.yn,r.ts,r.biz_source,r.id_card
+        r.create_time,r.update_time,r.yn,r.ts,r.biz_source,r.id_card,r.province_agency_code,r.province_agency_name,
+        r.area_hub_code,r.area_hub_name,r.war_zone_code,r.war_zone_name
     </sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
@@ -268,6 +271,9 @@
 				<if test="idCard != null">
 					id_card,
 				</if>
+				<if test="modifyType != null">
+					modify_type,
+				</if>
 			</trim>
 			)
 			values
@@ -363,6 +369,9 @@
                 </if>
 				<if test="idCard != null" >
 					#{idCard,jdbcType=VARCHAR},
+				</if>
+				<if test="modifyType != null" >
+					#{modifyType,jdbcType=INTEGER},
 				</if>
 			</trim>
 			)
@@ -481,6 +490,9 @@
 			<if test="updateTime != null" >
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
 			</if>
+		    <if test="modifyType != null" >
+				modify_type = #{modifyType,jdbcType=INTEGER},
+		    </if>
 			   yn = 0
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -1249,5 +1261,22 @@
 		and r.site_code = #{siteCode}
 		order by r.sign_in_time asc
 		limit 1
+	</select>
+
+	<select id="queryByGridSign" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
+		select user_code,user_code_encrypt,user_name,user_name_encrypt,job_code,sign_in_time
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key IN
+		<foreach item="refGridKey" collection="refGridKeyList" open="(" close=")" index="index" separator=",">
+			#{refGridKey,jdbcType=VARCHAR}
+		</foreach>
+		AND <![CDATA[ sign_in_time <= #{signDateEnd,jdbcType=TIMESTAMP}  ]]>
+		AND <![CDATA[ sign_in_time >= #{signDateStart,jdbcType=TIMESTAMP}  ]]>
+		AND (sign_out_time is null or <![CDATA[ sign_out_time >= #{signDateEnd,jdbcType=TIMESTAMP}  ]]> )
+		AND job_code IN
+		<foreach item="item" collection="jobCodeList" open="(" close=")" index="index" separator=",">
+			#{item,jdbcType=INTEGER}
+		</foreach>
 	</select>
 </mapper>

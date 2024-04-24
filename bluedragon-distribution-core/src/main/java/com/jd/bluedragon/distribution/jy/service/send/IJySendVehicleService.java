@@ -312,4 +312,13 @@ public interface IJySendVehicleService {
      * @return
      */
     String generateSendCode(Long startSiteId, Long destSiteId, String createUser);
+
+    /**
+     * 首次发货任务扫描处理
+     * @param jyTaskSendDetailFirstSendDto 首次扫描数据
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2024-02-02 15:59:52 周五
+     */
+    Result<Boolean> handleTaskSendFirstScan(JyTaskSendDetailFirstSendDto jyTaskSendDetailFirstSendDto);
 }

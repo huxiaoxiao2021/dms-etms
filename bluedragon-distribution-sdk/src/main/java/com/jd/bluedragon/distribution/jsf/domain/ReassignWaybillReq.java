@@ -100,6 +100,11 @@ public class ReassignWaybillReq implements Serializable {
      */
     private Boolean returnGroupFlag;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public String getOperateUserErp() {
         return operateUserErp;
     }
@@ -238,5 +243,13 @@ public class ReassignWaybillReq implements Serializable {
 
     public void setReturnGroupFlag(Boolean returnGroupFlag) {
         this.returnGroupFlag = returnGroupFlag;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

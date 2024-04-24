@@ -1989,7 +1989,20 @@ public class BusinessUtil {
         }
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
-                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15);
+                (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15) ||
+                isWmsTurnoverBox(materialCode);
+    }
+
+    /**
+     * 判断是否是仓周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
     }
 
     /**
@@ -2827,6 +2840,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 纯配(53=2)
+     * 冷链专送（31位=G）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureDeliveryColdDelivery(String waybillSign){
+        return isSignInChars(waybillSign,53,'2') && isColdDelivery(waybillSign);
+    }
+
+    /**
      *  自营生鲜 新逻辑
      * sendpay第338位为1（且sendpay第2位为4或5或6或7或8或9）
      */
@@ -3135,5 +3158,15 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否是快递直送分拣
+     * 
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDirectDeliverySort(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
     }
 }

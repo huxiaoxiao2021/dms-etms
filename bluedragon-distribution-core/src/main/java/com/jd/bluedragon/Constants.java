@@ -915,6 +915,11 @@ public class Constants {
     public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
+     * 揽收终止原因配置
+     */
+    public static final String SYS_CONFIG_COLLECT_TERMINATE_REASON= "collect_terminate_reason";
+
+    /**
      * 安卓菜单可用性配置
      */
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
@@ -1668,6 +1673,11 @@ public class Constants {
     public static final int CONSTANT_TWO_HUNDRED = 200;
 
     /**
+     * 常量值：500
+     * */
+    public static final int CONSTANT_FIVE_HUNDRED = 500;
+
+    /**
      * 常量值：1000
      * */
     public static final int CONSTANT_ONE_THOUSAND = 1000;
@@ -1767,6 +1777,11 @@ public class Constants {
      * 数字：1
      */
     public static final Integer NUMBER_ONE = 1;
+
+    /**
+     * 数字：2
+     */
+    public static final Integer NUMBER_TWO = 2;
 
     /**
      * SendD取消状态
@@ -2425,4 +2440,115 @@ public class Constants {
     public static final String AVIATION_TEMPLATE_PREFIX = "AVIATION";
 
     public static final String RAIL_TEMPLATE_PREFIX = "RAIL";
+
+    /**
+     * 配置信息-基于排班自动签退试用场地列表
+     */
+    public static final String AUTO_SIGN_OUT_SCHEDULE_SITE = "auto.sign.out.schedule.site";
+
+    /**
+     * 排班开始日期前1小时
+     * */
+    public static final Integer SCHEDULE_BEFORE_ONE_HOUR = -1;
+
+    /**
+     * 签到开始日期前1天
+     * */
+    public static final Integer SIGN_BEFORE_ONE_DAY = -1;
+
+
+    /**
+     * 箱号嵌套最大允许的层级
+     */
+    public static final int BOX_NESTED_MAX_DEPTH = 2;
+
+    /**
+     * 操作流水表表名
+     */
+    public static final String TABLE_JY_OPERATE_FLOW  = "jy_operate_flow";
+
+    /**
+     * 配置信息-司机到达B2B业务类型列表
+     */
+    public static final String TMS_ARRIVE_B2B_BUSINESS_TYPE = "tms.arrive.b2b.business.type";
+
+
+    /**
+     * 评价申诉权限 0 关闭
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_0 = 0;
+    /**
+     * 评价申诉权限 1 开启
+     */
+    public static final Integer EVALUATE_APPEAL_PERMISSIONS_1 = 1;
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_ID = "id";
+    /**
+     * 装车评价申诉集合key
+     */
+    public static final String APPEAL_MAP_KEY_OPINION = "opinion";
+    /**
+     * 审核记录统计数
+     */
+    public static final Integer APPEAL_COUNT_NUM = 3;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_DISSATISFIED = 0;
+    /**
+     * 评价状态：0-不满意 1-满意
+     */
+    public static final Integer EVALUATE_STATUS_SATISFIED = 1;
+    /**
+     * 评价类型：1-装车 2-卸车
+     */
+    public static final Integer EVALUATE_TYPE_LOAD = 1;
+
+    /**
+     * 配置信息-视频中台文件上传域名内外网转换
+     */
+    public static final String VIDEO_DOMAIN_TRANSFORM_MAP = "video.domain.transform.map";
+
+    /**
+     * 电子围栏验货 全程跟踪话术
+     */
+    public static final String ELECTRONIC_FENCE_TRACE_INSPECTION_REMARK = "整车验货 (车牌号：%s)";
+
+    /**
+     * 电子网关验货 全程跟踪话术
+     */
+    public static final String ELECTRONIC_GATEWAY_TRACE_INSPECTION_REMARK = "整容验货（容器号：%s）";
+
+    /**
+     * 人工验货全程跟踪话术
+     */
+    public static final String TRACE_INSPECTION_REMARK = "%s场地已验货";
+
+
+    /**
+     * 围栏到车验货场地配置
+     */
+    public static final String TMS_SEND_ARRIVE_AND_BOOK_SITE_CONF = "tms.send.arrive.and.book.site.conf";
+
+    /**
+     * 循环物资验货场地配置
+     */
+    public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_CONF = "recycle.material.operate.record.site.conf";
+
+    /**
+     * 围栏到车验货场地类型配置
+     */
+    public static final String TMS_SEND_ARRIVE_AND_BOOK_SITE_TYPE_CONF = "tms.send.arrive.and.book.site.conf.type.conf";
+
+    /**
+     * 循环物资验货场地类型配置
+     */
+    public static final String RECYCLE_MATERIAL_OPERATE_RECORD_SITE_TYPE_CONF = "recycle.material.operate.record.site.type.conf";
+    /**
+     * 弃件暂存岗位限制配置
+     */
+    public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
+
 }

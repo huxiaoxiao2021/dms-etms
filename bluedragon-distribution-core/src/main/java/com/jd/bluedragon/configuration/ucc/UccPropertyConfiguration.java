@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -1610,15 +1611,24 @@ public class UccPropertyConfiguration{
      */
     private String jyWarehouseManualTaskKeyVehicleTypes;
 
+
     /**
      * 包裹非0重量体积拦截开关
+     * <p>
+     *     场地维度开关，多个场地以,隔开，ALL表示全国维度
+     * </p>
      */
-    private Boolean waybillZeroWeightInterceptSwitch;
+    private String waybillZeroWeightInterceptSites;
 
     /**
      * 自动化称重限制开关
      */
     private Boolean automaticWeightVolumeUpperCheckSwitch;
+
+    /**
+     * PDA静默下载开关
+     */
+    private Boolean pdaSilentUpdateSwitch;
 
     public boolean isDmsToVendorSendMQSwitch() {
         return dmsToVendorSendMQSwitch;
@@ -1946,6 +1956,19 @@ public class UccPropertyConfiguration{
      * 空铁提货岗提货完成时间查询范围
      */
     private Integer pickingFinishTimeRange;
+    /**
+     * 围栏到达包裹自动验货条件不符合时重试消费的最大分钟数
+     */
+    private Integer packageArriveAutoInspectionRetryMinutes;
+    private Integer packageArriveAutoInspectionNullTaskRetryMinutes;
+    /**
+     * PDA卸车扫描和自动验货互斥开关
+     */
+    private Boolean pdaUnloadAndAutoInspectionRejectSwitch;
+    /**
+     * 操作流水新逻辑开关
+     */
+    private boolean operateFlowNewSwitch;
 
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
@@ -2053,6 +2076,32 @@ public class UccPropertyConfiguration{
      */
     private Integer allowEntryHours;
 
+    /**
+     * 场地的评价和申诉权限，自动关闭天数
+     */
+    private Integer evaluateAppealCloseDay;
+
+    /**
+     * 申诉记录的超时审核小时数
+     */
+    private Integer checkOvertimeHour;
+
+    public Integer getCheckOvertimeHour() {
+        return checkOvertimeHour;
+    }
+
+    public void setCheckOvertimeHour(Integer checkOvertimeHour) {
+        this.checkOvertimeHour = checkOvertimeHour;
+    }
+
+    public Integer getEvaluateAppealCloseDay() {
+        return evaluateAppealCloseDay;
+    }
+
+    public void setEvaluateAppealCloseDay(Integer evaluateAppealCloseDay) {
+        this.evaluateAppealCloseDay = evaluateAppealCloseDay;
+    }
+
     public Integer getAllowEntryHours() {
         return allowEntryHours;
     }
@@ -2060,6 +2109,42 @@ public class UccPropertyConfiguration{
     public void setAllowEntryHours(Integer allowEntryHours) {
         this.allowEntryHours = allowEntryHours;
     }
+
+    /**
+     * 特安作业区编码，逗号分隔
+     */
+    private String teanWorkAreaCodes;
+    private List<String> teanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安及其他混扫作业区编码，逗号分隔
+     */
+    private String teanMixScanWorkAreaCodes;
+    private List<String> teanMixScanWorkAreaCodesList = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链场地白名单
+     */
+    private String teanSiteIdWhiteListStr4InterceptFilter;
+    private List<Integer> teanSiteIdWhiteList4InterceptFilter = new ArrayList<>();
+
+    /**
+     * 特安作业区拦截链启用场地名单
+     */
+    private String teanSiteIdEnableListStr4InterceptFilter;
+    private List<Integer> teanSiteIdEnableList4InterceptFilter = new ArrayList<>();
+
+    /**
+     * 异常岗启动场地
+     */
+    private String interceptExceptionSiteIdEnableListStr;
+    private List<Integer> interceptExceptionSiteIdEnableList = new ArrayList<>();
+
+    /**
+     * 动态临时路由启用场地
+     */
+    private String routerDynamicLineReplaceEnableSiteStr;
+    private List<Integer> routerDynamicLineReplaceEnableSiteList = new ArrayList<>();
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4429,13 +4514,12 @@ public class UccPropertyConfiguration{
         this.jyWarehouseManualTaskKeyVehicleTypes = jyWarehouseManualTaskKeyVehicleTypes;
     }
 
-
-    public Boolean getWaybillZeroWeightInterceptSwitch() {
-        return waybillZeroWeightInterceptSwitch;
+    public String getWaybillZeroWeightInterceptSites() {
+        return waybillZeroWeightInterceptSites;
     }
 
-    public void setWaybillZeroWeightInterceptSwitch(Boolean waybillZeroWeightInterceptSwitch) {
-        this.waybillZeroWeightInterceptSwitch = waybillZeroWeightInterceptSwitch;
+    public void setWaybillZeroWeightInterceptSites(String waybillZeroWeightInterceptSites) {
+        this.waybillZeroWeightInterceptSites = waybillZeroWeightInterceptSites;
     }
 
     public Boolean getAutomaticWeightVolumeUpperCheckSwitch() {
@@ -4444,5 +4528,268 @@ public class UccPropertyConfiguration{
 
     public void setAutomaticWeightVolumeUpperCheckSwitch(Boolean automaticWeightVolumeUpperCheckSwitch) {
         this.automaticWeightVolumeUpperCheckSwitch = automaticWeightVolumeUpperCheckSwitch;
+    }
+
+    public String getTeanWorkAreaCodes() {
+        return teanWorkAreaCodes;
+    }
+
+    public void setTeanWorkAreaCodes(String teanWorkAreaCodes) {
+        this.teanWorkAreaCodes = teanWorkAreaCodes;
+        this.setTeanWorkAreaCodesList();
+    }
+
+    public List<String> getTeanWorkAreaCodesList() {
+        return teanWorkAreaCodesList;
+    }
+
+    public void setTeanWorkAreaCodesList() {
+        this.teanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanWorkAreaCodes)){
+            final String[] split = teanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanMixScanWorkAreaCodes() {
+        return teanMixScanWorkAreaCodes;
+    }
+
+    public void setTeanMixScanWorkAreaCodes(String teanMixScanWorkAreaCodes) {
+        this.teanMixScanWorkAreaCodes = teanMixScanWorkAreaCodes;
+        this.setTeanMixScanWorkAreaCodesList();
+    }
+
+    public List<String> getTeanMixScanWorkAreaCodesList() {
+        return teanMixScanWorkAreaCodesList;
+    }
+
+    public void setTeanMixScanWorkAreaCodesList() {
+        this.teanMixScanWorkAreaCodesList.clear();
+        if(StringUtils.isNotBlank(teanMixScanWorkAreaCodes)){
+            final String[] split = teanMixScanWorkAreaCodes.split(Constants.SEPARATOR_COMMA);
+            this.teanMixScanWorkAreaCodesList = Arrays.asList(split);
+        }
+    }
+
+    public boolean isTeanMixScanWorkAreaCode(String workAreaCode){
+        if(Objects.equals(this.teanMixScanWorkAreaCodes, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanMixScanWorkAreaCodesList.contains(workAreaCode);
+    }
+
+    public String getTeanSiteIdWhiteListStr4InterceptFilter() {
+        return teanSiteIdWhiteListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdWhiteListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdWhiteList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdWhiteList4InterceptFilter() {
+        return teanSiteIdWhiteList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdWhiteList4InterceptFilter() {
+        this.teanSiteIdWhiteList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdWhiteListStr4InterceptFilter)){
+            if(Objects.equals(this.teanSiteIdWhiteListStr4InterceptFilter, Constants.STR_ALL)){
+                return;
+            }
+            this.teanSiteIdWhiteList4InterceptFilter = Arrays.stream(teanSiteIdWhiteListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdWhite4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdWhiteListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdWhiteList4InterceptFilter.contains(siteCode);
+    }
+
+    public String getTeanSiteIdEnableListStr4InterceptFilter() {
+        return teanSiteIdEnableListStr4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableListStr4InterceptFilter(String teanSiteIdWhiteListStr4InterceptFilter) {
+        this.teanSiteIdEnableListStr4InterceptFilter = teanSiteIdWhiteListStr4InterceptFilter;
+        this.setTeanSiteIdEnableList4InterceptFilter();
+    }
+
+    public List<Integer> getTeanSiteIdEnableList4InterceptFilter() {
+        return teanSiteIdEnableList4InterceptFilter;
+    }
+
+    public void setTeanSiteIdEnableList4InterceptFilter() {
+        this.teanSiteIdEnableList4InterceptFilter.clear();
+        if(StringUtils.isNotBlank(teanSiteIdEnableListStr4InterceptFilter)){
+            if(Objects.equals(this.teanSiteIdEnableListStr4InterceptFilter, Constants.STR_ALL)){
+                return;
+            }
+            this.teanSiteIdEnableList4InterceptFilter = Arrays.stream(teanSiteIdEnableListStr4InterceptFilter.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isTeanSiteIdEnable4InterceptFilter(Integer siteCode){
+        if(Objects.equals(this.teanSiteIdEnableListStr4InterceptFilter, Constants.STR_ALL)){
+            return true;
+        }
+        return this.teanSiteIdEnableList4InterceptFilter.contains(siteCode);
+    }
+
+    private boolean needCollectLoadingBoxflowCheck;
+    public boolean getNeedCollectLoadingBoxflowCheck() {
+        return needCollectLoadingBoxflowCheck;
+    }
+    public void setNeedCollectLoadingBoxflowCheck(boolean needCollectLoadingBoxflowCheck){
+        this.needCollectLoadingBoxflowCheck =needCollectLoadingBoxflowCheck;
+    }
+
+    /**
+     * LL箱号内嵌箱号数量限制
+     */
+    private int LLContainBoxNumberLimit;
+
+    public int getLLContainBoxNumberLimit() {
+        return LLContainBoxNumberLimit;
+    }
+
+    public void setLLContainBoxNumberLimit(int LLContainBoxNumberLimit) {
+        this.LLContainBoxNumberLimit = LLContainBoxNumberLimit;
+    }
+
+    public Integer getPackageArriveAutoInspectionRetryMinutes() {
+        return packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionRetryMinutes(Integer packageArriveAutoInspectionRetryMinutes) {
+        this.packageArriveAutoInspectionRetryMinutes = packageArriveAutoInspectionRetryMinutes;
+    }
+
+    public Boolean getPdaUnloadAndAutoInspectionRejectSwitch() {
+        return pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public void setPdaUnloadAndAutoInspectionRejectSwitch(Boolean pdaUnloadAndAutoInspectionRejectSwitch) {
+        this.pdaUnloadAndAutoInspectionRejectSwitch = pdaUnloadAndAutoInspectionRejectSwitch;
+    }
+
+    public Integer getPackageArriveAutoInspectionNullTaskRetryMinutes() {
+        return packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
+        this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
+    }
+
+    public boolean isOperateFlowNewSwitch() {
+        return operateFlowNewSwitch;
+    }
+
+    public void setOperateFlowNewSwitch(boolean operateFlowNewSwitch) {
+        this.operateFlowNewSwitch = operateFlowNewSwitch;
+    }
+
+    /**
+     * 寄付运单称重拦截开关
+     */
+    private boolean waybillJFWeightInterceptSwitch;
+
+    public boolean getWaybillJFWeightInterceptSwitch() {
+        return waybillJFWeightInterceptSwitch;
+    }
+
+    public void setWaybillJFWeightInterceptSwitch(boolean waybillJFWeightInterceptSwitch) {
+        this.waybillJFWeightInterceptSwitch = waybillJFWeightInterceptSwitch;
+    }
+
+    public Boolean getPdaSilentUpdateSwitch() {
+        return pdaSilentUpdateSwitch;
+    }
+
+    public void setPdaSilentUpdateSwitch(Boolean pdaSilentUpdateSwitch) {
+        this.pdaSilentUpdateSwitch = pdaSilentUpdateSwitch;
+    }
+
+    public String getInterceptExceptionSiteIdEnableListStr() {
+        return interceptExceptionSiteIdEnableListStr;
+    }
+
+    public void setInterceptExceptionSiteIdEnableListStr(String interceptExceptionSiteIdEnableListStr) {
+        this.interceptExceptionSiteIdEnableListStr = interceptExceptionSiteIdEnableListStr;
+        this.setInterceptExceptionSiteIdEnableList();
+    }
+
+    public List<Integer> getInterceptExceptionSiteIdEnableList() {
+        return interceptExceptionSiteIdEnableList;
+    }
+
+    public void setInterceptExceptionSiteIdEnableList() {
+        this.interceptExceptionSiteIdEnableList.clear();
+        if(StringUtils.isNotBlank(interceptExceptionSiteIdEnableListStr)){
+            if(Objects.equals(this.interceptExceptionSiteIdEnableListStr, Constants.STR_ALL)){
+                return;
+            }
+            this.interceptExceptionSiteIdEnableList = Arrays.stream(interceptExceptionSiteIdEnableListStr.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+
+    public boolean isInterceptExceptionSiteIdEnable(Integer siteCode){
+        if(Objects.equals(this.interceptExceptionSiteIdEnableListStr, Constants.STR_ALL)){
+            return true;
+        }
+        return this.interceptExceptionSiteIdEnableList.contains(siteCode);
+    }
+
+    private String imageClarityThreshold;
+
+    public String getImageClarityThreshold() {
+        return imageClarityThreshold;
+    }
+
+    public void setImageClarityThreshold(String imageClarityThreshold) {
+        this.imageClarityThreshold = imageClarityThreshold;
+    }
+
+    public String getRouterDynamicLineReplaceEnableSiteStr() {
+        return routerDynamicLineReplaceEnableSiteStr;
+    }
+
+    public void setRouterDynamicLineReplaceEnableSiteStr(String routerDynamicLineReplaceEnableSiteStr) {
+        this.routerDynamicLineReplaceEnableSiteStr = routerDynamicLineReplaceEnableSiteStr;
+        this.setRouterDynamicLineReplaceEnableSiteList();
+    }
+
+    public List<Integer> getRouterDynamicLineReplaceEnableSiteList() {
+        return routerDynamicLineReplaceEnableSiteList;
+    }
+
+    public void setRouterDynamicLineReplaceEnableSiteList() {
+        this.routerDynamicLineReplaceEnableSiteList.clear();
+        if(StringUtils.isNotBlank(routerDynamicLineReplaceEnableSiteStr)){
+            if(Objects.equals(this.routerDynamicLineReplaceEnableSiteStr, Constants.STR_ALL)){
+                return;
+            }
+            this.routerDynamicLineReplaceEnableSiteList = Arrays.stream(routerDynamicLineReplaceEnableSiteStr.split(Constants.SEPARATOR_COMMA))
+                    .map(Integer::valueOf).collect(Collectors.toList());
+        }
+    }
+    public boolean isRouterDynamicLineReplaceEnableSite(Integer siteCode){
+        if(Objects.equals(this.routerDynamicLineReplaceEnableSiteStr, Constants.STR_ALL)){
+            return true;
+        }
+        return this.routerDynamicLineReplaceEnableSiteList.contains(siteCode);
     }
 }

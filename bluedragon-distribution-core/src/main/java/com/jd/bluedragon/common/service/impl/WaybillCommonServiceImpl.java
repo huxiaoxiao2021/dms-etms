@@ -869,7 +869,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode());
                 if(oldWaybill != null && oldWaybill.getData()!=null&&oldWaybill.getData().getWaybillCode()!=null) {
                     String oldWaybillCode = oldWaybill.getData().getWaybillCode();
-                    target.setPopularizeMatrixCode(oldWaybillCode);
+                    target.setPopularizeMatrixCode(waybill.getBusiOrderCode());
                     target.setPopularizeMatrixCodeDesc("原运单号");
                     target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
                 }else {
@@ -2269,7 +2269,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 return result.setData(true);
             }
         }
-        return result;
+        return result.setData(matchVas);
     }
 
     /**
@@ -2326,6 +2326,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(!matchVas){
             return result.setData(false);
         }
-        return result;
+        return result.setData(matchVas);
     }
 }

@@ -232,6 +232,11 @@ public class UserSignRecord implements Serializable {
 	 */
 	private String idCard;
 
+	/**
+	 * 修改类型:0-默认,1-系统修改未人工签退,2-人员未排班数据作废处理
+	 */
+	private Integer modifyType;
+
 	public String getIdCard() {
 		return idCard;
 	}
@@ -858,5 +863,13 @@ public class UserSignRecord implements Serializable {
 			areaHubName = "";
 		}
 		this.areaHubName = areaHubName;
+	}
+
+	public Integer getModifyType() {
+		return modifyType;
+	}
+
+	public void setModifyType(Integer modifyType) {
+		this.modifyType = modifyType;
 	}
 }
