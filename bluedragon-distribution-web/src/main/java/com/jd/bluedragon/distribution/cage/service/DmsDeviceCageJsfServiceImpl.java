@@ -63,9 +63,14 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
         request.setCurrentOperate(currentOperate);
         User user = new User();
         if (StringUtils.isNotEmpty(req.getUserErp())){
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(req.getUserErp());
-            if (baseStaffSiteOrgDto != null){
-                user.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+            try{
+
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(req.getUserErp());
+                if (baseStaffSiteOrgDto != null){
+                    user.setUserCode(baseStaffSiteOrgDto.getStaffNo());
+                }
+            }catch (Exception e){
+                log.error("查询用户信息失败",e);
             }
         }
         user.setUserErp(req.getUserErp());
