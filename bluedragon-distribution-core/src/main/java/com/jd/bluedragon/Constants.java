@@ -2555,5 +2555,9 @@ public class Constants {
      * 租板发货-司机违规举报锁前缀
      */
     public static final String JY_DRIVER_VIOLATION_REPORTING_LOCK_PREFIX  = "jy_driver_violation_reporting_lock_%s";
+    /**
+     * 租板发货-司机违规举报同步质检key
+     */
+    public static final String JY_DRIVER_VIOLATION_REPORTING_KEY_PREFIX  = "jy_driver_violation_reporting_key_%s";
 
 }

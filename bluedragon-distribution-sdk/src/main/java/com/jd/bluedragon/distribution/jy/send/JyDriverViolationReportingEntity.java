@@ -26,6 +26,10 @@ public class JyDriverViolationReportingEntity implements Serializable {
      */
     private String videoUrl;
     /**
+     * 操作场地编码
+     */
+    private Long siteCode;
+    /**
      * 创建人ERP
      */
     private String createUserErp;
@@ -86,6 +90,14 @@ public class JyDriverViolationReportingEntity implements Serializable {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public Long getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Long siteCode) {
+        this.siteCode = siteCode;
     }
 
     public String setCreateUserErp(String createUserErp){

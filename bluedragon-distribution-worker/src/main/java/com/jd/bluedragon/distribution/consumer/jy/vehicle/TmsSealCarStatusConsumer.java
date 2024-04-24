@@ -30,6 +30,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -101,6 +99,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier(value = "sealSyncOpenCloseSendTaskProducer")
     private DefaultJMQProducer sealSyncOpenCloseSendTaskProducer;
+
+    @Autowired
+    @Qualifier(value = "sendSealSyncDriverViolationReportingProducer")
+    private DefaultJMQProducer sendSealSyncDriverViolationReportingProducer;
 
 
     @Override
@@ -179,6 +181,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             }
             //
             this.sendSealSyncJySendTaskStatusMq(tmsSealCarStatus);
+            // 已封车，进行司机违规质控上报
+            this.sendSealSyncDriverViolationReportingMq(tmsSealCarStatus);
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
@@ -214,6 +218,26 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
         }
         return false;
+    }
+
+    /**
+     * 已封车，发送司机违章质控上报消息
+     * @param tmsSealCarStatus 封存车辆状态消息体
+     */
+    private void sendSealSyncDriverViolationReportingMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
+        String transWorkItemCode = tmsSealCarStatus.getTransWorkItemCode();
+        if (StringUtils.isBlank(transWorkItemCode)){
+            return;
+        }
+        try{
+            sendSealSyncDriverViolationReportingProducer.sendOnFailPersistent(transWorkItemCode, JsonHelper.toJson(tmsSealCarStatus));
+        }catch (Exception e) {
+            logger.error("已封车，发送司机违章质控上报消息mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(tmsSealCarStatus), e);
+        }finally {
+            if(logger.isInfoEnabled()) {
+                logger.info("已封车，发送司机违章质控上报，msg={}", JsonHelper.toJson(tmsSealCarStatus));
+            }
+        }
     }
 
     private void closeBoard(SealCarDto sealCarInfoBySealCarCodeOfTms) {
@@ -427,6 +451,10 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
          * batchCodes 中的某一个
          */
         private String singleBatchCode;
+        /**
+         * 派车明细单号
+         */
+        private String transWorkItemCode;
 
         public String getSealCarCode() {
             return sealCarCode;
@@ -482,6 +510,14 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
 
         public void setSingleBatchCode(String singleBatchCode) {
             this.singleBatchCode = singleBatchCode;
+        }
+
+        public String getTransWorkItemCode() {
+            return transWorkItemCode;
+        }
+
+        public void setTransWorkItemCode(String transWorkItemCode) {
+            this.transWorkItemCode = transWorkItemCode;
         }
     }
 }

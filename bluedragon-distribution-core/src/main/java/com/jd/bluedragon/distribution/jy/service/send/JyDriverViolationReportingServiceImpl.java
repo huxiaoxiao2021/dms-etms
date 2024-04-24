@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.DriverViola
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.DriverViolationReportingRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.DriverViolationReportingDto;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.external.domain.DriverViolationReportingResponse;
@@ -12,15 +13,20 @@ import com.jd.bluedragon.distribution.external.domain.JyDriverViolationReporting
 import com.jd.bluedragon.distribution.external.domain.QueryDriverViolationReportingReq;
 import com.jd.bluedragon.distribution.jy.dao.send.JyDriverViolationReportingDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
+import com.jd.bluedragon.distribution.jy.dto.task.DriverViolationReportingQualityMq;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JyDriverViolationReportingEntity;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -44,6 +50,17 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
 
     @Autowired
     JimDbLock jimDbLock;
+
+    @Autowired
+    @Qualifier(value = "driverViolationReportingQualityProducer")
+    private DefaultJMQProducer driverViolationReportingQualityProducer;
+
+    @Autowired
+    private JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 
     /**
      * 司机违规举报最大时间
@@ -144,10 +161,10 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
             invokeResult.error("其他用户正在举报该任务，请稍后再试");
             return invokeResult;
         }
+        JyDriverViolationReportingEntity entity;
         try {
-            JyDriverViolationReportingEntity jyDriverViolationReportingEntity =
-                getJyDriverViolationReportingEntity(request);
-            int i = driverViolationReportingDao.insertSelective(jyDriverViolationReportingEntity);
+            entity = getJyDriverViolationReportingEntity(request);
+            int i = driverViolationReportingDao.insertSelective(entity);
             if (i <= Constants.NUMBER_ZERO) {
                 invokeResult.error("插入司机违规数据失败");
                 return invokeResult;
@@ -160,7 +177,73 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
             jimDbLock.releaseLock(driverViolationReportingLockKey, request.getBizId());
         }
         invokeResult.success();
+        // 发送质控mq
+        sendQualityMq(request, entity);
         return invokeResult;
+    }
+
+    /**
+     * 发送质控消息
+     * @param request 驾驶员违规上报请求对象
+     * @param entity 驾驶员违规上报实体对象
+     * @throws Exception 发送质控消息可能抛出异常
+     */
+    private void sendQualityMq(DriverViolationReportingAddRequest request, JyDriverViolationReportingEntity entity) {
+        if (Objects.isNull(entity)) {
+            log.error("JyDriverViolationReportingServiceImpl.sendQualityMq 待上报的数据未空");
+            return;
+        }
+        DriverViolationReportingQualityMq qualityMq = null;
+        try {
+            String key = String.format(Constants.JY_DRIVER_VIOLATION_REPORTING_KEY_PREFIX, request.getBizId());
+            // 获取封车编码，过期时间10个小时
+            String sealCarCode = cacheService.get(key);
+            if (StringUtils.isBlank(sealCarCode)) {
+                log.error("JyDriverViolationReportingServiceImpl.sendQualityMq 获取封车编码为空，key：{}", key);
+                return;
+            }
+            JyBizTaskSendVehicleDetailEntity detailEntity =
+                jyBizTaskSendVehicleDetailService.findBySendVehicleBizId(request.getBizId());
+            if (Objects.isNull(detailEntity)) {
+                log.error(
+                    "JyDriverViolationReportingServiceImpl.sendQualityMq 获取发车任务明细为空，sendVehicleBizId:{}",
+                    request.getBizId());
+                return;
+            }
+            qualityMq = getDriverViolationReportingQualityMq(request, entity, sealCarCode, detailEntity);
+
+            driverViolationReportingQualityProducer.sendOnFailPersistent(detailEntity.getTransWorkItemCode(),
+                JsonHelper.toJson(qualityMq));
+        } catch (Exception e) {
+            log.error("同步司机违规数据到质控消息mq异常[errMsg={}]，mqBody={}", e.getMessage(),
+                JsonHelper.toJson(qualityMq), e);
+        } finally {
+            if (log.isInfoEnabled()) {
+                log.info("同步司机违规数据到质控，msg={}", JsonHelper.toJson(qualityMq));
+            }
+        }
+    }
+
+    /**
+     * 获取司机违章上报质量消息队列
+     * @param request 司机违章上报添加请求
+     * @param entity JyDriverViolationReportingEntity实体
+     * @param sealCarCode 封存车辆代码
+     * @param detailEntity JyBizTaskSendVehicleDetailEntity实体
+     * @return 质量消息队列
+     */
+    private static DriverViolationReportingQualityMq getDriverViolationReportingQualityMq(
+        DriverViolationReportingAddRequest request, JyDriverViolationReportingEntity entity, String sealCarCode,
+        JyBizTaskSendVehicleDetailEntity detailEntity) {
+        DriverViolationReportingQualityMq qualityMq = new DriverViolationReportingQualityMq();
+        qualityMq.setReportingDate(entity.getCreateTime());
+        qualityMq.setSealCarCode(sealCarCode);
+        qualityMq.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
+        qualityMq.setEndSiteId(detailEntity.getEndSiteId());
+        qualityMq.setReportingSiteCode(entity.getSiteCode());
+        qualityMq.setImgUrl(request.getImgUrlList());
+        qualityMq.setVideoUrl(request.getVideoUlr());
+        return qualityMq;
     }
 
     /**
@@ -204,6 +287,7 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
         jyDriverViolationReportingEntity.setUpdateUserErp(request.getUser().getUserErp());
         jyDriverViolationReportingEntity.setUpdateUserName(request.getUser().getUserName());
         jyDriverViolationReportingEntity.setUpdateTime(new Date());
+        jyDriverViolationReportingEntity.setSiteCode((long)request.getCurrentOperate().getSiteCode());
         return jyDriverViolationReportingEntity;
     }
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,6 +15,15 @@ public class JyDriverViolationReportingDto implements Serializable {
     private String videoUrl;
 
     private List<String> imgUrlList;
+
+    /**
+     * 操作场地编码
+     */
+    private Long siteCode;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
     public String getBizId() {
         return bizId;
@@ -37,5 +47,21 @@ public class JyDriverViolationReportingDto implements Serializable {
 
     public void setImgUrlList(List<String> imgUrlList) {
         this.imgUrlList = imgUrlList;
+    }
+
+    public Long getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Long siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }
