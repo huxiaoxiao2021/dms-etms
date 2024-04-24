@@ -66,10 +66,10 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseStaffByErpCache(req.getUserErp());
             if (baseStaffSiteOrgDto != null){
                 user.setUserCode(baseStaffSiteOrgDto.getStaffNo());
-                user.setUserErp(req.getUserErp());
-                user.setUserName(req.getUserName());
             }
         }
+        user.setUserErp(req.getUserErp());
+        user.setUserName(req.getUserName());
         request.setUser(user);
         Box box = boxService.findBoxByCode(request.getBoxCode());
         if (box == null) {
