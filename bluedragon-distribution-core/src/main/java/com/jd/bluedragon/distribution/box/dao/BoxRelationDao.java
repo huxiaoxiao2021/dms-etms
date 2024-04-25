@@ -31,4 +31,8 @@ public interface BoxRelationDao extends Dao<BoxRelation> {
      */
     List<BoxRelation> getByRelationCode(String boxCode);
 
+    List<BoxRelation> brushQueryAllByPage(Integer startId);
+
+    int brushUpdateById(BoxRelation detail);
+
 }

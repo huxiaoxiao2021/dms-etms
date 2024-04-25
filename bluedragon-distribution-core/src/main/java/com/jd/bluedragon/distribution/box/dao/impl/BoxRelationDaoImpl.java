@@ -56,4 +56,14 @@ public class BoxRelationDaoImpl extends BaseDao<BoxRelation> implements BoxRelat
         return sqlSession.selectList(this.nameSpace + ".getByRelationCode", param);
 
     }
+
+    @Override
+    public List<BoxRelation> brushQueryAllByPage(Integer startId) {
+        return sqlSession.selectList(this.nameSpace.concat(".brushQueryAllByPage"), startId);
+    }
+
+    @Override
+    public int brushUpdateById(BoxRelation detail) {
+        return sqlSession.update(this.nameSpace.concat(".brushUpdateById"), detail);
+    }
 }
