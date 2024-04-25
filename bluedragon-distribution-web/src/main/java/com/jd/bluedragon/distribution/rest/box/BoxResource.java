@@ -280,6 +280,7 @@ public class BoxResource {
         BoxResponse boxResponse = boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), true);
 
         boxResponse.setReceiveSiteCode(request.getReceiveSiteCode());
+        boxResponse.setCreateSiteCode(request.getCreateSiteCode());
         // 获取其他打印信息
         assemblyBoxResponseInfo(boxResponse);
         return boxResponse;
@@ -292,16 +293,16 @@ public class BoxResource {
     private void assemblyBoxResponseInfo(BoxResponse boxResponse) {
         CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
         // 始发地处理 去除接货仓 分拣中心字样
-        String createSiteName = boxResponse.getCreateSiteName();
-        if (createSiteName != null) {
-            String createSiteNameNew = createSiteName.replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
-            boxResponse.setCreateSiteName(createSiteNameNew);
+        BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getCreateSiteCode());
+        if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
+            String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
+            boxResponse.setCreateSiteName(createSiteName);
         }
 
         // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
         BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getReceiveSiteCode());
         if (receiveSiteInfo != null) {
-            String receiveSiteName = boxResponse.getReceiveSiteName();
+            String receiveSiteName = receiveSiteInfo.getSiteName();
             // 如果是营业部
             if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
                 receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
