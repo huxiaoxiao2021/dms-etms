@@ -2890,7 +2890,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         // 按笼扫描
-        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
+        if (Objects.equals(JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
             if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
                 response.toFail("请扫描包裹号！");
                 return false;
