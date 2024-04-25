@@ -42,7 +42,7 @@ public interface JySendVehicleGatewayService {
      * 发货扫描方式枚举
      * @return
      */
-    JdCResponse<List<SelectOption>> scanTypeOptions();
+    JdCResponse<List<SelectOption>> scanTypeOptions(SendScanTypeRequest request);
 
     /**
      * 拉取发货任务列表
