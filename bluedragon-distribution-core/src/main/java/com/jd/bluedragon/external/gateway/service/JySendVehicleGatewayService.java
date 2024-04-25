@@ -39,7 +39,7 @@ public interface JySendVehicleGatewayService {
     JdCResponse<List<SelectOption>> lineTypeOptions();
 
     /**
-     * 发货扫描方式枚举
+     * 发货扫描方式枚举，分拣工作台干支发货岗专用
      * @return
      */
     JdCResponse<List<SelectOption>> scanTypeOptions(SendScanTypeRequest request);

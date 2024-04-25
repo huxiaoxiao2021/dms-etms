@@ -6,11 +6,22 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendVehicleScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
+import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
+import com.jdl.basic.api.enums.TenantEnum;
+import com.jdl.sorting.tech.tenant.core.context.TenantContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @UnifiedExceptionProcess
@@ -163,6 +174,31 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   @Override
   public JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req) {
     return retJdCResponse(jyComBoardSendService.queryScanUser(req));
+  }
+
+  @Override
+  public JdCResponse<List<SelectOption>> scanTypeOptions() {
+    List<SelectOption> optionList = new ArrayList<>();
+    String tenantCode = TenantContext.getTenantCode();
+    //冷链租户返回按件、按单、按板，非冷链返回按件、按单
+    if(StringUtils.isNotBlank(tenantCode) && TenantEnum.TENANT_COLD_MEDICINE.getCode().equals(tenantCode)){
+      for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
+        SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+        optionList.add(option);
+      }
+    }else{
+      for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
+        SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+        optionList.add(option);
+      }
+    }
+
+    Collections.sort(optionList, new SelectOption.OrderComparator());
+
+    JdCResponse<List<SelectOption>> response = new JdCResponse<>();
+    response.toSucceed();
+    response.setData(optionList);
+    return response;
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
