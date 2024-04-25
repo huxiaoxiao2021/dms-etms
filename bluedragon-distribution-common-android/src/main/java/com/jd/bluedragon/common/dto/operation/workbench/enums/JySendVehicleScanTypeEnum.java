@@ -1,12 +1,11 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
 /**
- * @ClassName SendVehicleScanTypeEnum
- * @Description 发货单号扫描类型
- * @Author wyh
- * @Date 2022/6/3 10:37
- **/
-public enum SendVehicleScanTypeEnum {
+ * @author pengchong28
+ * @description 分拣发货岗扫描方式
+ * @date 2024/4/25
+ */
+public enum JySendVehicleScanTypeEnum {
     /**
      * 按件扫描
      */
@@ -19,7 +18,9 @@ public enum SendVehicleScanTypeEnum {
     /**
      * 扫描板号
      */
-    SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号")
+    SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号"),
+
+    SCAN_TABLE_TROLLEY(5, "按笼扫描", "扫描笼车上任意一个包裹号，整笼所有包裹发货")
     ;
     /**
      * 编码
@@ -40,7 +41,7 @@ public enum SendVehicleScanTypeEnum {
      * @param name 名称
      * @param desc 描述
      */
-    SendVehicleScanTypeEnum(Integer code, String name, String desc) {
+    JySendVehicleScanTypeEnum(Integer code, String name, String desc) {
         this.code = code;
         this.name = name;
         this.desc = desc;
@@ -52,7 +53,7 @@ public enum SendVehicleScanTypeEnum {
      * @return 名称
      */
     public static String getNameByCode(Integer code) {
-        for (SendVehicleScanTypeEnum scanTypeEnum : SendVehicleScanTypeEnum.values()) {
+        for (JySendVehicleScanTypeEnum scanTypeEnum : JySendVehicleScanTypeEnum.values()) {
             if (scanTypeEnum.code.equals(code)) {
                 return scanTypeEnum.name;
             }

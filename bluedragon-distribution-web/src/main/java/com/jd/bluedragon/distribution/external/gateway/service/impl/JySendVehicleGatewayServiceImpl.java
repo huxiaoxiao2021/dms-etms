@@ -5,6 +5,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -105,11 +106,13 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
                 optionList.add(option);
             }
         }else{
-            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
-                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY)) {
+            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
                 SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
                 optionList.add(option);
             }
+            JySendVehicleScanTypeEnum scanTableTrolley = JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY;
+            SelectOption option = new SelectOption(scanTableTrolley.getCode(), scanTableTrolley.getName(), scanTableTrolley.getDesc(), scanTableTrolley.getCode());
+            optionList.add(option);
         }
 
         Collections.sort(optionList, new SelectOption.OrderComparator());
