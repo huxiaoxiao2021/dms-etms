@@ -173,6 +173,7 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
@@ -1807,7 +1808,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
-
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan.seconds", false, true);
         logInfo("拣运发货扫描:{}", JsonHelper.toJson(request));
 
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
@@ -1987,11 +1988,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             this.sendScanOfCallback(result,request);
 
         } catch (EconomicNetException e) {
+            Profiler.functionError(info);
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());
         } catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return result;
