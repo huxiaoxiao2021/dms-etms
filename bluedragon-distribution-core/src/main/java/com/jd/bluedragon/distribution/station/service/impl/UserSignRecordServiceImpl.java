@@ -1130,6 +1130,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             }
         }else {
         	result.setData(this.toUserSignRecordData(lastSignRecord));
+			// 设置网格信息
+			setWorkGridKey(result.getData(), gridInfo);
         	result.toSucceed("已签到！");
         }
 		return result;
@@ -1254,6 +1256,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             //不需要签到，直接返回签退结果
             if(!needSignIn) {
             	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
+				// 设置网格信息
+				setWorkGridKey(result.getData(), gridInfo);
                 result.toSucceed("签退成功！");
                 context.signOutData = result.getData();
         		return result;
@@ -1277,6 +1281,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         }
 		return result;
 	}
+
+    /**
+     * 设置用户签到记录数据的网格业务主键
+     * @param userSignRecordData 用户签到记录数据
+     * @param gridInfo 网格信息
+     */
+	private void setWorkGridKey(UserSignRecordData userSignRecordData, WorkStationGrid gridInfo) {
+		if (userSignRecordData != null) {
+			userSignRecordData.setRefWorkGridKey(gridInfo.getRefWorkGridKey());
+		}
+	}
+
 	/**
 	 * 签到、签退设置用户信息
 	 * @param signRequest

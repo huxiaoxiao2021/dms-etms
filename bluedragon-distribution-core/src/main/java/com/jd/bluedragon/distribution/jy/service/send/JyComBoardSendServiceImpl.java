@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
@@ -1122,6 +1123,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScan", mState = {JProEnum.TP, JProEnum.FunctionError})
   public JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
+    CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyComBoardSendServiceImpl.comboardScan.seconds", false, true);
     JdVerifyResponse<ComboardScanResp> result = new JdVerifyResponse<>();
     result.toSuccess();
     try {
@@ -1137,10 +1139,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } catch (NullPointerException e){
       log.error("JyComBoardSendServiceImpl comboardScan NullPointerException", e);
       result.toError("服务器开小差，请联系分拣小秘！");
+      Profiler.functionError(info);
       return result;
     } catch(JyBizException e) {
       ComboardScanResp resp = assembleComboardResp(request);
       resp.setInterceptFlag(checkIntercept(request));
+      Profiler.functionError(info);
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
           result.toCustomError(e.getCode(), e.getMessage());
@@ -1154,6 +1158,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       result.setData(resp);
       result.toError(e.getMessage());
       return result;
+    }finally {
+      Profiler.registerInfoEnd(info);
     }
     ComboardScanResp resp = assembleComboardResp(request);
     if (dmsConfigManager.getPropertyConfig().getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){

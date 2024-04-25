@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
@@ -75,6 +76,8 @@ import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -863,11 +866,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.listCollectPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyCollectPackageServiceImpl.listCollectPackageTask.seconds", false, true);
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         CollectPackageTaskResp resp = new CollectPackageTaskResp();
         result.setData(resp);
         // 参数校验
         if (!checkCollectPackageTaskReq(request, result)) {
+            Profiler.registerInfoEnd(info);
             return result;
         }
         // 根据状态查询任务总数
@@ -881,6 +886,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         }
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(query));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getPageQuery(request, time)));
+        Profiler.registerInfoEnd(info);
         return result;
     }
 
@@ -1058,6 +1064,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryTaskDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyCollectPackageServiceImpl.queryTaskDetail.seconds", false, true);
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
 
         if (!checkTaskDetailReq(request, result)) {
@@ -1124,6 +1131,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 }
             }
         }
+
+        // 流向信息
+        HashMap<String, CollectPackageFlowDto> taskMap = getTaskMap(Collections.singletonList(task));
+        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
+        taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
+        resp.setCollectPackageTaskDto(taskDto);
+        Profiler.registerInfoEnd(info);
+        return result;
     }
 
     private static BoxRelation getBoxRelation(JyBizTaskCollectPackageEntity task) {
