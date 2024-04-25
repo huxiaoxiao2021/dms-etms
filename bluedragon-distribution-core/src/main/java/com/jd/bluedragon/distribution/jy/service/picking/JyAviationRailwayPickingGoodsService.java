@@ -67,7 +67,7 @@ public interface JyAviationRailwayPickingGoodsService {
      * @param req
      * @return
      */
-    InvokeResult<Void> finishSendTask(FinishSendTaskReq req);
+    InvokeResult<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req);
 
     /**
      * 所有机场任务列表
@@ -95,4 +95,18 @@ public interface JyAviationRailwayPickingGoodsService {
     void finishTaskWhenWaitScanEqZero();
 
     void finishTaskWhenTimeExceed();
+
+    /**
+     * 获取提发批次信息
+     * @param req
+     * @return
+     */
+    InvokeResult<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req);
+
+    /**
+     * 删除提发批次信息
+     * @param req
+     * @return
+     */
+    InvokeResult delBatchCodes(DelBatchCodesReq req);
 }

@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.picking;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.basedata.response.StreamlinedBasicSite;
+import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.JyPickingSendBatchCodeStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodStatusEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.PickingGoodTaskTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.aviationRailway.enums.SendFlowDisplayEnum;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.dto.common.BoxNextSiteDto;
 import com.jd.bluedragon.distribution.jy.dto.pickinggood.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyBizTaskPickingGoodSubsidiaryEntity;
 import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendDestinationDetailEntity;
@@ -26,6 +29,7 @@ import com.jd.bluedragon.distribution.jy.pickinggood.JyPickingSendRecordEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -107,6 +111,11 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     private JyScheduleTaskManager jyScheduleTaskManager;
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private PositionQueryJsfManager positionQueryJsfManager;
+    @Autowired
+    private SendMDao sendmDao;
+
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -516,7 +525,7 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         return true;
     }
 
-
+    @Override
     public JyBizTaskPickingGoodEntity fetchWaitPickingBizIdByBarCode(Long siteCode, String barCode) {
         String bizId = jyPickingSendRecordService.fetchWaitPickingBizIdByBarCode(siteCode, barCode);
         if(StringUtils.isBlank(bizId)) {
@@ -572,12 +581,37 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             ret.parameterError("参数错误：提货任务BizId不能为空！");
             return ret;
         }
-        closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
-        // 当前异常上报只将任务状态修改为完成
-        boolean success = jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
-        if (!success) {
-            log.warn("jyBizTaskPickingGoodService 根据bizId={} 完成提货任务状态失败！", req.getBizId());
+        if(pickingGoodsCacheService.existCachePickingExceptionSubmitValue(req.getBizId())) {
+            ret.error("该任务已操作提报异常");
+            return ret;
         }
+
+        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(req.getBizId(), false);
+        if(Objects.isNull(entity)) {
+            ret.parameterError("提货任务不存在");
+            return ret;
+        }
+        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus()) && PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+            ret.error("该任务已经完成，无需提报异常");
+            return ret;
+        }
+        if(Objects.isNull(entity.getCompleteNode()) || PickingCompleteNodeEnum.EXCEPTION_BTN.getCode() != entity.getCompleteNode()) {
+            jyBizTaskPickingGoodService.finishPickingTaskByBizId(req.getBizId(), PickingCompleteNodeEnum.EXCEPTION_BTN.getCode(), req.getUser());
+        }
+
+        this.closeScheduleTask(req.getBizId(), req.getUser().getUserErp(), req.getUser().getUserName());
+
+        String title = "空铁提货任务异常提报提醒";
+        String template = "航班号%s提货差异异常，待提件数%s、已提件数%s、多提件数%s，请尽快联系上游排查";
+        String content = String.format(template, req.getServiceNumber(), req.getCurrentSiteWaitScan(), req.getCurrentSiteHaveScanned(), req.getCurrentSiteMultipleScan());
+        String positionCode = req.getCurrentOperate().getOperatorData().getPositionCode();
+        InvokeResult invokeResult = positionQueryJsfManager.pushInfoToPositionMainErp(req.getUser().getUserErp(), positionCode, title, content);
+        if(!invokeResult.codeSuccess()) {
+            log.error("异常提报推送网格负责人失败,req={}, invokeResult={]", JSON.toJSONString(req), JSON.toJSONString(invokeResult));
+            ret.error("异常提报推送网格负责人失败");
+            return ret;
+        }
+        pickingGoodsCacheService.saveCachePickingExceptionSubmit(req.getBizId());
         return ret;
     }
 
@@ -739,33 +773,61 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishSendTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.completePickingSendTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public InvokeResult<Void> finishSendTask(FinishSendTaskReq req) {
-        InvokeResult<Void> ret = new InvokeResult<>();
-        finishSendTaskCheck(req, ret);
-        if (!ret.codeSuccess()) {
-            return ret;
+    public InvokeResult<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req) {
+        InvokeResult<FinishSendTaskRes> res = new InvokeResult<>();
+        FinishSendTaskRes resData = new FinishSendTaskRes();
+        res.setData(resData);
+        if (!this.finishPickingSendTaskBaseCheck(req, res)) {
+            return res;
         }
-        long curSiteId = req.getCurrentOperate().getSiteCode();
-        long nextSiteId = (long) req.getNextSiteId();
-        String sendCode = jyPickingSendDestinationService.fetchLatestNoCompleteBatchCode(curSiteId, nextSiteId, req.getTaskType());
-        if (StringUtils.isEmpty(sendCode)) {
-            ret.customMessage(InvokeResult.AVRA_SEND_TASK_FINISHED_CODE, InvokeResult.AVRA_SEND_TASK_FINISHED_MESSAGE);
-            return ret;
+        int curSiteId = req.getCurrentOperate().getSiteCode();
+        Integer nextSiteId = req.getNextSiteId();
+        if(!pickingGoodsCacheService.lockPickingSendTaskComplete(curSiteId, nextSiteId)) {
+            res.error("该流向正在操作任务完成，请稍后重试");
+            return res;
         }
-        req.setSendCode(sendCode);
-        jyPickingSendDestinationService.finishSendTask(req);
-        return ret;
+        String sendCode = null;
+        try{
+            sendCode = jyPickingSendDestinationService.fetchLatestNoCompleteBatchCode((long)curSiteId, nextSiteId.longValue(), req.getTaskType());
+            if (StringUtils.isEmpty(sendCode)) {
+                res.customMessage(InvokeResult.AVRA_SEND_TASK_FINISHED_CODE, InvokeResult.AVRA_SEND_TASK_FINISHED_MESSAGE);
+                return res;
+            }
+            req.setSendCode(sendCode);
+
+            Integer scanItemNum = sendmDao.countBoxCodeNumBySendCode(sendCode, curSiteId);
+            req.setScanItemNum(scanItemNum);
+
+            resData.setSendCode(sendCode);
+            resData.setScanItemNum(scanItemNum);
+            jyPickingSendDestinationService.finishSendTask(req);
+            return res;
+        }catch (Exception ex) {
+            log.error("提货发货任务完成异常，请联系分拣小秘,req={},sendCode={},errMsg={}", JSON.toJSONString(req), sendCode, ex.getMessage(), ex);
+            res.error("提货发货任务完成异常，请联系分拣小秘");
+            return res;
+        }finally {
+            pickingGoodsCacheService.unlockPickingSendTaskComplete(curSiteId, nextSiteId);
+        }
     }
 
-    private void finishSendTaskCheck(FinishSendTaskReq req, InvokeResult<Void> invokeResult) {
+
+    //check: true-success; false-error
+    private boolean finishPickingSendTaskBaseCheck(FinishSendTaskReq req, InvokeResult<FinishSendTaskRes> invokeResult) {
+        if(Objects.isNull(req) || Objects.isNull(invokeResult)) {
+            return true;
+        }
         if (req.getNextSiteId() == null) {
-            invokeResult.parameterError("目的场地编码不能为空！");
+            invokeResult.error("目的场地编码不能为空！");
+            return false;
         }
-        if (req.getTaskType() == null) {
-            invokeResult.parameterError("任务类型不能为空！");
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            invokeResult.error("任务类型不合法");
+            return false;
         }
+        return true;
     }
 
     @Override
@@ -1144,17 +1206,6 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         }
     }
 
-//    @Override
-//    public boolean isFirstScanInTask(String bizId, Long siteId) {
-//        if (pickingGoodsCacheService.lockPickingGoodTaskFirstScan(bizId, siteId)) {
-//            Integer count = jyPickingSendRecordService.countTaskRealScanItemNum(bizId, siteId);
-//            if (!NumberHelper.gt0(count)) {
-//                logInfo("提货任务{}首次扫描.{}", bizId);
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyAviationRailwayPickingGoodsServiceImpl.finishTaskWhenWaitScanEqZero",
@@ -1236,5 +1287,85 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
             batchFinishPickingTaskByBizId(bizIdList, PickingCompleteNodeEnum.TIME_EXECUTE.getCode());
             pageNumber++;
         } while (CollectionUtils.isNotEmpty(bizIdList));
+    }
+
+    @Override
+    public InvokeResult<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req) {
+        InvokeResult<PickingSendBatchCodeDetailRes> res = new InvokeResult<>();
+        if(!pageFetchSendBatchCodeDetailListBaseCheck(req, res)) {
+            return res;
+        }
+
+        res = jyPickingSendDestinationService.pageFetchSendBatchCodeDetailList(req);
+        return res;
+    }
+    //校验;true 放行  false 拦截
+    private boolean pageFetchSendBatchCodeDetailListBaseCheck(PickingSendBatchCodeDetailReq req, InvokeResult<PickingSendBatchCodeDetailRes> res) {
+        if(Objects.isNull(req) || Objects.isNull(res)) {
+            res.success();
+            return true;
+        }
+        if(Objects.isNull(req.getCurrentOperate()) || Objects.isNull(req.getCurrentOperate().getSiteCode())) {
+            res.error("当前操作人站点不能为空");
+            return false;
+        }
+        if(Objects.isNull(req.getNextSiteId())) {
+            res.error("下一站点不能为空");
+            return false;
+        }
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            res.error("任务类型不合法");
+            return false;
+        }
+        if(Objects.isNull(req.getBatchCodeStatus())) {
+            req.setBatchCodeStatus(JyPickingSendBatchCodeStatusEnum.TO_SEAL.getCode());
+        }
+        return true;
+    }
+
+    @Override
+    public InvokeResult delBatchCodes(DelBatchCodesReq req) {
+        InvokeResult res = new InvokeResult();
+        if(!this.delBatchCodesBaseCheck(req, res)) {
+            return res;
+        }
+        if(!pickingGoodsCacheService.lockPickingSendBatchCodeDel(req.getCurrentOperate().getSiteCode(), req.getNextSiteId())) {
+            res.error("该流向正在操作任务删除，请稍后重试");
+            return res;
+        }
+        try{
+            jyPickingSendDestinationService.delBatchCodes(req);
+        }catch (Exception ex) {
+            log.error("提发批次删除服务异常：req={},errMsg={}", JSON.toJSONString(req), ex.getMessage(), ex);
+            res.error("提发批次删除服务异常");
+            return res;
+        }finally {
+            pickingGoodsCacheService.unlockPickingSendBatchCodeDel(req.getCurrentOperate().getSiteCode(), req.getNextSiteId());
+        }
+        return res;
+    }
+    //校验;true 放行  false 拦截
+    private boolean delBatchCodesBaseCheck(DelBatchCodesReq req, InvokeResult res) {
+        if(Objects.isNull(req) || Objects.isNull(res)) {
+            return true;
+        }
+        if(Objects.isNull(req.getCurrentOperate()) || Objects.isNull(req.getCurrentOperate().getSiteCode())) {
+            res.error("当前操作人站点不能为空");
+            return false;
+        }
+        if(CollectionUtils.isEmpty(req.getSendCodeList())) {
+            res.error("批次号不能为空");
+            return false;
+        }
+        if(Objects.isNull(req.getNextSiteId())) {
+            res.error("下一站点不能为空");
+            return false;
+        }
+        if(!PickingGoodTaskTypeEnum.legalCheck(req.getTaskType())) {
+            res.error("任务类型不合法");
+            return false;
+        }
+        res.success();
+        return true;
     }
 }

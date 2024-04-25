@@ -50,10 +50,19 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
 
     /**
      * 发货完成
+     * 废弃（无返回对象）， 改用 finishPickingSendTask(含返回对象)   2021-04-16
      * @param req
      * @return
      */
+    @Deprecated
     JdCResponse<Void> finishSendTask(FinishSendTaskReq req);
+
+    /**
+     * 发货流向批次完成
+     * @param req
+     * @return
+     */
+    JdCResponse<FinishSendTaskRes> completePickingSendTask(FinishSendTaskReq req);
 
     /**
      * 所有机场任务列表
@@ -68,4 +77,18 @@ public interface JyAviationRailwayPickingGoodsGatewayService {
      * @return
      */
     JdCResponse<AirRailTaskAggRes> listAirRailTaskAgg(AirRailTaskAggReq req);
+
+    /**
+     * 查询发货批次数据
+     * @param req
+     * @return
+     */
+    JdCResponse<PickingSendBatchCodeDetailRes> pageFetchSendBatchCodeDetailList(PickingSendBatchCodeDetailReq req);
+
+    /**
+     * 删除批次数据
+     * @param req
+     * @return
+     */
+    JdCResponse<DelBatchCodesRes> delBatchCodes(DelBatchCodesReq req);
 }

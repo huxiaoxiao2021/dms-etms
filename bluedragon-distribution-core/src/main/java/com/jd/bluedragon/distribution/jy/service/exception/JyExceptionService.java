@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionPrintDto;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
 
 import java.util.Date;
 import java.util.List;
@@ -147,6 +149,9 @@ public interface JyExceptionService {
      * @return
      */
     JdCResponse<Boolean> exceptionTaskCheckByExceptionType(ExpTypeCheckReq req);
+
+    void sendScheduleTaskStatusMsg(String bizId, String userErp,
+                                   JyScheduleTaskStatusEnum status, DefaultJMQProducer producer);
 
     void recordLog(JyBizTaskExceptionCycleTypeEnum cycle, JyBizTaskExceptionEntity entity);
 
