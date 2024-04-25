@@ -66,7 +66,7 @@ public class BoxMaterialRelationConsumer extends MessageBaseConsumer {
     private BoxMaterialRelationRequest assembleBoxMaterialRelationRequest(BoxMaterialRelationMq mq) {
         BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
         BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffByStaffId(mq.getOperatorId());
-        if (userInfo != null) {
+        if (userInfo != null && !StringUtils.isEmpty(userInfo.getErp())) {
             req.setOperatorERP(userInfo.getErp());
         } else {
             req.setOperatorERP(String.valueOf(mq.getOperatorId()));
