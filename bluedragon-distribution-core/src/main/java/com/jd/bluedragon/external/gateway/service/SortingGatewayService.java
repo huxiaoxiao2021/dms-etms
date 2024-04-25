@@ -23,4 +23,13 @@ public interface SortingGatewayService {
      * 根据箱号获取该箱号下的运单列表
      */
     JdCResponse<List<String>> getWaybillCodes(String boxCode);
+
+    /**
+     * 分拣前校验（笼车分拣专用）--逻辑复制sortingPostCheck方法，sortingPostCheck方法已经下线。
+     * 去掉sortingPostCheck方法中的，下线校验逻辑
+     * @param checkRequest
+     * @return
+     */
+    JdVerifyResponse sortingPostCheckWithTableTrolley(SortingCheckRequest checkRequest);
+
 }

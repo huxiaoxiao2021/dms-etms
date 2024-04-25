@@ -105,7 +105,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
                 optionList.add(option);
             }
         }else{
-            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
+            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY)) {
                 SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
                 optionList.add(option);
             }
