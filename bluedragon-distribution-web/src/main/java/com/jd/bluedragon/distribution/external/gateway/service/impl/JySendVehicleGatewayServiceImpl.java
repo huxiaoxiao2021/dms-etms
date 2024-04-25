@@ -28,7 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @ClassName JySendVehicleGatewayServiceImpl
@@ -92,7 +95,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
-    public JdCResponse<List<SelectOption>> scanTypeOptions(SendScanTypeRequest request) {
+    public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         String tenantCode = TenantContext.getTenantCode();
         //冷链租户返回按件、按单、按板，非冷链返回按件、按单
@@ -102,13 +105,9 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
                 optionList.add(option);
             }
         }else{
-            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
+            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY)) {
                 SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
-                optionList.add(option);
-            }
-            if (Objects.nonNull(request) && request.getTableTrolleyFlag()){
-                SendVehicleScanTypeEnum anEnum = SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY;
-                SelectOption option = new SelectOption(anEnum.getCode(), anEnum.getName(), anEnum.getDesc(), anEnum.getCode());
                 optionList.add(option);
             }
         }
