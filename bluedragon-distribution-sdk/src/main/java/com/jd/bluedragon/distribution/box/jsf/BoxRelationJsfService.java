@@ -27,4 +27,6 @@ public interface BoxRelationJsfService {
      */
     InvokeResult<Integer> queryCount(BoxRelationQ query);
 
+
+    InvokeResult<Integer> initProvinceAgency(Integer startId);
 }

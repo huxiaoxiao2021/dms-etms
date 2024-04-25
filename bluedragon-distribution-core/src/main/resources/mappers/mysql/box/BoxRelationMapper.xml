@@ -250,4 +250,38 @@
         AND relation_box_code = #{boxCode,jdbcType=VARCHAR}
     </select>
 
+    <select id="brushQueryAllByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+            id,site_code
+        from
+            dms_box_relation
+        where yn = 1
+          and province_agency_code = ''
+          and id > #{id,jdbcType=BIGINT}
+        order by id
+        limit 100
+    </select>
+
+    <update id="brushUpdateById" parameterType="com.jd.bluedragon.distribution.box.domain.BoxRelation">
+        UPDATE dms_box_relation
+        <set>
+            <if test="provinceAgencyCode != null and provinceAgencyCode != ''" >
+                province_agency_code = #{provinceAgencyCode,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceAgencyName != null and provinceAgencyName != ''" >
+                province_agency_name = #{provinceAgencyName,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubCode != null and areaHubCode != ''" >
+                area_hub_code = #{areaHubCode,jdbcType=VARCHAR},
+            </if>
+            <if test="areaHubName != null and areaHubName != ''" >
+                area_hub_name = #{areaHubName,jdbcType=VARCHAR},
+            </if>
+            update_time = now()
+        </set>
+        WHERE
+        yn = 1
+        AND id = #{id}
+    </update>
+
 </mapper>
