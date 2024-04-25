@@ -281,6 +281,7 @@ public class BoxResource {
 
         boxResponse.setReceiveSiteCode(request.getReceiveSiteCode());
         boxResponse.setCreateSiteCode(request.getCreateSiteCode());
+        boxResponse.setMixBoxType(request.getMixBoxType());
         // 获取其他打印信息
         assemblyBoxResponseInfo(boxResponse);
         return boxResponse;
