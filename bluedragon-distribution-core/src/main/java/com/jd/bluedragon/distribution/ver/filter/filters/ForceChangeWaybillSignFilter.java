@@ -41,13 +41,15 @@ public class ForceChangeWaybillSignFilter implements Filter {
         // 提示 WaybillDistributeTypeChangeFilter 存在拦截消息的改址拦截 这里只处理标位的 ForceChangeWaybillSignFilter 中处理强制改址拦截 ChangeWaybillSignFilter 中处理弱拦截
 
         // 改址拦截（现阶段存在快递改址和快运改址）
+        // todo 202404改址一单到底需求改动，原理解快递改址【featureType=6】，实际是快递配运方式变化， 原快运改址消息【featureType=9】，实际快递、快运是同一个消息，不再对快运单独区分
         boolean kdAddressModify = WaybillCacheHelper.isForceChangeWaybillSign(request.getWaybillCache());
         boolean kyAddressModify = BusinessUtil.isKyAddressModifyWaybill(request.getWaybillCache().getWaybillSign());
         List<Integer> featureTypeList = Lists.newArrayList(); // 拦截类型集合
         if(kdAddressModify){
             featureTypeList.add(CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
         }
-        if(kyAddressModify){
+        else {
+            featureTypeList.add(CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL);
             featureTypeList.add(CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
         }
         if (CollectionUtils.isEmpty(featureTypeList)){
@@ -63,6 +65,11 @@ public class ForceChangeWaybillSignFilter implements Filter {
         }
         if (BlockResponse.BLOCK.equals(response.getCode())) {
             Integer currentFeatureType = response.getFeatureType();
+            // 改址换单拦截
+            if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)){
+                throw  new SortingCheckException(SortingResponse.CODE_29333,
+                        HintService.getHintWithFuncModule(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT, request.getFuncModule()));
+            }
             // 快递改址拦截
             if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY)){
                 throw  new SortingCheckException(SortingResponse.CODE_29333,
