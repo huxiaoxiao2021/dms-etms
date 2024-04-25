@@ -20,6 +20,8 @@ public enum SendVehicleScanTypeEnum {
      * 扫描板号
      */
     SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号"),
+
+    SCAN_TABLE_TROLLEY(5, "按笼扫描", "扫描笼车上任意一个包裹号，整笼所有包裹发货")
     ;
     /**
      * 编码

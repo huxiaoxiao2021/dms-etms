@@ -136,6 +136,8 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto;
 import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -431,6 +433,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
+
+    @Autowired
+    private SortingService sortingService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2883,6 +2888,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",request.getBarCode(),siteCode, boardResult.getCode());
                 request.setBarCode(boardResult.getCode());
             }
+        }
+        // 按笼扫描
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号！");
+                return false;
+            }
+            //按板笼扫描的是包裹号，根据包裹号找到笼车号（特殊的箱号）
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(request.getBarCode());
+            if (sortingDto == null || StringUtils.isBlank(sortingDto.getBoxCode())) {
+                response.toFail("根据包裹未找到对应笼车数据");
+                return false;
+            }
+            log.info("getBoxCode param boxCode:{},siteCode:{},result getCode: {}", request.getBarCode(), siteCode,
+                sortingDto.getBoxCode());
+            request.setBarCode(sortingDto.getBoxCode());
         }
         return true;
     }
