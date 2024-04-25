@@ -5,6 +5,9 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.select.SelectOption;
+
+import java.util.List;
 
 public interface JyComboardGatewayService {
 
@@ -161,5 +164,11 @@ public interface JyComboardGatewayService {
    * @return
    */
   JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
+
+  /**
+   * 发货扫描方式枚举，组板发货岗专用
+   * @return
+   */
+  JdCResponse<List<SelectOption>> scanTypeOptions();
 
 }
