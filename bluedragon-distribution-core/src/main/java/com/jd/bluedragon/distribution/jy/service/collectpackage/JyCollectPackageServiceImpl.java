@@ -1131,14 +1131,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 }
             }
         }
-
-        // 流向信息
-        HashMap<String, CollectPackageFlowDto> taskMap = getTaskMap(Collections.singletonList(task));
-        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
-        taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
-        resp.setCollectPackageTaskDto(taskDto);
-        Profiler.registerInfoEnd(info);
-        return result;
     }
 
     private static BoxRelation getBoxRelation(JyBizTaskCollectPackageEntity task) {
