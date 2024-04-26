@@ -1565,7 +1565,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         //检查是否需要对开启收件人信息加密的服务进行触发解密
-        bigWaybillDto = decodeReceiverInfo(bigWaybillDto,sendDetail.getReceiveSiteCode());
+        bigWaybillDto = decodeReceiverInfo(bigWaybillDto,sendM);
 
         // 构建打印接交接对象的基础属性
         PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM,waybillCode);
@@ -1660,11 +1660,12 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param waybillDto
      * @return
      */
-    private BigWaybillDto decodeReceiverInfo(BigWaybillDto waybillDto,Integer receiveSiteCode){
+    private BigWaybillDto decodeReceiverInfo(BigWaybillDto waybillDto,SendM sendM){
         //必要入参检查
         if(waybillDto == null
                 || waybillDto.getWaybill() == null
-                || StringUtils.isBlank(waybillDto.getWaybill().getWaybillSign())){
+                || StringUtils.isBlank(waybillDto.getWaybill().getWaybillSign())
+                || sendM == null){
             return waybillDto;
         }
 
@@ -1682,12 +1683,12 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
 
             //目的地不是邮政不需要进行解密
-            BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+            BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
             if(!(receiveSiteDto != null
                     && Constants.THIRD_SITE_TYPE.equals(receiveSiteDto.getSiteType())
                     && Constants.THIRD_SITE_SUB_TYPE.equals(receiveSiteDto.getSubType())
                     && Constants.THIRD_SITE_THIRD_TYPE_SMS.equals(receiveSiteDto.getThirdType()))) {
-                log.info("运单{},发货目的地{}非邮政，不需要进行解密！",waybillCode,receiveSiteCode);
+                log.info("运单{},发货目的地{}非邮政，不需要进行解密！",waybillCode,sendM.getReceiveSiteCode());
                 return waybillDto;
             }
 
@@ -1749,6 +1750,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             req.setQueryReason(AdapterApiManagerImpl.QUERY_REASON_EMS);
             //平台条线
             req.setPlatform(encPlatform);
+            //触发人
+            req.setUserType(Constants.NUMBER_FIVE);
+            req.setUserId(sendM.getCreateUserCode()+Constants.SEPARATOR_HYPHEN+sendM.getCreateUser());
             AdapterOutOfPlatformDecryRouter resp = adapterApiManager.commonAdapterExecuteOfPlatformDecryRouter(req);
             if(resp == null || resp.getData() == null
                     || resp.getData().getReceiver() == null
