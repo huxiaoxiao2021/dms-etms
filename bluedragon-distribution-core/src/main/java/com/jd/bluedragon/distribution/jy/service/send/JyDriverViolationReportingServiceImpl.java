@@ -358,6 +358,8 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
             reportingDto.setVideoUrl(entity.getVideoUrl());
             List<String> imgUrlList = Arrays.asList(entity.getImgUrl().split(","));
             reportingDto.setImgUrlList(imgUrlList);
+            reportingDto.setCreateTime(entity.getCreateTime());
+            reportingDto.setSiteCode(entity.getSiteCode());
             dtos.add(reportingDto);
         }
         return dtos;
