@@ -50,7 +50,16 @@ public enum WaybillPrintOperateTypeEnum {
     /**
      * 100319-终端站长工作台：现场预分拣
      */
-    SMS_SITE_MASTER_RESCHEDULE_PRINT(100319, "终端站长工作台：现场预分拣");
+    SMS_SITE_MASTER_RESCHEDULE_PRINT(100319, "终端站长工作台：现场预分拣"),
+    /**
+     * 100320-终端:分批派送换单打印
+     */
+    SMS_SPLIT_CHANGE_PRINT(100320, "终端分批派送换单打印"),
+
+    /**
+     * 100321-终端揽收打印
+     */
+    SMS_DUTIABLE_PRINT(100321, "终端揽收打印");
     private Integer type;//操作类型
     private String name;//操作名称
 

@@ -400,7 +400,7 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
      */
     private void updateSiteEvaluateAndAppeal(JyEvaluateRecordAppealRes res) {
         // 统计场地审核通过次数>3,下游乱评价，关闭下游未来7天的评价权限
-        JyEvaluateRecordAppealDto dto = getJyEvaluateRecordAppealDto(res.getTargetSiteCode(), EvaluateAppealResultStatusEnum.PASS.getCode());
+        JyEvaluateRecordAppealDto dto = buildJyEvaluateRecordAppealDto(res.getSourceSiteCode(), EvaluateAppealResultStatusEnum.PASS.getCode());
         Integer checkAppealCount = jyEvaluateRecordAppealDao.getAppealCount(dto);
         if (Objects.nonNull(checkAppealCount) && checkAppealCount >= Constants.APPEAL_COUNT_NUM) {
             JyEvaluateAppealPermissionsEntity permissions =
@@ -448,6 +448,21 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
     private static JyEvaluateRecordAppealDto getJyEvaluateRecordAppealDto(Long targetSiteCode, Integer appealResult) {
         JyEvaluateRecordAppealDto dto = new JyEvaluateRecordAppealDto();
         dto.setTargetSiteCode(targetSiteCode);
+        dto.setAppealResult(appealResult);
+        Date date = DateHelper.addDate(new Date(), -7);
+        dto.setUpdateTime(date);
+        return dto;
+    }
+
+    /**
+     * 构建教育评价记录申诉数据传输对象
+     * @param sourceSiteCode 源站点代码
+     * @param appealResult 申诉结果
+     * @return dto 构建的教育评价记录申诉数据传输对象
+     */
+    private static JyEvaluateRecordAppealDto buildJyEvaluateRecordAppealDto(Long sourceSiteCode, Integer appealResult) {
+        JyEvaluateRecordAppealDto dto = new JyEvaluateRecordAppealDto();
+        dto.setSourceSiteCode(sourceSiteCode);
         dto.setAppealResult(appealResult);
         Date date = DateHelper.addDate(new Date(), -7);
         dto.setUpdateTime(date);

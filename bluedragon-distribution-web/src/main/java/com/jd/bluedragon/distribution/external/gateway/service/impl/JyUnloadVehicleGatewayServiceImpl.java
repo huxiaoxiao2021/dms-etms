@@ -212,6 +212,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.doUnloadScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<UnLoadScanResponse> doUnloadScan(UnloadScanRequest request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.doUnloadScan.seconds", false, true);
         JdVerifyResponse<UnLoadScanResponse> response = new JdVerifyResponse<>();
         response.toSuccess();
         this.fillUnloadField(request);
@@ -227,6 +228,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             response.getMsgBoxes().addAll(scanResponse.getMsgBoxes());
         }
         response.setSelfDomFlag(scanResponse.getSelfDomFlag());
+        Profiler.registerInfoEnd(info);
         if (scanResponse.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.setData(scanResponse.getData());
             response.toSuccess();
