@@ -558,6 +558,11 @@ public class QualityControlService {
         }else {
             ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ZERO);
         }
+        BaseEntity<Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if(oldWaybill != null && oldWaybill.getData()!=null && oldWaybill.getData().getWaybillCode() != null) {
+            // 如果不是第一次换单，newWaybillCode传值
+            ownReverseTransferDomain.setNewWaybillCode(waybillCode);
+        }
         return ownReverseTransferDomain;
     }
 
