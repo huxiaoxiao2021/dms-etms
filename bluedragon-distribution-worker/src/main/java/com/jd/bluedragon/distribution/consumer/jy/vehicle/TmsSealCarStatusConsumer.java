@@ -161,6 +161,8 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
         }
         // 完结板操作
         closeBoard(sealCarInfoBySealCarCodeOfTms);
+        // 已封车，进行司机违规质控上报
+        this.sendSealSyncDriverViolationReportingMq(tmsSealCarStatus);
 
         //检查目的地是否是拣运中心
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
@@ -181,8 +183,6 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             }
             //
             this.sendSealSyncJySendTaskStatusMq(tmsSealCarStatus);
-            // 已封车，进行司机违规质控上报
-            this.sendSealSyncDriverViolationReportingMq(tmsSealCarStatus);
             return jyUnSealVehicleService.createUnSealTask(convert4Seal(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
         }if(TMS_STATUS_UN_SEAL.equals(tmsSealCarStatus.getStatus())){
             //下游操作解封车后  关闭待解任务 同时创建 待卸任务
@@ -225,17 +225,19 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
      * @param tmsSealCarStatus 封存车辆状态消息体
      */
     private void sendSealSyncDriverViolationReportingMq(TmsSealCarStatusMQBody tmsSealCarStatus) {
-        String transWorkItemCode = tmsSealCarStatus.getTransWorkItemCode();
-        if (StringUtils.isBlank(transWorkItemCode)){
-            return;
-        }
-        try{
-            sendSealSyncDriverViolationReportingProducer.sendOnFailPersistent(transWorkItemCode, JsonHelper.toJson(tmsSealCarStatus));
-        }catch (Exception e) {
-            logger.error("已封车，发送司机违章质控上报消息mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(tmsSealCarStatus), e);
-        }finally {
-            if(logger.isInfoEnabled()) {
-                logger.info("已封车，发送司机违章质控上报，msg={}", JsonHelper.toJson(tmsSealCarStatus));
+        if(TMS_STATUS_SEAL.equals(tmsSealCarStatus.getStatus())){
+            String transWorkItemCode = tmsSealCarStatus.getTransWorkItemCode();
+            if (StringUtils.isBlank(transWorkItemCode)){
+                return;
+            }
+            try{
+                sendSealSyncDriverViolationReportingProducer.sendOnFailPersistent(transWorkItemCode, JsonHelper.toJson(tmsSealCarStatus));
+            }catch (Exception e) {
+                logger.error("已封车，发送司机违章质控上报消息mq异常[errMsg={}]，mqBody={}", e.getMessage(), JsonHelper.toJson(tmsSealCarStatus), e);
+            }finally {
+                if(logger.isInfoEnabled()) {
+                    logger.info("已封车，发送司机违章质控上报，msg={}", JsonHelper.toJson(tmsSealCarStatus));
+                }
             }
         }
     }
