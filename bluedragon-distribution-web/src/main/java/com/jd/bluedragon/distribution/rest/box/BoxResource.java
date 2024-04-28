@@ -292,42 +292,46 @@ public class BoxResource {
      * @param boxResponse
      */
     private void assemblyBoxResponseInfo(BoxResponse boxResponse) {
-        CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
-        // 始发地处理 去除接货仓 分拣中心字样
-        BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getCreateSiteCode());
-        if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
-            String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
-            boxResponse.setCreateSiteName(createSiteName);
-        }
+        try {
+            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
+            // 始发地处理 去除接货仓 分拣中心字样
+            BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getCreateSiteCode());
+            if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
+                String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
+                boxResponse.setCreateSiteName(createSiteName);
+            }
 
-        // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
-        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getReceiveSiteCode());
-        if (receiveSiteInfo != null) {
-            String receiveSiteName = receiveSiteInfo.getSiteName();
-            // 如果是营业部
-            if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
-                receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
-            }else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
-                // 获取包牌名称
-                if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
-                    receiveSiteName = flowConf.getBoxPkgName();
+            // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
+            BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getReceiveSiteCode());
+            if (receiveSiteInfo != null) {
+                String receiveSiteName = receiveSiteInfo.getSiteName();
+                // 如果是营业部
+                if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
+                    receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
+                } else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
+                    // 获取包牌名称
+                    if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
+                        receiveSiteName = flowConf.getBoxPkgName();
+                    }
+                }
+                boxResponse.setReceiveSiteName(receiveSiteName);
+            }
+
+            // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
+            if (MIX_DISABLE.getCode().equals(boxResponse.getMixBoxType())) {
+                boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
+                boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
+            } else {
+                // 获取集包要求
+                if (flowConf != null && flowConf.getCollectClaim() != null) {
+                    boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
+                    boxResponse.setCollectClaim(flowConf.getCollectClaim());
                 }
             }
-            boxResponse.setReceiveSiteName(receiveSiteName);
+            boxResponse.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        }catch (Exception e) {
+            log.error("箱号打印获取免单信息异常：{}", JsonHelper.toJson(boxResponse), e);
         }
-
-        // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
-        if (MIX_DISABLE.getCode().equals(boxResponse.getMixBoxType())) {
-            boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
-            boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
-        }else {
-            // 获取集包要求
-            if (flowConf != null && flowConf.getCollectClaim() != null) {
-                boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
-                boxResponse.setCollectClaim(flowConf.getCollectClaim());
-            }
-        }
-        boxResponse.setCreateTime(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
     }
 
     /**
