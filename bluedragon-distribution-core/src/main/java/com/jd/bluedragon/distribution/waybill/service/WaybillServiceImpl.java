@@ -1105,7 +1105,13 @@ public class WaybillServiceImpl implements WaybillService {
             return claimDamagedCancelWaybill;
         }
 
-        return cancelWaybills.get(0);
+        //剔除掉被解锁数据
+        for(CancelWaybill cancelWaybill1 : cancelWaybills) {
+            if(CancelWaybill.BUSINESS_TYPE_LOCK.equals(cancelWaybill1.getBusinessType())) {
+                return cancelWaybill1;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1131,13 +1137,7 @@ public class WaybillServiceImpl implements WaybillService {
             return claimDamagedCancelWaybill;
         }
 
-        //剔除掉被解锁数据
-        for(CancelWaybill cancelWaybill1 : cancelWaybills) {
-            if(CancelWaybill.BUSINESS_TYPE_LOCK.equals(cancelWaybill1.getBusinessType())) {
-                return cancelWaybill1;
-            }
-        }
-        return null;
+        return cancelWaybills.get(0);
     }
 
     /**
