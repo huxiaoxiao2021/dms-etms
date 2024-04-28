@@ -99,7 +99,17 @@ public class DmsConstants {
     /**
      * 仓循环物资周转箱正则表达式
      */
-    public static final Pattern RULE_CYCLE_TURNOVER_BOX_REGEX = Pattern.compile("^AZ[0-9]{13}$");
+    public static final Pattern RULE_CYCLE_WMS_TURNOVER_BOX_REGEX = Pattern.compile("^AZ[0-9]{13}$");
+
+    /**
+     * 循环物资保温箱正则表达式
+     */
+    public static final Pattern RULE_CYCLE_INSULATED_BOX_REGEX = Pattern.compile("^MZ\\d{5}[A-Z]{1}\\d{6}$");
+
+    /**
+     * 循环物资周转箱正则表达式
+     */
+    public static final Pattern RULE_CYCLE_TURNOVER_BOX_REGEX = Pattern.compile("^[M][ZG][a-zA-Z0-9]{10,20}$");
 
     /**
      * 箱号正则表达式，新开放-德邦的箱号规则
