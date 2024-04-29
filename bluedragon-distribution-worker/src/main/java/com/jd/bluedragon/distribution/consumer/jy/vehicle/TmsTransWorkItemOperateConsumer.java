@@ -149,7 +149,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         //锁定派车单执行 防止并发问题
         String mutexKey = getTransWorkMutexKey(transWorkCode);
         String reqId = UUID.randomUUID().toString();
-        if(jimDbLock.lock(mutexKey,reqId, TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES)){
+        if(!jimDbLock.lock(mutexKey,reqId, TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES)){
             String warnMsg = String.format("派车单%s-%s正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
             logger.warn(warnMsg, JsonHelper.toJson(workItemDto));
             throw new JyBizException(warnMsg);
