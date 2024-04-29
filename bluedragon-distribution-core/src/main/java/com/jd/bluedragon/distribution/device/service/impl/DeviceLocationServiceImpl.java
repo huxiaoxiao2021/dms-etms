@@ -220,6 +220,11 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             deviceLocationLog.setMacAddressNetwork(deviceLocationInfo.getMacAddressNetwork());
             deviceLocationLog.setLongitude(deviceLocationInfo.getLongitude());
             deviceLocationLog.setLatitude(deviceLocationInfo.getLatitude());
+            deviceLocationLog.setWifiSsid(deviceLocationInfo.getWifiSsid());
+            deviceLocationLog.setWifiBssid(deviceLocationInfo.getWifiBssid());
+            deviceLocationLog.setWifiRssi(deviceLocationInfo.getWifiRssi());
+            deviceLocationLog.setWifiNetworkId(deviceLocationInfo.getNetworkId());
+            deviceLocationLog.setWifiNetworkLinkSpeed(deviceLocationInfo.getNetworkLinkSpeed());
         }
 
         deviceLocationLog.setOperateTime(new Date(deviceLocationUploadPo.getOperateTime()));
@@ -547,6 +552,11 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             deviceLocationExceptionOpLog.setLatitude(deviceLocationInfo.getLatitude());
             deviceLocationExceptionOpLog.setOperateTime(new Date(deviceLocationUploadPo.getOperateTime()));
             deviceLocationExceptionOpLog.setOperateType(deviceLocationUploadPo.getOperateType());
+            deviceLocationExceptionOpLog.setWifiSsid(deviceLocationInfo.getWifiSsid());
+            deviceLocationExceptionOpLog.setWifiBssid(deviceLocationInfo.getWifiBssid());
+            deviceLocationExceptionOpLog.setWifiRssi(deviceLocationInfo.getWifiRssi());
+            deviceLocationExceptionOpLog.setWifiNetworkId(deviceLocationInfo.getNetworkId());
+            deviceLocationExceptionOpLog.setWifiNetworkLinkSpeed(deviceLocationInfo.getNetworkLinkSpeed());
         }
 
         deviceLocationExceptionOpLog.setCreateTime(new Date());
