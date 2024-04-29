@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.TimeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -236,7 +237,9 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
         DriverViolationReportingAddRequest request, JyDriverViolationReportingEntity entity, String sealCarCode,
         JyBizTaskSendVehicleDetailEntity detailEntity) {
         DriverViolationReportingQualityMq qualityMq = new DriverViolationReportingQualityMq();
-        qualityMq.setReportingDate(entity.getCreateTime());
+        if (Objects.nonNull(entity.getCreateTime())){
+            qualityMq.setReportingDate(TimeUtils.format(entity.getCreateTime(), TimeUtils.yyyy_MM_dd_HH_mm_ss));
+        }
         qualityMq.setSealCarCode(sealCarCode);
         qualityMq.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
         qualityMq.setEndSiteId(detailEntity.getEndSiteId());

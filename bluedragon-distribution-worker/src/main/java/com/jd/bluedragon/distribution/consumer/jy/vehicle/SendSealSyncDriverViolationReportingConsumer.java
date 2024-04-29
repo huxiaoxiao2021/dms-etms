@@ -15,6 +15,8 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.TimeUtils;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -147,7 +149,9 @@ public class SendSealSyncDriverViolationReportingConsumer extends MessageBaseCon
         JyDriverViolationReportingDto reportingDto = result.getData().getDtoList().get(0);
         DriverViolationReportingQualityMq qualityMq =
             new DriverViolationReportingQualityMq();
-        qualityMq.setReportingDate(reportingDto.getCreateTime());
+        if (Objects.nonNull(reportingDto.getCreateTime())){
+            qualityMq.setReportingDate(TimeUtils.format(reportingDto.getCreateTime(), TimeUtils.yyyy_MM_dd_HH_mm_ss));
+        }
         qualityMq.setSealCarCode(mqBody.getSealCarCode());
         qualityMq.setTransWorkItemCode(transWorkItemCode);
         qualityMq.setEndSiteId(entity.getEndSiteId());

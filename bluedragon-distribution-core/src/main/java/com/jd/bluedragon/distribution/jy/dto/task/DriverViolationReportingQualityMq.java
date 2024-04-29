@@ -13,7 +13,7 @@ public class DriverViolationReportingQualityMq implements Serializable {
     /**
      * 上报日期
      */
-    private Date reportingDate;
+    private String reportingDate;
     /**
      * 封车编码
      */
@@ -39,11 +39,7 @@ public class DriverViolationReportingQualityMq implements Serializable {
      */
     private List<String> imgUrl;
 
-    public Date getReportingDate() {
-        return reportingDate;
-    }
-
-    public void setReportingDate(Date reportingDate) {
+    public void setReportingDate(String reportingDate) {
         this.reportingDate = reportingDate;
     }
 
