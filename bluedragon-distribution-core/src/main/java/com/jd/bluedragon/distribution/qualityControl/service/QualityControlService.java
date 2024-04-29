@@ -495,7 +495,7 @@ public class QualityControlService {
 
     private void twiceExchangeWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf, OwnReverseTransferDomain ownReverseTransferDomain) {
         // 场地白名单+破损+二次换单 的情况 waybillCode传原单 newWaybillCode传逆向单号
-        if (conf == null || !CollectionUtils.isEmpty(conf.getSiteWhiteList())) {
+        if (conf == null || CollectionUtils.isEmpty(conf.getSiteWhiteList())) {
             return;
         }
         if (!conf.getSiteWhiteList().contains(String.valueOf(request.getDistCenterID())) && !conf.getSiteWhiteList().contains(STR_ALL)) {
