@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.abnormalwaybill.service;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
 
 import java.util.List;
 
@@ -79,7 +80,8 @@ public interface AbnormalWayBillService {
      *
      * @param waybillCode
      * @param request
+     * @param conf
      * @return
      */
-    boolean isDamagedWaybill(String waybillCode, QualityControlRequest request);
+    boolean isDamagedWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf);
 }

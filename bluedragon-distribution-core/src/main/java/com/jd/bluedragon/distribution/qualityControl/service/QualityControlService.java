@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.dto.SiteCodeAssociationDto;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -39,6 +40,7 @@ import com.jd.bluedragon.distribution.qualityControl.domain.abnormalReportRecord
 import com.jd.bluedragon.distribution.abnormal.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
 import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
+import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -63,6 +65,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.etms.waybill.dto.RelationWaybillBodyDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ldop.business.api.AbnormalOrderApi;
@@ -87,10 +90,11 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.CANCEL_RETURN_GROUP_WHITE_LIST_CONF;
+import static com.jd.bluedragon.Constants.STR_ALL;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
-import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
-import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
+import static org.apache.commons.lang3.math.NumberUtils.*;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -474,18 +478,41 @@ public class QualityControlService {
         ownReverseTransferDomain.setUserId(request.getUserID());
         ownReverseTransferDomain.setUserRealName(request.getUserName());
         ownReverseTransferDomain.setSiteName(request.getDistCenterName());
+        CancelReturnGroupWhiteListConf conf = null;
+        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(CANCEL_RETURN_GROUP_WHITE_LIST_CONF);
+        if (sysConfig != null && !StringUtils.isEmpty(sysConfig.getConfigContent())) {
+             conf = JsonHelper.fromJson(sysConfig.getConfigContent(), CancelReturnGroupWhiteListConf.class);
+        }
         // 破损标识
-        if (abnormalWayBillService.isDamagedWaybill(waybillCode, request)) {
+        if (abnormalWayBillService.isDamagedWaybill(waybillCode, request, conf)) {
             ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ONE);
+            twiceExchangeWaybill(waybillCode, request, conf, ownReverseTransferDomain);
         }else {
             ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ZERO);
         }
-        BaseEntity<Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
-        if(oldWaybill != null && oldWaybill.getData()!=null && oldWaybill.getData().getWaybillCode() != null) {
-            // 如果不是第一次换单，newWaybillCode传值
-            ownReverseTransferDomain.setNewWaybillCode(waybillCode);
-        }
         return ownReverseTransferDomain;
+    }
+
+    private void twiceExchangeWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf, OwnReverseTransferDomain ownReverseTransferDomain) {
+        // 场地白名单+破损+二次换单 的情况 waybillCode传原单 newWaybillCode传逆向单号
+        if (conf == null || !CollectionUtils.isEmpty(conf.getSiteWhiteList())) {
+            return;
+        }
+        if (!conf.getSiteWhiteList().contains(String.valueOf(request.getDistCenterID())) && !conf.getSiteWhiteList().contains(STR_ALL)) {
+            return;
+        }
+        // 查询关联单号
+        JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(waybillCode);
+        if (result.isSucceed() && !CollectionUtils.isEmpty(result.getData()) && result.getData().size() == INTEGER_TWO) {
+            // 该接口查询的关联单号，会返回当前查询的运单，所以当总数为2条时就为二次换单
+            for (RelationWaybillBodyDto waybillBodyDto : result.getData()) {
+                if (StringUtils.isNotEmpty(waybillBodyDto.getWaybillCode()) && !waybillCode.equals(waybillBodyDto.getWaybillCode())) {
+                    ownReverseTransferDomain.setNewWaybillCode(waybillCode);
+                    ownReverseTransferDomain.setWaybillCode(waybillBodyDto.getWaybillCode());
+                    break;
+                }
+            }
+        }
     }
 
     /**

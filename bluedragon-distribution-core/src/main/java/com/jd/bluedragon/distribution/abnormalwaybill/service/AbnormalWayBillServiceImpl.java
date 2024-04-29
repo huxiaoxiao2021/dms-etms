@@ -6,24 +6,19 @@ import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.jd.bluedragon.Constants.CANCEL_RETURN_GROUP_WHITE_LIST_CONF;
-import static com.jd.bluedragon.Constants.DB_SQL_IN_LIMIT_NUM;
 import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 
 /**
@@ -155,22 +150,16 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
      *
      * @param waybillCode
      * @param request
+     * @param conf
      * @return
      */
     @Override
-    public boolean isDamagedWaybill(String waybillCode, QualityControlRequest request) {
+    public boolean isDamagedWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf) {
         // 只针对一单一件的场景
         com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if (waybill == null || !Objects.equals(waybill.getGoodNumber(), INTEGER_ONE)) {
             return false;
         }
-
-        // 异常编码校验
-        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(CANCEL_RETURN_GROUP_WHITE_LIST_CONF);
-        if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
-            return false;
-        }
-        CancelReturnGroupWhiteListConf conf = JsonHelper.fromJson(sysConfig.getConfigContent(), CancelReturnGroupWhiteListConf.class);
         if (conf == null || CollectionUtils.isEmpty(conf.getAbnormalCauseList())) {
             return false;
         }
