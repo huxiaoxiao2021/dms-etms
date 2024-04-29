@@ -9,13 +9,15 @@ import java.util.List;
  * @date 2024/4/16
  */
 public class DriverViolationReportingResponse implements Serializable {
-    private List<JyDriverViolationReportingDto> dtoList;
+    private static final long serialVersionUID = 1L;
 
-    public List<JyDriverViolationReportingDto> getDtoList() {
-        return dtoList;
+    private JyDriverViolationReportingDto dto;
+
+    public JyDriverViolationReportingDto getDto() {
+        return dto;
     }
 
-    public void setDtoList(List<JyDriverViolationReportingDto> dtoList) {
-        this.dtoList = dtoList;
+    public void setDto(JyDriverViolationReportingDto dto) {
+        this.dto = dto;
     }
 }

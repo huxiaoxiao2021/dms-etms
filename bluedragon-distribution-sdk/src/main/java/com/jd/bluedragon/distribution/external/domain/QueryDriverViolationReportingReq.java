@@ -9,13 +9,15 @@ import java.util.List;
  * @date 2024/4/16
  */
 public class QueryDriverViolationReportingReq implements Serializable {
-    private List<String> bizIdList;
+    private static final long serialVersionUID = 1L;
 
-    public List<String> getBizIdList() {
-        return bizIdList;
+    private String bizId;
+
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setBizIdList(List<String> bizIdList) {
-        this.bizIdList = bizIdList;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

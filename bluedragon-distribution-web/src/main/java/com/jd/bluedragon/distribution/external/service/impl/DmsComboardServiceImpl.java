@@ -225,7 +225,7 @@ public class DmsComboardServiceImpl implements DmsComboardService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.DmsComboardServiceImpl.getDriverViolationReportingByBizIdList", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizIdList(
+    public InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizId(
         QueryDriverViolationReportingReq request) {
         return driverViolationReportingService.queryViolationReporting(request);
     }

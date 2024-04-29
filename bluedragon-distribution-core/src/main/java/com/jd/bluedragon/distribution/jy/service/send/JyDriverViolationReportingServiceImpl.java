@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.DriverViolationReportingAddRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.DriverViolationReportingRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.DriverViolationReportingDto;
@@ -23,6 +24,8 @@ import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.TimeUtils;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +72,8 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
     private static final Integer MAXIMUM_REPORTING_TIME = 4;
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyDriverViolationReportingServiceImpl.checkViolationReporting", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
+        JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<DriverViolationReportingDto> checkViolationReporting(DriverViolationReportingRequest request) {
         if (log.isInfoEnabled()) {
             log.info("JyDriverViolationReportingServiceImpl.checkViolationReporting 入参：{}",
@@ -131,14 +136,16 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
             invokeResult.parameterError("请求对象不能为空");
             return invokeResult;
         }
-        if (CollectionUtils.isEmpty(request.getBizIdList())) {
-            invokeResult.parameterError("发车任务bizIdList不能为空");
+        if (Objects.isNull(request.getBizId())) {
+            invokeResult.parameterError("发车任务bizId不能为空");
             return invokeResult;
         }
         return null;
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyDriverViolationReportingServiceImpl.submitViolationReporting", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
+        JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<Void> submitViolationReporting(DriverViolationReportingAddRequest request) {
         if (log.isInfoEnabled()) {
             log.info("JyDriverViolationReportingServiceImpl.submitViolationReporting 入参：{}",
@@ -167,7 +174,7 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
             entity = getJyDriverViolationReportingEntity(request);
             int i = driverViolationReportingDao.insertSelective(entity);
             if (i <= Constants.NUMBER_ZERO) {
-                invokeResult.error("插入司机违规数据失败");
+                invokeResult.error("提交司机违规数据失败");
                 return invokeResult;
             }
         } catch (Exception e) {
@@ -316,6 +323,8 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyDriverViolationReportingServiceImpl.queryViolationReporting", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {
+        JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<DriverViolationReportingResponse> queryViolationReporting(
         QueryDriverViolationReportingReq request) {
         if (log.isInfoEnabled()) {
@@ -328,18 +337,18 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
         if (checkedRequest != null) {
             return checkedRequest;
         }
-        List<JyDriverViolationReportingEntity> list = null;
+        JyDriverViolationReportingEntity entity = null;
         try {
-            list = driverViolationReportingDao.findByBizIdList(request.getBizIdList());
+            entity = driverViolationReportingDao.findByBizId(request.getBizId());
         } catch (Exception e) {
             log.error("JyDriverViolationReportingServiceImpl.queryViolationReporting 查询司机违规举报异常", e);
             invokeResult.error("查询司机违规举报异常");
             return invokeResult;
         }
         DriverViolationReportingResponse response = new DriverViolationReportingResponse();
-        if (CollectionUtils.isNotEmpty(list)) {
-            ArrayList<JyDriverViolationReportingDto> dtos = getJyDriverViolationReportingDtos(list);
-            response.setDtoList(dtos);
+        if (Objects.nonNull(entity)) {
+            JyDriverViolationReportingDto reportingDto = getJyDriverViolationReportingDtos(entity);
+            response.setDto(reportingDto);
         }
         invokeResult.success();
         invokeResult.setData(response);
@@ -349,23 +358,20 @@ public class JyDriverViolationReportingServiceImpl implements IJyDriverViolation
     /**
      * 获取交运驾驶员违章举报数据传输对象列表
      *
-     * @param list 交运驾驶员违章举报实体列表
+     * @param entity 交运驾驶员违章举报实体列表
      * @return dtos 交运驾驶员违章举报数据传输对象列表
      */
-    private static ArrayList<JyDriverViolationReportingDto> getJyDriverViolationReportingDtos(
-        List<JyDriverViolationReportingEntity> list) {
-        ArrayList<JyDriverViolationReportingDto> dtos = new ArrayList<>();
-        for (JyDriverViolationReportingEntity entity : list) {
-            JyDriverViolationReportingDto reportingDto = new JyDriverViolationReportingDto();
-            reportingDto.setBizId(entity.getBizId());
-            reportingDto.setVideoUrl(entity.getVideoUrl());
-            List<String> imgUrlList = Arrays.asList(entity.getImgUrl().split(","));
-            reportingDto.setImgUrlList(imgUrlList);
-            reportingDto.setCreateTime(entity.getCreateTime());
-            reportingDto.setSiteCode(entity.getSiteCode());
-            dtos.add(reportingDto);
-        }
-        return dtos;
+    private static JyDriverViolationReportingDto getJyDriverViolationReportingDtos(
+        JyDriverViolationReportingEntity entity) {
+        JyDriverViolationReportingDto reportingDto = new JyDriverViolationReportingDto();
+        reportingDto.setBizId(entity.getBizId());
+        reportingDto.setVideoUrl(entity.getVideoUrl());
+        List<String> imgUrlList = Arrays.asList(entity.getImgUrl().split(","));
+        reportingDto.setImgUrlList(imgUrlList);
+        reportingDto.setCreateTime(entity.getCreateTime());
+        reportingDto.setSiteCode(entity.getSiteCode());
+
+        return reportingDto;
     }
 
     /**

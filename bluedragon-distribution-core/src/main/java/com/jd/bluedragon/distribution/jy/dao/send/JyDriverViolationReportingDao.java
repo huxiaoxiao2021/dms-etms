@@ -20,8 +20,4 @@ public class JyDriverViolationReportingDao extends BaseDao<JyDriverViolationRepo
     public JyDriverViolationReportingEntity findByBizId(String bizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
     }
-
-    public List<JyDriverViolationReportingEntity> findByBizIdList(List<String> list) {
-        return this.getSqlSession().selectList(NAMESPACE + ".findByBizIdList", list);
-    }
 }

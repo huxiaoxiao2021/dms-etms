@@ -9,6 +9,8 @@ import java.util.List;
  * @date 2024/4/12
  */
 public class DriverViolationReportingDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
      * 查询标识，true：查看数据，false：无数据，提交数据
      */

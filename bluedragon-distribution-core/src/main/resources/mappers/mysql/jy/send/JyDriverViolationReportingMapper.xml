@@ -240,14 +240,4 @@
         limit 1
     </select>
 
-    <select id="findByBizIdList" parameterType="java.util.List"  resultMap="jyDriverViolationReportingMap">
-        SELECT <include refid="Base_Column_List" />
-        FROM jy_driver_violation_reporting
-        WHERE biz_id in
-        <foreach item="item" index="index" collection="list"
-                 open="(" separator="," close=")">
-            #{item}
-        </foreach>
-        and yn = 1
-    </select>
 </mapper>

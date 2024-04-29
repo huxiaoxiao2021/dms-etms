@@ -10,6 +10,8 @@ import java.util.List;
  * @date 2024/4/16
  */
 public class JyDriverViolationReportingDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String bizId;
 
     private String videoUrl;

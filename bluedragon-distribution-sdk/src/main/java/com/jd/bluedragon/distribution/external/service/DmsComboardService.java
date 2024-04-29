@@ -24,11 +24,11 @@ public interface DmsComboardService {
   InvokeResult<CountBoardResponse> countBoardGroupBySendFlow(CountBoardRequest request);
 
   /**
-   * 根据bizId集合查询组板任务的司机违规举报数据
+   * 根据bizId查询组板任务的司机违规举报数据
    * @param request
    * @return
    */
-  InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizIdList(
+  InvokeResult<DriverViolationReportingResponse> getDriverViolationReportingByBizId(
       QueryDriverViolationReportingReq request);
 
 }

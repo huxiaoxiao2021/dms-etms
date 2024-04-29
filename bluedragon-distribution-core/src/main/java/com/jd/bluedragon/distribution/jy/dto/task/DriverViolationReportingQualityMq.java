@@ -10,6 +10,8 @@ import java.util.List;
  * @date 2024/4/23
  */
 public class DriverViolationReportingQualityMq implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
      * 上报日期
      */

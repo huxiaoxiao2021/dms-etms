@@ -12,6 +12,8 @@ import java.util.List;
  * @date 2024/4/12
  */
 public class DriverViolationReportingAddRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
      * 登录用户
      */
