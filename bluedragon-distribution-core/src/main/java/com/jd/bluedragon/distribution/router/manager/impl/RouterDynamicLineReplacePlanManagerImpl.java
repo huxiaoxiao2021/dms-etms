@@ -74,6 +74,8 @@ public class RouterDynamicLineReplacePlanManagerImpl implements IRouterDynamicLi
             // step 写入日志
             final RouterDynamicLineReplacePlanLog routerDynamicLineReplacePlanLog = new RouterDynamicLineReplacePlanLog();
             routerDynamicLineReplacePlanLog.setRefId(req.getId());
+            routerDynamicLineReplacePlanLog.setStartSiteId(routerDynamicLineReplacePlanExist.getStartSiteId());
+            routerDynamicLineReplacePlanLog.setStartSiteName(routerDynamicLineReplacePlanExist.getStartSiteName());
             routerDynamicLineReplacePlanLog.setStatusPrev(routerDynamicLineReplacePlanExist.getEnableStatus());
             routerDynamicLineReplacePlanLog.setStatusTarget(req.getEnableStatus());
             routerDynamicLineReplacePlanLog.setCreateTime(currentTime);
