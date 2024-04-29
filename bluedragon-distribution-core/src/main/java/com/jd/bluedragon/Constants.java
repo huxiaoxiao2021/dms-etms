@@ -1784,6 +1784,10 @@ public class Constants {
     public static final Integer NUMBER_TWO = 2;
 
     /**
+     * 数字：5
+     */
+    public static final Integer NUMBER_FIVE = 5;
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;

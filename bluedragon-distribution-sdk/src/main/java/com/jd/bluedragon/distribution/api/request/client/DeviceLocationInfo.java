@@ -50,6 +50,31 @@ public class DeviceLocationInfo implements Serializable {
 
     private BigDecimal distanceToSite;
 
+    /**
+     * WiFi名称
+     */
+    private String wifiSsid;
+
+    /**
+     * WiFi的BSSID
+     */
+    private String wifiBssid;
+
+    /**
+     * 取信号强度
+     */
+    private Integer wifiRssi;
+
+    /**
+     * 网络ID
+     */
+    private Integer networkId;
+
+    /**
+     * 网络连接速度
+     */
+    private Integer networkLinkSpeed;
+
     public String getIpv4() {
         return ipv4;
     }
@@ -112,5 +137,45 @@ public class DeviceLocationInfo implements Serializable {
 
     public void setDistanceToSite(BigDecimal distanceToSite) {
         this.distanceToSite = distanceToSite;
+    }
+
+    public String getWifiSsid() {
+        return wifiSsid;
+    }
+
+    public void setWifiSsid(String wifiSsid) {
+        this.wifiSsid = wifiSsid;
+    }
+
+    public String getWifiBssid() {
+        return wifiBssid;
+    }
+
+    public void setWifiBssid(String wifiBssid) {
+        this.wifiBssid = wifiBssid;
+    }
+
+    public Integer getWifiRssi() {
+        return wifiRssi;
+    }
+
+    public void setWifiRssi(Integer wifiRssi) {
+        this.wifiRssi = wifiRssi;
+    }
+
+    public Integer getNetworkId() {
+        return networkId;
+    }
+
+    public void setNetworkId(Integer networkId) {
+        this.networkId = networkId;
+    }
+
+    public Integer getNetworkLinkSpeed() {
+        return networkLinkSpeed;
+    }
+
+    public void setNetworkLinkSpeed(Integer networkLinkSpeed) {
+        this.networkLinkSpeed = networkLinkSpeed;
     }
 }
