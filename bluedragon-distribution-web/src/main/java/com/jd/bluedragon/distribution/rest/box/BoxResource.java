@@ -158,7 +158,7 @@ public class BoxResource {
             if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
                 //没超过5个站点，用这个选择模板打印
                 response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
-                response.setRouterFullId(routInfoRes.getData()[1].split("\\-\\-"));
+                response.setRouterFullId(routInfoRes.getData()[ 1].split("\\-\\-"));
                 //超过5个站点，打印系统直接用他打印
                 response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
             }
@@ -329,9 +329,30 @@ public class BoxResource {
                 }
             }
             boxResponse.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+
+            // 路由字段去除 分拣中心 接货仓 营业部字样
+            String[] routers = boxResponse.getRouterInfo();
+            if (routers != null) {
+                for (int i = 0; i < routers.length; i++) {
+                    routers[i] = getReplaceName(routers[i]);
+                }
+            }
+            // 多流向路由处理
+            if (!StringUtils.isEmpty(boxResponse.getRouterText())) {
+                boxResponse.setRouterText(getReplaceName(boxResponse.getRouterText()));
+            }
         }catch (Exception e) {
             log.error("箱号打印获取免单信息异常：{}", JsonHelper.toJson(boxResponse), e);
         }
+    }
+
+    private static String getReplaceName(String router) {
+        if (StringUtils.isEmpty(router)) {
+            return "";
+        }
+        return router.replace(TERMINAL_SITE.getName(), "")
+                .replace(RWMS_TYPE.getName(), "")
+                .replace(DMS_TYPE.getName(), "");
     }
 
     /**
