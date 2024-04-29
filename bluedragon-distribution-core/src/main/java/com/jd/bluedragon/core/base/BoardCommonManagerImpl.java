@@ -728,20 +728,28 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private void loadUnloadWaybillIntercept(String waybillCode, String waybillSign, InvokeResult<Boolean> result) {
         // 运单维度快运改址拦截
         if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
-            BlockResponse blockResponse = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
+            BlockResponse blockResponse = waybillService.checkWaybillBlockByFeatureTypes(waybillCode, featureTypeList);
+
             if (BlockResponse.BLOCK.equals(blockResponse.getCode())) {
                 String hintMessage;
-                List<String> blockPackageList = blockResponse.getBlockPackages();
-                if(CollectionUtils.isNotEmpty(blockPackageList) && blockPackageList.size() < 5){ // 运单下拦截状态的包裹数小于5则提示具体包裹
-                    List<Integer> lockPackIndexList = Lists.newArrayList();
-                    for (String packCode : blockPackageList) {
-                        lockPackIndexList.add(WaybillUtil.getPackIndexByPackCode(packCode));
-                    }
-                    Map<String, String> argsMap = new HashMap<>();
-                    argsMap.put(HintArgsConstants.ARG_FIRST, JsonHelper.toJson(lockPackIndexList));
-                    hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT, argsMap);
+                // 改址换单拦截
+                Integer currentFeatureType = blockResponse.getFeatureType();
+                if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)){
+                    hintMessage = HintService.getHint(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT);
                 }else {
-                    hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT);
+                    List<String> blockPackageList = blockResponse.getBlockPackages();
+                    if(CollectionUtils.isNotEmpty(blockPackageList) && blockPackageList.size() < 5){ // 运单下拦截状态的包裹数小于5则提示具体包裹
+                        List<Integer> lockPackIndexList = Lists.newArrayList();
+                        for (String packCode : blockPackageList) {
+                            lockPackIndexList.add(WaybillUtil.getPackIndexByPackCode(packCode));
+                        }
+                        Map<String, String> argsMap = new HashMap<>();
+                        argsMap.put(HintArgsConstants.ARG_FIRST, JsonHelper.toJson(lockPackIndexList));
+                        hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT, argsMap);
+                    }else {
+                        hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT);
+                    }
                 }
                 result.setData(true);
                 result.setMessage(hintMessage);
@@ -754,10 +762,17 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private void loadUnloadPackIntercept(String packageCode, String waybillSign, InvokeResult<Boolean> result) {
         // 包裹维度快运改址拦截
         if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
-            BlockResponse blockResponse = waybillService.checkPackageBlock(packageCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            List<Integer> featureTypeList = new ArrayList<>(Arrays.asList(CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)); // 拦截类型集合
+            BlockResponse blockResponse = waybillService.checkPackageBlockByFeatureTypes(packageCode, featureTypeList);
+
             if (BlockResponse.BLOCK.equals(blockResponse.getCode())) {
                 result.setData(true);
-                result.setMessage(HintService.getHint(HintCodeConstants.PACK_KY_ADDRESS_MODIFY_INTERCEPT));
+                Integer currentFeatureType = blockResponse.getFeatureType();
+                if(Objects.equals(currentFeatureType, CancelWaybill.FEATURE_TYPE_KY_CHANGE_ADDRESS_CHANGE_WAYBILL)){
+                    result.setMessage(HintService.getHint(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT));
+                }else {
+                    result.setMessage(HintService.getHint(HintCodeConstants.PACK_KY_ADDRESS_MODIFY_INTERCEPT));
+                }
                 return;
             }
         }
