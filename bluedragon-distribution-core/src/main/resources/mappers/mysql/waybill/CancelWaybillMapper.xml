@@ -80,7 +80,7 @@
 		<foreach collection="featureTypes" index="index" item="featureType" separator="," open="(" close=")">
 			#{featureType, jdbcType=INTEGER}
 		</foreach>
-		order by operate_time_order
+		order by operate_time_order desc
 	</select>
 
 	<select id="findPackageCodesByFeatureTypeAndWaybillCode" parameterType="java.util.Map"  resultMap="cancelWaybill">
@@ -162,7 +162,7 @@
 		<foreach collection="featureTypes" index="index" item="featureType" separator="," open="(" close=")">
 			#{featureType, jdbcType=INTEGER}
 		</foreach>
-		order by operate_time_order
+		order by operate_time_order desc
 	</select>
 
 	<select id="getByWaybillCodeAndInterceptType" parameterType="java.util.Map" resultMap="cancelWaybill">
