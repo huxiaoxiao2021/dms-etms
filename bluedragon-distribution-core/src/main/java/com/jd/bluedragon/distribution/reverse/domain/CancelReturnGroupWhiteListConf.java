@@ -19,7 +19,7 @@ public class CancelReturnGroupWhiteListConf implements Serializable {
     /**
      * 场地白名单
      */
-    private List<Integer> siteWhiteList;
+    private List<String> siteWhiteList;
 
     /**
      * 异常原因编码

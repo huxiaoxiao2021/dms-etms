@@ -405,4 +405,5 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	JdResult<List<RelationWaybillBodyDto>> getRelationWaybillList(String waybillCode);
+
 }
