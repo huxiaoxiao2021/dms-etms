@@ -1248,7 +1248,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isConvey(Integer siteType){
-        return siteType.equals(96);
+        return SITE_TYPE_FLEET.equals(siteType);
     }
 
 
