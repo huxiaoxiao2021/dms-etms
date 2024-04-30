@@ -1636,6 +1636,11 @@
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
+
+    <!--中台接口试算接口-->
+    <jsf:consumer id="operationSignQueryApiJsfService" interface="com.jd.lbcc.rule.api.OperationSignQueryApi"
+                  protocol="jsf" alias="${jsf.lbcc.rule.alias}" timeout="${jsf.lbcc.rule.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!--  拣运工种字典  -->
     <jsf:consumer id="jyJobTypeJsfService"
                   interface="com.jdl.basic.api.service.jyJobType.JyJobTypeJsfService"

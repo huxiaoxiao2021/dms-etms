@@ -546,6 +546,11 @@ public class HintCodeConstants {
      */
     public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
     /**
+     * 此单为改址拦截单，请换单打印
+     */
+    public static String CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT = "40043";
+
+    /**
      * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
