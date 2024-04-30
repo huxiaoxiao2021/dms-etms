@@ -1047,4 +1047,7 @@
     <bean id="jyPickingTaskSendAggsDao" class="com.jd.bluedragon.distribution.jy.dao.pickinggood.JyPickingTaskSendAggsDao">
         <property name="sqlSession" ref="jyCoreAggSqlSessionTemplateMain"/>
     </bean>
+    <bean id="jyDriverViolationReportingDao" class="com.jd.bluedragon.distribution.jy.dao.send.JyDriverViolationReportingDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
 </beans>

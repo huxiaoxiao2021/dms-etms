@@ -11,19 +11,8 @@ import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.JyCancelSealRequest;
@@ -39,6 +28,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.impl.JyComboardSealVehicleServiceImpl;
+import com.jd.bluedragon.distribution.jy.service.send.IJyDriverViolationReportingService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
@@ -66,6 +56,9 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
 
   @Autowired
   DmsConfigManager dmsConfigManager;
+
+  @Autowired
+  IJyDriverViolationReportingService driverViolationReportingService;
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
@@ -166,4 +159,17 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   public JdCResponse<JyCancelSealInfoResp> getCancelSealInfo(JyCancelSealRequest request) {
     return retJdCResponse(jySealVehicleService.getCancelSealInfo(request));
   }
+
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComboardSealGatewayServiceImpl.checkViolationReporting", mState = {JProEnum.TP, JProEnum.FunctionError})
+  @Override
+  public JdCResponse<DriverViolationReportingDto> checkAndQueryViolationReporting(DriverViolationReportingRequest request) {
+    return retJdCResponse(driverViolationReportingService.checkViolationReporting(request));
+  }
+
+  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComboardSealGatewayServiceImpl.submitViolationReporting", mState = {JProEnum.TP, JProEnum.FunctionError})
+  @Override
+  public JdCResponse<Void> submitViolationReporting(DriverViolationReportingAddRequest request) {
+    return retJdCResponse(driverViolationReportingService.submitViolationReporting(request));
+  }
+
 }

@@ -100,5 +100,7 @@
 		<mapper resource="mappers/mysql/jy/pickinggood/JyBizTaskPickingGoodMapper.xml" />
 		<mapper resource="mappers/mysql/jy/pickinggood/JyBizTaskPickingGoodSubsidiaryMapper.xml" />
 		<mapper resource="mappers/mysql/jy/pickinggood/JyPickingSendDestinationDetailMapper.xml" />
+		<!-- 司机违规举报表 -->
+		<mapper resource="mappers/mysql/jy/send/JyDriverViolationReportingMapper.xml" />
 	</mappers>
 </configuration>

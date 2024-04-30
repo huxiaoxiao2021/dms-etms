@@ -9,14 +9,8 @@ import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
 import com.jd.bluedragon.common.dto.comboard.response.GoodsCategoryDto;
 import com.jd.bluedragon.common.dto.comboard.response.QueryBelongBoardResp;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SelectSealDestRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
@@ -30,16 +24,20 @@ import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardRequest;
 import com.jd.bluedragon.distribution.external.domain.QueryBelongBoardResponse;
 import com.jd.bluedragon.distribution.external.service.DmsComboardService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.IJyDriverViolationReportingService;
 import com.jd.bluedragon.external.gateway.service.JyComboardSealGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,10 +53,14 @@ public class JyComboardSealGatewayServiceImplTest {
     private JyComboardSealGatewayService jyComboardSealGatewayService;
 
     @Autowired
+    @Qualifier("JyComboardSealVehicleService")
     private JySealVehicleService jySealVehicleService;
     
     @Autowired
     private DmsComboardService dmsComboardService;
+
+    @Autowired
+    IJyDriverViolationReportingService driverViolationReportingService;
 
     @Test
     public void listComboardBySendFlowTest() {
@@ -217,11 +219,35 @@ public class JyComboardSealGatewayServiceImplTest {
     @Test
     public void dmsQueryBelongBoardByBarCode() {
         QueryBelongBoardRequest queryBelongBoardRequest = new QueryBelongBoardRequest();
-        
+
         queryBelongBoardRequest.setStartSiteId(910);
         queryBelongBoardRequest.setBarCode("JD0003418873279-1-1-");
 
         InvokeResult<QueryBelongBoardResponse> queryBelongBoardResponseInvokeResult = dmsComboardService.queryBelongBoardByBarCode(queryBelongBoardRequest);
         System.out.println(JsonHelper.toJson(queryBelongBoardResponseInvokeResult));
     }
+
+    @Test
+    public void submitViolationReporting() {
+        DriverViolationReportingAddRequest driverViolationReportingAddRequest =
+            new DriverViolationReportingAddRequest();
+        driverViolationReportingAddRequest.setBizId("445454");
+        driverViolationReportingAddRequest.setImgUrlList(Arrays.asList("11111111111111","22222222222"));
+        driverViolationReportingAddRequest.setVideoUlr("ssssssssssss");
+        User user = new User();
+        user.setUserName("彭冲");
+        user.setUserErp("pengchong28");
+        driverViolationReportingAddRequest.setUser(user);
+
+        InvokeResult<Void> voidInvokeResult =
+            driverViolationReportingService.submitViolationReporting(driverViolationReportingAddRequest);
+        System.out.println("插入"+JsonHelper.toJson(voidInvokeResult));
+        DriverViolationReportingRequest driverViolationReportingRequest = new DriverViolationReportingRequest();
+        driverViolationReportingRequest.setBizId("445454");
+        driverViolationReportingRequest.setTaskSendStatus(1);
+        InvokeResult<DriverViolationReportingDto> driverViolationReportingDtoInvokeResult =
+            driverViolationReportingService.checkViolationReporting(driverViolationReportingRequest);
+        System.out.println("查询"+JsonHelper.toJson(driverViolationReportingDtoInvokeResult));
+    }
+
 }
