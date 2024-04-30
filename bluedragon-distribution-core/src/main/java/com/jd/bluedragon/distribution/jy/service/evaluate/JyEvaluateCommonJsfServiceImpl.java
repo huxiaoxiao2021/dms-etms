@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.evaluate;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.jy.api.JyEvaluateCommonJsfService;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
+import com.jd.bluedragon.distribution.jy.evaluate.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -72,5 +69,12 @@ public class JyEvaluateCommonJsfServiceImpl implements JyEvaluateCommonJsfServic
         JProEnum.TP, JProEnum.FunctionError})
     public Response<Integer> getAppealRejectCount(Long loadSiteCode) {
         return jyEvaluateAppealService.getAppealRejectCount(loadSiteCode);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonJsfService.getAppealRejectCount", mState = {
+        JProEnum.TP, JProEnum.FunctionError})
+    public Response<Boolean> updatePermissionsById(JyEvaluateAppealPermissionsEntity entity) {
+        return jyEvaluateAppealService.updatePermissionsById(entity);
     }
 }

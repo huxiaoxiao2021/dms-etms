@@ -690,6 +690,21 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
         return response;
     }
 
+    @Override
+    public Response<Boolean> updatePermissionsById(JyEvaluateAppealPermissionsEntity entity) {
+        Response<Boolean> response = new Response<>();
+        response.toSucceed();
+        try {
+            jyEvaluateAppealPermissionsDao.updateById(entity);
+        } catch (Exception e) {
+            log.error("JyEvaluateAppealServiceImpl.updatePermissionsById 根据id更新场地权限失败,入参:{}",
+                JsonHelper.toJson(entity), e);
+            response.toError("根据id更新场地权限失败！");
+            return response;
+        }
+        return response;
+    }
+
     /**
      * 获取评价记录申诉DTO列表
      *

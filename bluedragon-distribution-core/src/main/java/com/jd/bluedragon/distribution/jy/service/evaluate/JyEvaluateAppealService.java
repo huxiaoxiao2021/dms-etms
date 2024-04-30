@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.evaluate;
 
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
+import com.jd.bluedragon.distribution.jy.evaluate.*;
 
 import java.util.List;
 
@@ -48,4 +45,11 @@ public interface JyEvaluateAppealService {
      * @return 申诉被拒绝的次数
      */
     Response<Integer> getAppealRejectCount(Long loadSiteCode);
+
+    /**
+     * 根据ID更新权限
+     * @param entity 要更新权限的实体
+     * @return 是否成功更新权限的响应
+     */
+    Response<Boolean> updatePermissionsById(JyEvaluateAppealPermissionsEntity entity);
 }
