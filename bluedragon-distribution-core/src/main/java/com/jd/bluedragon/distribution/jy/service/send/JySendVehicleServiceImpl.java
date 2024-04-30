@@ -3070,6 +3070,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             return true;
         }
         JySendEntity sendEntity = jySendService.queryByCodeAndSite(new JySendEntity(waybillCode, siteId.longValue()));
+        sendEntity.setSendVehicleBizId(bizId);
         if(Objects.nonNull(sendEntity)) {
             redisClientOfJy.setEx(cacheKey, Constants.NUMBER_ONE.toString(), CacheKeyConstants.JY_SEND_WAYBILL_SCAN_TIMEOUT_HOURS, TimeUnit.HOURS);
             return true;
