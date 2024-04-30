@@ -361,7 +361,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			PositionData positionData = new PositionData();
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
-			
+
 			// 设置租户编码
 			JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(positionData.getSiteCode());
 			if(tenant != null){

@@ -1060,7 +1060,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return true;
         }
         BaseStaffSiteOrgDto pickupSite = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
-        if (isConvey(pickupSite.getSiteType())) {
+        if (pickupSite != null && isConvey(pickupSite.getSiteType())) {
             return true;
         }
         return false;
