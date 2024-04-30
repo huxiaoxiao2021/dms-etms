@@ -150,7 +150,7 @@
         )
     </insert>
 
-    <update id="update"
+    <update id="updateById"
             parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
         UPDATE jy_evaluate_appeal_permissions
         <set>

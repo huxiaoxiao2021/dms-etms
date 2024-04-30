@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealAddDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealEntity;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealDto;
-import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealRes;
+import com.jd.bluedragon.distribution.jy.evaluate.*;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +47,18 @@ public interface JyEvaluateCommonJsfService {
      * @return 响应的整数类型数据
      */
     Response<Integer> getAppealRejectCount(Long loadSiteCode);
+
+
+    /**
+     * 更新权限通过ID
+     * @param entity 要更新的权限实体
+     * @return 布尔类型的响应，表示更新是否成功
+     */    /**
+     * 根据ID更新权限
+     * @param entity 要更新的权限实体
+     * @return 响应是否更新成功的布尔值
+     */
+    public Response<Boolean> updatePermissionsById(JyEvaluateAppealPermissionsEntity entity);
 
 
 }

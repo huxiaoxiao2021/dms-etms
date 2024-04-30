@@ -49,4 +49,13 @@ public class JyEvaluateAppealPermissionsDao extends BaseDao<JyEvaluateAppealPerm
     public int updateEvaluateStatusById(JyEvaluateAppealPermissionsEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateEvaluateStatusById", entity);
     }
+
+    /**
+     * 通过ID更新JyEvaluateAppealPermissionsEntity实体
+     * @param entity 要更新的实体对象
+     * @return 更新操作影响的行数
+     */
+    public int updateById(JyEvaluateAppealPermissionsEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateById", entity);
+    }
 }
