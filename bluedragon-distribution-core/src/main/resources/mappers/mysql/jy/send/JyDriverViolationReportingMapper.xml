@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JyDriverViolationReportingDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JyDriverViolationReportingEntity"
+               id="jyDriverViolationReportingMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="imgUrl" column="img_url"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="ts" column="ts"/>
+        <result property="yn" column="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, biz_id, img_url, video_url,site_code, create_user_erp, create_user_name, update_user_erp, update_user_name,
+        create_time, update_time, ts, yn
+    </sql>
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.send.JyDriverViolationReportingEntity">
+        INSERT INTO jy_driver_violation_reporting (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+
+            <if test="bizId != null">
+                biz_id,
+            </if>
+
+            <if test="imgUrl != null">
+                img_url,
+            </if>
+
+            <if test="videoUrl != null">
+                video_url,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+
+            <if test="createTime != null">
+                create_time,
+            </if>
+
+            <if test="updateTime != null">
+                update_time,
+            </if>
+
+            <if test="ts != null">
+                ts,
+            </if>
+                yn
+        </trim>
+        ) VALUES (
+        <trim suffixOverrides=",">
+
+            <if test="id != null">
+                #{id},
+            </if>
+
+            <if test="bizId != null">
+                #{bizId},
+            </if>
+
+            <if test="imgUrl != null">
+                #{imgUrl},
+            </if>
+
+            <if test="videoUrl != null">
+                #{videoUrl},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+
+            <if test="createUserErp != null">
+                #{createUserErp},
+            </if>
+
+            <if test="createUserName != null">
+                #{createUserName},
+            </if>
+
+            <if test="updateUserErp != null">
+                #{updateUserErp},
+            </if>
+
+            <if test="updateUserName != null">
+                #{updateUserName},
+            </if>
+
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+
+            <if test="ts != null">
+                #{ts},
+            </if>
+            1
+        </trim>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.jy.send.JyDriverViolationReportingEntity">
+        UPDATE jy_driver_violation_reporting
+        <set>
+            <if test="id != null">
+                id = #{id} ,
+            </if>
+            <if test="bizId != null">
+                biz_id = #{bizId} ,
+            </if>
+            <if test="imgUrl != null">
+                img_url = #{imgUrl} ,
+            </if>
+            <if test="videoUrl != null">
+                video_url = #{videoUrl} ,
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode} ,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp} ,
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime} ,
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+            <if test="ts != null">
+                ts = #{ts} ,
+            </if>
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.send.JyDriverViolationReportingEntity">
+        update jy_driver_violation_reporting
+        <set>
+            yn = 0,
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <sql id="condition_sql">
+
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="bizId != null">
+            and biz_id = #{bizId}
+        </if>
+        <if test="imgUrl != null">
+            and img_url = #{imgUrl}
+        </if>
+        <if test="videoUrl != null">
+            and video_url = #{videoUrl}
+        </if>
+        <if test="createUserErp != null">
+            and create_user_erp = #{createUserErp}
+        </if>
+        <if test="createUserName != null">
+            and create_user_name = #{createUserName}
+        </if>
+        <if test="updateUserErp != null">
+            and update_user_erp = #{updateUserErp}
+        </if>
+        <if test="updateUserName != null">
+            and update_user_name = #{updateUserName}
+        </if>
+        <if test="createTime != null">
+            and create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+            and update_time = #{updateTime}
+        </if>
+        <if test="ts != null">
+            and ts = #{ts}
+        </if>
+        <if test="yn != null">
+            and yn = #{yn}
+        </if>
+    </sql>
+
+    <select id="findByBizId" parameterType="java.lang.String"  resultMap="jyDriverViolationReportingMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM jy_driver_violation_reporting
+        WHERE yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+</mapper>

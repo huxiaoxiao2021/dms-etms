@@ -1116,4 +1116,13 @@
         <property name="topic" value="${jmq.topic.jy.recycleMaterialOperateRecord}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!-- 封车状态已封车时同步司机违规数据质控 -->
+    <bean id="sendSealSyncDriverViolationReportingProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sendSealSyncDriverViolationReporting}"/>
+    </bean>
+    <!-- 司机违规数据上报质控 -->
+    <bean id="driverViolationReportingQualityProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.driverViolationReportingQuality}"/>
+    </bean>
 </beans>

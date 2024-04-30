@@ -908,5 +908,10 @@
     <jmq:consumer id="jmq.JySealCarBatchCodesConsume" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jySealCarBatchCodes}" listener="jySealCarBatchCodesConsume"/>
     </jmq:consumer>
+
+    <!--封车状态已封车时同步司机违规数据到质控-->
+    <jmq:consumer id="jmq.sendSealSyncDriverViolationReportingConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.sendSealSyncDriverViolationReporting}" listener="sendSealSyncDriverViolationReportingConsumer"/>
+    </jmq:consumer>
 </beans>
 
