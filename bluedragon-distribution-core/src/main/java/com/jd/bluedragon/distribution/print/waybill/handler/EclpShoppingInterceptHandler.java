@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @date: 2019年3月20日 下午6:51:57
  */
 @Service("eclpShoppingInterceptHandler")
-public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class EclpShoppingInterceptHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

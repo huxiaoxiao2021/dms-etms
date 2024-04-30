@@ -22,7 +22,7 @@ import java.util.List;
  * @since 2019/4/10
  */
 @Service("packageWeightHandler")
-public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PackageWeightHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageWeightHandler.class);
 

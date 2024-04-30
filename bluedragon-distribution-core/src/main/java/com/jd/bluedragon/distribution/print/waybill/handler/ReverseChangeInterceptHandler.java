@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/6
  */
 @Service("reverseChangeInterceptHandler")
-public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ReverseChangeInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeInterceptHandler.class);
 

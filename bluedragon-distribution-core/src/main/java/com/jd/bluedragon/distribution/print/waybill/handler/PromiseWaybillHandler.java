@@ -37,7 +37,7 @@ import java.util.Date;
  *
  */
 @Service
-public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class PromiseWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(PromiseWaybillHandler.class);
     @Autowired
     private OrderMarkingService orderMarkingService;

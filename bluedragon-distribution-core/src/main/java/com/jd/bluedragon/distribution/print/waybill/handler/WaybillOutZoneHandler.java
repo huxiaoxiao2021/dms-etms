@@ -23,7 +23,7 @@ import java.util.Objects;
  * tips：超区预分拣给的解释是 疫情超区或者春节禁售。
  */
 @Service("waybillOutZoneHandler")
-public class WaybillOutZoneHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class WaybillOutZoneHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
     private static final Log logger = LogFactory.getLog(WaybillOutZoneHandler.class);
 
     @Autowired

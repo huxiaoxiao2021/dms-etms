@@ -35,7 +35,7 @@ import static com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CO
 import static java.util.Arrays.asList;
 
 @Service
-public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class TemplateSelectorWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
     
     /**B网统一面单 **/

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
@@ -34,7 +35,7 @@ import java.util.Objects;
  * @date 2021/12/4 19:34
  **/
 @Service("pushPrintWaybillTrackHandler")
-public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PushPrintWaybillTrackHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushPrintWaybillTrackHandler.class);
 

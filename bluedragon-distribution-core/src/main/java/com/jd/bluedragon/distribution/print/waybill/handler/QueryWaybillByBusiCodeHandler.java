@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("queryWaybillByBusiCodeHandler")
-public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class QueryWaybillByBusiCodeHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger logger = LoggerFactory.getLogger(QueryWaybillByBusiCodeHandler.class);
 

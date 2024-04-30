@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -27,7 +28,7 @@ import java.util.Date;
  * @date 2021/12/4 15:29
  **/
 @Service("pushModifyAddressTrack")
-public class PushModifyAddressTrack implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PushModifyAddressTrack extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushModifyAddressTrack.class);
 

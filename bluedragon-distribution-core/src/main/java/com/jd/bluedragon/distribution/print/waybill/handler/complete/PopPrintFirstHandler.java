@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrintSmsMsg;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -25,7 +26,7 @@ import java.util.Date;
  * @author lvyuan21
  */
 @Service("popPrintFirstHandler")
-public class PopPrintFirstHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PopPrintFirstHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PopPrintFirstHandler.class);
 

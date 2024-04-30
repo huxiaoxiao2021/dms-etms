@@ -37,11 +37,17 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-public class InternationalPdfPrintHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class InternationalPdfPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     @Autowired
     private InternationalCloudPrintManager internationalCloudPrintManager;
-    
+
+    @Override
+    public Boolean isSkip(WaybillPrintContext target) {
+        //有云打印标识跳过执行此handler 港澳打印使用云打印直连打印机方式实现
+        return target.getUseCloudPrint();
+    }
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = context.getResult();

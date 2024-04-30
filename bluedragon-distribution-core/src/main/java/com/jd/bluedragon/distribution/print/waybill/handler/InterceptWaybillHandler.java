@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
  * @date: 2018年1月30日 上午9:18:31
  */
 @Service
-public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class InterceptWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(InterceptWaybillHandler.class);
 	
     @Autowired

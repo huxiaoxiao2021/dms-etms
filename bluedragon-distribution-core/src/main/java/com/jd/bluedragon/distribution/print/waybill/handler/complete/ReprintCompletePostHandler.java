@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -37,7 +38,7 @@ import java.util.Date;
  * @date 2021/12/2 23:03
  **/
 @Service("reprintCompletePostHandler")
-public class ReprintCompletePostHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class ReprintCompletePostHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReprintCompletePostHandler.class);
 

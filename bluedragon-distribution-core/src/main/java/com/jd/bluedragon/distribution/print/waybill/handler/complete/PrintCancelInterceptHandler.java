@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.KyAddressModifyPrintCancelInterceptMQ;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -26,7 +27,7 @@ import java.util.Date;
  * @date 2022/12/14 3:06 PM
  */
 @Service("printCancelInterceptHandler")
-public class PrintCancelInterceptHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PrintCancelInterceptHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PrintCancelInterceptHandler.class);
 

@@ -104,7 +104,8 @@
 	<bean id="basicPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-                <ref bean="firstPrintInterceptHandler" />
+				<ref bean="cloudPrintSwitchHandler"/>
+				<ref bean="firstPrintInterceptHandler" />
                 <ref bean="basicWaybillPrintHandler"/>
 				<ref bean="internationalPdfPrintHandler" />
 				<ref bean="signAndReturnForExamineHandler"/>
@@ -123,6 +124,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -130,6 +132,7 @@
 	<bean id="dmsReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
+				<ref bean="cloudPrintSwitchHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="internationalPdfPrintHandler"/>
@@ -149,6 +152,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -156,6 +160,7 @@
 	<bean id="b2bReprint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
+				<ref bean="cloudPrintSwitchHandler"/>
 				<ref bean="queryWaybillByBusiCodeHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
@@ -171,6 +176,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -178,7 +184,8 @@
     <bean id="stationPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
         <property name="handlers">
             <list>
-                <ref bean="basicWaybillPrintHandler"/>
+				<ref bean="cloudPrintSwitchHandler"/>
+				<ref bean="basicWaybillPrintHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
                 <ref bean="c2cInterceptHandler"/>
@@ -195,6 +202,7 @@
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="cycleBoxBindToWaiDanHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
             </list>
         </property>
     </bean>
@@ -202,6 +210,7 @@
 	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
+				<ref bean="cloudPrintSwitchHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
@@ -221,6 +230,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -309,6 +319,7 @@
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
+				<ref bean="cloudPrintSwitchHandler"/>
 				<ref bean="sitePlateBasicHandler"/>
 				<ref bean="sitePlateInterceptHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
@@ -320,6 +331,7 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="cloudPrintHandler"/>
 			</list>
 		</property>
 	</bean>

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.jddl.executor.function.scalar.math.Abs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  * @since 2019/4/5
  */
 @Service("pickWillPrintPackageInterceptHandler")
-public class PickWillPrintPackageInterceptHandler implements  InterceptHandler<WaybillPrintContext,String> {
+public class PickWillPrintPackageInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PickWillPrintPackageInterceptHandler.class);
 

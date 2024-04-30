@@ -37,7 +37,7 @@ import java.util.List;
  *
  */
 @Service
-public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class SpecialTextWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(SpecialTextWaybillHandler.class);
     /**
      * 预分拣站点编码-未定位门店(0)

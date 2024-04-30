@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2021/12/8 11:04
  **/
 @Service("firstPrintInterceptHandler")
-public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class FirstPrintInterceptHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     @Autowired
     private BaseMajorManager baseMajorManager;

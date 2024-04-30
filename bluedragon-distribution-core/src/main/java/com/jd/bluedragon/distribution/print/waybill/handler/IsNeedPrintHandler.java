@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @date: 2019/11/18 16:52
  */
 @Service
-public class IsNeedPrintHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class IsNeedPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger log = LoggerFactory.getLogger(IsNeedPrintHandler.class);
 

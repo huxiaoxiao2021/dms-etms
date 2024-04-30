@@ -36,7 +36,7 @@ import java.util.List;
  * @date: 2018年1月30日 上午9:18:31
  */
 @Service
-public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class CustomerAndConsignerInfoHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(CustomerAndConsignerInfoHandler.class);
 	@Autowired
 	@Qualifier("hideInfoService")

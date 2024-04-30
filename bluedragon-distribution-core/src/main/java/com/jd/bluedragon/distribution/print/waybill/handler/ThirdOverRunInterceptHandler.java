@@ -33,7 +33,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  * @date: 2018年2月6日 下午2:08:38
  */
 @Service
-public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPrintContext,String>{
+public class ThirdOverRunInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(ThirdOverRunInterceptHandler.class);
 
     @Autowired

@@ -19,7 +19,7 @@ import java.text.MessageFormat;
  * @date: 2019/12/6 18:20
  */
 @Service("overLengthRemindHandler")
-public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class OverLengthRemindHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

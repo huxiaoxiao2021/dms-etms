@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/5
  */
 @Service("duplicatePrintInterceptHandler")
-public class DuplicatePrintInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class DuplicatePrintInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DuplicatePrintInterceptHandler.class);
 

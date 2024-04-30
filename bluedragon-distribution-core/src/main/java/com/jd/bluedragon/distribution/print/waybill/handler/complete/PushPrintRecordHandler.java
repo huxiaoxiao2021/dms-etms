@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractHandler;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -26,7 +27,7 @@ import java.util.Date;
  * @date 2021/12/2 19:41
  **/
 @Service("pushPrintRecordHandler")
-public class PushPrintRecordHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PushPrintRecordHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushPrintRecordHandler.class);
 

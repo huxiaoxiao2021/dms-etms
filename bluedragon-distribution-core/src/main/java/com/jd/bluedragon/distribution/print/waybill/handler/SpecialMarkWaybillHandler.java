@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 @Service
-public class SpecialMarkWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class SpecialMarkWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(SpecialMarkWaybillHandler.class);
 	@Autowired
 	@Qualifier("specialMarkComposeService")

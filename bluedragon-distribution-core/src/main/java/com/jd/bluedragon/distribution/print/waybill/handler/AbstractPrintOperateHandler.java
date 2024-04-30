@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * @author: wuyoude
  * @date: 2018年2月6日 上午9:10:00
  */
-public abstract class AbstractPrintOperateHandler implements InterceptHandler<WaybillPrintContext, String> {
+public abstract class AbstractPrintOperateHandler extends AbstractInterceptHandler<WaybillPrintContext, String> {
 
     /**
      * 处理逻辑列表
@@ -36,6 +37,11 @@ public abstract class AbstractPrintOperateHandler implements InterceptHandler<Wa
             interceptResult.toSuccess();
             if (handlers != null && !handlers.isEmpty()) {
                 for (Handler<WaybillPrintContext, JdResult<String>> handler : handlers) {
+                    //是否是不执行的处理器
+                    if(handler.isSkip(context)){
+                        //跳过执行
+                        continue;
+                    }
                     //拦截类型的处理
                     if (handler instanceof InterceptHandler) {
                         InterceptResult<String> InterceptResult = (InterceptResult<String>) ((InterceptHandler) handler).handle(context);

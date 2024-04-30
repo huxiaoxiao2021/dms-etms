@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.reverse;
 
+import com.jd.bluedragon.distribution.print.waybill.handler.AbstractInterceptHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import com.jd.etms.waybill.domain.Waybill;
  *
  */
 @Service("dealReversePrintInfoHandler")
-public class DealReversePrintInfoHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class DealReversePrintInfoHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger logger = LoggerFactory.getLogger(DealReversePrintInfoHandler.class);
 

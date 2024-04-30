@@ -21,6 +21,7 @@ import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWaybillDiff;
@@ -74,6 +75,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -188,6 +191,11 @@ public class WaybillResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
+
+
+	@Autowired
+	@Qualifier("cancelWaybillJsfManager")
+	private CancelWaybillJsfManager cancelWaybillJsfManager;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -470,7 +478,11 @@ public class WaybillResource {
 		// 验证运单号，是否锁定、删除等
     	com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse cancelWaybill = null;
 		try {
-			cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
+			JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(waybill.getWaybillCode());
+			if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
+				cancelWaybill = new com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse();
+				cancelWaybill.setCode( waybillCancelResponse.getData().getCode());
+			}
 		} catch (Exception e) {
 			this.log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:{}", waybill.getWaybillCode(), e);
 		}
@@ -1873,8 +1885,8 @@ public class WaybillResource {
 			String waybillSign = waybill.getWaybillSign();
 			String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
 			String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
-			if(BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
-				if(waybillTraceManager.isExReturn(waybillCode)){
+			if (BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)) {
+				if (waybillTraceManager.isExReturn(waybillCode)) {
 					// fill reverseReasonCode
 					return Constants.INTERCEPT_REVERSE_CODE_3;
 				}

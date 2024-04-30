@@ -24,7 +24,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
  *
  */
 @Service("reverseChangeReprintHandler")
-public class ReverseChangeReprintHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ReverseChangeReprintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeReprintHandler.class);
 

@@ -32,7 +32,7 @@ import java.text.MessageFormat;
  * @since 2019/10/16
  **/
 @Service("pddCustomerAndConsigneeInfoHandler")
-public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<WaybillPrintContext, String> {
+public class PDDCustomerAndConsigneeInfoHandler extends AbstractInterceptHandler<WaybillPrintContext, String> {
 
     private static final Logger log = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
 

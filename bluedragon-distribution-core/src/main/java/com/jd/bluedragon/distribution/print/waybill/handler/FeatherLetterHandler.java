@@ -21,7 +21,7 @@ import java.util.Objects;
  * 鸡毛信拦截校验
  */
 @Service("featherLetterHandler")
-public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class FeatherLetterHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
     private static final Log logger= LogFactory.getLog(FeatherLetterHandler.class);
 
     @Autowired

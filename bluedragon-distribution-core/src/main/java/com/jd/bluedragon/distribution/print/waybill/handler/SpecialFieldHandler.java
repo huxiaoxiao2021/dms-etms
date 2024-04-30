@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class SpecialFieldHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(SpecialFieldHandler.class);
     
     @Autowired

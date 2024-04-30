@@ -26,7 +26,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  * @since 2019/4/9
  */
 @Service("mappedBasicPrintWaybillHandler")
-public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class MappedBasicPrintWaybillHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MappedBasicPrintWaybillHandler.class);
 

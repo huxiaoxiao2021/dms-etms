@@ -36,7 +36,7 @@ import java.util.*;
  * @date: 2023年09月20日 上午9:18:31
  */
 @Service("interceptSiteTypePrinrHandler")
-public class InterceptSiteTypePrinrHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class InterceptSiteTypePrinrHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(InterceptSiteTypePrinrHandler.class);
 
     @Autowired

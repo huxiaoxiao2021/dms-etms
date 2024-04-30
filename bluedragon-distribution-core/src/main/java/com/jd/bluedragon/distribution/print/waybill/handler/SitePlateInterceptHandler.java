@@ -19,7 +19,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
  *
  */
 @Service("sitePlateInterceptHandler")
-public class SitePlateInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class SitePlateInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
     private static final Logger log = LoggerFactory.getLogger(SitePlateInterceptHandler.class);
 
     /**

@@ -41,7 +41,7 @@ import java.util.Objects;
  * @since 2019/4/8
  */
 @Service("scheduleSiteSupportInterceptHandler")
-public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ScheduleSiteSupportInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleSiteSupportInterceptHandler.class);
 

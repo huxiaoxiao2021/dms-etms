@@ -21,7 +21,7 @@ import java.util.List;
  * 驻厂打印-外单靑流箱绑定，发送MQ
  */
 @Service("cycleBoxBindToWaiDanHandler")
-public class CycleBoxBindToWaiDanHandler implements InterceptHandler<WaybillPrintContext, String> {
+public class CycleBoxBindToWaiDanHandler extends AbstractInterceptHandler<WaybillPrintContext, String> {
     private static final Logger log = LoggerFactory.getLogger(CycleBoxBindToWaiDanHandler.class);
 
     @Autowired

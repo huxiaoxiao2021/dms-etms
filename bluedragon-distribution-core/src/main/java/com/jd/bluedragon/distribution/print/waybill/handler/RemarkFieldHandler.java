@@ -40,7 +40,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  *
  */
 @Service
-public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class RemarkFieldHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(RemarkFieldHandler.class);
     
     @Autowired

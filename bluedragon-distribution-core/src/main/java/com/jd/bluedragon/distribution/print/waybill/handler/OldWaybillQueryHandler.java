@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/18
  */
 @Service("oldWaybillQueryHandler")
-public class OldWaybillQueryHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class OldWaybillQueryHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OldWaybillQueryHandler.class);
 

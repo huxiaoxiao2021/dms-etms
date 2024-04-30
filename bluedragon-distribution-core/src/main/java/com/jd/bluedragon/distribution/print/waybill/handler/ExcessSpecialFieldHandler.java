@@ -31,7 +31,7 @@ import java.util.List;
  * @date: 2020/9/3 11:30
  */
 @Service
-public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class ExcessSpecialFieldHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExcessSpecialFieldHandler.class);
 

@@ -28,7 +28,7 @@ import java.util.*;
  * @date: 2019年8月14日 上午11:35:15
  *
  */
-public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PdfLabelFileGenerateHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
     private static final Logger log = LoggerFactory.getLogger(PdfLabelFileGenerateHandler.class);
     /**
      * 云打印输出文件oss配置

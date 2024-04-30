@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @time 2021-05-28 14:44:53 周五
  */
 @Service("hideSpecialStartSiteNameHandler")
-public class HideSpecialStartSiteNameHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class HideSpecialStartSiteNameHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
