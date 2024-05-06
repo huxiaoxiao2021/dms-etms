@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDT
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -43,6 +44,8 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
     private WaybillReverseManager waybillReverseManager;
     @Autowired
     private ColdChainReverseManager coldChainReverseManager;
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillInterceptReverseServiceImpl.exchangeNewWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -86,6 +89,9 @@ public class WaybillInterceptReverseServiceImpl implements WaybillInterceptRever
                 // 如果是外单
                 ExchangeWaybillDto exchangeWaybillDto = createExchangeWaybillDto(request);
                 exchangeWaybillDto.setPackageCount(waybill.getGoodNumber());
+                // 设置逆向原因编码
+                Integer reverseReasonCode = waybillService.queryReverseReasonCode(oldWaybillCode);
+                exchangeWaybillDto.setReverseReasonCode(reverseReasonCode);
                 // 组装外单原单查询参数
                 DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(exchangeWaybillDto);
                 StringBuilder errorMessage = new StringBuilder();

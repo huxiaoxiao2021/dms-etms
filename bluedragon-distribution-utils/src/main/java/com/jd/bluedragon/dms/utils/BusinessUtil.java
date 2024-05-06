@@ -844,7 +844,7 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         if(isSignInChars(waybillSign,53,'2','0')
-                && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
+                && isSignInChars(waybillSign,1,'2','3','6','9','B','K','Y')){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -1248,7 +1248,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isConvey(Integer siteType){
-        return siteType.equals(96);
+        return SITE_TYPE_FLEET.equals(siteType);
     }
 
 
@@ -2840,6 +2840,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 纯配(53=2)
+     * 冷链专送（31位=G）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPureDeliveryColdDelivery(String waybillSign){
+        return isSignInChars(waybillSign,53,'2') && isColdDelivery(waybillSign);
+    }
+
+    /**
      *  自营生鲜 新逻辑
      * sendpay第338位为1（且sendpay第2位为4或5或6或7或8或9）
      */
@@ -3148,5 +3158,15 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否是快递直送分拣
+     * 
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDirectDeliverySort(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
     }
 }

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -47,6 +48,9 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
 
     @Resource(name="storeIdSet")
     private Set<Integer> storeIdSet;
+
+    @Autowired
+    private JyOperateFlowService jyOperateFlowService;
 
     @Override
     protected InspectionTaskExecuteContext prepare(Task domain) {
@@ -173,6 +177,11 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             if (BusinessHelper.checkIntNumRange(packages.size())) {
                 for (DeliveryPackageD pack : packages) {
                     request.setPackageBarcode(pack.getPackageBarcode());
+                    // 透传操作流水表主键
+                    request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+                    if (log.isInfoEnabled()) {
+                        log.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
+                    }
                     inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
                 }
             }
@@ -180,6 +189,11 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             if (StringUtils.isBlank(request.getWaybillCode())
                     && !WaybillUtil.isSurfaceCode(request.getPackageBarcode())) {
                 request.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
+            }
+            // 透传操作流水表主键
+            request.setOperateFlowId(jyOperateFlowService.createOperateFlowId());
+            if (log.isInfoEnabled()) {
+                log.info("builderInspectionList|验货生成主键:InspectionRequest={}", JsonHelper.toJson(request));
             }
             inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
         }
@@ -189,6 +203,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             log.info("验货明细为{}",JsonHelper.toJson(inspectionList));
         }
     }
+
 
 
     private final void builderCenConfirmList(InspectionTaskExecuteContext context){

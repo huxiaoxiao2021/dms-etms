@@ -940,14 +940,6 @@
                   protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-    <!-- 冷链耗材相关接口 -->
-    <jsf:consumer id="coldDmsPackingConsumableApi" interface="com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi"
-                  protocol="jsf" alias="${jsf.consumer.coldchain.distribution.alias}"
-                  timeout="${jsf.consumer.coldchain.distribution.timeout}"
-                  lazy="${jsf.consumer.lazy}"
-                  retries="${jsf.retries}" >
-    </jsf:consumer>
-
     <jsf:consumer id="idcrServiceJsf" interface="com.jd.wl.ai.cv.center.outter.api.service.IDCRService"
                   protocol="jsf" alias="${jsf.idcrService.alias}"
                   timeout="${jsf.idcrService.timeout}"
@@ -1565,5 +1557,88 @@
                   lazy="${jsf.consumer.lazy}"
                   alias="${jsf.alias.jy_basic}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--租户信息查询-->
+    <jsf:consumer id="jyConfigDictTenantJsfService"
+                  interface="com.jdl.basic.api.service.tenant.JyConfigDictTenantJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true" />
+    </jsf:consumer>
+
+    <!--卸车验货校验回调配置-->
+    <bean id="jyUnloadVehicleCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
+        <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
+        <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_UNLOAD_SCAN_ALIES"></constructor-arg>
+    </bean>
+    <jsf:consumerGroup id="unloadCallbackJsfService"
+                       interface="com.jd.bluedragon.distribution.jy.api.callback.JyUnloadVehicleCallbackJsfService"
+                       protocol="jsf"
+                       alias="default"
+                       timeout="${jsf.timeout}"
+                       retries="${jsf.retries}"
+                       serialization="hessian"
+                       aliasAdaptive="true"
+                       groupRouter="jyUnloadVehicleCallbackJsfServiceGroupRouter">
+    </jsf:consumerGroup>
+
+    <!--发货校验回调配置-->
+    <bean id="jySendCallbackJsfServiceGroupRouter" class="com.jd.bluedragon.utils.jsf.GroupRouterTenantUtil">
+        <!--对应租户配置中的字典KEY，用于获取对应回调JSF别名使用-->
+        <constructor-arg name="tenantJsfAliasConfigKey" value="TENANT_SEND_SCAN_ALIES"></constructor-arg>
+    </bean>
+    <jsf:consumerGroup id="sendCallbackJsfService"
+                       interface="com.jd.bluedragon.distribution.jy.api.callback.JySendVehicleCallbackJsfService"
+                       protocol="jsf"
+                       alias="default"
+                       timeout="${jsf.timeout}"
+                       retries="${jsf.retries}"
+                       serialization="hessian"
+                       aliasAdaptive="true"
+                       groupRouter="jySendCallbackJsfServiceGroupRouter">
+    </jsf:consumerGroup>
+
+
+    <!-- 分拣外包商查询接口 -->
+    <jsf:consumer id="outSourceProvisionQueryApi"
+                  interface="com.jd.dms.wb.report.sdk.api.outsource.OutSourceProvisionQueryApi"
+                  alias="${jsf.alias.outSource}"
+                  timeout="${jsf.timeout.outSource}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!--摄像头配置查询 -->
+    <jsf:consumer id="videoTraceCameraJsfService"
+                  interface="com.jdl.basic.api.service.videoTraceCamera.VideoTraceCameraJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+
+    <jsf:consumer id="goldShieldDataService"
+                  interface="com.jd.ql.data.api.service.GoldShieldDataService"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.goldShieldData}">
+    </jsf:consumer>
+    <!-- automatic分拣自动化同步路由数据  -->
+    <jsf:consumer id="routerDynamicLineReplacePlanJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.router.RouterDynamicLineReplacePlanJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--中台接口试算接口-->
+    <jsf:consumer id="operationSignQueryApiJsfService" interface="com.jd.lbcc.rule.api.OperationSignQueryApi"
+                  protocol="jsf" alias="${jsf.lbcc.rule.alias}" timeout="${jsf.lbcc.rule.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 </beans>

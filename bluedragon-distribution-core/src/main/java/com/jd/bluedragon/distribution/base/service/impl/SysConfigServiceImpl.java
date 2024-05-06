@@ -5,10 +5,12 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.dms.print.utils.StringHelper;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.jd.bluedragon.Constants.STR_ALL;
+
 @Service("sysConfigService")
 public class SysConfigServiceImpl implements SysConfigService {
     private static final Logger log = LoggerFactory.getLogger(SysConfigServiceImpl.class);
@@ -161,6 +166,36 @@ public class SysConfigServiceImpl implements SysConfigService {
 		}
 		return result;
 	}
+
+	/**
+	 * 获取是否匹配具体的字符串，如果配置内容是ALL那么就直接返回成功
+	 *
+	 * @param configName 配置项
+	 * @param containStr 包含的字符串
+	 * @return
+	 */
+	@Override
+	@Cache(key = "SysConfigServiceImpl.getByListContainOrAllConfig@args0@args1", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000
+			,redisEnable = true, redisExpiredTime = 3 * 60 * 1000)
+	public boolean getByListContainOrAllConfig(String configName, String containStr) {
+		if(StringUtils.isBlank(configName) || StringUtils.isBlank(containStr)){
+			return false;
+		}
+		SysConfig sysConfig = this.sysConfigDao.findConfigContentByConfigName(configName);
+		if(sysConfig != null
+				&& StringUtils.isNotBlank(sysConfig.getConfigContent())) {
+			//先判断是否是all字符串，如果是直接返回成功
+			if(STR_ALL.equals(sysConfig.getConfigContent())){
+				return true;
+			}
+			List<String> configStrs = JsonHelper.jsonToList(sysConfig.getConfigContent(), String.class);
+			if(configStrs.contains(containStr)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Cache(key = "SiteServiceImpl.SysConfigJobCodeHoursContent@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public SysConfigJobCodeHoursContent getSysConfigJobCodeHoursContent(String key) {

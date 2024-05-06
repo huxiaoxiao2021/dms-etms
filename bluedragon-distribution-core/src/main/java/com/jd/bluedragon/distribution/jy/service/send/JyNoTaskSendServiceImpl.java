@@ -34,6 +34,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PdaSorterApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -73,6 +74,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
@@ -643,7 +645,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         queryDto.setBeginNodeCode(sourceSite.getDmsSiteCode());
         queryDto.setPlanDepartTimeBegin(new Date());
         queryDto.setPlanDepartTimeEnd(DateUtils.addHours(now, dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange() != null ? dmsConfigManager.getPropertyConfig().getFetchCarDistributionTimeRange(): 48));
-        queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode())));
+        queryDto.setTransTypeList(new ArrayList<>(Arrays.asList(TmsLineTypeEnum.TRUNK_LINE.getCode(), TmsLineTypeEnum.BRANCH_LINE.getCode(),TmsLineTypeEnum.JHC_BRANCH_LINE.getCode())));
 
         // 目的网点非必填
         if (createVehicleTaskReq.getDestinationSiteId() != null) {
@@ -1447,6 +1449,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         sendM.setOperateTime(now);
         sendM.setUpdateTime(now);
         sendM.setYn(0);
+        OperatorData operatorData = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        sendM.setOperatorData(operatorData);
+        sendM.setOperatorId(operatorData.getOperatorId());
+        sendM.setOperatorTypeCode(operatorData.getOperatorTypeCode());
         return sendM;
     }
 

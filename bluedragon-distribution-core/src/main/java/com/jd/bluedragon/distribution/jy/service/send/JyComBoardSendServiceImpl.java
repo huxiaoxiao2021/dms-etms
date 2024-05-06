@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -41,6 +43,9 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey.SendCodeAttributeKeyEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendChainModeEnum;
+import com.jd.bluedragon.distribution.capability.send.domain.SendRequest;
+import com.jd.bluedragon.distribution.capability.send.service.ISendOfCapabilityAreaService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
@@ -62,6 +67,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
@@ -217,6 +223,16 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("jyComboardTaskFirstSaveProducer")
   private DefaultJMQProducer jyComboardTaskFirstSaveProducer;
+
+  @Autowired
+  private JyOperateFlowService jyOperateFlowService;
+
+
+  @Autowired
+  SysConfigService sysConfigService;
+
+  @Autowired
+  private ISendOfCapabilityAreaService sendOfCapabilityAreaService;
 
   private static final Integer BOX_TYPE = 1;
 
@@ -1106,6 +1122,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScan", mState = {JProEnum.TP, JProEnum.FunctionError})
   public JdVerifyResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
+    CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyComBoardSendServiceImpl.comboardScan.seconds", false, true);
     JdVerifyResponse<ComboardScanResp> result = new JdVerifyResponse<>();
     result.toSuccess();
     try {
@@ -1121,10 +1138,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } catch (NullPointerException e){
       log.error("JyComBoardSendServiceImpl comboardScan NullPointerException", e);
       result.toError("服务器开小差，请联系分拣小秘！");
+      Profiler.functionError(info);
       return result;
     } catch(JyBizException e) {
       ComboardScanResp resp = assembleComboardResp(request);
       resp.setInterceptFlag(checkIntercept(request));
+      Profiler.functionError(info);
       if (ObjectHelper.isNotNull(e.getCode())){
         if (BOARD_HAS_BEEN_FULL_CODE==e.getCode()){
           result.toCustomError(e.getCode(), e.getMessage());
@@ -1138,6 +1157,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       result.setData(resp);
       result.toError(e.getMessage());
       return result;
+    }finally {
+      Profiler.registerInfoEnd(info);
     }
     ComboardScanResp resp = assembleComboardResp(request);
     if (dmsConfigManager.getPropertyConfig().getSupportMutilScan() && request.getNeedSkipSendFlowCheck()){
@@ -1148,6 +1169,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     result.setData(resp);
     return result;
   }
+
+
 
   //是否需要强拦截提醒
   private boolean checkIntercept(ComboardScanReq request) {
@@ -1232,7 +1255,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       AddBoardBox addBoardBox = assembleComboardParam(request);
       addBoardBox.setOperatorTime(request.getCurrentOperate().getOperateTime());
-      Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
+      Response<BoardBoxResult> comboardResp = groupBoardManager.addBoxToBoardReturnId(addBoardBox);
       if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
         throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
       }
@@ -1241,8 +1264,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       comboardEntity.setCreateTime(request.getCurrentOperate().getOperateTime());
       comboardEntity.setUpdateTime(request.getCurrentOperate().getOperateTime());
       jyComboardService.save(comboardEntity);
-      //发送组板全程跟踪
-      sendComboardWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+
+      // 记录组板操作流水
+      jyOperateFlowService.sendBoardOperateFlowData(request, comboardResp.getData(), OperateBizSubTypeEnum.SORT_MACHINE_BOARD);
+
+      // 发送组板全程跟踪
+      sendComboardWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
     } finally {
       jimDbLock.releaseLock(boardLockKey, request.getRequestId());
@@ -1346,10 +1373,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now ,boolean outContainerFlag) {
     log.info("execComboardOnce boardCode:{},barCode:{}",request.getBoardCode(),request.getBarCode());
     AddBoardBox addBoardBox = assembleComboardParam(request);
-    Response<Integer> comboardResp = groupBoardManager.addBoxToBoardV2(addBoardBox);
+    Response<BoardBoxResult> comboardResp = groupBoardManager.addBoxToBoardV2ReturnId(addBoardBox);
     if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
       throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
+    // 记录组板操作流水
+    jyOperateFlowService.sendBoardOperateFlowData(request, comboardResp.getData(), OperateBizSubTypeEnum.JY_BOARD_SCAN);
     //发送组板全程跟踪
     sendComboardWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
@@ -1451,6 +1480,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     operatorInfo.setOperatorTypeCode(request.getCurrentOperate().getOperatorTypeCode());
     operatorInfo.setOperatorId(request.getCurrentOperate().getOperatorId());
+    operatorInfo.setOperateFlowId(request.getOperateFlowId());
     return operatorInfo;
   }
 
@@ -1472,8 +1502,21 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * 执行发货
    */
   private void execSend(ComboardScanReq request) {
-    SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendM sendM = toSendMDomain(request);
+    //切换新服务
+    if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(request.getCurrentOperate().getSiteCode()))){
+      log.info("传站组板发货 启用新模式 {}",request.getBarCode());
+      //新接口
+      JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(toSendRequest(request,sendM));
+      if (!response.codeSuccess() || !Objects.equals(response.getData().getKey(), SendResult.CODE_OK)) {
+        throw new JyBizException(response.getData().getValue());
+      }
+      return;
+    }
+    log.info("传站组板发货 继续使用旧新模式 {}",request.getBarCode());
+
+    SendKeyTypeEnum sendType = getSendType(request.getBarCode());
+
     boolean oldForceSend = true;
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     switch (sendType) {
@@ -1811,10 +1854,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     sendStatusCheck(request, sendType, sendResult, sendM);
-    if (request.getForceSendFlag() || request.getNeedSkipWeakIntercept()){
-      return;
-    }
-    sendInterceptChain(request, sendM, sendType);
   }
 
   private void sendStatusCheck(ComboardScanReq request, SendKeyTypeEnum sendType,
@@ -1912,6 +1951,27 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     } else {
       return ComboardBarCodeTypeEnum.BOX.getCode();
     }
+  }
+
+  /**
+   * 转换成发货底层服务入口
+   * @param request
+   * @return
+   */
+  private SendRequest toSendRequest(ComboardScanReq request,SendM sendM){
+    SendRequest sendRequest = new SendRequest();
+    org.springframework.beans.BeanUtils.copyProperties(sendM,sendRequest);
+    sendRequest.setBarCode(request.getBarCode());
+    sendRequest.setSiteCode(sendM.getCreateSiteCode());
+    sendRequest.setUserCode(sendM.getCreateUserCode());
+    sendRequest.setUserName(sendM.getCreateUser());
+    sendRequest.setBusinessType(sendM.getSendType());
+    sendRequest.setIsForceSend(Boolean.TRUE);//强制发货
+    sendRequest.setIsCancelLastSend(Boolean.FALSE);//不自动取消上次发货
+    sendRequest.setSendChainModeEnum(SendChainModeEnum.NO_CHECK_MODE);//发货模式设置
+    sendRequest.setUseCustomOperateTime(Boolean.TRUE); //使用上传的自定义操作时间
+    sendRequest.setOperateTime(DateHelper.formatDateTime(sendM.getOperateTime()));
+    return sendRequest;
   }
 
   private SendM toSendMDomain(ComboardScanReq request) {

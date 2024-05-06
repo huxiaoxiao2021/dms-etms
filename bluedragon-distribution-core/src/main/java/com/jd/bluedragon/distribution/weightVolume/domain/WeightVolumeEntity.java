@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 
@@ -124,6 +125,28 @@ public class WeightVolumeEntity {
      */
     private List<String> overLengthAndWeightTypes;
 
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
+    
+    /**
+     * 上传运单称重流水标识
+     * <p>
+     *     true：上传运单称重流水（默认值）
+     *     false：不上传运单称重流水
+     * </p>
+     */
+    private boolean uploadWaybillFlowFlag = true;
+    /**
+     * 发称重全程跟踪标识
+     * <P>
+     *     true：发称重全程跟踪（默认值）
+     *     false：不发称重全程跟踪
+     * </P>
+     */
+    private boolean recordWaybillTraceFlag = true;
+
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
         return this;
@@ -221,6 +244,11 @@ public class WeightVolumeEntity {
 
     public WeightVolumeEntity remark(String remark){
         this.remark = remark;
+        return this;
+    }
+
+    public WeightVolumeEntity operatorData(OperatorData operatorData){
+        this.operatorData = operatorData;
         return this;
     }
 
@@ -399,4 +427,28 @@ public class WeightVolumeEntity {
 	public void setOverLengthAndWeightTypes(List<String> overLengthAndWeightTypes) {
 		this.overLengthAndWeightTypes = overLengthAndWeightTypes;
 	}
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
+
+    public boolean getUploadWaybillFlowFlag() {
+        return uploadWaybillFlowFlag;
+    }
+
+    public void setUploadWaybillFlowFlag(boolean uploadWaybillFlowFlag) {
+        this.uploadWaybillFlowFlag = uploadWaybillFlowFlag;
+    }
+
+    public boolean getRecordWaybillTraceFlag() {
+        return recordWaybillTraceFlag;
+    }
+
+    public void setRecordWaybillTraceFlag(boolean recordWaybillTraceFlag) {
+        this.recordWaybillTraceFlag = recordWaybillTraceFlag;
+    }
 }

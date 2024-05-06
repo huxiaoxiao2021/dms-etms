@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.collectpackage;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.collectpackage.request.*;
@@ -63,6 +64,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -74,6 +76,8 @@ import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf;
 import com.jdl.basic.api.enums.FlowDirectionTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -102,9 +106,11 @@ import static com.jd.bluedragon.distribution.box.domain.Box.BOX_TRANSPORT_TYPE_A
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
+import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.getOriginalCrossType;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
-import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 
@@ -377,6 +383,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskBody.setUserCode(request.getUser().getUserCode());
         taskBody.setUserName(request.getUser().getUserName());
         taskBody.setBizSource(SortingBizSourceEnum.ANDROID_SORTING.getCode());
+        taskBody.setOperatorData(request.getCurrentOperate().getOperatorData());
         List<PackSortTaskBody> bodyList = new ArrayList<>();
         bodyList.add(taskBody);
         return JSON.toJSONString(bodyList);
@@ -846,11 +853,13 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.listCollectPackageTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectPackageTaskResp> listCollectPackageTask(CollectPackageTaskReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyCollectPackageServiceImpl.listCollectPackageTask.seconds", false, true);
         InvokeResult<CollectPackageTaskResp> result = new InvokeResult<>();
         CollectPackageTaskResp resp = new CollectPackageTaskResp();
         result.setData(resp);
         // 参数校验
         if (!checkCollectPackageTaskReq(request, result)) {
+            Profiler.registerInfoEnd(info);
             return result;
         }
         // 根据状态查询任务总数
@@ -861,6 +870,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         query.setTaskStatusList(Arrays.asList(JyBizTaskCollectPackageStatusEnum.TO_COLLECT.getCode(), JyBizTaskCollectPackageStatusEnum.COLLECTING.getCode(), JyBizTaskCollectPackageStatusEnum.SEALED.getCode()));
         resp.setCollectPackStatusCountList(jyBizTaskCollectPackageService.queryTaskStatusCount(query));
         resp.setCollectPackTaskDtoList(getCollectPackageFlowDtoList(getPageQuery(request, time)));
+        Profiler.registerInfoEnd(info);
         return result;
     }
 
@@ -1035,6 +1045,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryTaskDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TaskDetailResp> queryTaskDetail(TaskDetailReq request) {
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "JyCollectPackageServiceImpl.queryTaskDetail.seconds", false, true);
         InvokeResult<TaskDetailResp> result = new InvokeResult<>();
 
         if (!checkTaskDetailReq(request, result)) {
@@ -1087,6 +1098,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
         taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
         resp.setCollectPackageTaskDto(taskDto);
+        Profiler.registerInfoEnd(info);
         return result;
     }
 
@@ -1342,6 +1354,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         cancelCollectPackageDto.setUpdateUserErp(request.getUser().getUserErp());
         cancelCollectPackageDto.setUpdateUserName(request.getUser().getUserName());
         cancelCollectPackageDto.setUpdateUserCode(request.getUser().getUserCode());
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        cancelCollectPackageDto.setOperatorData(operatorData);
         return cancelCollectPackageDto;
     }
 
@@ -1388,6 +1403,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         batchCancelCollectPackageMqDto.setUpdateUserCode(request.getUser().getUserCode());
         List<String> packageList = sortingList.stream().map(sorting -> sorting.getPackageCode()).collect(Collectors.toList());
         batchCancelCollectPackageMqDto.setPackageCodeList(packageList);
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        batchCancelCollectPackageMqDto.setOperatorData(operatorData);
         return batchCancelCollectPackageMqDto;
     }
 

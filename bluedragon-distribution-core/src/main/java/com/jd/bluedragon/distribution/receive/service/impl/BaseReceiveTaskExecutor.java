@@ -15,12 +15,15 @@ import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.MiniStoreSortingProcessEvent;
 import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -141,6 +144,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	@Qualifier("miniStoreSortProcessProducer")
 	private DefaultJMQProducer miniStoreSortProcessProducer;
 
+	@Autowired
+	private JyOperateFlowService jyOperateFlowService;
+
 	/**
 	 * 收货
 	 * 
@@ -151,6 +157,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录
 		saveReceive(taskContext);
+		// 记录收货操作流水
+		handleOperateFlow(taskContext);
 		// 必须有封车号，才更新封车表
 		updateSealVehicle(taskContext);
 		// 解封箱
@@ -177,6 +185,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		//移动微仓同步业务节点数据
 		pushMiniStoreProcessDataMQ(taskContext);
 		return true;
+	}
+
+	private void handleOperateFlow(TaskContext<T> taskContext) {
+		// 目前只记录1110类型收货
+		if (Task.TASK_TYPE_RECEIVE.equals(taskContext.getTask().getType())) {
+			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.RECEIVE);
+		}
 	}
 
 	private void pushMiniStoreProcessDataMQ(TaskContext<T> context) {
@@ -304,6 +319,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		cenConfirm.setOperateTime(receive.getCreateTime());
 		cenConfirm.setOperateUser(receive.getCreateUser());
 		cenConfirm.setOperateUserCode(receive.getCreateUserCode());
+		cenConfirm.setOperatorData(receive.getOperatorData());
+		cenConfirm.setOperateFlowId(receive.getOperateFlowId());
 		return cenConfirm;
 	}
 
@@ -508,7 +525,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
 				sendTrack(taskContext,cenConfirm);
-
 				cenConfirmList.add(cenConfirm);
 			}
 		}

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 
 /**
  * <p>
@@ -69,6 +70,16 @@ public interface DMSWeightVolumeService {
      * @return
      */
     InvokeResult<Void> waybillNotZeroWeightIntercept(WeightVolumeEntity entity);
+
+    /**
+     * 校验'非0重量拦截'开关是否开启
+     * 
+     * @param operateSiteCode
+     * @param waybillCode
+     * @param bigWaybillDto
+     * @return
+     */
+    boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode, String waybillCode, BigWaybillDto bigWaybillDto);
 
     Result<Boolean> checkAndUpload(WeightVolumeCondition condition);
 }

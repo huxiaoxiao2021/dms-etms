@@ -1045,11 +1045,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
             //5-特惠送
-            res = TextConstants.PRODUCT_NAME_THS;
+            res = TextConstants.PRODUCT_NAME_JDBK;
             //特惠次晨达逻辑
             if(BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
                 //追加次晨
-                res += TextConstants.PRODUCT_NAME_APPEND_CC;
+                res = TextConstants.PRODUCT_NAME_BK_CC;
             }
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
             //13\14-京准达
@@ -1076,11 +1076,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
             if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
                 //1-特惠送
-                res = TextConstants.PRODUCT_NAME_THS;
+                res = TextConstants.PRODUCT_NAME_JDBK;
                 //特惠次晨达逻辑
                 if(BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_7,WaybillSignConstants.CHAR_116_8)){
                     //追加次晨
-                    res += TextConstants.PRODUCT_NAME_APPEND_CC;
+                    res = TextConstants.PRODUCT_NAME_BK_CC;
                 }
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B)){
                 //2-函速达
@@ -1243,7 +1243,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @param waybillExt
      * @return
      */
-    private String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
+    public String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
         //第三步 查运单的托寄物
         if (waybillExt != null && org.apache.commons.lang.StringUtils.isNotEmpty(waybillExt.getConsignWare())) {
             StringBuilder name = new StringBuilder();

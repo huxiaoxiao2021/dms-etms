@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 public class ReceiveRequest extends JdRequest{
 	private static final long serialVersionUID = 8200718370214764985L;
@@ -26,6 +27,26 @@ public class ReceiveRequest extends JdRequest{
      */
 	@Deprecated
     private String departureCarId;
+	/**
+	 * 操作信息对象
+	 */
+	private OperatorData operatorData;
+
+	/**
+	 * 操作信息对象json格式
+	 */
+	private String operatorDataJson;
+
+	/**
+	 *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+	 * 操作者类型编码
+	 */
+	private Integer operatorTypeCode;
+
+	/**
+	 * 操作者id
+	 */
+	private String operatorId;
     
     public String getQueueNo() {
 		return queueNo;
@@ -89,5 +110,37 @@ public class ReceiveRequest extends JdRequest{
 
 	public void setDepartureCarId(String departureCarId) {
 		this.departureCarId = departureCarId;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
+	}
+
+	public String getOperatorDataJson() {
+		return operatorDataJson;
+	}
+
+	public void setOperatorDataJson(String operatorDataJson) {
+		this.operatorDataJson = operatorDataJson;
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 }

@@ -168,45 +168,6 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
         return jyPickingTaskSendAggsDao.findByBizIdAndNextSite(curSiteId, nextSiteId, bizId);
     }
 
-//    @Override
-//    public void aggRefresh(String bizId, Long nextSiteId) {
-//        //todo zcf 回算agg重新梳理下逻辑
-//        if(StringUtils.isBlank(bizId)) {
-//            logWarn("提货任务统计回算:参数bizId为空,放弃回算");
-//            return ;
-//        }
-//
-//        JyBizTaskPickingGoodEntity entity = jyBizTaskPickingGoodService.findByBizIdWithYn(bizId, false);
-//        if(Objects.isNull(entity)) {
-//            logWarn("提货任务统计回算:根据bizId：{}查询提货任务为空,放弃回算", bizId);
-//            return ;
-//        }
-//        if(PickingGoodStatusEnum.PICKING_COMPLETE.getCode().equals(entity.getStatus())) {
-//            if(Objects.isNull(entity.getPickingCompleteTime())) {
-//                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成但是没有完成时间,放弃回算", bizId);
-//                return ;
-//            }
-//            if(DateHelper.betweenHours(entity.getPickingCompleteTime(), new Date()) > 24) {
-//                logWarn("提货任务统计回算:根据bizId：{}查询提货任务已经完成超过24小时,不支持回算", bizId);
-//                return ;
-//            }
-//        }
-//
-//        if(!cacheService.saveLockPickingGoodTask(bizId)) {
-//            logWarn("提货任务统计回算获取锁失败，bizId={}", bizId);
-//            throw new JyBizException("未获取到锁:" + bizId);
-//        }
-//        try{
-//            PickingGoodTaskStatisticsDto statisticsDto = jyPickingSendRecordService.statisticsByBizId(entity.getNextSiteId(), bizId, nextSiteId);
-//            aggTransactionManager.updatePickingGoodAggs(statisticsDto);
-//        }catch (Exception e) {
-//            log.error("提货任务统计回算服务异常，bizId={}， errMsg={}", bizId, e.getMessage(), e);
-//            throw new JyBizException("提货任务统计回算服务异常：" + bizId);
-//        }finally {
-//            cacheService.unlockLockPickingGoodTask(bizId);
-//        }
-//    }
-
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.waitPickingInitTotalNum",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -284,6 +245,7 @@ public class JyPickingTaskAggsServiceImpl implements JyPickingTaskAggsService{
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyPickingTaskAggsServiceImpl.findPickingAgg",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<PickingSendGoodAggsDto> findPickingAgg(List<String> bizIdList, Long siteId, Long sendNextSiteId) {
+        logInfo("findPickingAgg提货岗统计bizId.size={}", CollectionUtils.isEmpty(bizIdList) ? 0 : bizIdList.size());
         List<PickingSendGoodAggsDto> res = this.waitPickingInitTotalNum(bizIdList, siteId, sendNextSiteId);
         res.forEach(pickingSendDto -> {
             Integer handoverScanTotalNum = this.getRealPickingHandoverScanTotalNum(pickingSendDto.getBizId(), siteId, sendNextSiteId);
