@@ -402,7 +402,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			body.setCreateUserName(cenConfirm.getInspectionUser());
 			body.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
 			body.setSource("DMS-RECEIVE");
-
+//			body.setBizSource();
 			inspectionNotifyService.send(body);
 		}
 	}
