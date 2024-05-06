@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -43,14 +44,6 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
      * 包裹列表字段
      */
     private static final String FIELD_NAME_PACKLIST = "packList";
-
-	/** 快运打印模版 **/
-	private static final String TEMPLATE_NAME_KYBW_0003 = "KYBW_0003";
-
-	/**
-	 * KYBW系统名称
-	 */
-	private static final String KYBW_SYS_NAME = "KYBW";
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -83,9 +76,8 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	jdCloudPrintRequest.setTemplateVer(basePrintWaybill.getTemplateVersionStr());
         }
         jdCloudPrintRequest.setModel(printDatas);
-		// 如果用的打印模版是KYBW_0003，修改调用系统名称，因为该模版维护在KYBW系统
-		if (TEMPLATE_NAME_KYBW_0003.equals(jdCloudPrintRequest.getTemplate())) {
-			jdCloudPrintRequest.setSys(KYBW_SYS_NAME);
+		if (StringUtils.isNotEmpty(basePrintWaybill.getTemplateSysName())) {
+			jdCloudPrintRequest.setSys(basePrintWaybill.getTemplateSysName());
 		}
         JdResult<List<JdCloudPrintResponse>> printResult = jdCloudPrintService.jdCloudPrint(jdCloudPrintRequest);
         if(printResult.isSucceed()){
