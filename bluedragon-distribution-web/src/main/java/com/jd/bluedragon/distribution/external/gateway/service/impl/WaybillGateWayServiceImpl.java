@@ -111,15 +111,15 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillGateWayServiceImpl.getRouterNextSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Integer> getRouterNextSite(WayBillRouterReq req) {
-        JdCResponse<Integer> jdCResponse = new JdCResponse<>();
+        JdCResponse<Integer> response = new JdCResponse<>();
         if (Objects.isNull(req) || StringUtils.isBlank(req.getWaybillCode()) || Objects.isNull(req.getSiteCode())){
-            jdCResponse.toError("运单号或者当前场地编码不能为空");
-            return jdCResponse;
+            response.toError("运单号或者当前场地编码不能为空");
+            return response;
         }
         BaseStaffSiteOrgDto routerNextSite = routerService.getRouterNextSite(req.getSiteCode(), req.getWaybillCode());
         if (Objects.nonNull(routerNextSite)){
-            jdCResponse.setData(routerNextSite.getSiteCode());
+            response.setData(routerNextSite.getSiteCode());
         }
-        return jdCResponse;
+        return response;
     }
 }
