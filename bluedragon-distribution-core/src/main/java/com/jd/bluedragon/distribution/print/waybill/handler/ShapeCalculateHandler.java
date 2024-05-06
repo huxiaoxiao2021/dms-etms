@@ -36,7 +36,7 @@ import java.util.Map;
  **/
 @Service("shapeCalculateHandler")
 @Slf4j
-public class ShapeCalculateHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class ShapeCalculateHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
 
 	/**
 	 * 中台件型试算服务
