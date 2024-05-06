@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
@@ -96,8 +97,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
-import static com.jd.bluedragon.Constants.ORIGINAL_CROSS_TYPE_AIR;
+import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCHK;
 import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCLY;
@@ -172,6 +172,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 集包
@@ -409,6 +412,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request
      */
     private void checkBoxEndSiteMatch(CollectPackageReq request) {
+        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getCurrentOperate().getSiteCode()))) {
+            return;
+        }
         BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getBoxType());
         BoxSubTypeEnum boxSubType = BoxSubTypeEnum.getFromCode(request.getBoxSubType());
         Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));

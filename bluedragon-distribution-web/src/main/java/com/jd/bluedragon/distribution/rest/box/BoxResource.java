@@ -54,6 +54,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.CHECK_BOX_END_SITE_MATCH_SWITCH;
 import static com.jd.bluedragon.distribution.api.response.BoxResponse.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
@@ -276,6 +277,9 @@ public class BoxResource {
     }
 
     private BoxResponse checkBoxEndSiteMatch(BoxRequest request) {
+        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getSiteCode()))) {
+            return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
+        }
         if (Objects.isNull(request.getReceiveSiteCode())) {
             return new BoxResponse(BoxResponse.CODE_NO_BOX_END_SITE, MESSAGE_NO_BOX_END_SITE);
         }
