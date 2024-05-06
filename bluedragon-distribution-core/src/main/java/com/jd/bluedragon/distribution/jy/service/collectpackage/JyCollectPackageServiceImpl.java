@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
@@ -96,8 +97,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
-import static com.jd.bluedragon.Constants.ORIGINAL_CROSS_TYPE_AIR;
+import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCHK;
 import static com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum.TYPE_BCLY;
@@ -106,14 +106,13 @@ import static com.jd.bluedragon.distribution.box.domain.Box.BOX_TRANSPORT_TYPE_A
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
-import static com.jd.bluedragon.dms.utils.BusinessUtil.getOriginalCrossType;
-import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
-import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
-import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
-import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
 import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.getOriginalCrossType;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 
 @Service("jyCollectPackageService")
 @Slf4j
@@ -174,6 +173,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     public CollectPackageManger getCollectPackageManger(){
         return this.collectPackageManger;
@@ -415,7 +417,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request
      */
     private void checkBoxEndSiteMatch(CollectPackageReq request) {
-        if (!dmsConfigManager.getPropertyConfig().getJyCollectPackCheckBoxEndSiteMatchSwitch()) {
+        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getCurrentOperate().getSiteCode()))) {
             return;
         }
         BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getBoxType());
