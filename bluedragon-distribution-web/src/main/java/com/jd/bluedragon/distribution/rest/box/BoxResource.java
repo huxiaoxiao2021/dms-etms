@@ -58,6 +58,7 @@ import static com.jd.bluedragon.distribution.api.response.BoxResponse.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 
 
 @Component
@@ -288,7 +289,8 @@ public class BoxResource {
         BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getType());
         // TC 开头的箱号，目的地只能是 备件库、仓储、退货组、逆向仓、售后仓
         if (BoxTypeV2Enum.TYPE_TC.equals(boxType)
-                && !isReverseSite(siteInfo.getSiteType())) {
+                && !(isReverseSite(siteInfo.getSiteType())
+                || Objects.equals(RETURN_CENTER.getFirstTypesOfThird(), siteInfo.getSortType()))) {
             return new BoxResponse(BoxResponse.CODE_TC_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH);
         }
         // BX 开头的箱号，目的地只能是 三方配送公司
