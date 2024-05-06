@@ -276,9 +276,6 @@ public class BoxResource {
     }
 
     private BoxResponse checkBoxEndSiteMatch(BoxRequest request) {
-        if (!dmsConfigManager.getPropertyConfig().getJyCollectPackCheckBoxEndSiteMatchSwitch()) {
-            return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
-        }
         if (Objects.isNull(request.getReceiveSiteCode())) {
             return new BoxResponse(BoxResponse.CODE_NO_BOX_END_SITE, MESSAGE_NO_BOX_END_SITE);
         }

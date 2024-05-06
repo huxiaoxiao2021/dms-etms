@@ -415,9 +415,6 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request
      */
     private void checkBoxEndSiteMatch(CollectPackageReq request) {
-        if (!dmsConfigManager.getPropertyConfig().getJyCollectPackCheckBoxEndSiteMatchSwitch()) {
-            return;
-        }
         BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getBoxType());
         BoxSubTypeEnum boxSubType = BoxSubTypeEnum.getFromCode(request.getBoxSubType());
         Waybill waybill =waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(request.getBarCode()));
