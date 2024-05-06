@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
@@ -47,6 +48,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -60,7 +62,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(TmsTransWorkItemOperateConsumer.class);
 
-    private static final int TRANS_WORK_CACHE_EXPIRE = 15;
+    private static final int TRANS_WORK_CACHE_EXPIRE = 5;
 
     /**
      * 派车单明细操作类型
@@ -122,6 +124,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     @Qualifier("jyBizTaskAutoCloseProducer")
     private DefaultJMQProducer jyBizTaskAutoCloseProducer;
 
+    @Autowired
+    private JimDbLock jimDbLock;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -144,48 +148,50 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         String transWorkCode = workItemDto.getTransWorkCode();
         //锁定派车单执行 防止并发问题
         String mutexKey = getTransWorkMutexKey(transWorkCode);
-        if (!redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES, false)) {
+        String reqId = UUID.randomUUID().toString();
+        if(!jimDbLock.lock(mutexKey,reqId, TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES)){
             String warnMsg = String.format("派车单%s-%s正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
             logger.warn(warnMsg, JsonHelper.toJson(workItemDto));
             throw new JyBizException(warnMsg);
         }
-        TransWorkBillDto transWorkBillDto = getTransWorkBillDto(transWorkCode);
-        if (transWorkBillDto == null) {
-            logger.warn("根据派车任务查询派车单为空. {}", JsonHelper.toJson(workItemDto));
-            return;
-        }
-        JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
-        if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
-            logger.warn("派车单类型非干、支类型. {},tmsTransWorkBill:{}", JsonHelper.toJson(workItemDto),JsonHelper.toJson(transWorkBillDto));
-            //调整仅记录日志不阻碍运行防止后增加派车明细将派车单线路类型回刷
-            //return;
-        }
-
-        BaseStaffSiteOrgDto startSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getBeginNodeCode());
-        if (startSiteInfo == null || !NumberHelper.gt0(startSiteInfo.getSiteCode())) {
-            logger.warn("派车单明细始发场地不存在. {}", JsonHelper.toJson(workItemDto));
-            return;
-        }
-
-        BaseStaffSiteOrgDto endSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getEndNodeCode());
-        if (endSiteInfo == null || !NumberHelper.gt0(endSiteInfo.getSiteCode())) {
-            //兼容目的目的地是库房类型
-            PsStoreInfo psStoreInfo = baseMajorManager.getStoreByCode(workItemDto.getEndNodeCode());
-            if(psStoreInfo != null ){
-                endSiteInfo  = new BaseStaffSiteOrgDto();
-                endSiteInfo.setSiteCode(psStoreInfo.getDmsSiteId());
-                endSiteInfo.setSiteName(psStoreInfo.getDmsStoreName());
-            }else{
-                logger.warn("派车单明细目的场地不存在. {}", JsonHelper.toJson(workItemDto));
+        try {
+            TransWorkBillDto transWorkBillDto = getTransWorkBillDto(transWorkCode);
+            if (transWorkBillDto == null) {
+                logger.warn("根据派车任务查询派车单为空. {}", JsonHelper.toJson(workItemDto));
                 return;
             }
-        }
+            JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
+            if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
+                logger.warn("派车单类型非干、支类型. {},tmsTransWorkBill:{}", JsonHelper.toJson(workItemDto),JsonHelper.toJson(transWorkBillDto));
+                //调整仅记录日志不阻碍运行防止后增加派车明细将派车单线路类型回刷
+                //return;
+            }
 
-        JyBizTaskSendVehicleEntity sendTaskQ = new JyBizTaskSendVehicleEntity(transWorkBillDto.getTransWorkCode(), startSiteInfo.getSiteCode().longValue());
-        JyBizTaskSendVehicleEntity existSendTaskMain = taskSendVehicleService.findByTransWorkAndStartSite(sendTaskQ);
+            BaseStaffSiteOrgDto startSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getBeginNodeCode());
+            if (startSiteInfo == null || !NumberHelper.gt0(startSiteInfo.getSiteCode())) {
+                logger.warn("派车单明细始发场地不存在. {}", JsonHelper.toJson(workItemDto));
+                return;
+            }
 
-        String sendVehicleBiz = getSendVehicleBiz(existSendTaskMain);
-        try {
+            BaseStaffSiteOrgDto endSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getEndNodeCode());
+            if (endSiteInfo == null || !NumberHelper.gt0(endSiteInfo.getSiteCode())) {
+                //兼容目的目的地是库房类型
+                PsStoreInfo psStoreInfo = baseMajorManager.getStoreByCode(workItemDto.getEndNodeCode());
+                if(psStoreInfo != null ){
+                    endSiteInfo  = new BaseStaffSiteOrgDto();
+                    endSiteInfo.setSiteCode(psStoreInfo.getDmsSiteId());
+                    endSiteInfo.setSiteName(psStoreInfo.getDmsStoreName());
+                }else{
+                    logger.warn("派车单明细目的场地不存在. {}", JsonHelper.toJson(workItemDto));
+                    return;
+                }
+            }
+
+            JyBizTaskSendVehicleEntity sendTaskQ = new JyBizTaskSendVehicleEntity(transWorkBillDto.getTransWorkCode(), startSiteInfo.getSiteCode().longValue());
+            JyBizTaskSendVehicleEntity existSendTaskMain = taskSendVehicleService.findByTransWorkAndStartSite(sendTaskQ);
+
+            String sendVehicleBiz = getSendVehicleBiz(existSendTaskMain);
+
             // 初始化发货任务
             JyBizTaskSendVehicleEntity sendVehicleEntity = null;
             if (existSendTaskMain == null) {
@@ -242,7 +248,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             throw new JyBizException("消费运输派车单明细失败! ");
         }
         finally {
-            redisClientOfJy.del(mutexKey);
+            jimDbLock.releaseLock(mutexKey,reqId);
         }
     }
 
