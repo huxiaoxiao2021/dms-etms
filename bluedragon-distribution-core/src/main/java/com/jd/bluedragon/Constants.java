@@ -2629,4 +2629,9 @@ public class Constants {
      */
     public static final String JY_DRIVER_VIOLATION_REPORTING_KEY_PREFIX  = "jy_driver_violation_reporting_key_%s";
 
+    /**
+     * 箱号目的地校验开关配置
+     */
+    public static final String CHECK_BOX_END_SITE_MATCH_SWITCH  = "check.box.end.site.match.switch";
+
 }
