@@ -162,6 +162,11 @@ public class BoxResponse extends JdResponse {
      */
     private String collectClaimDesc;
 
+    /**
+     * 混装包描述
+     */
+    private String mixBoxTypeText;
+
     public String getMaterialCode() {
         return materialCode;
     }
@@ -401,4 +406,11 @@ public class BoxResponse extends JdResponse {
         this.collectClaimDesc = collectClaimDesc;
     }
 
+    public String getMixBoxTypeText() {
+        return mixBoxTypeText;
+    }
+
+    public void setMixBoxTypeText(String mixBoxTypeText) {
+        this.mixBoxTypeText = mixBoxTypeText;
+    }
 }

@@ -291,7 +291,7 @@ public class BoxResource {
      * 打印对象
      * @param boxResponse
      */
-    private void assemblyBoxResponseInfo(BoxResponse boxResponse) {
+    public void assemblyBoxResponseInfo(BoxResponse boxResponse) {
         try {
             CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
             // 始发地处理 去除接货仓 分拣中心字样
@@ -321,11 +321,13 @@ public class BoxResource {
             if (MIX_DISABLE.getCode().equals(boxResponse.getMixBoxType())) {
                 boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
                 boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
+                boxResponse.setMixBoxTypeText(FINISHED_PRODUCT.getName());
             } else {
                 // 获取集包要求
                 if (flowConf != null && flowConf.getCollectClaim() != null) {
                     boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
                     boxResponse.setCollectClaim(flowConf.getCollectClaim());
+                    boxResponse.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
                 }
             }
             boxResponse.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
