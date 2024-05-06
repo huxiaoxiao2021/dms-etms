@@ -1015,6 +1015,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         logger.info("运单号{}不存在复重复量方，继续校验包裹数据！", waybillCode);
         // 如果当前运单不存在，则对包裹的重量体积进行校验
         List<DeliveryPackageD> packageList = bigWaybill.getPackageList();
+        if (CollectionUtils.isEmpty(packageList)){
+            return true;
+        }
         for (DeliveryPackageD deliveryPackageD : packageList) {
             if (deliveryPackageD.getAgainWeight() == null
                     || deliveryPackageD.getAgainWeight() <= 0
