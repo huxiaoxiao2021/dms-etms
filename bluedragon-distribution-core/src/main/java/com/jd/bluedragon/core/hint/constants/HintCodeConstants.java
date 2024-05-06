@@ -546,6 +546,11 @@ public class HintCodeConstants {
      */
     public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
     /**
+     * 此单为改址拦截单，请换单打印
+     */
+    public static String CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT = "40043";
+
+    /**
      * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
@@ -1119,5 +1124,11 @@ public class HintCodeConstants {
 
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
     public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
+
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE = "40042";
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT = "ERP在人资系统中不是【异常岗】，无法操作弃件暂存功能，请联系异常岗人员操作。";
+
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE = "40041";
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT = "切换后，在波次结束前，A流向（原线路目的地）的货物会自动落入B流向（临时方案线路目的地）的格口，按新流向发货不会错发";
 
 }

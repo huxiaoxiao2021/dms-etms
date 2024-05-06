@@ -39,25 +39,24 @@ public class PrintCancelInterceptHandler extends AbstractHandler<WaybillPrintCom
     public JdResult<Boolean> handle(WaybillPrintCompleteContext context) {
 
         PrintCompleteRequest request = context.getRequest();
-        if(BusinessUtil.isKyAddressModifyWaybill(request.getWaybillSign())){
-            // 快运改址，发打印消息通知ver，ver消费来解除拦截状态
-            KyAddressModifyPrintCancelInterceptMQ kyAddressModifyPrintCancelInterceptMQ = new KyAddressModifyPrintCancelInterceptMQ();
-            kyAddressModifyPrintCancelInterceptMQ.setWaybillCode(request.getWaybillCode());
-            if(WaybillUtil.isPackageCode(request.getPackageBarcode())){
-                kyAddressModifyPrintCancelInterceptMQ.setPackageCode(request.getPackageBarcode());
-            }
-            Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
-            kyAddressModifyPrintCancelInterceptMQ.setOperateTime(operateTime == null ? System.currentTimeMillis() : operateTime.getTime());
-            kyAddressModifyPrintCancelInterceptMQ.setPrintType(context.getOperateType());
-            kyAddressModifyPrintCancelInterceptMQ.setUserCode(request.getOperatorCode());
-            kyAddressModifyPrintCancelInterceptMQ.setUserName(request.getOperatorName());
-            kyAddressModifyPrintCancelInterceptMQ.setUserErp(request.getOperatorErp());
-            kyAddressModifyPrintCancelInterceptMQ.setSiteCode(request.getOperateSiteCode());
-            kyAddressModifyPrintCancelInterceptMQ.setSiteName(request.getOperateSiteName());
-            printCancelKyAddressModifyInterceptProducer.sendOnFailPersistent(kyAddressModifyPrintCancelInterceptMQ.getWaybillCode(), JsonHelper.toJson(kyAddressModifyPrintCancelInterceptMQ));
-            logger.info("单号:{}操作打印后取消快运改址拦截!", StringUtils.isEmpty(request.getPackageBarcode())
-                    ? request.getWaybillCode() : request.getPackageBarcode());
+        // 快运改址，发打印消息通知ver，ver消费来解除拦截状态
+        //*** 202404 改址一单到底需求： 源头在bd_package_reprint_command， 之前消费这个消息仅快运改址，现在这个消息既可能快运，又可能快递，下游所有相关逻辑涉及快运校验都要放开
+        KyAddressModifyPrintCancelInterceptMQ kyAddressModifyPrintCancelInterceptMQ = new KyAddressModifyPrintCancelInterceptMQ();
+        kyAddressModifyPrintCancelInterceptMQ.setWaybillCode(request.getWaybillCode());
+        if(WaybillUtil.isPackageCode(request.getPackageBarcode())){
+            kyAddressModifyPrintCancelInterceptMQ.setPackageCode(request.getPackageBarcode());
         }
+        Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
+        kyAddressModifyPrintCancelInterceptMQ.setOperateTime(operateTime == null ? System.currentTimeMillis() : operateTime.getTime());
+        kyAddressModifyPrintCancelInterceptMQ.setPrintType(context.getOperateType());
+        kyAddressModifyPrintCancelInterceptMQ.setUserCode(request.getOperatorCode());
+        kyAddressModifyPrintCancelInterceptMQ.setUserName(request.getOperatorName());
+        kyAddressModifyPrintCancelInterceptMQ.setUserErp(request.getOperatorErp());
+        kyAddressModifyPrintCancelInterceptMQ.setSiteCode(request.getOperateSiteCode());
+        kyAddressModifyPrintCancelInterceptMQ.setSiteName(request.getOperateSiteName());
+        printCancelKyAddressModifyInterceptProducer.sendOnFailPersistent(kyAddressModifyPrintCancelInterceptMQ.getWaybillCode(), JsonHelper.toJson(kyAddressModifyPrintCancelInterceptMQ));
+        logger.info("单号:{}操作打印后取消改址拦截!", StringUtils.isEmpty(request.getPackageBarcode())
+                ? request.getWaybillCode() : request.getPackageBarcode());
         return context.getResult();
     }
 }

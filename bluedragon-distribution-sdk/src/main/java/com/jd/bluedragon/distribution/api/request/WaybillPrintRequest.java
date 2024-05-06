@@ -180,6 +180,17 @@ public class WaybillPrintRequest extends JdRequest{
 	private Boolean useAmazon;
 
 	/**
+	 * 托寄物名称，目前仅用于件型试算场景
+	 */
+	private String consignWare;
+
+	/**
+	 * 包裹总数，，目前仅用于件型试算场景 只有终端揽收场景按运单揽收时传入
+	 */
+	private Integer packageCount;
+
+
+	/**
 	 * 用户输入的真正的条码内容，本应该使用barcode，但是为了兼容历史逻辑没办法直接修改客户端传入的barcode的值，
 	 * 现在的barcode有的功能前端会处理成运单号，大家切记使用
 	 */
@@ -513,6 +524,22 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setUseAmazon(Boolean useAmazon) {
 		this.useAmazon = useAmazon;
+	}
+
+	public String getConsignWare() {
+		return consignWare;
+	}
+
+	public void setConsignWare(String consignWare) {
+		this.consignWare = consignWare;
+	}
+
+	public Integer getPackageCount() {
+		return packageCount;
+	}
+
+	public void setPackageCount(Integer packageCount) {
+		this.packageCount = packageCount;
 	}
 
 	public String getRealBarCode() {
