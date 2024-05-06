@@ -361,7 +361,7 @@ public class BoxResource {
      * @return
      */
     private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(BoxResponse boxResponse) {
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(boxResponse);
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(boxResponse.getCreateSiteCode(), boxResponse.getReceiveSiteCode());
         List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
         // 获取包牌名称
         if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
@@ -371,14 +371,30 @@ public class BoxResource {
     }
 
     /**
-     * 组装获取集包规则参数
-     * @param boxResponse
+     * 获取一条集包规则
+     * @param autoSortingBoxResult
      * @return
      */
-    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(BoxResponse boxResponse) {
+    private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(AutoSortingBoxResult autoSortingBoxResult) {
+        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
+        List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
+        // 获取包牌名称
+        if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
+            return flowDirectionConfList.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 组装获取集包规则参数
+     * @param startSiteId
+     * @param endSiteId
+     * @return
+     */
+    private CollectBoxFlowDirectionConf assembleCollectBoxFlowDirectionConf(Integer startSiteId, Integer endSiteId) {
         CollectBoxFlowDirectionConf conf = new CollectBoxFlowDirectionConf();
-        conf.setStartSiteId(boxResponse.getCreateSiteCode());
-        conf.setBoxReceiveId(boxResponse.getReceiveSiteCode());
+        conf.setStartSiteId(startSiteId);
+        conf.setBoxReceiveId(endSiteId);
         conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
         return conf;
     }
@@ -506,8 +522,64 @@ public class BoxResource {
         //计算滑道号和笼车号
         if(RESULT_SUCCESS_CODE == result.getCode() && result.getData() != null){
             boxService.computeRouter(result.getData().getRouterInfo());
+            // 组装打印参数
+            assemblyAutoSortingBoxResult(result.getData(), request);
         }
         return result;
+    }
+
+    /**
+     * 自动化箱号打印参数组装
+     * @param autoSortingBoxResult
+     * @param request
+     */
+    private void assemblyAutoSortingBoxResult(AutoSortingBoxResult autoSortingBoxResult, BoxRequest request) {
+        try {
+            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(autoSortingBoxResult);
+            // 始发地处理 去除接货仓 分拣中心字样
+            BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getCreateSiteCode());
+            if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
+                String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
+                autoSortingBoxResult.setCreateSiteName(createSiteName);
+            }
+
+            // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
+            BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getReceiveSiteCode());
+            if (receiveSiteInfo != null) {
+                String receiveSiteName = receiveSiteInfo.getSiteName();
+                // 如果是营业部
+                if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
+                    receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
+                } else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
+                    // 获取包牌名称
+                    if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
+                        receiveSiteName = flowConf.getBoxPkgName();
+                    }
+                }
+                autoSortingBoxResult.setReceiveSiteName(receiveSiteName);
+            }
+
+            // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
+            if (MIX_DISABLE.getCode().equals(request.getMixBoxType())) {
+                autoSortingBoxResult.setMixBoxTypeText(FINISHED_PRODUCT.getName());
+            } else {
+                // 获取集包要求
+                if (flowConf != null && flowConf.getCollectClaim() != null) {
+                    autoSortingBoxResult.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
+                }
+            }
+            autoSortingBoxResult.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+
+            // 路由字段去除 分拣中心 接货仓 营业部字样
+            List<Map.Entry<Integer,String>> routers = autoSortingBoxResult.getRouterInfo();
+            if (CollectionUtils.isNotEmpty(routers)) {
+                for (Map.Entry<Integer, String> router : routers) {
+                    router.setValue(getReplaceName(router.getValue()));
+                }
+            }
+        }catch (Exception e) {
+            log.error("自动化箱号打印获取免单信息异常：{}", JsonHelper.toJson(autoSortingBoxResult), e);
+        }
     }
 
     private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request, String systemType,boolean isNew) {
