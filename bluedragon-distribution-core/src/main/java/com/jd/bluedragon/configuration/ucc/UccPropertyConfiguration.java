@@ -4602,14 +4602,4 @@ public class UccPropertyConfiguration{
     public void setPackageArriveAutoInspectionNullTaskRetryMinutes(Integer packageArriveAutoInspectionNullTaskRetryMinutes) {
         this.packageArriveAutoInspectionNullTaskRetryMinutes = packageArriveAutoInspectionNullTaskRetryMinutes;
     }
-
-    private boolean jyCollectPackCheckBoxEndSiteMatchSwitch;
-
-    public boolean getJyCollectPackCheckBoxEndSiteMatchSwitch() {
-        return jyCollectPackCheckBoxEndSiteMatchSwitch;
-    }
-
-    public void setJyCollectPackCheckBoxEndSiteMatchSwitch(boolean jyCollectPackCheckBoxEndSiteMatchSwitch) {
-        this.jyCollectPackCheckBoxEndSiteMatchSwitch = jyCollectPackCheckBoxEndSiteMatchSwitch;
-    }
 }
