@@ -13,11 +13,14 @@ import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.track.WaybillTrackQueryService;
 import com.jd.bluedragon.external.gateway.service.WaybillGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -32,6 +35,9 @@ import java.util.Objects;
  * @date : 2019/7/16
  */
 public class WaybillGateWayServiceImpl implements WaybillGateWayService {
+
+    private Logger log = LoggerFactory.getLogger(WaybillGateWayService.class);
+
 
     @Resource
     private BaseResource baseResource;
@@ -117,8 +123,14 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
             return response;
         }
         BaseStaffSiteOrgDto routerNextSite = routerService.getRouterNextSite(req.getSiteCode(), req.getWaybillCode());
+        if (log.isInfoEnabled()){
+            log.info("WaybillGateWayServiceImpl.getRouterNextSite 返回：{}", JsonHelper.toJson(routerNextSite));
+        }
         if (Objects.nonNull(routerNextSite)){
+            response.toSucceed();
             response.setData(routerNextSite.getSiteCode());
+        }else {
+            response.toError("当前包裹查询路由下一节点失败");
         }
         return response;
     }
