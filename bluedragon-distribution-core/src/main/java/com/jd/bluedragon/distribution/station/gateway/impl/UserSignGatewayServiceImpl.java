@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.tenant.TenantManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -20,6 +21,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.jyJobType.JyJobType;
 import com.jdl.basic.api.domain.tenant.JyConfigDictTenant;
 import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import javax.annotation.Resource;
 import java.util.Objects;
 
@@ -54,6 +57,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private JyJobTypeManager jyJobTypeManager;
 
 	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signInWithPosition",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -345,7 +351,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			PositionData positionData = new PositionData();
 			BeanUtils.copyProperties(apiResult.getData(),positionData);
 			result.setData(positionData);
-			
+
 			// 设置租户编码
 			JyConfigDictTenant tenant = tenantManager.getTenantBySiteCode(positionData.getSiteCode());
 			if(tenant != null){
@@ -364,5 +370,21 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			result.toError("查询岗位信息异常");
 		}
 		return result ;
+	}
+
+	@Override
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.queryAllJyJobType",
+		jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JdCResponse<List<JyJobType>> queryAllJyJobType() {
+		JdCResponse<List<JyJobType>> result = new JdCResponse<>();
+		result.toSucceed();
+		try {
+			List<JyJobType> list = jyJobTypeManager.getAllAvailable();
+			result.setData(list);
+		} catch (Exception e) {
+			result.toFail("查询所有拣运工种异常");
+			log.error("UserSignGatewayServiceImpl.queryAllJyJobType.queryAllJyJobType error,异常信息:【{}】", e.getMessage(), e);
+		}
+		return result;
 	}
 }

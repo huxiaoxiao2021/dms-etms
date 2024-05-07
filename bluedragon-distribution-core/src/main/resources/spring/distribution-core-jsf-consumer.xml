@@ -1641,4 +1641,12 @@
     <jsf:consumer id="operationSignQueryApiJsfService" interface="com.jd.lbcc.rule.api.OperationSignQueryApi"
                   protocol="jsf" alias="${jsf.lbcc.rule.alias}" timeout="${jsf.lbcc.rule.timeout}" serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!--  拣运工种字典  -->
+    <jsf:consumer id="jyJobTypeJsfService"
+                  interface="com.jdl.basic.api.service.jyJobType.JyJobTypeJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
+    </jsf:consumer>
 </beans>

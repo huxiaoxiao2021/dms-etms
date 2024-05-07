@@ -1352,6 +1352,11 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             resp.setScanBoxCount(Objects.isNull(sendScanResponse.getScanBoxCount()) ? 0 : sendScanResponse.getScanBoxCount());
             resp.setForceSendPackCount(Objects.isNull(sendScanResponse.getForceSendPackCount()) ? 0 : sendScanResponse.getForceSendPackCount());
             resp.setInterceptPackCount(Objects.isNull(sendScanResponse.getInterceptPackCount()) ? 0 : sendScanResponse.getInterceptPackCount());
+        }else {
+            resp.setScanPackCount(Constants.NUMBER_ZERO);
+            resp.setScanBoxCount(Constants.NUMBER_ZERO);
+            resp.setForceSendPackCount(Constants.NUMBER_ZERO);
+            resp.setInterceptPackCount(Constants.NUMBER_ZERO);
         }
         result.setCode(response.getCode());
         result.setMessage(response.getMessage());
