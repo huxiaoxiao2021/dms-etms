@@ -760,5 +760,9 @@
     <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
     </jmq:consumer>
+    <!--  自动化装笼任务处理  -->
+    <jmq:consumer id="jmq.autoCage" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.autoCage}" listener="autoCageConsumer"/>
+    </jmq:consumer>
 </beans>
 

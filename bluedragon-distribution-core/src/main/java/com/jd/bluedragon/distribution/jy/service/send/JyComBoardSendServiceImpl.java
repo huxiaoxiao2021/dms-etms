@@ -1501,7 +1501,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   /**
    * 执行发货
    */
-  private void execSend(ComboardScanReq request) {
+  @Override
+  public void execSend(ComboardScanReq request) {
     SendM sendM = toSendMDomain(request);
     //切换新服务
     if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(request.getCurrentOperate().getSiteCode()))){

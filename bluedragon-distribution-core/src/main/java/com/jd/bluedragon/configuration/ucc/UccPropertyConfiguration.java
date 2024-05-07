@@ -4792,4 +4792,16 @@ public class UccPropertyConfiguration{
         }
         return this.routerDynamicLineReplaceEnableSiteList.contains(siteCode);
     }
+
+
+    /** 装笼全局开关 **/
+    private boolean cageSwitch;
+
+    public boolean isCageSwitch() {
+        return cageSwitch;
+    }
+
+    public void setCageSwitch(boolean cageSwitch) {
+        this.cageSwitch = cageSwitch;
+    }
 }
