@@ -48,6 +48,16 @@ public class AutoSortingBoxResult  implements Serializable{
      */
     private String mixBoxTypeText;
 
+    /**
+     * 目的道口号
+     **/
+    private String destinationCrossCode;
+
+    /**
+     * 目的笼车号
+     **/
+    private String destinationTabletrolleyCode;
+
     public List<Map.Entry<Integer,String>> getRouterInfo() {
         return routerInfo;
     }
@@ -127,5 +137,21 @@ public class AutoSortingBoxResult  implements Serializable{
 
     public void setMixBoxTypeText(String mixBoxTypeText) {
         this.mixBoxTypeText = mixBoxTypeText;
+    }
+
+    public String getDestinationCrossCode() {
+        return destinationCrossCode;
+    }
+
+    public void setDestinationCrossCode(String destinationCrossCode) {
+        this.destinationCrossCode = destinationCrossCode;
+    }
+
+    public String getDestinationTabletrolleyCode() {
+        return destinationTabletrolleyCode;
+    }
+
+    public void setDestinationTabletrolleyCode(String destinationTabletrolleyCode) {
+        this.destinationTabletrolleyCode = destinationTabletrolleyCode;
     }
 }
