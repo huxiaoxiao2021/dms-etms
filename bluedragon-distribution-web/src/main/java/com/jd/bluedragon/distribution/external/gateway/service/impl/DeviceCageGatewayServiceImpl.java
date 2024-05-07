@@ -185,10 +185,12 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         BaseAutoCageMq baseMq = createBaseAutoCageMq(request, board);
         //循环发送组板装笼消息
         for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
-            AutoCageMq mq = (AutoCageMq) baseMq;
-            mq.setBarcode(entry.getKey());
-            mq.setDeviceOperatorTime(entry.getValue());
-            singleCage(mq);
+            if (baseMq instanceof AutoCageMq){
+                AutoCageMq mq = (AutoCageMq) baseMq;
+                mq.setBarcode(entry.getKey());
+                mq.setDeviceOperatorTime(entry.getValue());
+                singleCage(mq);
+            }
         }
         autoCageProducer.sendOnFailPersistent(baseMq.getCageBoxCode(), JsonHelper.toJson(baseMq));
         jdcResponse.setData(true);
@@ -196,7 +198,7 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
     }
 
     private BaseAutoCageMq createBaseAutoCageMq(AutoCageRequest request, Board board) {
-        BaseAutoCageMq mq = new BaseAutoCageMq();
+        BaseAutoCageMq mq = new AutoCageMq();
         DeviceConfigDto machine = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(request.getMachineCode());
         String operator = machine.getOperatorErp();
         String operatorName = machine.getOperatorName();
