@@ -72,6 +72,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 	                            //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
 	                            matchedTemplate.setTemplateName(template.getTemporaryTemplateName());
 	                            matchedTemplate.setTemplateVersion(template.getTemporaryTemplateVersion());
+								matchedTemplate.setTemplateSysName(template.getTemporaryTemplateSysName());
 	                            matched = true;
 	                        }
 	                    }
@@ -79,7 +80,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 	if(!matched){
                         matchedTemplate.setTemplateName(packageTemplate.getReleaseTemplateName());
                         matchedTemplate.setTemplateVersion(packageTemplate.getReleaseTemplateVersion());
-                        matched = true;
+						matchedTemplate.setTemplateSysName(packageTemplate.getReleaseTemplateSysName());
+						matched = true;
                 	}
                 }
             }
