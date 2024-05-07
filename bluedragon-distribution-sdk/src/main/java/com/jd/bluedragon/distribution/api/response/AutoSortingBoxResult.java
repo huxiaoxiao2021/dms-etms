@@ -43,6 +43,11 @@ public class AutoSortingBoxResult  implements Serializable{
     /** 箱子的路由信息 */
     private List<Map.Entry<Integer,String>> routerInfo;
 
+    /**
+     * 混装包描述
+     */
+    private String mixBoxTypeText;
+
     public List<Map.Entry<Integer,String>> getRouterInfo() {
         return routerInfo;
     }
@@ -116,4 +121,11 @@ public class AutoSortingBoxResult  implements Serializable{
     }
 
 
+    public String getMixBoxTypeText() {
+        return mixBoxTypeText;
+    }
+
+    public void setMixBoxTypeText(String mixBoxTypeText) {
+        this.mixBoxTypeText = mixBoxTypeText;
+    }
 }
