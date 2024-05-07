@@ -411,7 +411,7 @@ public class BoxResource {
     }
 
     private BoxResponse checkBoxEndSiteMatch(BoxRequest request) {
-        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getSiteCode()))) {
+        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getCreateSiteCode()))) {
             return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
         }
         if (Objects.isNull(request.getReceiveSiteCode())) {
