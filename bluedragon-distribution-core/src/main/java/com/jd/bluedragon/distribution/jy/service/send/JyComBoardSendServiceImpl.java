@@ -1696,6 +1696,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   /**
    * 执行发货
    */
+  @Override
   public void execSend(ComboardScanReq request) {
     if (DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(request.getDeliveryType())){
       return;

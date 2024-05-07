@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.cage.request;
 
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
+
 import java.io.Serializable;
 
 public class AutoCageRequest implements Serializable {
@@ -32,6 +34,11 @@ public class AutoCageRequest implements Serializable {
      * 笼车箱号
      */
     private String cageBoxCode;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public String getMachineCode() {
         return machineCode;
@@ -87,5 +94,13 @@ public class AutoCageRequest implements Serializable {
 
     public void setOperatorName(String operatorName) {
         this.operatorName = operatorName;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }
