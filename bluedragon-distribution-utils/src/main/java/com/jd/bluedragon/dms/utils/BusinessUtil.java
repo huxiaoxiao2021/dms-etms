@@ -3169,4 +3169,20 @@ public class BusinessUtil {
     public static boolean isDirectDeliverySort(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
     }
+
+
+    /**
+     * 判断是否是医药零担改址拦截的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isMedicineCPModifyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return isMedicineCP(waybillSign)
+                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
+    }
 }
