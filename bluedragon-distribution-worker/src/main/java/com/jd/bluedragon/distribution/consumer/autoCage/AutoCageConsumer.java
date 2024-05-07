@@ -97,14 +97,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             }else{
                 sendCode = entity.getSendCode();
             }
-            //装笼
-            CollectPackageReq req = createCollectPackageReq(mq);
-            log.info("装笼参数："+JsonHelper.toJson(req));
-            InvokeResult<CollectPackageResp> cageRespose = dmsDeviceCageJsfService.cage(req);
-            if(InvokeResult.RESULT_SUCCESS_CODE != cageRespose.getCode()){
-                log.error("装笼失败，参数："+JsonHelper.toJson(req)+ "返回值："+JsonHelper.toJson(cageRespose));
-                throw new RuntimeException("AutoCageConsumer 处理失败,jmq自动重试!");
-            }
+
             //发货
             fillComboardScanReq(comboardScanReq,mq,sendCode);
             log.info("装笼发货参数组装："+JsonHelper.toJson(comboardScanReq));
@@ -114,6 +107,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         }
 
     }
+
 
     private JyBizTaskComboardEntity createJyBizTaskComboardEntity(AutoCageMq mq, ComboardScanReq comboardScanReq) {
         JyBizTaskComboardEntity record = new JyBizTaskComboardEntity();
@@ -135,6 +129,23 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         return record;
     }
 
+    private String genSendCode(AutoCageMq mq) {
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code,
+                String.valueOf(mq.getSiteCode()));
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code,
+                String.valueOf(mq.getDestinationId()));
+        String sendCode = sendCodeService
+                .createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS, mq.getOperatorErp());
+        return sendCode;
+    }
+
+    private String genTaskBizId(ComboardScanReq request) {
+        String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        String bizId = ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
+        request.setBizId(bizId);
+        return bizId;
+    }
     private ComboardScanReq fillComboardScanReq(ComboardScanReq req,AutoCageMq mq,String sendCode) {
         User user = new User();
         if (StringUtils.isNotEmpty(mq.getOperatorErp())){
@@ -166,7 +177,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         currentOperate.setOperatorData(operatorData);
 
         req.setCurrentOperate(currentOperate);
-        req.setBarCode(mq.getBarcode());
+        req.setBarCode(mq.getCageBoxCode());
         req.setBizSource(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name());
         req.setBoardCode(mq.getBoardCode());
         req.setEndSiteId(mq.getDestinationId());
@@ -175,34 +186,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         req.setSendCode(sendCode);
         return req;
     }
-    private String genSendCode(AutoCageMq mq) {
-        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code,
-                String.valueOf(mq.getSiteCode()));
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code,
-                String.valueOf(mq.getDestinationId()));
-        String sendCode = sendCodeService
-                .createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS, mq.getOperatorErp());
-        return sendCode;
-    }
 
-    private String genTaskBizId(ComboardScanReq request) {
-        String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
-        String bizId = ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
-        request.setBizId(bizId);
-        return bizId;
-    }
-    private static CollectPackageReq createCollectPackageReq(AutoCageMq mq) {
-        CollectPackageReq req = new CollectPackageReq();
-        req.setBoxCode(mq.getCageBoxCode());
-        req.setBarCode(mq.getBarcode());
-        req.setSiteCode(Long.valueOf(mq.getSiteCode()));
-        req.setUserErp(mq.getOperatorErp());
-        req.setUserName(mq.getOperatorName());
-        req.setOperateTime(mq.getOperatorTime());
-        OperatorData operatorData = mq.getOperatorData();
-        req.setOperatorData(JsonHelper.fromJson(JsonHelper.toJson(operatorData),com.jd.bluedragon.distribution.api.domain.OperatorData.class));
-        return req;
-    }
+
 
 }

@@ -4,18 +4,34 @@ import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.cage.request.AutoCageRequest;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.autoCage.domain.AutoCageMq;
+import com.jd.bluedragon.distribution.autoCage.domain.BaseAutoCageMq;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService;
+import com.jd.bluedragon.distribution.cage.request.CollectPackageReq;
+import com.jd.bluedragon.distribution.cage.response.CollectPackageResp;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sdk.modules.cage.DeviceCageJsfService;
 import com.jd.bluedragon.external.gateway.service.DeviceCageGatewayService;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BoardStatus;
@@ -32,6 +48,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +72,15 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
     @Autowired
     @Qualifier(value = "autoCageProducer")
     private DefaultJMQProducer autoCageProducer;
-
+    @Autowired
+    JyBizTaskComboardService jyBizTaskComboardService;
+    @Autowired
+    private DmsDeviceCageJsfService dmsDeviceCageJsfService;
+    @Autowired
+    private SendCodeService sendCodeService;
+    @Autowired
+    @Qualifier("redisJySendBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DeviceCageGatewayServiceImpl.getSortMachineBySiteCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -157,28 +182,62 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             return jdcResponse;
         }
         //获取设备操作人
-        DeviceConfigDto machine = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(request.getMachineCode());
-        String operator = machine.getOperatorErp();
-        String operatorName = machine.getOperatorName();
+        BaseAutoCageMq baseMq = createBaseAutoCageMq(request, board);
         //循环发送组板装笼消息
         for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
-            AutoCageMq mq = new AutoCageMq();
+            AutoCageMq mq = (AutoCageMq) baseMq;
             mq.setBarcode(entry.getKey());
             mq.setOperatorTime(entry.getValue());
-            mq.setCageBoxCode(request.getCageBoxCode());
-            mq.setSiteCode(request.getSiteCode());
-            mq.setMachineCode(request.getMachineCode());
-            mq.setOperatorErp(operator);
-            mq.setOperatorName(operatorName);
-            mq.setBoardCode(board.getCode());
-            mq.setDestinationId(board.getDestinationId());
-            mq.setDestination(board.getDestination());
-            mq.setOperatorData(request.getOperatorData());
-            autoCageProducer.sendOnFailPersistent(mq.getCageBoxCode()+"-"+mq.getBarcode(), JsonHelper.toJson(mq));
+            singleCage(mq);
         }
+        autoCageProducer.sendOnFailPersistent(baseMq.getCageBoxCode(), JsonHelper.toJson(baseMq));
         jdcResponse.setData(true);
         return jdcResponse;
     }
+
+    private BaseAutoCageMq createBaseAutoCageMq(AutoCageRequest request, Board board) {
+        BaseAutoCageMq mq = new BaseAutoCageMq();
+        DeviceConfigDto machine = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(request.getMachineCode());
+        String operator = machine.getOperatorErp();
+        String operatorName = machine.getOperatorName();
+        mq.setCageBoxCode(request.getCageBoxCode());
+        mq.setSiteCode(request.getSiteCode());
+        mq.setMachineCode(request.getMachineCode());
+        mq.setOperatorErp(operator);
+        mq.setOperatorName(operatorName);
+        mq.setBoardCode(board.getCode());
+        mq.setDestinationId(board.getDestinationId());
+        mq.setDestination(board.getDestination());
+        mq.setOperatorData(request.getOperatorData());
+        return mq;
+    }
+
+    private void singleCage(AutoCageMq mq) {
+
+        //装笼
+        CollectPackageReq req = createCollectPackageReq(mq);
+        log.info("装笼参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req));
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<CollectPackageResp> cageRespose = dmsDeviceCageJsfService.cage(req);
+        if(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE != cageRespose.getCode()){
+            log.error("装笼失败，参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req)+ "返回值："+ com.jd.bluedragon.utils.JsonHelper.toJson(cageRespose));
+            throw new RuntimeException("AutoCageConsumer 处理失败,jmq自动重试!");
+        }
+    }
+
+    private static CollectPackageReq createCollectPackageReq(AutoCageMq mq) {
+        CollectPackageReq req = new CollectPackageReq();
+        req.setBoxCode(mq.getCageBoxCode());
+        req.setBarCode(mq.getBarcode());
+        req.setSiteCode(Long.valueOf(mq.getSiteCode()));
+        req.setUserErp(mq.getOperatorErp());
+        req.setUserName(mq.getOperatorName());
+        req.setOperateTime(mq.getOperatorTime());
+        OperatorData operatorData = mq.getOperatorData();
+        req.setOperatorData(com.jd.bluedragon.utils.JsonHelper.fromJson(com.jd.bluedragon.utils.JsonHelper.toJson(operatorData),com.jd.bluedragon.distribution.api.domain.OperatorData.class));
+        return req;
+    }
+
+
 
     private JdCResponse<Boolean> oldCage(AutoCageRequest request) {
         JdCResponse<Boolean> jdCResponse = new JdCResponse<Boolean>();
