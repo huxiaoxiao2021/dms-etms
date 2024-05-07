@@ -187,7 +187,7 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
             AutoCageMq mq = (AutoCageMq) baseMq;
             mq.setBarcode(entry.getKey());
-            mq.setOperatorTime(entry.getValue());
+            mq.setDeviceOperatorTime(entry.getValue());
             singleCage(mq);
         }
         autoCageProducer.sendOnFailPersistent(baseMq.getCageBoxCode(), JsonHelper.toJson(baseMq));
@@ -200,15 +200,18 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         DeviceConfigDto machine = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(request.getMachineCode());
         String operator = machine.getOperatorErp();
         String operatorName = machine.getOperatorName();
+        mq.setDeviceOperatorErp(operator);
+        mq.setDeviceOperatorName(operatorName);
         mq.setCageBoxCode(request.getCageBoxCode());
         mq.setSiteCode(request.getSiteCode());
         mq.setMachineCode(request.getMachineCode());
-        mq.setOperatorErp(operator);
-        mq.setOperatorName(operatorName);
+        mq.setOperatorErp(request.getOperatorErp());
+        mq.setOperatorName(request.getOperatorName());
         mq.setBoardCode(board.getCode());
         mq.setDestinationId(board.getDestinationId());
         mq.setDestination(board.getDestination());
         mq.setOperatorData(request.getOperatorData());
+        mq.setOperatorTime(new Date());
         return mq;
     }
 
@@ -231,7 +234,7 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         req.setSiteCode(Long.valueOf(mq.getSiteCode()));
         req.setUserErp(mq.getOperatorErp());
         req.setUserName(mq.getOperatorName());
-        req.setOperateTime(mq.getOperatorTime());
+        req.setOperateTime(mq.getDeviceOperatorTime());
         OperatorData operatorData = mq.getOperatorData();
         req.setOperatorData(com.jd.bluedragon.utils.JsonHelper.fromJson(com.jd.bluedragon.utils.JsonHelper.toJson(operatorData),com.jd.bluedragon.distribution.api.domain.OperatorData.class));
         return req;

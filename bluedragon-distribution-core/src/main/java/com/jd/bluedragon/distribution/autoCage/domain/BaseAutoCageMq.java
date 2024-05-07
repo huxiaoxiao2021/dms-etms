@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.autoCage.domain;
 import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class BaseAutoCageMq {
     /**
@@ -14,6 +16,23 @@ public class BaseAutoCageMq {
      */
     private String boardCode;
     /**
+     * 设备操作人erp
+     */
+    private String deviceOperatorErp;
+    /**
+     * 设备操作人姓名
+     */
+    private String deviceOperatorName;
+    /**
+     * 操作人所属场地
+     */
+    private Integer siteCode;
+    /**
+     * 操作时间
+     */
+    private Date operatorTime;
+
+    /**
      * 操作人erp
      */
     private String operatorErp;
@@ -21,10 +40,6 @@ public class BaseAutoCageMq {
      * 操作人姓名
      */
     private String operatorName;
-    /**
-     * 操作人所属场地
-     */
-    private Integer siteCode;
 
     /**
      * 笼车箱号

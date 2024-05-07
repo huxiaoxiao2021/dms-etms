@@ -19,6 +19,6 @@ public class AutoCageMq extends BaseAutoCageMq{
     /**
      * 操作时间
      */
-    private Date operatorTime;
+    private Date deviceOperatorTime;
 
 }
