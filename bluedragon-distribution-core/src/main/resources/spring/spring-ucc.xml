@@ -370,6 +370,7 @@
 		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
 		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
 		<property name="routerDynamicLineReplaceEnableSiteStr" value="${routerDynamicLineReplaceEnableSiteStr:'-1'}"/>
+		<property name="cageSwitch" value="${cageSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -725,6 +726,7 @@
 				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
 				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 				<value>uccPropertyConfiguration.routerDynamicLineReplaceEnableSiteStr</value>
+				<value>uccPropertyConfiguration.cageSwitch</value>
 			</list>
 		</property>
 	</bean>
