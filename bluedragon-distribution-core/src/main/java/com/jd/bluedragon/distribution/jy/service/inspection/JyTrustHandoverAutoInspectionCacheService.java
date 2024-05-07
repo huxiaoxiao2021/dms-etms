@@ -22,7 +22,10 @@ public class JyTrustHandoverAutoInspectionCacheService {
 
     public static final String DEFAULT_VALUE_1 = "1";
     public static final Integer DEFAULT_LOCK_TIMEOUT_SECONDS = 300;
-    public static final Integer DEFAULT_CACHE_TIMEOUT_HOURS = 1;
+    /**
+     * 整车验货包裹缓存时间
+     */
+    public static final Integer DEFAULT_CACHE_TIMEOUT_MINUTES = 10;
 
 
 
@@ -76,7 +79,7 @@ public class JyTrustHandoverAutoInspectionCacheService {
      */
     public void saveCachePackageArriveCarAutoInspection(Integer siteId, String packageCode, Long operateTime) {
         String lockKey = this.getCacheKeyPackageArriveCarAutoInspection(siteId, packageCode, operateTime);
-        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_MINUTES, TimeUnit.MINUTES);
     }
     public Boolean existCachePackageArriveCarAutoInspection(Integer siteId, String packageCode, Long operateTime) {
         String lockKey = this.getCacheKeyPackageArriveCarAutoInspection(siteId, packageCode, operateTime);
@@ -116,7 +119,7 @@ public class JyTrustHandoverAutoInspectionCacheService {
      */
     public void saveCacheRecycleMaterialEnterSite(Integer siteId, String materialCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSite(siteId, materialCode, operateTime);
-        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_MINUTES, TimeUnit.MINUTES);
     }
     public Boolean existCacheRecycleMaterialEnterSite(Integer siteId, String materialCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSite(siteId, materialCode, operateTime);
@@ -157,7 +160,7 @@ public class JyTrustHandoverAutoInspectionCacheService {
      */
     public void saveCacheRecycleMaterialEnterSiteBoxInspection(Integer siteId, String boxCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSiteBoxInspection(siteId, boxCode, operateTime);
-        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_MINUTES, TimeUnit.MINUTES);
     }
     public Boolean existCacheRecycleMaterialEnterSiteBoxInspection(Integer siteId, String boxCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSiteBoxInspection(siteId, boxCode, operateTime);
@@ -197,7 +200,7 @@ public class JyTrustHandoverAutoInspectionCacheService {
      */
     public void saveCacheRecycleMaterialEnterSitePackageInspection(Integer siteId, String packageCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSitePackageInspection(siteId, packageCode, operateTime);
-        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_HOURS, TimeUnit.HOURS);
+        redisClientOfJy.setEx(lockKey, DEFAULT_VALUE_1, DEFAULT_CACHE_TIMEOUT_MINUTES, TimeUnit.MINUTES);
     }
     public Boolean existCacheRecycleMaterialEnterSitePackageInspection(Integer siteId, String packageCode, Long operateTime) {
         String lockKey = this.getCacheKeyRecycleMaterialEnterSitePackageInspection(siteId, packageCode, operateTime);
