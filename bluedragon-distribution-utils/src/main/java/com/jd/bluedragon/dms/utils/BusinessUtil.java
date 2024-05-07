@@ -3177,7 +3177,7 @@ public class BusinessUtil {
      * @param waybillSign
      * @return
      */
-    public static boolean isMedicineCPModifyWaybill(String waybillSign){
+    public static boolean isMedicineCpModifyWaybill(String waybillSign){
         if (waybillSign == null){
             return false;
         }
