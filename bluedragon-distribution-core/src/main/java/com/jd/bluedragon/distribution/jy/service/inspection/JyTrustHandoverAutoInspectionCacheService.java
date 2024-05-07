@@ -22,7 +22,7 @@ public class JyTrustHandoverAutoInspectionCacheService {
 
     public static final String DEFAULT_VALUE_1 = "1";
     public static final Integer DEFAULT_LOCK_TIMEOUT_SECONDS = 300;
-    public static final Integer DEFAULT_CACHE_TIMEOUT_HOURS = 24;
+    public static final Integer DEFAULT_CACHE_TIMEOUT_HOURS = 1;
 
 
 
