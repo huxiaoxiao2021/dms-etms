@@ -116,22 +116,22 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
     }
 
     private JdCResponse<Boolean> newCage(AutoCageRequest request) {
-        JdCResponse<Boolean> jdCResponse = new JdCResponse<Boolean>();
-        jdCResponse.toSucceed();
+        JdCResponse<Boolean> jdcResponse = new JdCResponse<Boolean>();
+        jdcResponse.toSucceed();
         if(StringUtils.isEmpty(request.getCageCode())){
-            jdCResponse.toFail("笼车编码为空，请退出重试!");
-            return jdCResponse;
+            jdcResponse.toFail("笼车编码为空，请退出重试!");
+            return jdcResponse;
         }
 
         if(StringUtils.isEmpty(request.getCageBoxCode())){
-            jdCResponse.toFail("笼车箱号为空，请退出重试!");
-            return jdCResponse;
+            jdcResponse.toFail("笼车箱号为空，请退出重试!");
+            return jdcResponse;
         }
         //通过包裹号查询板，并按板组笼发货
         Response<Board> boardResponse = boardCombinationService.getBoardByBoxCode(request.getSiteCode(), request.getBarcode());
         if(boardResponse.getCode() != 200){
-            jdCResponse.toFail("未找到包裹"+request.getBarcode()+"绑定的板号，请退出重试!");
-            return jdCResponse;
+            jdcResponse.toFail("未找到包裹"+request.getBarcode()+"绑定的板号，请退出重试!");
+            return jdcResponse;
         }
         Board board = boardResponse.getData();
         //未完结板时，操作完结版
@@ -143,16 +143,16 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             domain.setOperatorErp(request.getOperatorErp());
             com.jd.bluedragon.distribution.board.domain.Response<Void> autoBoardCompleteResponse = sortBoardJsfService.autoBoardComplete(domain);
             if(autoBoardCompleteResponse.getCode() != 200){
-                jdCResponse.toFail("板["+board.getCode()+"]完结失败，请退出重试!");
-                return jdCResponse;
+                jdcResponse.toFail("板["+board.getCode()+"]完结失败，请退出重试!");
+                return jdcResponse;
             }
         }
 
         //查询板明细
         Response<Map<String, Date>> boardDetailReponse = groupBoardService.getBoardDetailByBoardCode(board.getCode());
         if(boardDetailReponse.getCode() != 200){
-            jdCResponse.toFail("未找到板["+board.getCode()+"]的明细，请退出重试!");
-            return jdCResponse;
+            jdcResponse.toFail("未找到板["+board.getCode()+"]的明细，请退出重试!");
+            return jdcResponse;
         }
         //循环发送组板装笼消息
         for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
@@ -169,8 +169,8 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             mq.setOperatorData(request.getOperatorData());
             autoCageProducer.sendOnFailPersistent(mq.getCageBoxCode()+"-"+mq.getBarcode(), JsonHelper.toJson(mq));
         }
-        jdCResponse.setData(true);
-        return jdCResponse;
+        jdcResponse.setData(true);
+        return jdcResponse;
     }
 
     private JdCResponse<Boolean> oldCage(AutoCageRequest request) {
