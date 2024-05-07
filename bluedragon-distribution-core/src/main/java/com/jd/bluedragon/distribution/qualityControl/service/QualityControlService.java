@@ -44,20 +44,17 @@ import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListC
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -79,7 +76,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.weaver.ast.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -484,13 +480,36 @@ public class QualityControlService {
              conf = JsonHelper.fromJson(sysConfig.getConfigContent(), CancelReturnGroupWhiteListConf.class);
         }
         // 破损标识
-        if (abnormalWayBillService.isDamagedWaybill(waybillCode, request, conf)) {
+        if (needDamagedPackageFlag(waybillCode, request, conf)) {
             ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ONE);
             twiceExchangeWaybill(waybillCode, request, conf, ownReverseTransferDomain);
         }else {
             ownReverseTransferDomain.setDamagedPackageFlag(INTEGER_ZERO);
         }
         return ownReverseTransferDomain;
+    }
+
+    /**
+     * 是否为破损订单 1. 只针对一单一件的场景 2. 针对特定异常编码
+     *
+     * @param waybillCode
+     * @param request
+     * @param conf
+     * @return
+     */
+    public boolean needDamagedPackageFlag(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf) {
+        // 只针对一单一件的场景
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null || !Objects.equals(waybill.getGoodNumber(), INTEGER_ONE)) {
+            return false;
+        }
+        if (conf == null || org.apache.commons.collections.CollectionUtils.isEmpty(conf.getAbnormalCauseList())) {
+            return false;
+        }
+        if (conf.getAbnormalCauseList().contains(request.getQcCode())) {
+            return true;
+        }
+        return false;
     }
 
     private void twiceExchangeWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf, OwnReverseTransferDomain ownReverseTransferDomain) {
@@ -503,7 +522,7 @@ public class QualityControlService {
         }
         // 查询关联单号
         JdResult<List<RelationWaybillBodyDto>> result = waybillQueryManager.getRelationWaybillList(waybillCode);
-        if (result.isSucceed() && !CollectionUtils.isEmpty(result.getData()) && result.getData().size() == INTEGER_TWO) {
+        if (result.isSucceed() && !CollectionUtils.isEmpty(result.getData()) && INTEGER_TWO.equals(result.getData().size())) {
             // 该接口查询的关联单号，会返回当前查询的运单，所以当总数为2条时就为二次换单
             for (RelationWaybillBodyDto waybillBodyDto : result.getData()) {
                 if (StringUtils.isNotEmpty(waybillBodyDto.getWaybillCode()) && !waybillCode.equals(waybillBodyDto.getWaybillCode())) {
