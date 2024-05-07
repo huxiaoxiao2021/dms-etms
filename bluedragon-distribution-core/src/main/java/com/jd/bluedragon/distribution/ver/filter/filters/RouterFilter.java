@@ -27,16 +27,14 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
+import com.jdl.basic.api.dto.transferDp.ConfigTransferDpSiteMatchQo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2018/3/21.
