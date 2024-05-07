@@ -27,6 +27,12 @@ public class LabelTemplate implements java.io.Serializable{
 	 * 模板版本
 	 */
 	private Integer templateVersion;
+
+	/**
+	 * 模版系统
+	 */
+	private String templateSysName;
+
 	/**
 	 * @return the id
 	 */
@@ -62,5 +68,13 @@ public class LabelTemplate implements java.io.Serializable{
 	 */
 	public void setTemplateVersion(Integer templateVersion) {
 		this.templateVersion = templateVersion;
+	}
+
+	public String getTemplateSysName() {
+		return templateSysName;
+	}
+
+	public void setTemplateSysName(String templateSysName) {
+		this.templateSysName = templateSysName;
 	}
 }

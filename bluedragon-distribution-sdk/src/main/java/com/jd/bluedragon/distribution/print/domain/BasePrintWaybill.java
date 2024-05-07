@@ -542,6 +542,11 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String labelFileDownloadUrl;
 
+	/**
+	 * 云打印打印模版所属系统
+	 */
+	private String templateSysName;
+	
 	public String getServiceCode() {
 		return serviceCode;
 	}
@@ -1933,12 +1938,6 @@ public class BasePrintWaybill implements Serializable {
 	public void setTempOriginalCrossType(Integer tempOriginalCrossType) {
 		this.tempOriginalCrossType = tempOriginalCrossType;
 	}
-	public String getLabelFileDownloadUrl() {
-		return labelFileDownloadUrl;
-	}
-	public void setLabelFileDownloadUrl(String labelFileDownloadUrl) {
-		this.labelFileDownloadUrl = labelFileDownloadUrl;
-	}
 
 	public String getSpliceGoodsNameWithTitle() {
 		return spliceGoodsNameWithTitle;
@@ -1954,5 +1953,19 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setVerificationCodeWithTitle(String verificationCodeWithTitle) {
 		this.verificationCodeWithTitle = verificationCodeWithTitle;
+	}
+	public String getLabelFileDownloadUrl() {
+		return labelFileDownloadUrl;
+	}
+	public void setLabelFileDownloadUrl(String labelFileDownloadUrl) {
+		this.labelFileDownloadUrl = labelFileDownloadUrl;
+	}
+
+	public String getTemplateSysName() {
+		return templateSysName;
+	}
+
+	public void setTemplateSysName(String templateSysName) {
+		this.templateSysName = templateSysName;
 	}
 }
