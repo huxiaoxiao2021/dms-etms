@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -7,6 +10,10 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.jddl.executor.function.scalar.filter.In;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +37,9 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     /**
      * 执行处理，返回处理结果
      *
@@ -37,17 +47,22 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.CloudPrintSwitchHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext target) {
         InterceptResult<String> interceptResult = target.getResult();
-        //检查是否使用云打印，并放入上下文中
-        target.setUseCloudPrint(useCloudPrint(target));
-        //设置客户端是否使用云打印标识
-        if(target.getResponse() == null){
-            WaybillPrintResponse response = new WaybillPrintResponse();
-            response.setUseCloudPrint(target.getUseCloudPrint());
-            target.setResponse(response);
-        }else{
-            target.getResponse().setUseCloudPrint(target.getUseCloudPrint());
+        try{
+            //检查是否使用云打印，并放入上下文中
+            target.setUseCloudPrint(useCloudPrint(target));
+            //设置客户端是否使用云打印标识
+            if(target.getResponse() == null){
+                WaybillPrintResponse response = new WaybillPrintResponse();
+                response.setUseCloudPrint(target.getUseCloudPrint());
+                target.setResponse(response);
+            }else{
+                target.getResponse().setUseCloudPrint(target.getUseCloudPrint());
+            }
+        }catch (Exception e){
+            log.error("切换云打印流量开关执行异常，入参：｛｝", JSON.toJSONString(target.getRequest()),e);
         }
         return interceptResult;
     }
@@ -63,6 +78,9 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
         String versionCode = target.getRequest().getVersionCode();
         Integer operateType = target.getRequest().getOperateType();
         Integer siteCode = target.getRequest().getSiteCode();
+        Integer userCode = target.getRequest().getUserCode();
+        String userErp = target.getRequest().getUserERP();
+
         if (StringUtils.isBlank(versionCode)) {
             // 处理空值情况，可能抛出异常或返回错误
             return false;
@@ -78,6 +96,11 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
             return false;
         }
         //调用开关配置功能读取切换流量
+        //人
+        if(checkFuncSwitchByErp(operateType,siteCode,userCode ,userErp)){
+            return true;
+        }
+        //场地
         if(checkFuncSwitchBySite(operateType,siteCode)){
             return true;
         }
@@ -87,7 +110,7 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
 
 
     /**
-     * 判断当前站点是否配置预售分拣暂存拦截
+     * 判断当前站点是否配置云打印开关
      * @param siteCode
      * @return
      */
@@ -108,6 +131,41 @@ public class CloudPrintSwitchHandler extends AbstractInterceptHandler<WaybillPri
             return funcSwitchConfigService.checkIsConfigured(dto);
         }catch (Exception e){
             log.error("查询当前站点是否配置切换云打印流量异常!,｛｝,｛｝",operateType,siteCode,e);
+        }
+        return false;
+    }
+
+    /**
+     * 判断当前操作人是否配置云打印开关
+     * @param erp
+     * @return
+     */
+    private boolean checkFuncSwitchByErp(Integer operateType,Integer siteCode,Integer userCode, String erp) {
+        try {
+            if(StringUtils.isBlank(erp) && userCode == null){
+                return false;
+            }
+            if(StringUtils.isBlank(erp)){
+                //通过code转换
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(userCode);
+                if(dto == null){
+                    return false;
+                }
+                erp = dto.getErp();
+            }
+            FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
+            FuncSwitchConfigEnum configEnum = FuncSwitchConfigEnum.getEnumByKey(operateType);
+            if(configEnum == null){
+                log.error("未匹配到切换云打印流量开关!,｛｝,｛｝",operateType,erp);
+                return false;
+            }
+            dto.setMenuCode(configEnum.getCode());
+            dto.setDimensionCode(DimensionEnum.PERSON.getCode());
+            dto.setSiteCode(siteCode);
+            dto.setOperateErp(erp);
+            return funcSwitchConfigService.checkIsConfigured(dto);
+        }catch (Exception e){
+            log.error("查询当前站点是否配置切换云打印流量异常!,｛｝,｛｝",operateType,erp,e);
         }
         return false;
     }
