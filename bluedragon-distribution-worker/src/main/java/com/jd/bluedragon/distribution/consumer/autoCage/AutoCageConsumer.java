@@ -91,6 +91,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             String sendCode = null;
             if (entity == null) {
                 JyBizTaskComboardEntity record = createJyBizTaskComboardEntity(mq, comboardScanReq);
+                log.info("补组板任务："+JsonHelper.toJson(record));
                 jyBizTaskComboardService.save(record);
                 sendCode = record.getSendCode();
             }else{
@@ -98,12 +99,16 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             }
             //装笼
             CollectPackageReq req = createCollectPackageReq(mq);
+            log.info("装笼参数："+JsonHelper.toJson(req));
             InvokeResult<CollectPackageResp> cageRespose = dmsDeviceCageJsfService.cage(req);
             if(InvokeResult.RESULT_SUCCESS_CODE != cageRespose.getCode()){
+                log.error("装笼失败，参数："+JsonHelper.toJson(req)+ "返回值："+JsonHelper.toJson(cageRespose));
                 throw new RuntimeException("AutoCageConsumer 处理失败,jmq自动重试!");
             }
             //发货
-            jyComBoardSendService.execSend(fillComboardScanReq(comboardScanReq,mq,sendCode));
+            fillComboardScanReq(comboardScanReq,mq,sendCode);
+            log.info("装笼发货参数组装："+JsonHelper.toJson(comboardScanReq));
+            jyComBoardSendService.execSend(comboardScanReq);
         }catch (Exception e) {
             throw new RuntimeException("AutoCageConsumer ,jmq自动重试!");
         }

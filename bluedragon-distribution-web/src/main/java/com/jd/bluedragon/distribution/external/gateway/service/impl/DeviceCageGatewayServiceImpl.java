@@ -141,9 +141,10 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             domain.setMachineCode(request.getMachineCode());
             domain.setSiteCode(request.getSiteCode());
             domain.setOperatorErp(request.getOperatorErp());
+
             com.jd.bluedragon.distribution.board.domain.Response<Void> autoBoardCompleteResponse = sortBoardJsfService.autoBoardComplete(domain);
             if(autoBoardCompleteResponse.getCode() != 200){
-                jdcResponse.toFail("板["+board.getCode()+"]完结失败，请退出重试!");
+                jdcResponse.toFail(autoBoardCompleteResponse.getMessage());
                 return jdcResponse;
             }
         }
