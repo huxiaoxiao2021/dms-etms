@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
@@ -171,6 +172,7 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
@@ -1683,7 +1685,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
-
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan.seconds", false, true);
         logInfo("拣运发货扫描:{}", JsonHelper.toJson(request));
 
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
@@ -1775,7 +1777,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(sendM.getCreateSiteCode()))){
                 log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
                 SendRequest sendRequest = getSendRequest(request, sendType, sendM);
                 JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
@@ -1863,11 +1865,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             this.sendScanOfCallback(result,request);
 
         } catch (EconomicNetException e) {
+            Profiler.functionError(info);
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());
         } catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return result;
@@ -1927,6 +1932,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private SendScanCallbackReqDto transferDto(SendScanRequest request) {
         SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
+        com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum.getEnumByCode(request.getBarCodeType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
+        }
         callbackReqDto.setBarCodeType(request.getBarCodeType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1936,6 +1945,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             callbackReqDto.setUserName(request.getUser().getUserName());
         }
         callbackReqDto.setOperateTime(new Date());
+        if(request.getStevedoringMerchant() != null){
+            callbackReqDto.setMerchantCode(request.getStevedoringMerchant().getMerchantCode());
+            callbackReqDto.setMerchantName(request.getStevedoringMerchant().getMerchantName());
+        }
         return callbackReqDto;
     }
 

@@ -15,6 +15,11 @@ public class BoxMaterialRelationRequest extends JdRequest {
     public static String BIZ_SORTING_MACHINE = "SORTING_MACHINE";
 
     /**
+     * 箱号绑定关系来源：终端
+     */
+    public static String BIZ_SORTING_TERMINAL = "BIZ_SORTING_TERMINAL";
+
+    /**
      *  箱号
      */
     private String boxCode;

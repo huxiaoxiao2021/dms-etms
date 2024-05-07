@@ -23,4 +23,12 @@ public interface BoxRelationDao extends Dao<BoxRelation> {
     int countByQuery(BoxRelationQ query);
 
     List<BoxRelation> getByBoxCode(String boxCode);
+
+    /**
+     * 根据子箱号获取父箱号
+     * @param boxCode
+     * @return
+     */
+    List<BoxRelation> getByRelationCode(String boxCode);
+
 }

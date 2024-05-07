@@ -751,5 +751,14 @@
     <jmq:consumer id="jmq.violentSortingFixDutyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.violent.sorting.fix.duty}" listener="violentSortingFixDutyConsumer"/>
     </jmq:consumer>
+
+    <!--  路由推送临时线路切换消息  -->
+    <jmq:consumer id="jmq.jyDynamicLineReplacePlanConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.router.dynamicLineReplacePlanConsumer}" listener="dynamicLineReplacePlanConsumer"/>
+    </jmq:consumer>
+    <!--  箱号绑定循环物资  -->
+    <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
+    </jmq:consumer>
 </beans>
 

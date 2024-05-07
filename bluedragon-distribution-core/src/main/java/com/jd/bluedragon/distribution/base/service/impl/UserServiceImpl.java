@@ -476,6 +476,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 				result.getData().getBusinessConfigInfo().setSilentUpdate(dmsConfigManager.getPropertyConfig().getPdaSilentUpdateSwitch());
 				// 图像清晰度判断阈值
 				result.getData().getBusinessConfigInfo().setImageClarityThreshold(dmsConfigManager.getPropertyConfig().getImageClarityThreshold());
+
+				// 是否启用临时线路切换功能
+                result.getData().getBusinessConfigInfo().setRouterDynamicLineReplaceLineEnable(dmsConfigManager.getPropertyConfig().isRouterDynamicLineReplaceEnableSite(dmsClientHeartbeatRequest.getSiteCode()));
 			}
 		}
 		return result;

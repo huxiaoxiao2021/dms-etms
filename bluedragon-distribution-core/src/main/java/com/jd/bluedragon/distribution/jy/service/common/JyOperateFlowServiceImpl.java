@@ -84,6 +84,20 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 		return jyOperateFlowDao.insert(data);
 	}
 
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.findByOperateBizKeyAndId", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JyOperateFlowDto findByOperateBizKeyAndId(JyOperateFlowDto data) {
+		if (data == null || StringUtils.isBlank(data.getOperateBizKey())) {
+			logger.warn("jyOperateFlowService-findByOperateBizKeyAndId-fail! operateBizKey为空！");
+			return null;
+		}
+		if (data.getId() == null || Constants.LONG_ZERO.equals(data.getId())) {
+			logger.warn("jyOperateFlowService-findByOperateBizKeyAndId-fail! id为空或0！");
+			return null;
+		}
+		return jyOperateFlowDao.findByOperateBizKeyAndId(data);
+	}
+
 	@Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.service.JyOperateFlowServiceImpl.sendMq", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public int sendMq(JyOperateFlowMqData mqData) {
@@ -232,6 +246,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			// 填充操作信息对象
 			OperatorData operatorData = request.getOperatorData();
 			jyOperateFlowData.setOperatorData(operatorData);
+			unsealFlowMq.setId(createOperateFlowId());
 			// 业务子类型
 			unsealFlowMq.setOperateBizSubType(request.getBizType());
 			sendMq(unsealFlowMq);
@@ -373,6 +388,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			JyOperateFlowMqData weightVolumeFlowMq = BeanConverter.convertToJyOperateFlowMqData(entity);
 			// 业务子类型
 			weightVolumeFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			weightVolumeFlowMq.setId(createOperateFlowId());
 			sendMq(weightVolumeFlowMq);
 		} catch (Exception e) {
 			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJsonMs(entity), e);

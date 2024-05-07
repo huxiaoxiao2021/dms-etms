@@ -869,7 +869,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode());
                 if(oldWaybill != null && oldWaybill.getData()!=null&&oldWaybill.getData().getWaybillCode()!=null) {
                     String oldWaybillCode = oldWaybill.getData().getWaybillCode();
-                    target.setPopularizeMatrixCode(waybill.getBusiOrderCode());
+                    target.setPopularizeMatrixCode(oldWaybillCode);
                     target.setPopularizeMatrixCodeDesc("原运单号");
                     target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
                 }else {
@@ -2149,7 +2149,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //“碎” 在 “尊” 的标识位追加
         String sendPayMap = waybillExt == null ? null :waybillExt.getSendPayMap();
         if(BusinessHelper.isFragile(JsonHelper.json2MapByJSON(sendPayMap))){
-            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC_TEXT) );
+            target.setRespectTypeText(StringHelper.append(target.getRespectTypeText(), TextConstants.SPECIAL_MARK_NC) );
         }
         //waybill_sign标识位 135=2 判断是否为NC易碎件 (与尊字进行拼接，展示优先级为尊NC)
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_135, WaybillSignConstants.CHAR_135_2)){

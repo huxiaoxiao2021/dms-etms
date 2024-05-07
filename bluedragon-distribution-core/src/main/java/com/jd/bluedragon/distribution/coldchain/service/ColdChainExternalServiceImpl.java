@@ -996,7 +996,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         try {
 
             //切换新服务
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(request.getSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(request.getSiteCode()))){
                 log.info("冷链发货 启用新模式 {}",request.getBoxCode());
                 //新接口
                 SendRequest sendRequest = new SendRequest();

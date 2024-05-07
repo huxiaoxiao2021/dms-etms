@@ -357,6 +357,13 @@ public interface WaybillQueryManager{
 	String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto);
 
 	/**
+	 * 仅从运单扩展字段中获取托寄物信息
+	 * @param waybillExt
+	 * @return
+	 */
+	String getConsignmentNameFromWaybillExt(WaybillExt waybillExt);
+
+	/**
 	 * 根据运单号查询包装耗材信息
 	 * @param waybillCode
 	 * @return
