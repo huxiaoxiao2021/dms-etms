@@ -545,6 +545,12 @@ public class BoxResource {
                 autoSortingBoxResult.setCreateSiteName(createSiteName);
             }
 
+            CrossPackageTagNew crossPackageTag = baseMinorManager
+                    .queryNonDmsSiteCrossPackageTagForPrint(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
+            if (crossPackageTag != null) {
+                autoSortingBoxResult.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
+                autoSortingBoxResult.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+            }
             // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
             BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getReceiveSiteCode());
             if (receiveSiteInfo != null) {
