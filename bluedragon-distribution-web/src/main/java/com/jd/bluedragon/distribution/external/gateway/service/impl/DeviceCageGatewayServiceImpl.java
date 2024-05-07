@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.cage.request.AutoCageRequest;
@@ -155,6 +156,10 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             jdcResponse.toFail("未找到板["+board.getCode()+"]的明细，请退出重试!");
             return jdcResponse;
         }
+        //获取设备操作人
+        DeviceConfigDto machine = deviceConfigInfoJsfService.findOneDeviceConfigByMachineCode(request.getMachineCode());
+        String operator = machine.getOperatorErp();
+        String operatorName = machine.getOperatorName();
         //循环发送组板装笼消息
         for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
             AutoCageMq mq = new AutoCageMq();
@@ -163,7 +168,8 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             mq.setCageBoxCode(request.getCageBoxCode());
             mq.setSiteCode(request.getSiteCode());
             mq.setMachineCode(request.getMachineCode());
-            mq.setOperatorErp(request.getOperatorErp());
+            mq.setOperatorErp(operator);
+            mq.setOperatorName(operatorName);
             mq.setBoardCode(board.getCode());
             mq.setDestinationId(board.getDestinationId());
             mq.setDestination(board.getDestination());
