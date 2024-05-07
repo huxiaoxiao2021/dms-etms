@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.CloudPrintDataServiceManager;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.CloudPrintDocument;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
@@ -15,11 +16,9 @@ import com.jdl.print.dto.data.DataDto;
 import com.jdl.print.dto.data.PrintDataResult;
 import com.jdl.print.dto.data.QueryPrintDataDto;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

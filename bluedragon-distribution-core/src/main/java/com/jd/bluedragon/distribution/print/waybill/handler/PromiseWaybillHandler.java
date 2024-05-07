@@ -6,7 +6,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -21,7 +21,6 @@ import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.sun.xml.bind.v2.model.core.ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ import java.util.Date;
  *
  */
 @Service
-public class PromiseWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
+public class PromiseWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(PromiseWaybillHandler.class);
     @Autowired
     private OrderMarkingService orderMarkingService;

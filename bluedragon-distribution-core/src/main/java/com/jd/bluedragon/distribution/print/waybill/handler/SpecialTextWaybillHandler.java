@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -37,7 +37,7 @@ import java.util.List;
  *
  */
 @Service
-public class SpecialTextWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
+public class SpecialTextWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(SpecialTextWaybillHandler.class);
     /**
      * 预分拣站点编码-未定位门店(0)

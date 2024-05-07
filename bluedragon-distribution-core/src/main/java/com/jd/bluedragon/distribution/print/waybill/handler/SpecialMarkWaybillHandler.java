@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 @Service
-public class SpecialMarkWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
+public class SpecialMarkWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(SpecialMarkWaybillHandler.class);
 	@Autowired
 	@Qualifier("specialMarkComposeService")

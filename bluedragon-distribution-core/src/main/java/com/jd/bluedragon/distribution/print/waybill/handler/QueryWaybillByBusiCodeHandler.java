@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.ql.dms.print.utils.StringHelper;

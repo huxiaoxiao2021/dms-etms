@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
-import org.apache.commons.lang.StringUtils;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -33,7 +30,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  * @date: 2018年2月6日 下午2:08:38
  */
 @Service
-public class ThirdOverRunInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String>{
+public class ThirdOverRunInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 	private static final Log logger= LogFactory.getLog(ThirdOverRunInterceptHandler.class);
 
     @Autowired

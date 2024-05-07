@@ -7,7 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -40,7 +40,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  *
  */
 @Service
-public class RemarkFieldHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>>{
+public class RemarkFieldHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(RemarkFieldHandler.class);
     
     @Autowired

@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
@@ -39,7 +39,6 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
@@ -70,7 +69,7 @@ import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
 @Service
-public class BasicWaybillPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String>{
+public class BasicWaybillPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 	private static final Logger log = LoggerFactory.getLogger(BasicWaybillPrintHandler.class);
 
     @Autowired

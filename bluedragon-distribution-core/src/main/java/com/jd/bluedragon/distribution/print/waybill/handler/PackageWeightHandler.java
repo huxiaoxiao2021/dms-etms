@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.utils.NumberHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

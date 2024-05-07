@@ -6,7 +6,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedSite;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum;
