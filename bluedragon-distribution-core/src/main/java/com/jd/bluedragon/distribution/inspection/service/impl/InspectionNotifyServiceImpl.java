@@ -51,7 +51,7 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
         Date operateTime = StringUtils.isBlank(request.getOperateTime())? new Date() : DateHelper.getSeverTime(request.getOperateTime());
         inspectionMQBody.setOperateTime(operateTime);
         inspectionMQBody.setSource("DMS-INSPECTION");
-
+        inspectionMQBody.setBizSource(request.getBizSource());
         this.send(inspectionMQBody);
     }
 
