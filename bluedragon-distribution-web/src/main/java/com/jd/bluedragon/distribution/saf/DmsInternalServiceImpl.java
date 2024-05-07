@@ -151,7 +151,10 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getBox",mState = JProEnum.TP)
     public BoxResponse getBox(String boxCode){
         try {
-            return boxResource.get(boxCode);
+            BoxResponse boxResponse = boxResource.get(boxCode);
+            // 组装箱号打印参数
+            boxResource.assemblyBoxResponseInfo(boxResponse);
+            return boxResponse;
         } catch (Exception e) {
             log.error("getBox error", e);
             return null;
