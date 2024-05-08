@@ -117,4 +117,18 @@ public interface JyCollectPackageService {
      * @return
      */
     InvokeResult<UpdateMixFlowListResp> updateTaskFlowList(UpdateMixFlowListReq request);
+
+    /**
+     * 执行集包
+     * @param request
+     * @param response
+     */
+    void execCollectPackage(CollectPackageReq request, CollectPackageResp response);
+
+    /**
+     * 执行集箱
+     * @param request
+     * @param response
+     */
+    void execCollectBox(CollectPackageReq request, CollectPackageResp response);
 }

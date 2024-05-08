@@ -33,6 +33,26 @@ public class BoardResp implements Serializable {
     private boolean bulkFlag;
     private List<GoodsCategoryDto> goodsCategoryList;
 
+    private String boxCode;
+
+    private String materialCode;
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
+    }
+
     public boolean isBulkFlag() {
         return bulkFlag;
     }

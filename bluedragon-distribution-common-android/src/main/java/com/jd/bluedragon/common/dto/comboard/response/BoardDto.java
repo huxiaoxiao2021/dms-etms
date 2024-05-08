@@ -110,6 +110,32 @@ public class BoardDto implements Serializable {
      */
     private Integer boardScanLimit;
 
+    /**
+     * 一板一笼-对应的笼车箱号
+     */
+    private String boxCode;
+
+    /**
+     * 笼车对应物资编号
+     */
+    private String materialCode;
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
+    }
+
     public String getBoardCode() {
         return boardCode;
     }

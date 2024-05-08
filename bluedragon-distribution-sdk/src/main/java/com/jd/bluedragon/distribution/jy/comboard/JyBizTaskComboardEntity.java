@@ -55,6 +55,26 @@ public class JyBizTaskComboardEntity implements Serializable{
 
     private String groupCode;
 
+    private String boxCode;
+
+    private String materialCode;
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
+    }
+
     public String getGroupCode() {
         return groupCode;
     }
