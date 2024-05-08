@@ -79,8 +79,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             return;
         }
 
-        if (StringUtils.isEmpty(mq.getBarcode())
-                || StringUtils.isEmpty(mq.getCageBoxCode())
+        if (StringUtils.isEmpty(mq.getCageBoxCode())
                 || mq.getOperatorTime() == null
                 || mq.getSiteCode() == null
                 || mq.getOperatorErp() == null) {
