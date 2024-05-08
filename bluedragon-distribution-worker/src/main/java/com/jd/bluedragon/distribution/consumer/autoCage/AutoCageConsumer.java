@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.autoCage.domain.AutoCageMq;
+import com.jd.bluedragon.distribution.autoCage.domain.BaseAutoCageMq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
@@ -28,6 +29,8 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +61,8 @@ public class AutoCageConsumer extends MessageBaseConsumer {
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
     @Autowired
+    private GroupBoardService groupBoardService;
+    @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.AutoCageConsumer.consume", mState = JProEnum.TP)
@@ -84,7 +89,6 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         }
 
         try{
-
             //补充组板任务
             JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(mq.getSiteCode(), mq.getBoardCode());
             ComboardScanReq comboardScanReq = new ComboardScanReq();
@@ -98,6 +102,20 @@ public class AutoCageConsumer extends MessageBaseConsumer {
                 sendCode = entity.getSendCode();
             }
 
+            //查询板明细
+            Response<Map<String, Date>> boardDetailReponse = groupBoardService.getBoardDetailByBoardCode(mq.getBoardCode());
+            if(boardDetailReponse.getCode() != 200){
+                log.error("未找到板["+mq.getBoardCode()+"]的明细，消息报文:"+JsonHelper.toJson(mq)+"，请联系分拣小秘排查");
+                return ;
+            }
+
+            //循环发送组板装笼消息
+            for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
+                mq.setBarcode(entry.getKey());
+                mq.setDeviceOperatorTime(entry.getValue());
+                singleCage(mq);
+            }
+
             //发货
             fillComboardScanReq(comboardScanReq,mq,sendCode);
             log.info("装笼发货参数组装："+JsonHelper.toJson(comboardScanReq));
@@ -106,6 +124,29 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             throw new RuntimeException("AutoCageConsumer ,jmq自动重试!");
         }
 
+    }
+    private static CollectPackageReq createCollectPackageReq(AutoCageMq mq) {
+        CollectPackageReq req = new CollectPackageReq();
+        req.setBoxCode(mq.getCageBoxCode());
+        req.setBarCode(mq.getBarcode());
+        req.setSiteCode(Long.valueOf(mq.getSiteCode()));
+        req.setUserErp(mq.getOperatorErp());
+        req.setUserName(mq.getOperatorName());
+        req.setOperateTime(mq.getDeviceOperatorTime());
+        OperatorData operatorData = mq.getOperatorData();
+        req.setOperatorData(com.jd.bluedragon.utils.JsonHelper.fromJson(com.jd.bluedragon.utils.JsonHelper.toJson(operatorData),com.jd.bluedragon.distribution.api.domain.OperatorData.class));
+        return req;
+    }
+
+    private void singleCage(AutoCageMq mq) {
+        //装笼
+        CollectPackageReq req = createCollectPackageReq(mq);
+        log.info("装笼参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req));
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<CollectPackageResp> cageRespose = dmsDeviceCageJsfService.cage(req);
+        if(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE != cageRespose.getCode()){
+            log.error("装笼失败，参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req)+ "返回值："+ com.jd.bluedragon.utils.JsonHelper.toJson(cageRespose));
+            throw new RuntimeException("AutoCageConsumer 处理失败,jmq自动重试!");
+        }
     }
 
 
@@ -175,8 +216,8 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         currentOperate.setOperatorTypeCode(operatorData.getOperatorTypeCode());
         currentOperate.setOperatorId(operatorData.getOperatorId());
         currentOperate.setOperatorData(operatorData);
-
         req.setCurrentOperate(currentOperate);
+
         req.setBarCode(mq.getCageBoxCode());
         req.setBizSource(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name());
         req.setBoardCode(mq.getBoardCode());

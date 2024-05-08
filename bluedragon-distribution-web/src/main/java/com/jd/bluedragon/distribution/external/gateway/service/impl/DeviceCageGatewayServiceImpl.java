@@ -175,23 +175,8 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
             }
         }
 
-        //查询板明细
-        Response<Map<String, Date>> boardDetailReponse = groupBoardService.getBoardDetailByBoardCode(board.getCode());
-        if(boardDetailReponse.getCode() != 200){
-            jdcResponse.toFail("未找到板["+board.getCode()+"]的明细，请退出重试!");
-            return jdcResponse;
-        }
-        //获取设备操作人
         BaseAutoCageMq baseMq = createBaseAutoCageMq(request, board);
-        //循环发送组板装笼消息
-        for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
-            if (baseMq instanceof AutoCageMq){
-                AutoCageMq mq = (AutoCageMq) baseMq;
-                mq.setBarcode(entry.getKey());
-                mq.setDeviceOperatorTime(entry.getValue());
-                singleCage(mq);
-            }
-        }
+
         autoCageProducer.sendOnFailPersistent(baseMq.getCageBoxCode(), JsonHelper.toJson(baseMq));
         jdcResponse.setData(true);
         return jdcResponse;
@@ -217,30 +202,7 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         return mq;
     }
 
-    private void singleCage(AutoCageMq mq) {
 
-        //装笼
-        CollectPackageReq req = createCollectPackageReq(mq);
-        log.info("装笼参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req));
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<CollectPackageResp> cageRespose = dmsDeviceCageJsfService.cage(req);
-        if(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE != cageRespose.getCode()){
-            log.error("装笼失败，参数："+ com.jd.bluedragon.utils.JsonHelper.toJson(req)+ "返回值："+ com.jd.bluedragon.utils.JsonHelper.toJson(cageRespose));
-            throw new RuntimeException("AutoCageConsumer 处理失败,jmq自动重试!");
-        }
-    }
-
-    private static CollectPackageReq createCollectPackageReq(AutoCageMq mq) {
-        CollectPackageReq req = new CollectPackageReq();
-        req.setBoxCode(mq.getCageBoxCode());
-        req.setBarCode(mq.getBarcode());
-        req.setSiteCode(Long.valueOf(mq.getSiteCode()));
-        req.setUserErp(mq.getOperatorErp());
-        req.setUserName(mq.getOperatorName());
-        req.setOperateTime(mq.getDeviceOperatorTime());
-        OperatorData operatorData = mq.getOperatorData();
-        req.setOperatorData(com.jd.bluedragon.utils.JsonHelper.fromJson(com.jd.bluedragon.utils.JsonHelper.toJson(operatorData),com.jd.bluedragon.distribution.api.domain.OperatorData.class));
-        return req;
-    }
 
 
 
