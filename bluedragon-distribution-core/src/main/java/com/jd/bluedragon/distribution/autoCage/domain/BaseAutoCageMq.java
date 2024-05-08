@@ -40,7 +40,10 @@ public class BaseAutoCageMq {
      * 操作人姓名
      */
     private String operatorName;
-
+    /**
+     * 笼车号
+     */
+    private String cageCode;
     /**
      * 笼车箱号
      */

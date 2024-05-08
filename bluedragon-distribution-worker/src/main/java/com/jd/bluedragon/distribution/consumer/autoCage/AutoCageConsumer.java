@@ -168,6 +168,8 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         record.setHaveScanCount(1);
         record.setComboardSource(2);
         record.setUnsealTime(mq.getOperatorTime());
+        record.setBoxCode(mq.getCageBoxCode());
+        record.setMaterialCode(mq.getCageCode());
         return record;
     }
 

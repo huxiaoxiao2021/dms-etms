@@ -199,6 +199,7 @@ public class DeviceCageGatewayServiceImpl implements DeviceCageGatewayService {
         mq.setDestination(board.getDestination());
         mq.setOperatorData(request.getOperatorData());
         mq.setOperatorTime(new Date());
+        mq.setCageCode(request.getCageCode());
         return mq;
     }
 
