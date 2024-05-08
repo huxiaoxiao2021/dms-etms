@@ -1651,7 +1651,7 @@
     </jsf:consumer>
 
     <!--  AGV  -->
-    <jsf:consumer id="agvJSFService"
+    <jsf:consumer id="agvJsfService"
                   interface="com.jd.bluedragon.distribution.sdk.modules.agv.AGVJSFService"
                   protocol="jsf"
                   alias="${automatic.platform.jsf.alias}"
