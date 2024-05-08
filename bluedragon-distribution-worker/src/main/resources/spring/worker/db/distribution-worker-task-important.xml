@@ -127,7 +127,7 @@
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
         <property name="keyType" value="2"/>
-        <property name="desc" value="回传周转箱项目任务"/>
+        <property name="desc" value="回传周转箱项目任务和变更箱号(集包)任务状态"/>
     </bean>
 
     <bean id="sendDeliveryTowaybillTask"
