@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.board.BizSourceEnum;
+import com.jd.bluedragon.distribution.board.domain.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -36,7 +37,6 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -705,7 +705,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             waybillStatus.setOperatorId(operatorInfo.getUserCode());
             waybillStatus.setOperator(operatorInfo.getUserName());
             // 非自动化的 取当前系统时间
-            if(bizSource == null || BizSourceEnum.SORTING_MACHINE.getValue() != bizSource){
+            if(bizSource == null || (BizSourceEnum.SORTING_MACHINE.getValue() != bizSource
+                    && BizSourceEnum.SORTING_MACHINE_AUTO_CAGE.getValue() != bizSource)){
                 waybillStatus.setOperateTime(new Date());
             }else {
                 //自动化取操作时间
