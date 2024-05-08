@@ -75,6 +75,9 @@ public class PrintCancelInterceptHandler implements Handler<WaybillPrintComplete
         if (BusinessUtil.isKyAddressModifyWaybill(waybillSignStr)) {
             return true;
         }
+        if(BusinessUtil.isMedicineCpModifyWaybill(waybillSignStr)) {
+            return true;
+        }
         if(this.isKdChangeAddressLegalWaybill(waybillCode, waybillSignStr)) {
             return true;
         }
