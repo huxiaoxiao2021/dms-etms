@@ -1649,4 +1649,13 @@
                   retries="${jsf.retries}"
                   serialization="hessian">
     </jsf:consumer>
+
+    <!--  AGV  -->
+    <jsf:consumer id="agvJSFService"
+                  interface="com.jd.bluedragon.distribution.sdk.modules.agv.AGVJSFService"
+                  protocol="jsf"
+                  alias="${automatic.platform.jsf.alias}"
+                  timeout="${jsf.timeout.autoBoardChute}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
 </beans>
