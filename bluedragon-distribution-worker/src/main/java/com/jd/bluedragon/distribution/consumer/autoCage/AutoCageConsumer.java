@@ -26,6 +26,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.jddl.common.utils.DateUtils;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -65,6 +66,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
+    public final static int AUTO_CAGE_SECOND = -3;
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.AutoCageConsumer.consume", mState = JProEnum.TP)
     @Override
     public void consume(Message message) throws Exception {
@@ -111,7 +113,7 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             //循环发送组板装笼消息
             for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
                 mq.setBarcode(entry.getKey());
-                mq.setDeviceOperatorTime(entry.getValue());
+                mq.setDeviceOperatorTime(DateHelper.addSeconds(entry.getValue(),AUTO_CAGE_SECOND));
                 singleCage(mq);
             }
 
