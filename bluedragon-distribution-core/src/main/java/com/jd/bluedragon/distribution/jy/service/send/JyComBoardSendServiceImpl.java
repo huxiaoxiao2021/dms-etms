@@ -1717,7 +1717,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         TableTrolleyJsfResp tableTrolleyJsfResp =res.getData();
         if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())){
           for (TableTrolleyJsfDto dto:tableTrolleyJsfResp.getTableTrolleyDtoJsfList()){
-            if (DeliveryTypeEnum.DELIVERY_BY_CAGE.equals(dto.getDeliveryType()) ){
+            if (DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(dto.getDeliveryType())){
               throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_CODE,COMBOARD_NEED_DELIVER_BY_CAGE_MESSAGE);
             }
           }
