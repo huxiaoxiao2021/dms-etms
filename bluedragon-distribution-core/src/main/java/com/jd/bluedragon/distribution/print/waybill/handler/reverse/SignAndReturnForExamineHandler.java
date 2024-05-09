@@ -3,9 +3,9 @@ package com.jd.bluedragon.distribution.print.waybill.handler.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.receive.service.SignBillReturnApiManager;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
  * @Date: create in 2021/4/25 16:26
  */
 @Service("signAndReturnForExamineHandler")
-public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class SignAndReturnForExamineHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger logger = LoggerFactory.getLogger(SignAndReturnForExamineHandler.class);
 

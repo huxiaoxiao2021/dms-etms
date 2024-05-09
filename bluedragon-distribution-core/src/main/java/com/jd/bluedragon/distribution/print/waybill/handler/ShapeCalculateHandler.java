@@ -6,7 +6,7 @@ import com.jd.bluedragon.core.base.LbccOperationSignQueryApiManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.lbcc.rule.api.dto.request.PackageDetailDTO;
@@ -36,7 +36,7 @@ import java.util.Map;
  **/
 @Service("shapeCalculateHandler")
 @Slf4j
-public class ShapeCalculateHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class ShapeCalculateHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 
 	/**
 	 * 中台件型试算服务

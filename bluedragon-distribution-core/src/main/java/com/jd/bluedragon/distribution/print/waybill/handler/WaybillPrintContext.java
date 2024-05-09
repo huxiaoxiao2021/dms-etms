@@ -57,6 +57,7 @@ public class WaybillPrintContext implements Context{
 	 * */
 	private String traderSign;
 
+
 	/**
 	 * 获取waybillSign信息
 	 * @return
@@ -129,7 +130,12 @@ public class WaybillPrintContext implements Context{
      * 运单中的目的分拣中心,获取滑道信息时设置
      */
     private Integer waybillEndDmsId;
-    
+
+	/**
+	 * 使用云打印标识用于在系统内部流转使用
+	 */
+	private boolean useCloudPrint;
+
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
 			messages.add(message);
@@ -295,5 +301,13 @@ public class WaybillPrintContext implements Context{
 
 	public void setBusinessDepartment(Boolean businessDepartment) {
 		isBusinessDepartment = businessDepartment;
+	}
+
+	public boolean getUseCloudPrint() {
+		return useCloudPrint;
+	}
+
+	public void setUseCloudPrint(boolean useCloudPrint) {
+		this.useCloudPrint = useCloudPrint;
 	}
 }

@@ -195,6 +195,12 @@ public class WaybillPrintRequest extends JdRequest{
 	private Integer packageCount;
 
 
+	/**
+	 * 用户输入的真正的条码内容，本应该使用barcode，但是为了兼容历史逻辑没办法直接修改客户端传入的barcode的值，
+	 * 现在的barcode有的功能前端会处理成运单号，大家切记使用
+	 */
+	private String realBarCode;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -547,5 +553,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setPackageCount(Integer packageCount) {
 		this.packageCount = packageCount;
+	}
+
+	public String getRealBarCode() {
+		return realBarCode;
+	}
+
+	public void setRealBarCode(String realBarCode) {
+		this.realBarCode = realBarCode;
 	}
 }

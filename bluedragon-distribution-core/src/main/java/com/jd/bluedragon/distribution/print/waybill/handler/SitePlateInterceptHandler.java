@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -19,7 +19,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
  *
  */
 @Service("sitePlateInterceptHandler")
-public class SitePlateInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class SitePlateInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
     private static final Logger log = LoggerFactory.getLogger(SitePlateInterceptHandler.class);
 
     /**

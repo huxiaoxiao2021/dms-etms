@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.service.MerchantWeightAndVolumeWhiteListService;
 import com.jd.etms.waybill.domain.Waybill;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @date: 2019/11/18 16:52
  */
 @Service
-public class IsNeedPrintHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class IsNeedPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger log = LoggerFactory.getLogger(IsNeedPrintHandler.class);
 

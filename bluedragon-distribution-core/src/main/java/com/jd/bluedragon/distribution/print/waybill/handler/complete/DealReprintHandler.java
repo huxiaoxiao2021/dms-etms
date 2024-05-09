@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -31,7 +31,7 @@ import java.util.Objects;
  * @date 2021/12/2 18:08
  **/
 @Service("dealReprintHandler")
-public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class DealReprintHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(DealReprintHandler.class);
 
