@@ -358,6 +358,10 @@ public class BasicWaybillPrintHandler extends AbstractInterceptHandler<WaybillPr
         try {
             Integer dmsCode = context.getRequest().getDmsSiteCode();
             WaybillPrintResponse commonWaybill = context.getResponse();
+            if(commonWaybill == null){
+                commonWaybill = new WaybillPrintResponse();
+                context.setResponse(commonWaybill);
+            }
             //返调度-设置标识 
             if(NumberHelper.gt0(context.getRequest().getTargetSiteCode())){
             	context.getRequest().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
