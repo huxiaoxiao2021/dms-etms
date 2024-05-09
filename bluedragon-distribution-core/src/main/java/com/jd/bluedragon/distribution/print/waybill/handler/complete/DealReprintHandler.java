@@ -123,6 +123,14 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
                     logger.info("DealReprintHandler改址打印需新增额外属性reprintType!单号:{}", printData.getWaybillCode());
                 }
                 waybillStatus.putExtendParamMap("reprintType", 1);
+            }else {
+                if(logger.isInfoEnabled()){
+                    logger.info("DealReprintHandler改址打印已解除拦截，不发reprintType!单号:{}", printData.getWaybillCode());
+                }
+            }
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("DealReprintHandler补打解除改址拦截校验waybillSign为非改址单!单号:{}", printData.getWaybillCode());
             }
         }
     }
