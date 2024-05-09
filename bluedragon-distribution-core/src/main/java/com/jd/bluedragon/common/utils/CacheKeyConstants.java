@@ -457,5 +457,5 @@ public class CacheKeyConstants {
      * 按单扫描防重缓存[单号+bizId+场地]
      */
     public static final String JY_SEND_WAYBILL_SCAN_KEY = JY_CACHE_PREFIX + "waybill:scan:send:%s:%s:%s";
-    public static final int JY_SEND_WAYBILL_SCAN_TIMEOUT_HOURS = 3;
+    public static final int JY_SEND_WAYBILL_SCAN_TIMEOUT_HOURS = 6;
 }
