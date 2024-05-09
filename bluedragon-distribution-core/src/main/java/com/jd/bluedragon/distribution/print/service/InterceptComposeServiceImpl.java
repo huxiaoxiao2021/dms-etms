@@ -1,10 +1,15 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,6 +21,11 @@ import org.springframework.stereotype.Service;
 public class InterceptComposeServiceImpl implements ComposeService {
 
     private static final Logger log = LoggerFactory.getLogger(InterceptComposeServiceImpl.class);
+
+
+    @Autowired
+    @Qualifier("cancelWaybillJsfManager")
+    private CancelWaybillJsfManager cancelWaybillJsfManager;
 
     @Override
     public void handle(final PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
@@ -29,7 +39,11 @@ public class InterceptComposeServiceImpl implements ComposeService {
         // 验证运单号，是否锁定、删除等
         com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse cancelWaybill = null;
         try {
-            cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
+            JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(waybill.getWaybillCode());
+            if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
+                cancelWaybill = new com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse();
+                cancelWaybill.setCode( waybillCancelResponse.getData().getCode());
+            }
         } catch (Exception e) {
             this.log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:", e);
         }

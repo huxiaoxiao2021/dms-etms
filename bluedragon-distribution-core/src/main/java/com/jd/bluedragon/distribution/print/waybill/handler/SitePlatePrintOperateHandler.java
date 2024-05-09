@@ -19,6 +19,12 @@ public class SitePlatePrintOperateHandler extends AbstractPrintOperateHandler{
 	public String dealPrintResult(WaybillPrintContext context) {
 		Waybill waybill = context.getWaybill();
 		LabelPrintingResponse labelPrintingResponse = context.getLabelPrintingResponse();
+		//设置云打印专用字段
+		if(context.getUseCloudPrint()){
+			labelPrintingResponse.setUseCloudPrint(context.getUseCloudPrint());
+			labelPrintingResponse.setCloudPrintDocuments(context.getResponse().getCloudPrintDocuments());
+		}
+
 		/**
 		 * 将标签字段值赋给waybill
 		 */

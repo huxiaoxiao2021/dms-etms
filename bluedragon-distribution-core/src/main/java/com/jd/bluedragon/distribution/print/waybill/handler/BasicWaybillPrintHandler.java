@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
@@ -41,7 +41,6 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillVasDto;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
@@ -73,7 +72,7 @@ import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 
 @Service
-public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
+public class BasicWaybillPrintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 	private static final Logger log = LoggerFactory.getLogger(BasicWaybillPrintHandler.class);
 
     @Autowired
@@ -358,13 +357,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             Integer dmsCode = context.getRequest().getDmsSiteCode();
-            WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
+            WaybillPrintResponse commonWaybill = context.getResponse();
             //返调度-设置标识 
             if(NumberHelper.gt0(context.getRequest().getTargetSiteCode())){
             	context.getRequest().setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
             	commonWaybill.setLocalSchedule(DmsConstants.LOCAL_SCHEDULE);
             }
-            context.setResponse(commonWaybill);
             context.setBasePrintWaybill(commonWaybill);
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();

@@ -5,12 +5,12 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -24,6 +24,8 @@ import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.LableType;
 import com.jd.bluedragon.utils.OriginalType;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
@@ -43,7 +45,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("sitePlateBasicHandler")
-public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class SitePlateBasicHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
     private static final Logger log = LoggerFactory.getLogger(SitePlateBasicHandler.class);
 
     @Autowired
@@ -69,6 +71,10 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
     private CommonOperateInterceptHandler commonOperateInterceptHandler;
+
+    @Autowired
+    @Qualifier("cancelWaybillJsfManager")
+    private CancelWaybillJsfManager cancelWaybillJsfManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SitePlateBasicHandler.handle",mState={JProEnum.TP, JProEnum.FunctionError})
@@ -247,7 +253,11 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
         // 验证运单号，是否锁定、删除等
         com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse cancelWaybill = null;
         try {
-            cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
+            JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(waybill.getWaybillCode());
+            if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
+                cancelWaybill = new com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse();
+                cancelWaybill.setCode( waybillCancelResponse.getData().getCode());
+            }
         } catch (Exception e) {
             log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:{}",waybill.getWaybillCode(), e);
         }

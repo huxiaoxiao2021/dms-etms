@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @date 2021/12/4 14:37
  **/
 @Service("pushModifyOrderMqHandler")
-public class PushModifyOrderMqHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PushModifyOrderMqHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     @Autowired
     @Qualifier("dmsModifyOrderInfoMQ")

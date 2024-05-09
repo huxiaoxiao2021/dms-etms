@@ -1681,4 +1681,14 @@
                   retries="${jsf.retries}"
                   serialization="hessian">
     </jsf:consumer>
+
+    <jsf:consumer id="dataServiceJsfService"
+                  interface="com.jdl.print.service.DataService"
+                  timeout="${jsf.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.cloud.print}">
+    </jsf:consumer>
+
 </beans>
