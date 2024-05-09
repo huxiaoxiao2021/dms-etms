@@ -2952,6 +2952,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (BusinessHelper.isLLBoxType(box.getType())) {
                 // 箱号未绑定集包袋
                 if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                    // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋
+                    if (Objects.equals(request.getBarCodeType() ,JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+                        return true;
+                    }
                     if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
                         response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                         response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));
