@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -311,6 +312,7 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
         pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
         pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
+        pdaOperateRequest.setBizSource(SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode());
 
         JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
         try {
