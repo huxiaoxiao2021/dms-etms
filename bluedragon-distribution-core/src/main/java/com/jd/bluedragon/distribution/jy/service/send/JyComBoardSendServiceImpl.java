@@ -1776,6 +1776,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
         //TODO 一笼一板的校验，件数限制的校验
         if (ObjectHelper.isNotNull(boardDto.getBoxCode())){
+          if (BusinessUtil.isLLBoxcode(request.getBarCode())){
+            throw new JyBizException("请操作下一板换板再扫描LL箱号！");
+          }
           request.setDeliveryType(DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode());
           request.setCageCarCode(boardDto.getBoxCode());
           JyBizTaskCollectPackageEntity entity =jyBizTaskCollectPackageService.findByBoxCode(boardDto.getBoxCode());
@@ -1801,7 +1804,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
         // 板创建成功后，发送延时消息，删除两小时没有操作过组板的板号
-        pushDelayDeleteBoardMQ(record);
+        if (!DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(request.getDeliveryType())){
+          pushDelayDeleteBoardMQ(record);
+        }
       }
     } finally {
       if (dmsConfigManager.getPropertyConfig().getCreateBoardBySendFlowSwitch()){
@@ -1814,6 +1819,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void checkIfNeedAutoCollectLoading(ComboardScanReq request) {
+    if (BusinessUtil.isLLBoxcode(request.getBarCode())){
+      return;
+    }
     if (ObjectHelper.isEmpty(request.getCageCarCode()) || ObjectHelper.isEmpty(request.getCageCarMaterialCode())){
       //校验是否需要自动集笼
       TableTrolleyQuery tableTrolleyQuery = new TableTrolleyQuery();
