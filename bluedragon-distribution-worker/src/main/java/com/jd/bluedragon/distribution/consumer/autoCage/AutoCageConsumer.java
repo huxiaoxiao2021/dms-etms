@@ -9,8 +9,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.autoCage.domain.AutoCageMq;
-import com.jd.bluedragon.distribution.autoCage.domain.BaseAutoCageMq;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
@@ -26,10 +24,10 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.jddl.common.utils.DateUtils;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.BoardBoxResultDto;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -42,6 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -104,16 +103,16 @@ public class AutoCageConsumer extends MessageBaseConsumer {
             }
 
             //查询板明细
-            Response<Map<String, Date>> boardDetailReponse = groupBoardService.getBoardDetailByBoardCode(mq.getBoardCode());
+            Response<List<BoardBoxResultDto>> boardDetailReponse = groupBoardService.getBoardDetailByBoardCode(mq.getBoardCode());
             if(boardDetailReponse.getCode() != 200){
                 log.error("未找到板["+mq.getBoardCode()+"]的明细，消息报文:"+JsonHelper.toJson(mq)+"，请联系分拣小秘排查");
                 return ;
             }
 
             //循环发送组板装笼消息
-            for (Map.Entry<String,Date> entry:boardDetailReponse.getData().entrySet()){
-                mq.setBarcode(entry.getKey());
-                mq.setDeviceOperatorTime(DateHelper.addSeconds(entry.getValue(),AUTO_CAGE_SECOND));
+            for (BoardBoxResultDto entry:boardDetailReponse.getData()){
+                mq.setBarcode(entry.getBoxCode());
+                mq.setDeviceOperatorTime(DateHelper.addSeconds(entry.getCreateTime(),AUTO_CAGE_SECOND));
                 singleCage(mq);
             }
 
