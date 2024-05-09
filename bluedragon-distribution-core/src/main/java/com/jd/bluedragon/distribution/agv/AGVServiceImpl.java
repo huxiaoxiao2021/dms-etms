@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.agv.AGVPDARequest;
 import com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sdk.modules.agv.AGVJSFService;
 import com.jd.bluedragon.distribution.sdk.modules.agv.model.AGVRequest;
+import com.jd.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +35,8 @@ public class AGVServiceImpl implements AGVService {
     private AGVRequest makeAGVRequest(AGVPDARequest pdaRequest) {
         AGVRequest request = new AGVRequest();
         BeanUtils.copyProperties(pdaRequest, request);
+        request.setAGVNumber(pdaRequest.getAgvNumber());
+        request.setOperateType(pdaRequest.getAgvOperateType());
         request.setProvinceAgencyCode(pdaRequest.getCurrentOperate().getProvinceAgencyCode());
         request.setProvinceAgencyName(pdaRequest.getCurrentOperate().getProvinceAgencyName());
         request.setAreaHubCode(pdaRequest.getCurrentOperate().getAreaHubCode());

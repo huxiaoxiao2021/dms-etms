@@ -11,9 +11,9 @@ public class AGVPDARequest implements Serializable {
 
     private CurrentOperate currentOperate;
 
-    private Integer AGVOperateType;
+    private Integer agvOperateType;
 
-    private String AGVNumber;
+    private String agvNumber;
 
     private String machineCode;
 
@@ -35,20 +35,20 @@ public class AGVPDARequest implements Serializable {
         this.currentOperate = currentOperate;
     }
 
-    public Integer getAGVOperateType() {
-        return AGVOperateType;
+    public Integer getAgvOperateType() {
+        return agvOperateType;
     }
 
-    public void setAGVOperateType(Integer AGVOperateType) {
-        this.AGVOperateType = AGVOperateType;
+    public void setAgvOperateType(Integer agvOperateType) {
+        this.agvOperateType = agvOperateType;
     }
 
-    public String getAGVNumber() {
-        return AGVNumber;
+    public String getAgvNumber() {
+        return agvNumber;
     }
 
-    public void setAGVNumber(String AGVNumber) {
-        this.AGVNumber = AGVNumber;
+    public void setAgvNumber(String agvNumber) {
+        this.agvNumber = agvNumber;
     }
 
     public String getMachineCode() {
@@ -73,5 +73,13 @@ public class AGVPDARequest implements Serializable {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
     }
 }
