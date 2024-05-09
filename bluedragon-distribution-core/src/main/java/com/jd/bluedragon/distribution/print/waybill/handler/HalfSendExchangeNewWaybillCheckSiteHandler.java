@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -25,7 +26,7 @@ import java.util.Objects;
  * @time 2023-04-10 11:20:50 周一
  */
 @Service("halfSendExchangeNewWaybillCheckSiteHandler")
-public class HalfSendExchangeNewWaybillCheckSiteHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class HalfSendExchangeNewWaybillCheckSiteHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HalfSendExchangeNewWaybillCheckSiteHandler.class);
 
