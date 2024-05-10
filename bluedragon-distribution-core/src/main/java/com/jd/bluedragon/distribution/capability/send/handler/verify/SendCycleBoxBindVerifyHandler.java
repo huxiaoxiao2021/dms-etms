@@ -50,8 +50,8 @@ public class SendCycleBoxBindVerifyHandler extends SendDimensionStrategyHandler 
      */
     @Override
     public boolean doBoxHandler(SendOfCAContext context) {
-        // 绑定绑定物资循环袋校验
-        if(context.getRequest().isSkipCycleBoxBindCheck()){
+        // 跳过绑定绑定物资循环袋校验
+        if(context.getRequest().getSkipCycleBoxBindCheck()){
             return true;
         }
         //获取循环集包袋编码

@@ -1995,7 +1995,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendRequest.setBarCode(sendM.getBoxCode());
         }
         // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋，跳过绑定集包袋校验
-        if (Objects.equals(request.getBarCodeType() ,JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+        if (Objects.equals(request.getBarCodeType() ,SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
             sendRequest.setSkipCycleBoxBindCheck(true);
         }
         sendRequest.setSendChainModeEnum(SendChainModeEnum.WITH_CYCLE_BOX_MODE);//发货模式设置
@@ -2896,7 +2896,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         // 按笼扫描
-        if (Objects.equals(JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
             if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
                 response.toFail("请扫描包裹号！");
                 return false;
@@ -2907,8 +2907,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 response.toFail("根据包裹未找到对应笼车数据");
                 return false;
             }
-            log.info("getBoxCode param boxCode:{},siteCode:{},result getCode: {}", request.getBarCode(), siteCode,
-                sortingDto.getBoxCode());
+            if (log.isInfoEnabled()){
+                log.info("getBoxCode param boxCode:{},siteCode:{},result getCode: {}", request.getBarCode(), siteCode,
+                        sortingDto.getBoxCode());
+            }
             request.setBarCode(sortingDto.getBoxCode());
         }
         return true;
@@ -2957,7 +2959,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 // 箱号未绑定集包袋
                 if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
                     // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋
-                    if (Objects.equals(request.getBarCodeType() ,JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+                    if (Objects.equals(request.getBarCodeType() ,SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
                         return true;
                     }
                     if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {

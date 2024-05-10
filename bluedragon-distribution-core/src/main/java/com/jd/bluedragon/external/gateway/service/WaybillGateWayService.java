@@ -1,10 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.waybill.request.WayBillRouterReq;
+import com.jd.bluedragon.common.dto.waybill.request.WaybillRouterReq;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackReq;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackResponse;
-import com.jd.etms.waybill.domain.PackageState;
 
 import java.util.List;
 
@@ -32,5 +31,5 @@ public interface WaybillGateWayService {
      * @return Integer 下一个站点的编号，如果存在的话；如果已经是最后一个站点，则可能返回null
      * @throws IllegalArgumentException 如果传入的请求对象不满足路由处理的必要条件
      */
-    JdCResponse<Integer> getRouterNextSite(WayBillRouterReq req);
+    JdCResponse<Integer> getRouterNextSiteByWaybillCode(WaybillRouterReq req);
 }

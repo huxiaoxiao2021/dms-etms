@@ -1,5 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @ClassName SendVehicleScanTypeEnum
  * @Description 发货单号扫描类型
@@ -19,7 +23,11 @@ public enum SendVehicleScanTypeEnum {
     /**
      * 扫描板号
      */
-    SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号")
+    SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号"),
+    /**
+     * 按笼扫描
+     */
+    SCAN_TABLE_TROLLEY(5, "按笼扫描", "扫描笼车上任意一个包裹号，整笼所有包裹发货")
     ;
     /**
      * 编码
@@ -58,6 +66,68 @@ public enum SendVehicleScanTypeEnum {
             }
         }
         return "";
+    }
+
+    /**
+     * 获取所有发送车辆扫描类型枚举值的列表。
+     * @return 返回包含所有发送车辆扫描类型枚举的列表。
+     */
+    public static List<SendVehicleScanTypeEnum> getAllEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.values()));
+    }
+
+    /**
+     * 获取航空铁路发货扫描类型枚举列表的方法。
+     * 本方法返回一个包含特定发送车辆扫描类型的列表。
+     * @return List<SendVehicleScanTypeEnum> 返回一个包含SCAN_ONE、SCAN_WAYBILL和SCAN_BOARD三种类型的列表    。
+     */
+    public static List<SendVehicleScanTypeEnum> getAviationRailwaySendEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_BOARD));
+    }
+
+    /**
+     * 获取组板发货扫描类型枚举列表的方法。
+     * 本方法返回一个包含特定发送车辆扫描类型的列表。
+     * @return List<SendVehicleScanTypeEnum> 返回一个包含SCAN_ONE、SCAN_WAYBILL和SCAN_BOARD三种类型的列表    。
+     */
+    public static List<SendVehicleScanTypeEnum> getComboardSendEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL));
+    }
+
+    /**
+     * 获取分拣发货岗位发货扫描类型枚举列表的方法。
+     * 本方法返回一个包含特定发送车辆扫描类型的列表。
+     * @return List<SendVehicleScanTypeEnum> 返回一个包含SCAN_ONE、SCAN_WAYBILL和SCAN_BOARD三种类型的列表    。
+     */
+    public static List<SendVehicleScanTypeEnum> getJySendVehicleEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL));
+    }
+
+    /**
+     * 获取接货仓发货扫描类型枚举列表的方法。
+     * 本方法返回一个包含特定发送车辆扫描类型的列表。
+     * @return List<SendVehicleScanTypeEnum> 返回一个包含SCAN_ONE、SCAN_WAYBILL和SCAN_BOARD三种类型的列表    。
+     */
+    public static List<SendVehicleScanTypeEnum> getWarehouseSendEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_BOARD));
+    }
+
+
+    /**
+     * 获取包含特定枚举值的列表，这些枚举值用于标识车辆扫描的类型    。
+     * 该方法返回一个列表，其中包含“SCAN_ONE”、“SCAN_WAYBILL”和“SCAN_BOARD”三种枚举类型    。
+     * 这些枚举通常用于指示在物流或运输过程中车辆扫描的不同阶段    。
+     *
+     * @return List<SendVehicleScanTypeEnum> 返回一个包含“SCAN_ONE”、“SCAN_WAYBILL”和“SCAN_BOARD”枚举值的列表    ，
+     *         用于表示车辆扫描的不同类型    。
+     */
+    public static List<SendVehicleScanTypeEnum> getOneAndWaybillAndBoardEnum() {
+        return new ArrayList<SendVehicleScanTypeEnum>(Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,
+                SendVehicleScanTypeEnum.SCAN_WAYBILL, SendVehicleScanTypeEnum.SCAN_BOARD));
     }
 
     public Integer getCode() {

@@ -34,7 +34,7 @@ public interface JyWarehouseSendGatewayService {
      */
     JdCResponse<List<SelectOption>> vehicleStatusOptions();
     /**
-     * 发货扫描方式枚举，接货仓发货岗专用
+     * 发货扫描方式枚举
      * @return
      */
     JdCResponse<List<SelectOption>> scanTypeOptions();

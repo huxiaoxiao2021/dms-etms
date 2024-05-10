@@ -19,7 +19,7 @@ import java.util.List;
 public interface JyAviationRailwaySendSealGatewayService {
 
     /**
-     * 发货扫描方式枚举，空铁发货岗专用。
+     * 发货扫描方式枚举
      * @return
      */
     JdCResponse<List<SelectOption>> scanTypeOptions();

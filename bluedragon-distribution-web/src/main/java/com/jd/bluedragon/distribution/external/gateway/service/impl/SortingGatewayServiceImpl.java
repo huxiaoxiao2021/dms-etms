@@ -152,6 +152,10 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     }
 
     private boolean checkOfflined(SortingCheckRequest checkRequest) {
+        if (Objects.nonNull(checkRequest.getBizSource()) &&
+                Objects.equals(checkRequest.getBizSource(), SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode())){
+            return false;
+        }
         if (needSkipCheckOfflined(checkRequest)){
             return false;
         }
@@ -286,64 +290,4 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         return res;
     }
 
-    @Override
-    @BusinessLog(sourceSys = 1,bizType = 2002,operateType = 20021)
-    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingPostCheckWithTableTrolley", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdVerifyResponse sortingPostCheckWithTableTrolley(SortingCheckRequest checkRequest) {
-        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-        pdaOperateRequest.setBoxCode(checkRequest.getBoxCode());
-        pdaOperateRequest.setBusinessType(checkRequest.getBusinessType());
-        pdaOperateRequest.setIsLoss(checkRequest.getIsLoss());
-        if(checkRequest.getIsGather() == null){
-            pdaOperateRequest.setIsGather(0);
-        }else{
-            pdaOperateRequest.setIsGather(checkRequest.getIsGather());
-        }
-        pdaOperateRequest.setOperateType(checkRequest.getOperateType());
-        pdaOperateRequest.setPackageCode(checkRequest.getPackageCode());
-        pdaOperateRequest.setReceiveSiteCode(checkRequest.getReceiveSiteCode());
-        final CurrentOperate currentOperate = checkRequest.getCurrentOperate();
-        pdaOperateRequest.setCreateSiteCode(currentOperate.getSiteCode());
-        pdaOperateRequest.setCreateSiteName(currentOperate.getSiteName());
-        pdaOperateRequest.setOperateTime(DateUtil.format(currentOperate.getOperateTime(),DateUtil.FORMAT_DATE_TIME));
-        pdaOperateRequest.setOperateUserCode(checkRequest.getUser().getUserCode());
-        pdaOperateRequest.setOperateUserName(checkRequest.getUser().getUserName());
-        final OperatorData operatorData = currentOperate.getOperatorData();
-        pdaOperateRequest.setWorkStationGridKey(operatorData.getWorkStationGridKey());
-        pdaOperateRequest.setWorkGridKey(operatorData.getWorkGridKey());
-        pdaOperateRequest.setPositionCode(operatorData.getPositionCode());
-        pdaOperateRequest.setBizSource(SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode());
-
-        JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
-        try {
-            SortingJsfResponse sortingResponse = sortingResource.check(pdaOperateRequest);
-            JdVerifyResponse.MsgBox msgBox = null;
-            //校验通过
-            if(Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_OK)){
-                jdVerifyResponse.toSuccess(sortingResponse.getMessage());
-                return jdVerifyResponse;
-            }
-            //已知可以认为是接口异常的 code
-            if(Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_SERVICE_ERROR)
-                || Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_PARAM_ERROR)){
-                jdVerifyResponse.toError(sortingResponse.getMessage());
-                return jdVerifyResponse;
-            }
-            //业务类提示
-            if(sortingResponse.getCode() >= 30000 && sortingResponse.getCode() <= 40000){
-                jdVerifyResponse.toSuccess();
-                msgBox = new JdVerifyResponse.MsgBox(MsgBoxTypeEnum.CONFIRM,sortingResponse.getCode(),sortingResponse.getMessage());
-                //暂未做： 分拣理货  CODE_39123 pda端有特殊提示 确认是否可以不做
-                jdVerifyResponse.addBox(msgBox);
-                return jdVerifyResponse;
-            }
-            //业务类 强制拦截
-            msgBox = new JdVerifyResponse.MsgBox(MsgBoxTypeEnum.INTERCEPT,sortingResponse.getCode(),sortingResponse.getMessage());
-            jdVerifyResponse.toSuccess();
-            jdVerifyResponse.addBox(msgBox);
-        } catch (Exception e) {
-            jdVerifyResponse.toError(e.getMessage());
-        }
-        return jdVerifyResponse;
-    }
 }
