@@ -196,7 +196,7 @@ public interface DeliveryService {
     boolean updatewaybillCodeMessage(Task task) throws Exception;
 
     /**
-     * 查找需要回传预分配数据
+     * 查找需要回传预分配数据 && 变更箱号（集包）任务状态
      *
      * @param
      */

@@ -1,19 +1,25 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBillQuery;
+import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.reverse.domain.CancelReturnGroupWhiteListConf;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ONE;
 
 /**
  * 异常操作服务接口实现
@@ -24,6 +30,12 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
 
     @Autowired
     AbnormalWayBillDao abnormalWayBillDao;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 根据运单号查找异常处理记录

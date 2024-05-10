@@ -60,8 +60,11 @@ public class AdapterApiManagerImpl implements AdapterApiManager {
         try{
             AdapterRequest jsfRequest = new AdapterRequest();
             request.setDecryType(Constants.CONSTANT_NUMBER_ONE);
-            request.setUserType(Constants.CONSTANT_NUMBER_ONE);
-            request.setUserId(Constants.UMP_APP_NAME_DMSWORKER);
+            if(request.getUserType() == null){
+                //未传入用户时补充系统标识
+                request.setUserType(Constants.CONSTANT_NUMBER_ONE);
+                request.setUserId(Constants.UMP_APP_NAME_DMSWORKER);
+            }
             request.setSystemSource(Constants.UMP_APP_NAME_DMSWORKER);
             jsfRequest.setJsfArrangeName(PLATFORM_DECRY_ROUTER);
             jsfRequest.setStandardJson(JsonHelper.toJson(request));

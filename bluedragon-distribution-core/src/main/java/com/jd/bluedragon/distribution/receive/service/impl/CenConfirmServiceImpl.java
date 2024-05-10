@@ -97,6 +97,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
 		inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
 		inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
+		//body.setBizSource();
         try {
             /**
              * fix wtw 任务监控

@@ -73,6 +73,16 @@ public class CollectPackageTaskDto implements Serializable {
      */
     private boolean hasBoundBoxFlag;
 
+    /**
+     * 目的地流向id
+     */
+    private Long endSiteId;
+
+    /**
+     * 目的地流向名称
+     */
+    private String endSiteName;
+
     public boolean getHasBoundBoxFlag() {
         return hasBoundBoxFlag;
     }
@@ -215,5 +225,21 @@ public class CollectPackageTaskDto implements Serializable {
 
     public void setCollectPackageFlowDtoList(List<CollectPackageFlowDto> collectPackageFlowDtoList) {
         this.collectPackageFlowDtoList = collectPackageFlowDtoList;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
     }
 }

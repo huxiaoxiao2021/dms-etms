@@ -413,9 +413,12 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                         Constants.EVALUATE_APPEAL_PERMISSIONS_1, null, res.getSourceSiteCode());
                 jyEvaluateAppealPermissionsDao.insert(entity);
             } else {
-                // 关闭场地评价权限
-                JyEvaluateAppealPermissionsEntity entity = buildUpdatePermissionsEvaluateEntity(permissions, res);
-                jyEvaluateAppealPermissionsDao.updateEvaluateStatusById(entity);
+                // 关闭场地评价权限，且场地评价权限已开启
+                if (Objects.equals(permissions.getEvaluate(),Constants.EVALUATE_APPEAL_PERMISSIONS_1)){
+                    JyEvaluateAppealPermissionsEntity entity = buildUpdatePermissionsEvaluateEntity(permissions, res);
+                    jyEvaluateAppealPermissionsDao.updateEvaluateStatusById(entity);
+                }
+
             }
         }
         // 统计场地审核中驳回次数>3,申诉人乱申诉，关闭上游游未来7天的申诉权限
@@ -432,9 +435,11 @@ public class JyEvaluateAppealServiceImpl implements JyEvaluateAppealService {
                         Constants.EVALUATE_APPEAL_PERMISSIONS_0, new Date(), res.getTargetSiteCode());
                 jyEvaluateAppealPermissionsDao.insert(entity);
             } else {
-                // 关闭场地申诉权限
-                JyEvaluateAppealPermissionsEntity entity = buildUpdatePermissionsEntity(permissions, res);
-                jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
+                // 关闭场地申诉权限,且场地申诉权限已开启
+                if (Objects.equals(permissions.getAppeal(),Constants.EVALUATE_APPEAL_PERMISSIONS_1)) {
+                    JyEvaluateAppealPermissionsEntity entity = buildUpdatePermissionsEntity(permissions, res);
+                    jyEvaluateAppealPermissionsDao.updateAppealStatusById(entity);
+                }
             }
         }
     }

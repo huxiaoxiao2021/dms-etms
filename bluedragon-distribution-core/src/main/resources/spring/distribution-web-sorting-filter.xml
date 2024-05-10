@@ -59,13 +59,11 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
@@ -73,7 +71,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <util:list id="jyCollectPackageForwardFilterList">
@@ -106,7 +103,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
@@ -173,13 +169,11 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
@@ -210,13 +204,11 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
@@ -261,7 +253,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BoardCombinationRouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
     <bean id="boardCombinationChain" class="com.jd.bluedragon.distribution.ver.filter.chains.BoardCombinationChain" scope="prototype" destroy-method="destory">
@@ -313,20 +304,17 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 
 
@@ -358,17 +346,14 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ScrapWaybillFilter" />
     </util:list>
 </beans>

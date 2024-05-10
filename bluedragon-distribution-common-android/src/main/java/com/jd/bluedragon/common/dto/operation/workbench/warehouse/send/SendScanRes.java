@@ -62,13 +62,26 @@ public class SendScanRes extends SendScanResponse implements Serializable {
     private Boolean checkForceSendFlag;
     /**
      * 需要校验强发时的话术
+     * （1） 无流向强发
+     * （2）有流向不匹配强发
      */
     private String checkForceSendMsg;
     /**
      * 当前已添加的混扫任务流向
      */
     private List<MixScanTaskDetailDto> mixScanTaskDetailDtoList;
-
+    /**
+     * 流向不匹配
+     */
+    private Boolean nextSiteMismatchingFlag;
+    /**
+     * 过期的流向场地ID
+     */
+    private Integer expiredNextSiteId;
+    /**
+     * 识别流向失败系统触发自动强发标识
+     */
+    private Boolean sysAutoForceSendFlag;
 
     public Long getNextSiteCode() {
         return nextSiteCode;
@@ -132,5 +145,29 @@ public class SendScanRes extends SendScanResponse implements Serializable {
 
     public void setMixScanTaskDetailDtoList(List<MixScanTaskDetailDto> mixScanTaskDetailDtoList) {
         this.mixScanTaskDetailDtoList = mixScanTaskDetailDtoList;
+    }
+
+    public Boolean getNextSiteMismatchingFlag() {
+        return nextSiteMismatchingFlag;
+    }
+
+    public void setNextSiteMismatchingFlag(Boolean nextSiteMismatchingFlag) {
+        this.nextSiteMismatchingFlag = nextSiteMismatchingFlag;
+    }
+
+    public Integer getExpiredNextSiteId() {
+        return expiredNextSiteId;
+    }
+
+    public void setExpiredNextSiteId(Integer expiredNextSiteId) {
+        this.expiredNextSiteId = expiredNextSiteId;
+    }
+
+    public Boolean getSysAutoForceSendFlag() {
+        return sysAutoForceSendFlag;
+    }
+
+    public void setSysAutoForceSendFlag(Boolean sysAutoForceSendFlag) {
+        this.sysAutoForceSendFlag = sysAutoForceSendFlag;
     }
 }
