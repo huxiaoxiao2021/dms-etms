@@ -16,11 +16,11 @@ public enum BizSourceEnum {
     /**
      * 自动化自动装笼
      */
-    SORTING_MACHINE_AUTO_CAGE(4),
+    SORTING_MACHINE_AUTO_CAGE(5),
     /**
      * pda自动装笼
      */
-    PDA_AUTO_CAGE(5);
+    PDA_AUTO_CAGE(6);
     private int value;
 
     BizSourceEnum(int value) {
