@@ -25,6 +25,7 @@ public class AGVServiceImpl implements AGVService {
     @Override
     public InvokeResult<Boolean> sortByAGV(AGVPDARequest pdaRequest) {
         try{
+            log.info("AGVPDARequest:{}", JSON.toJSON(pdaRequest));
             return agvjsfService.sortByAGV(makeAGVRequest(pdaRequest));
         }catch (Exception e) {
             log.error("调用AGV出错:{}",e);
@@ -45,6 +46,7 @@ public class AGVServiceImpl implements AGVService {
         request.setPositionCode(pdaRequest.getCurrentOperate().getOperatorData().getPositionCode());
         request.setSiteName(pdaRequest.getCurrentOperate().getSiteName());
         request.setOperateTime(pdaRequest.getCurrentOperate().getOperateTime());
+        log.info("agvrequest:{}", JSON.toJSON(request));
         return request;
     }
 
