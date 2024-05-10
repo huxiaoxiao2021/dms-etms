@@ -1165,6 +1165,33 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+  private void checkIfNeedExecSend(CTTGroupReq request, List<JyBizTaskComboardEntity> entityList) {
+    try {
+      if(CollectionUtils.isNotEmpty(entityList)){
+        for (JyBizTaskComboardEntity entity : entityList){
+          if (ObjectHelper.isNotNull(entity.getBoxCode()) && BusinessUtil.isLLBoxcode(entity.getBoxCode())){
+            ComboardScanReq comboardScanReq =assembleComboardScanReqByCTTGroupReq(request, entity);
+            execSend(comboardScanReq);
+          }
+        }
+      }
+    } catch (Exception e) {
+      log.error("checkIfNeedExecSend exception:{}",JsonHelper.toJson(entityList),e);
+    }
+  }
+
+  private ComboardScanReq assembleComboardScanReqByCTTGroupReq(CTTGroupReq request, JyBizTaskComboardEntity jyBizTaskComboardEntity) {
+    ComboardScanReq comboardScanReq =new ComboardScanReq();
+    comboardScanReq.setCurrentOperate(request.getCurrentOperate());
+    comboardScanReq.setUser(request.getUser());
+    comboardScanReq.setRequestId(request.getRequestId());
+    comboardScanReq.setDestinationId(jyBizTaskComboardEntity.getEndSiteId().intValue());
+    comboardScanReq.setSendCode(jyBizTaskComboardEntity.getSendCode());
+    comboardScanReq.setBarCode(jyBizTaskComboardEntity.getBoxCode());
+    comboardScanReq.setBoardCode(jyBizTaskComboardEntity.getBoardCode());
+    return comboardScanReq;
+  }
+
   private ComboardScanReq assembleComboardScanReq(BoardReq request, JyBizTaskComboardEntity jyBizTaskComboardEntity) {
     ComboardScanReq comboardScanReq =new ComboardScanReq();
     comboardScanReq.setCurrentOperate(request.getCurrentOperate());
@@ -1188,6 +1215,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setStartSiteId(Long.valueOf(startSiteId));
     entity.setTemplateCode(request.getTemplateCode());
     entity.setGroupCode(request.getGroupCode());
+    List<JyBizTaskComboardEntity> boardInProcess;
     try {
 
       // 获取当前混扫任务下的流向信息
@@ -1198,7 +1226,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (CollectionUtils.isEmpty(endSiteCodeList)) {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
       }
-      List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
+      boardInProcess = jyBizTaskComboardService
               .queryInProcessBoardListBySendFlowList(startSiteId, endSiteCodeList,request.getGroupCode());
       if (CollectionUtils.isEmpty(boardInProcess)){
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
@@ -1223,6 +1251,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.error("完结板异常，混扫任务编号：{}", request.getTemplateCode(),e);
       return new InvokeResult(FINISH_BOARD_CODE, FINISH_BOARD_MESSAGE);
     }
+    checkIfNeedExecSend(request,boardInProcess);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
   }
 
@@ -1278,6 +1307,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * @param request
    */
   public void execCollect(ComboardScanReq request) {
+    log.info("execCollect request:{}",JsonHelper.toJson(request));
     if (DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(request.getDeliveryType())){
       //执行绑定循环物资
       if (ObjectHelper.isNotNull(request.getCageCarMaterialCode())){
@@ -1771,6 +1801,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       sendFlowDto.setGroupCode(request.getGroupCode());
       BoardDto boardDto = jyBizTaskComboardService.queryInProcessBoard(sendFlowDto);
       if (ObjectHelper.isNotNull(boardDto)) {
+        log.info("组板查询进行中的板:{}",JsonHelper.toJson(boardDto));
         if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
           throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
         }
@@ -1828,6 +1859,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       tableTrolleyQuery.setDmsId(request.getCurrentOperate().getSiteCode());
       tableTrolleyQuery.setSiteCode(request.getDestinationId());
       JdResult<TableTrolleyJsfResp> res = sortCrossJsfManager.queryCrossCodeTableTrolleyBySiteFlow(tableTrolleyQuery);
+      log.info("查询滑道笼车下传信息:{}",JsonHelper.toJson(res));
       if (ObjectHelper.isNotNull(res) && res.isSucceed() && ObjectHelper.isNotNull(res.getData())){
         TableTrolleyJsfResp tableTrolleyJsfResp =res.getData();
         if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())){
