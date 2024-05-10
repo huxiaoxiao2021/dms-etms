@@ -413,6 +413,11 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return jdCResponse;
 		}
 		PositionDetailRecord detailRecord = recordResult.getData();
+		Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(detailRecord.getRefWorkGridKey());
+		if(workGridResult == null || workGridResult.getData() == null){
+			jdCResponse.toFail("网格码未关联对应网格,请联系分拣小秘!");
+			return jdCResponse;
+		}
 		Integer siteCode = detailRecord.getSiteCode();
 		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
 		if(siteInfo == null) {
@@ -420,7 +425,7 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 			return jdCResponse;
 		}
 		// build task vo
-		JyBizTaskWorkGridManager jyTask = buildSelfCheckTask(request, detailRecord, siteInfo, jyUserResult.getData(), jdCResponse);
+		JyBizTaskWorkGridManager jyTask = buildSelfCheckTask(request, workGridResult.getData(), siteInfo, jyUserResult.getData(), jdCResponse);
 		if(jyTask == null){
 			return jdCResponse;
 		}
@@ -437,11 +442,13 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	 * 组装任务明细数据
 	 * 
 	 * @param request
-	 * @param detailRecord
+	 * @param workGrid
 	 * @param siteInfo
+	 * @param jyUser
+	 * @param workGrid
 	 * @return
 	 */
-	private JyBizTaskWorkGridManager buildSelfCheckTask(ScanTaskPositionRequest request, PositionDetailRecord detailRecord, 
+	private JyBizTaskWorkGridManager buildSelfCheckTask(ScanTaskPositionRequest request, WorkGrid workGrid, 
 														BaseSiteInfoDto siteInfo, JyUser jyUser,
 														JdCResponse<String> jdCResponse) {
 		// 作业区巡检任务
@@ -462,16 +469,10 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		WorkGridManagerTaskConfigVo configData = new WorkGridManagerTaskConfigVo();
 		configData.setHandlerUserPositionCode(jyUser.getPositionCode());
 		configData.setHandlerUserPositionName(jyUser.getPositionName());
-		// 网格
-		Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(detailRecord.getRefWorkGridKey());
-		if(workGridResult == null || workGridResult.getData() == null){
-			jdCResponse.toFail("网格码未关联对应网格,请联系分拣小秘!");
-			return null;
-		}
+		
 		Date currentDate = new Date();
-
 		JyBizTaskWorkGridManager jyTask = jyWorkGridManagerBusinessService.initJyBizTaskWorkGridManager(siteInfo, taskWorkGridManagerScan,
-				workGridManagerTaskResult.getData(), configData, workGridResult.getData(), currentDate);
+				workGridManagerTaskResult.getData(), configData, workGrid, currentDate);
 		// 任务配置信息
 		jyTask.setHandlerPositionCode(jyUser.getPositionCode());
 		jyTask.setTaskBizType(WorkGridManagerTaskBizType.DAILY_PATROL.getCode());
