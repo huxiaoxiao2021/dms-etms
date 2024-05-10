@@ -166,7 +166,7 @@ public interface JyComboardGatewayService {
   JdCResponse<SendFlowDataResp> queryScanUser(SendFlowQueryReq req);
 
   /**
-   * 发货扫描方式枚举，组板发货岗专用
+   * 发货扫描方式枚举
    * @return
    */
   JdCResponse<List<SelectOption>> scanTypeOptions();

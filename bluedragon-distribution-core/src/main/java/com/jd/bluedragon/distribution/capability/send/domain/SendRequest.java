@@ -98,7 +98,7 @@ public class SendRequest extends PackageSendRequest {
         this.useCustomOperateTime = useCustomOperateTime;
     }
 
-    public boolean isSkipCycleBoxBindCheck() {
+    public boolean getSkipCycleBoxBindCheck() {
         return skipCycleBoxBindCheck;
     }
 

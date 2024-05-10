@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.waybill.request.WayBillRouterReq;
+import com.jd.bluedragon.common.dto.waybill.request.WaybillRouterReq;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackReq;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillTrackReqVO;
@@ -115,14 +115,14 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.WaybillGateWayServiceImpl.getRouterNextSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<Integer> getRouterNextSite(WayBillRouterReq req) {
+    @JProfiler(jKey = "DMSWEB.WaybillGateWayServiceImpl.getRouterNextSiteByWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<Integer> getRouterNextSiteByWaybillCode(WaybillRouterReq req) {
         JdCResponse<Integer> response = new JdCResponse<>();
-        if (Objects.isNull(req) || StringUtils.isBlank(req.getWaybillCode()) || Objects.isNull(req.getSiteCode())){
-            response.toError("运单号或者当前场地编码不能为空");
+        if (Objects.isNull(req) || StringUtils.isBlank(req.getWaybillCode())){
+            response.toError("运单号不能为空");
             return response;
         }
-        BaseStaffSiteOrgDto routerNextSite = routerService.getRouterNextSite(req.getSiteCode(), req.getWaybillCode());
+        BaseStaffSiteOrgDto routerNextSite = routerService.getRouterNextSite(req.getCurrentOperate().getSiteCode(), req.getWaybillCode());
         if (log.isInfoEnabled()){
             log.info("WaybillGateWayServiceImpl.getRouterNextSite 返回：{}", JsonHelper.toJson(routerNextSite));
         }

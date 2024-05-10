@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JySendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -182,7 +181,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
     String tenantCode = TenantContext.getTenantCode();
     //冷链租户返回按件、按单、按板，非冷链返回按件、按单
     if(StringUtils.isNotBlank(tenantCode) && TenantEnum.TENANT_COLD_MEDICINE.getCode().equals(tenantCode)){
-      for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
+      for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getOneAndWaybillAndBoardEnum()) {
         SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
         optionList.add(option);
       }
