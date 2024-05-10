@@ -706,6 +706,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, BoardDto> boardFlowMap = getBoardFlowMap(boardScanInfoList,
             boardList);
     getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap, boardCountMap, sendFlowDtoList);
+    log.info("listSendFlowUnderCTTGroup resp data:{}",JsonHelper.toJson(resp));
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
@@ -1167,7 +1168,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private void checkIfNeedExecSend(CTTGroupReq request, List<JyBizTaskComboardEntity> entityList) {
     try {
-      if(CollectionUtils.isNotEmpty(entityList)){
+      if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(entityList)){
         for (JyBizTaskComboardEntity entity : entityList){
           if (ObjectHelper.isNotNull(entity.getBoxCode()) && BusinessUtil.isLLBoxcode(entity.getBoxCode())){
             ComboardScanReq comboardScanReq =assembleComboardScanReqByCTTGroupReq(request, entity);
