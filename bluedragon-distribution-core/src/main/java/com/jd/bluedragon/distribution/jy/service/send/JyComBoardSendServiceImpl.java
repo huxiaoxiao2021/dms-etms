@@ -1171,7 +1171,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(entityList)){
         for (JyBizTaskComboardEntity entity : entityList){
           if (ObjectHelper.isNotNull(entity.getBoxCode()) && BusinessUtil.isLLBoxcode(entity.getBoxCode())){
-            ComboardScanReq comboardScanReq =assembleComboardScanReqByCGroupReq(request, entity);
+            ComboardScanReq comboardScanReq =assembleComboardScanReqByCttGroupReq(request, entity);
             execSend(comboardScanReq);
           }
         }
@@ -1181,7 +1181,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
-  private ComboardScanReq assembleComboardScanReqByCGroupReq(CTTGroupReq request, JyBizTaskComboardEntity jyBizTaskComboardEntity) {
+  private ComboardScanReq assembleComboardScanReqByCttGroupReq(CTTGroupReq request, JyBizTaskComboardEntity jyBizTaskComboardEntity) {
     ComboardScanReq comboardScanReq =new ComboardScanReq();
     comboardScanReq.setCurrentOperate(request.getCurrentOperate());
     comboardScanReq.setUser(request.getUser());
