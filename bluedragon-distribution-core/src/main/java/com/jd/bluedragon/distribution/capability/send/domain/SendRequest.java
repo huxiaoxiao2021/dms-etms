@@ -45,6 +45,11 @@ public class SendRequest extends PackageSendRequest {
      */
     private boolean useCustomOperateTime;
 
+    /**
+     * 是否跳过绑定物资循环袋校验，true：跳过校验， false：进行校验
+     */
+    private boolean skipCycleBoxBindCheck;
+
     public String getBarCode() {
         return barCode;
     }
@@ -93,5 +98,11 @@ public class SendRequest extends PackageSendRequest {
         this.useCustomOperateTime = useCustomOperateTime;
     }
 
+    public boolean isSkipCycleBoxBindCheck() {
+        return skipCycleBoxBindCheck;
+    }
 
+    public void setSkipCycleBoxBindCheck(boolean skipCycleBoxBindCheck) {
+        this.skipCycleBoxBindCheck = skipCycleBoxBindCheck;
+    }
 }

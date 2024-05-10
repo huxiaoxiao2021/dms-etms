@@ -1992,6 +1992,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }else{
             sendRequest.setBarCode(sendM.getBoxCode());
         }
+        // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋，跳过绑定集包袋校验
+        if (Objects.equals(request.getBarCodeType() ,JySendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+            sendRequest.setSkipCycleBoxBindCheck(true);
+        }
         sendRequest.setSendChainModeEnum(SendChainModeEnum.WITH_CYCLE_BOX_MODE);//发货模式设置
         return sendRequest;
     }
