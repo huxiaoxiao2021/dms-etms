@@ -1,5 +1,10 @@
 package com.jd.bluedragon.common.dto.board;
 
+/**
+ * 组板操作来源
+ * @date 2024-05-11
+ * @author weixiaofeng
+ */
 public enum BizSourceEnum {
     PDA(1),
     SORTING_MACHINE(2),
