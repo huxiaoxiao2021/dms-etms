@@ -43,6 +43,6 @@ public interface SpotCheckAppealJsfService {
     /**
      * 根据分区键查询库和表下标
      */
-    Response<String> getDbIndexAndTableIndex(String operateBizKey);
+    Response<String> getDbIndexAndTableIndex(String operateBizKey, Long siteCode);
 
 }
