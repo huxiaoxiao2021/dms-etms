@@ -144,28 +144,4 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
         }
         return abnormalWayBillDao.queryPageListByQueryParam(abnormalWayBillQuery);
     }
-
-    /**
-     * 是否为破损订单 1. 只针对一单一件的场景 2. 真针对特定异常编码
-     *
-     * @param waybillCode
-     * @param request
-     * @param conf
-     * @return
-     */
-    @Override
-    public boolean isDamagedWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf) {
-        // 只针对一单一件的场景
-        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-        if (waybill == null || !Objects.equals(waybill.getGoodNumber(), INTEGER_ONE)) {
-            return false;
-        }
-        if (conf == null || CollectionUtils.isEmpty(conf.getAbnormalCauseList())) {
-            return false;
-        }
-        if (conf.getAbnormalCauseList().contains(request.getQcCode())) {
-            return true;
-        }
-        return false;
-    }
 }

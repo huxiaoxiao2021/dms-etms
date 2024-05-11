@@ -137,6 +137,8 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transport.dto.StopoverQueryDto;
 import com.jd.bluedragon.distribution.transport.enums.StopoverSiteUnloadAndLoadTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -435,6 +437,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
+
+    @Autowired
+    private SortingService sortingService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2112,6 +2117,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }else{
             sendRequest.setBarCode(sendM.getBoxCode());
         }
+        // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋，跳过绑定集包袋校验
+        if (Objects.equals(request.getBarCodeType() ,SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+            sendRequest.setSkipCycleBoxBindCheck(true);
+        }
         sendRequest.setSendChainModeEnum(SendChainModeEnum.WITH_CYCLE_BOX_MODE);//发货模式设置
         return sendRequest;
     }
@@ -3009,6 +3018,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 request.setBarCode(boardResult.getCode());
             }
         }
+        // 按笼扫描
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号！");
+                return false;
+            }
+            //按板笼扫描的是包裹号，根据包裹号找到笼车号（特殊的箱号）
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(request.getBarCode());
+            if (sortingDto == null || StringUtils.isBlank(sortingDto.getBoxCode())) {
+                response.toFail("根据包裹未找到对应笼车数据");
+                return false;
+            }
+            if (log.isInfoEnabled()){
+                log.info("getBoxCode param boxCode:{},siteCode:{},result getCode: {}", request.getBarCode(), siteCode,
+                        sortingDto.getBoxCode());
+            }
+            request.setBarCode(sortingDto.getBoxCode());
+        }
         return true;
     }
 
@@ -3054,6 +3081,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (BusinessHelper.isLLBoxType(box.getType())) {
                 // 箱号未绑定集包袋
                 if (StringUtils.isBlank(cycleBoxService.getBoxMaterialRelation(barCode))) {
+                    // 如果是按笼扫描的发货方式，虚拟，不需要绑定集包袋
+                    if (Objects.equals(request.getBarCodeType() ,SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY.getCode())){
+                        return true;
+                    }
                     if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getMaterialCode())) {
                         response.setCode(SendScanResponse.CODE_CONFIRM_MATERIAL);
                         response.addInterceptBox(0, HintService.getHint(HintCodeConstants.LL_BOX_BINDING_MATERIAL_TYPE_ERROR, Boolean.TRUE));

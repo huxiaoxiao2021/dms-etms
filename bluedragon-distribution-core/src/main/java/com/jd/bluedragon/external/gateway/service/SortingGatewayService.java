@@ -23,4 +23,5 @@ public interface SortingGatewayService {
      * 根据箱号获取该箱号下的运单列表
      */
     JdCResponse<List<String>> getWaybillCodes(String boxCode);
+
 }

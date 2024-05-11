@@ -235,6 +235,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     }
 
     //验货
+    @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.addInspectionTask",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     private void addInspectionTask(InspectionVO inspectionVO, InspectionBizSourceEnum inspectionBizSourceEnum) {
         InvokeResult<Boolean> taskResult = inspectionService.addInspection(inspectionVO, inspectionBizSourceEnum);
         if (!taskResult.codeSuccess()) {
