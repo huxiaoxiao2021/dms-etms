@@ -33,6 +33,7 @@ import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
+import com.jd.bluedragon.distribution.station.entity.PositionSignNumDto;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
@@ -2161,11 +2162,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 
 		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+		PositionSignNumDto dto = new PositionSignNumDto();
+		if (!this.checkOperatorBaseInfo(positionCode, userCode, dto)) {
 			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
 					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
 			return result;
 		}
+		// 新增：校验网格工序的标准配置人数
+		if (!this.checkStandardNum(dto)) {
+			String defaultMsg = String.format(HintCodeConstants.CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
+					dto.getNum(), dto.getNum(), dto.getPositionDetailRecord().getOwnerUserErp());
+			result.toConfirm(HintService.getHint(defaultMsg,
+					HintCodeConstants.CHECK_STANDARD_NUM_SIGN_CODE, false));
+			return result;
+		}
+
 		//判断上次签退是否人脸识别自动签退
 		if(lastUnSignOutData == null) {
 			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
@@ -2187,10 +2198,32 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 
+    /**
+     * 判断当前该工序已签到未签退的人数是否大于等于当前该工序的标准编制人数
+     * @param dto 位置详情记录对象
+     * @return 检查结果，布尔值
+     */
+	private boolean checkStandardNum(PositionSignNumDto dto) {
+		if (Objects.isNull(dto) || Objects.isNull(dto.getPositionDetailRecord())){
+			return true;
+		}
+		UserSignQueryRequest request = new UserSignQueryRequest();
+		request.setRefGridKey(dto.getPositionDetailRecord().getRefGridKey());
+		List<UserSignRecord> userSignRecords = queryUnSignOutListWithPosition(request);
+		if (CollectionUtils.isEmpty(userSignRecords)){
+			return true;
+		}
+		dto.setNum(userSignRecords.size());
+		if (userSignRecords.size() >= dto.getPositionDetailRecord().getStandardNum()){
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * 作业APP网格码错误检验
 	 */
-	private boolean checkOperatorBaseInfo(String positionCode, String userCode) {
+	private boolean checkOperatorBaseInfo(String positionCode, String userCode, PositionSignNumDto dto) {
 		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
 			return true;
 		}
@@ -2199,6 +2232,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
 			return true;
 		}
+		dto.setPositionDetailRecord(apiResult.getData());
 		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
 		if (dtoStaff == null) {
 			return true;
