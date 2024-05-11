@@ -276,7 +276,7 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
         Response<String> response = new Response<>();
         response.toSucceed();
         try {
-            if (StringUtils.isBlank(operateBizKey) || null == siteCode) {
+            if (StringUtils.isBlank(operateBizKey) && null == siteCode) {
                 response.toError("operateBizKey不能为空或者siteCode不能为空");
                 return response;
             }
