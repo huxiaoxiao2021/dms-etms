@@ -84,4 +84,36 @@ public interface AsynBufferService {
      */
     boolean printCallbackProcess(Task task) throws Exception;
 
+    /**
+     * 拣运开放平台验货处理
+     * @param task 任务对象
+     * @return 操作是否成功
+     * @throws Exception 可能抛出异常
+     */
+    boolean jyOpenInspectionProcess(Task task) throws Exception;
+
+    /**
+     * 拣运开放平台分拣处理
+     * @param task 任务对象
+     * @return 操作是否成功
+     * @throws Exception 可能抛出异常
+     */
+    boolean jyOpenSortingProcess(Task task) throws Exception;
+
+    /**
+     * 拣运开放平台发货处理
+     * @param task 任务对象
+     * @return 操作是否成功
+     * @throws Exception 异常信息
+     */
+    boolean jyOpenSendProcess(Task task) throws Exception;
+
+    /**
+     * 拣运开放平台装车完成处理
+     * @param task 任务对象
+     * @return 操作是否成功
+     * @throws Exception 可能抛出异常
+     */
+    boolean jyOpenSendVehicleFinishProcess(Task task) throws Exception;
+
 }
