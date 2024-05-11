@@ -838,9 +838,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return boardFlowMap;
     }
     // 如果没有统计数据
-    BoardDto boardDto = new BoardDto();
     if (CollectionUtils.isEmpty(boardScanInfoList)) {
       for (JyBizTaskComboardEntity boardScanInfo : boardList) {
+        BoardDto boardDto = new BoardDto();
         boardDto.setBoardCode(boardScanInfo.getBoardCode());
         boardDto.setBoxCode(boardScanInfo.getBoxCode());
         boardDto.setMaterialCode(boardScanInfo.getMaterialCode());
@@ -852,6 +852,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       boardMap.put(aggsEntity.getBoardCode(),aggsEntity);
     }
     for (JyBizTaskComboardEntity boardScanInfo : boardList) {
+      BoardDto boardDto = new BoardDto();
       JyComboardAggsEntity aggsEntity = boardMap.get(boardScanInfo.getBoardCode());
       boardDto.setBoardCode(boardScanInfo.getBoardCode());
       boardDto.setMaterialCode(boardScanInfo.getMaterialCode());
