@@ -75,13 +75,4 @@ public interface AbnormalWayBillService {
      */
     List<AbnormalWayBill> queryPageListByQueryParam(AbnormalWayBillQuery abnormalWayBillQuery);
 
-    /**
-     * 是否为破损运单
-     *
-     * @param waybillCode
-     * @param request
-     * @param conf
-     * @return
-     */
-    boolean isDamagedWaybill(String waybillCode, QualityControlRequest request, CancelReturnGroupWhiteListConf conf);
 }

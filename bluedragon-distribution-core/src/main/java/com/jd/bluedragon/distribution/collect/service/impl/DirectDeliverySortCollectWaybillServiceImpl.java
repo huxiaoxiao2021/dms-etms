@@ -281,6 +281,7 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
 
         // 是否直送分拣
         if(!BusinessUtil.isDirectDeliverySort(bigWaybillDto.getWaybill().getWaybillSign())){
+            result.error(String.format("单号:%s非直送分拣揽收单无需处理!", waybillCode));
             return false;
         }
 
@@ -294,10 +295,15 @@ public class DirectDeliverySortCollectWaybillServiceImpl implements DirectDelive
             return false;
         }
 
-        BaseStaffSiteOrgDto packupSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
-        
-        return packupSite != null 
-                && Objects.equals(packupSite.getDmsId() == null ? pickupSiteId : packupSite.getDmsId(), request.getOperateSiteCode());
+        BaseStaffSiteOrgDto pickupSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
+
+        boolean pickupSiteIdIsCorrect = pickupSite != null
+                && Objects.equals(pickupSite.getDmsId() == null ? pickupSiteId : pickupSite.getDmsId(), request.getOperateSiteCode());
+        if(!pickupSiteIdIsCorrect){
+            result.error(String.format("单号:%s的取件站点非当前操作场地，无需处理!", waybillCode));
+            return false;
+        }
+        return true;
     }
 
     private boolean collectCheck(DirectDeliverySortCollectRequest request, InvokeResult<Void> result) {

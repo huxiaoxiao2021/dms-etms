@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -16,6 +17,8 @@ import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * @author dudong
@@ -30,6 +33,12 @@ public class FastTransferStationFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
+        // 如果是是安卓笼车批量分拣，不进行预分拣校验
+        if (Objects.nonNull(request.getPdaOperateRequest()) &&
+                Objects.equals(request.getPdaOperateRequest().getBizSource(), SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode())){
+            chain.doFilter(request, chain);
+            return;
+        }
 
         //增加判断，如果是速递中心，分拣站点等于速递中心的，但与预分拣站点不一致的，这是正常情况，不提示错误
         Boolean isTransferStationId = request.getWaybillCache().getTransferStationId() != null
