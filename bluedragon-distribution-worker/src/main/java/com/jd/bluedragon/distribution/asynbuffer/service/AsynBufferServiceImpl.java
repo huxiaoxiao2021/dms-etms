@@ -564,6 +564,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     }
 
     private boolean jyOpenOperateProcess(Task task) {
+        if (log.isInfoEnabled()) {
+            log.info("jyOpenOperateProcess:task={}", JsonHelper.toJsonMs(task));
+        }
         // 参数校验
         if (null == task || StringUtils.isBlank(task.getBody())) {
             return true;
