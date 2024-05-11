@@ -6,11 +6,26 @@ package com.jd.bluedragon.common.dto.board;
  * @author weixiaofeng
  */
 public enum BizSourceEnum {
+    /**
+     * pda操作
+     */
     PDA(1),
+    /**
+     * 自动化设备
+     */
     SORTING_MACHINE(2),
+    /**
+     * 打印客户端
+     */
     PRINT_CLIENT(3),
 
+    /**
+     * 自动化设备（自动装笼）
+     */
     SORTING_MACHINE_AUTO_CAGE(5),
+    /**
+     * pda操作(自动装笼)
+     */
     PDA_AUTO_CAGE(6);
 
     private int value;
