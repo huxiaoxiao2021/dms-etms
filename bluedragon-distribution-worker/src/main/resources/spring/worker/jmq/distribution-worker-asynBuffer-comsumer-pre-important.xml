@@ -173,6 +173,42 @@
                     </bean>
                 </entry>
 
+                <!-- 开放平台验货处理任务 -->
+                <entry key="${jmq.task.topic.jy.open.cargo.operate.inspection.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="jyOpenInspectionProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 开放平台分拣处理任务 -->
+                <entry key="${jmq.task.topic.jy.open.cargo.operate.sorting.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="jyOpenSortingProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 开放平台发货处理任务 -->
+                <entry key="${jmq.task.topic.jy.open.cargo.operate.send.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="jyOpenSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 开放平台发货完成处理任务 -->
+                <entry key="${jmq.task.topic.jy.open.cargo.operate.sendVehicleFinish.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="jyOpenSendVehicleFinishProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
             </map>
         </constructor-arg>
     </bean>
