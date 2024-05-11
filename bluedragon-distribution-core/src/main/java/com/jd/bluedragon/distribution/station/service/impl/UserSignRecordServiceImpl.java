@@ -2207,9 +2207,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (Objects.isNull(dto) || Objects.isNull(dto.getPositionDetailRecord())){
 			return true;
 		}
+		if (log.isInfoEnabled()){
+			log.info("UserSignRecordServiceImpl.checkStandardNum 岗位数据：{}", JsonHelper.toJson(dto));
+		}
 		UserSignQueryRequest request = new UserSignQueryRequest();
 		request.setRefGridKey(dto.getPositionDetailRecord().getRefGridKey());
 		List<UserSignRecord> userSignRecords = queryUnSignOutListWithPosition(request);
+		if (log.isInfoEnabled()){
+			log.info("UserSignRecordServiceImpl.checkStandardNum 登陆数据：{}", JsonHelper.toJson(userSignRecords));
+		}
 		if (CollectionUtils.isEmpty(userSignRecords)){
 			return true;
 		}
