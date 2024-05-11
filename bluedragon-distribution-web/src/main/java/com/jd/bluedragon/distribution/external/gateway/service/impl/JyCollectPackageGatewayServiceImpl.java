@@ -74,7 +74,7 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
             return new JdCResponse(CODE_ERROR, e.getMessage());
         }catch (Exception e) {
             Profiler.functionError(info);
-            return new JdCResponse(CODE_ERROR, "系统异常");
+            throw new RuntimeException(e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
