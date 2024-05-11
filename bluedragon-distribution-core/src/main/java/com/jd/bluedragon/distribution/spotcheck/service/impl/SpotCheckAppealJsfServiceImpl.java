@@ -272,16 +272,23 @@ public class SpotCheckAppealJsfServiceImpl implements SpotCheckAppealJsfService 
     }
     @Override
     @JProfiler(jKey = "DMS.BASE.SpotCheckAppealJsfServiceImpl.getDbIndexAndTableIndex", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Response<String> getDbIndexAndTableIndex(String operateBizKey) {
+    public Response<String> getDbIndexAndTableIndex(String operateBizKey, Long siteCode) {
         Response<String> response = new Response<>();
         response.toSucceed();
         try {
-            if (StringUtils.isBlank(operateBizKey)) {
-                response.toError("operateBizKey不能为空");
+            if (StringUtils.isBlank(operateBizKey) || null == siteCode) {
+                response.toError("operateBizKey不能为空或者siteCode不能为空");
                 return response;
             }
-            int dbIndex = DmsJddlUtils.getDbInstanceIndex(operateBizKey.hashCode());
-            int tableIndex = DmsJddlUtils.getDbPartitionIndex(operateBizKey.hashCode());
+            int dbIndex;
+            int tableIndex;
+            if (StringUtils.isNotBlank(operateBizKey)) {
+                dbIndex = DmsJddlUtils.getDbInstanceIndex(operateBizKey.hashCode());
+                tableIndex = DmsJddlUtils.getDbPartitionIndex(operateBizKey.hashCode());
+            } else {
+                dbIndex = DmsJddlUtils.getDbInstanceIndex(siteCode.hashCode());
+                tableIndex = DmsJddlUtils.getDbPartitionIndex(siteCode.hashCode());
+            }
             String result = "拆分库" + (dbIndex + 1) + "," + "表名:bd_dms_spl" + tableIndex;
             response.setData(result);
         } catch (Exception e) {
