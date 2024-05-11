@@ -1633,6 +1633,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (request.getBizSource().equals(BusinessCodeFromSourceEnum.DMS_AUTOMATIC_WORKER_SYS.name())){
       return BizSourceEnum.SORTING_MACHINE;
     }
+    if (DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(request.getDeliveryType())){
+      return BizSourceEnum.PDA_AUTO_CAGE;
+    }
     return BizSourceEnum.PDA;
   }
 
@@ -1930,7 +1933,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyBizTaskComboardEntity record = new JyBizTaskComboardEntity();
     record.setBoardCode(request.getBoardCode());
     record.setBizId(genTaskBizId(request));
-    if (Objects.equals(getBizSourceEnum(request) ,BizSourceEnum.PDA)) {
+    if (Objects.equals(getBizSourceEnum(request) ,BizSourceEnum.PDA) || Objects.equals(getBizSourceEnum(request) ,BizSourceEnum.PDA_AUTO_CAGE)) {
       record.setSendCode(genSendCode(request));
     } else {
       record.setSendCode(request.getSendCode());
