@@ -68,11 +68,13 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
                 return new JdCResponse(CODE_ERROR, "暂不支持该类型扫描单号！");
             }
         } catch (JyBizException e) {
-            Profiler.functionError(info);
             if (ObjectHelper.isNotNull(e.getCode())) {
                 return new JdCResponse(e.getCode(), e.getMessage());
             }
             return new JdCResponse(CODE_ERROR, e.getMessage());
+        }catch (Exception e) {
+            Profiler.functionError(info);
+            return new JdCResponse(CODE_ERROR, "系统异常");
         }finally {
             Profiler.registerInfoEnd(info);
         }
