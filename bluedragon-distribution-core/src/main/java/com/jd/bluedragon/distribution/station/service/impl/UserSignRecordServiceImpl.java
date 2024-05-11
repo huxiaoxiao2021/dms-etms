@@ -2143,6 +2143,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				&&lastUnSignOutResult.getData() != null) {
 			lastUnSignOutData = lastUnSignOutResult.getData();
 		}
+
+		// 新增：强卡，校验网格工序的标准配置人数
+		PositionSignNumDto dto = new PositionSignNumDto();
+		if (!this.checkStandardNum(dto, positionCode)) {
+			String defaultMsg = String.format(HintCodeConstants.CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
+					dto.getNum(), dto.getNum(), dto.getPositionDetailRecord().getOwnerUserErp());
+			result.toFail(HintService.getHint(defaultMsg,
+					HintCodeConstants.CHECK_STANDARD_NUM_SIGN_CODE, false));
+			return result;
+		}
+
 		//判断在岗状态，在岗岗位码和当前不一致，给出提示
 		if(lastUnSignOutData != null
 				&& lastUnSignOutData.getPositionCode() != null
@@ -2162,18 +2173,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 
 		// 校验网格码场地和用户场地是否一致
-		PositionSignNumDto dto = new PositionSignNumDto();
 		if (!this.checkOperatorBaseInfo(positionCode, userCode, dto)) {
 			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
 					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
-			return result;
-		}
-		// 新增：校验网格工序的标准配置人数
-		if (!this.checkStandardNum(dto)) {
-			String defaultMsg = String.format(HintCodeConstants.CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
-					dto.getNum(), dto.getNum(), dto.getPositionDetailRecord().getOwnerUserErp());
-			result.toConfirm(HintService.getHint(defaultMsg,
-					HintCodeConstants.CHECK_STANDARD_NUM_SIGN_CODE, false));
 			return result;
 		}
 
@@ -2203,8 +2205,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
      * @param dto 位置详情记录对象
      * @return 检查结果，布尔值
      */
-	private boolean checkStandardNum(PositionSignNumDto dto) {
-		if (Objects.isNull(dto) || Objects.isNull(dto.getPositionDetailRecord())){
+	private boolean checkStandardNum(PositionSignNumDto dto, String positionCode) {
+		// 查询网格码信息
+		com.jdl.basic.common.utils.Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
+		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
+			return true;
+		}
+		dto.setPositionDetailRecord(apiResult.getData());
+		if (Objects.isNull(dto.getPositionDetailRecord())){
 			return true;
 		}
 		if (log.isInfoEnabled()){
@@ -2234,12 +2242,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return true;
 		}
 		// 查询网格码信息
-		com.jdl.basic.common.utils.Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
-		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
+		PositionDetailRecord positionDetailRecord = dto.getPositionDetailRecord();
+		if(positionDetailRecord == null){
 			return true;
 		}
-		dto.setPositionDetailRecord(apiResult.getData());
-		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
+		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(positionDetailRecord.getSiteCode());
 		if (dtoStaff == null) {
 			return true;
 		}
@@ -2251,15 +2258,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 网格码为分拣场地类型
 		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
 			// 所属场地是否与当前网格码对应场地一致
-			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
+			return baseStaffByErp.getSiteCode().equals(positionDetailRecord.getSiteCode());
 		}
 		// 网格码为接货仓场地类型
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
-			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(positionDetailRecord.getProvinceAgencyCode())) {
 				return true;
 			}
-			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
+			return baseStaffByErp.getProvinceAgencyCode().equals(positionDetailRecord.getProvinceAgencyCode());
 		}
 		return true;
 	}

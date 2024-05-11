@@ -1133,8 +1133,7 @@ public class HintCodeConstants {
 
     public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
-    public static final String CHECK_STANDARD_NUM_SIGN_CODE = "40043";
-
+    public static final String CHECK_STANDARD_NUM_SIGN_CODE = "40044";
     public static final String CHECK_STANDARD_NUM_SIGN_MSG = "当前工序的标准编制人数为【%s】，目前已签到【%s】，请确认网格内是否有【%s】(人数)人作业，若不对，请联系网格组长ERP【%s】操作签退处理；";
 
 
