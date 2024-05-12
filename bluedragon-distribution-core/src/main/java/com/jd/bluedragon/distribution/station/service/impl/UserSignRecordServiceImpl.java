@@ -161,6 +161,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_HAS_NO_PERMISSION_2 = "您不可以操作，请联系签到操作人%s、网格负责人%s操作！";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_TITLE = "自动签退通知";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
+	public static final String CHECK_STANDARD_NUM_SIGN_MSG = "当前工序的标准编制人数为【%s】，目前已签到【%s】，请确认网格内是否有【%s】(人数)人作业，若不对，请联系网格组长ERP【%s】操作签退处理；";
+
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -2146,11 +2148,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 		// 新增：强卡，校验网格工序的标准配置人数
 		PositionSignNumDto dto = new PositionSignNumDto();
-		if (!this.checkStandardNum(dto, positionCode)) {
-			String defaultMsg = String.format(HintCodeConstants.CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
+		if (!this.checkStandardNum(dto, positionCode, userCode)) {
+			String defaultMsg = String.format(CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
 					dto.getNum(), dto.getNum(), dto.getPositionDetailRecord().getOwnerUserErp());
-			result.toFail(HintService.getHint(defaultMsg,
-					HintCodeConstants.CHECK_STANDARD_NUM_SIGN_CODE, false));
+			result.toFail(defaultMsg);
 			return result;
 		}
 
@@ -2205,7 +2206,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
      * @param dto 位置详情记录对象
      * @return 检查结果，布尔值
      */
-	private boolean checkStandardNum(PositionSignNumDto dto, String positionCode) {
+	private boolean checkStandardNum(PositionSignNumDto dto, String positionCode, String userCode) {
 		// 查询网格码信息
 		com.jdl.basic.common.utils.Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
 		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
@@ -2229,6 +2230,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		dto.setNum(userSignRecords.size());
 		if (userSignRecords.size() >= dto.getPositionDetailRecord().getStandardNum()){
+			// 已经登陆的用户可以继续登陆
+			List<String> userCodeList = userSignRecords.stream().map(UserSignRecord::getUserCode).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(userCodeList) && userCodeList.contains(userCode)){
+				return true;
+			}
 			return false;
 		}
 		return true;
