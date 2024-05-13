@@ -1133,5 +1133,4 @@ public class HintCodeConstants {
 
     public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
-
 }

@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.*;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -2216,6 +2217,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (Objects.isNull(dto.getPositionDetailRecord())){
 			return true;
 		}
+
+		boolean flag = sysConfigService.getConfigByName(Constants.STAND_NUM_PDA_SIGN_CHECK_SWITCH);
+		if (log.isInfoEnabled()){
+			log.info("UserSignRecordServiceImpl.checkStandardNum 网格工序编制人数配置-PDA强卡开关:{}", flag);
+		}
+		if(!flag){
+			return true;
+		}
+
 		if (log.isInfoEnabled()){
 			log.info("UserSignRecordServiceImpl.checkStandardNum 岗位数据：{}，user_code:{}", JsonHelper.toJson(dto), userCode);
 		}
