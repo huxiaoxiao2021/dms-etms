@@ -2217,7 +2217,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return true;
 		}
 		if (log.isInfoEnabled()){
-			log.info("UserSignRecordServiceImpl.checkStandardNum 岗位数据：{}", JsonHelper.toJson(dto));
+			log.info("UserSignRecordServiceImpl.checkStandardNum 岗位数据：{}，user_code:{}", JsonHelper.toJson(dto), userCode);
 		}
 		UserSignQueryRequest request = new UserSignQueryRequest();
 		request.setRefGridKey(dto.getPositionDetailRecord().getRefGridKey());
@@ -2232,7 +2232,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (userSignRecords.size() >= dto.getPositionDetailRecord().getStandardNum()){
 			// 已经登陆的用户可以继续登陆
 			List<String> userCodeList = userSignRecords.stream().map(UserSignRecord::getUserCode).collect(Collectors.toList());
+			log.info("UserSignRecordServiceImpl.checkStandardNum 登陆用户编码集合：{}", JsonHelper.toJson(userSignRecords));
 			if (CollectionUtils.isNotEmpty(userCodeList) && userCodeList.contains(userCode)){
+				log.info("UserSignRecordServiceImpl.checkStandardNum 跳过检验：{}", JsonHelper.toJson(userSignRecords));
 				return true;
 			}
 			return false;
