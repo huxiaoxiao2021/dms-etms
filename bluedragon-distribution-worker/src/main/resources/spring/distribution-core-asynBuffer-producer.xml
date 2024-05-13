@@ -227,6 +227,11 @@
 					<entry key="task_jy_open_cargo_operate_1003_PRE" value="${jmq.task.topic.jy.open.cargo.operate.send.pre}" />
 					<entry key="task_jy_open_cargo_operate_1003_UAT" value="${jmq.task.topic.jy.open.cargo.operate.send.uat}" />
 
+					<!-- 拣运开放处理任务-装车完成 -->
+					<entry key="task_jy_open_cargo_operate_1004_DMS" value="${jmq.task.topic.jy.open.cargo.operate.sendVehicleFinish.dms}" />
+					<entry key="task_jy_open_cargo_operate_1004_PRE" value="${jmq.task.topic.jy.open.cargo.operate.sendVehicleFinish.pre}" />
+					<entry key="task_jy_open_cargo_operate_1004_UAT" value="${jmq.task.topic.jy.open.cargo.operate.sendVehicleFinish.uat}" />
+
 				</map>
 	    	</constructor-arg>
 	    </bean>
