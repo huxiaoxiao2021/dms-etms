@@ -125,6 +125,19 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private String collectPackageTaskBizId;
 
+    /**
+     * 自动装笼版本标识
+     */
+    private boolean autoCollectVersion;
+
+    public boolean getAutoCollectVersion() {
+        return autoCollectVersion;
+    }
+
+    public void setAutoCollectVersion(boolean autoCollectVersion) {
+        this.autoCollectVersion = autoCollectVersion;
+    }
+
     public String getCollectPackageTaskBizId() {
         return collectPackageTaskBizId;
     }
