@@ -1088,7 +1088,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         taskDto.setMaterialCode(cycleBoxService.getBoxMaterialRelation(task.getBoxCode()));
 
         // 统计数据
-        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(taskDto.getBizId()));
+        final HashMap<String, List<CollectScanDto>> scanAgg = new HashMap<>();
+        if(!dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
+            scanAgg.putAll(getScanAgg(Collections.singletonList(taskDto.getBizId())));
+        }
         List<CollectScanDto> collectScanDtos = scanAgg.get(taskDto.getBizId());
         if (!CollectionUtils.isEmpty(collectScanDtos)) {
             for (CollectScanDto collectScanDto : collectScanDtos) {
