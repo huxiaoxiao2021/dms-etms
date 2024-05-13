@@ -909,7 +909,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         // 批量获取统计信息
         final HashMap<String, List<CollectScanDto>> aggMap = new HashMap<>();
-        if(dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
             aggMap.putAll(getScanAgg(bizIds));
         }
 
@@ -1111,19 +1111,11 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             }
         }
 
-        // 计算统计数据
-        calculateCollectStatistic(taskDto);
-
-        // 流向信息
-        HashMap<String, CollectPackageFlowDto> taskMap = getTaskMap(Collections.singletonList(task));
-        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
-        taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
-        resp.setCollectPackageTaskDto(taskDto);
-        return result;
-    }
-
-    public void calculateCollectStatistic(CollectPackageTaskDto taskDto) {
-        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(taskDto.getBizId()));
+        // 统计数据
+        final HashMap<String, List<CollectScanDto>> scanAgg = new HashMap<>();
+        if(!dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
+            scanAgg.putAll(getScanAgg(Collections.singletonList(taskDto.getBizId())));
+        }
         List<CollectScanDto> collectScanDtos = scanAgg.get(taskDto.getBizId());
         if (!CollectionUtils.isEmpty(collectScanDtos)) {
             for (CollectScanDto collectScanDto : collectScanDtos) {
@@ -1134,6 +1126,14 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 }
             }
         }
+
+        // 流向信息
+        HashMap<String, CollectPackageFlowDto> taskMap = getTaskMap(Collections.singletonList(task));
+        HashMap<String, List<CollectPackageFlowDto>> flowInfo = getFlowMapByTask(Collections.singletonList(taskDto.getBizId()), taskMap);
+        taskDto.setCollectPackageFlowDtoList(flowInfo.get(task.getBizId()));
+        resp.setCollectPackageTaskDto(taskDto);
+        Profiler.registerInfoEnd(info);
+        return result;
     }
 
     private static BoxRelation getBoxRelation(JyBizTaskCollectPackageEntity task) {
