@@ -110,7 +110,7 @@ public class WaybillTrackQueryServiceImpl implements WaybillTrackQueryService {
                 String key = WAYBILL_TRACK + waybillTrackReqVO.getErp();
                 redisClient.zAdd(key, System.currentTimeMillis(), waybillTrackReqVO.getBarCode());
                 Long count = redisClient.zCard(key);
-                redisClient.zRemRangeByScore(key, WAYBILL_TRACK_HISTORY_NUM, count);
+                redisClient.zRemRange(key, WAYBILL_TRACK_HISTORY_NUM, count);
             } catch (Exception e) {
                 logger.error("[全程跟踪查询记录]设置Redis并发锁时发生异常，waybillTrackReq:{}", JsonHelper.toJson(waybillTrackReqVO), e);
             } finally {
