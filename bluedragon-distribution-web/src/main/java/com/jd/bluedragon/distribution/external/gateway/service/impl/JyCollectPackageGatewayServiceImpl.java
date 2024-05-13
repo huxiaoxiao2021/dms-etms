@@ -122,6 +122,22 @@ public class JyCollectPackageGatewayServiceImpl implements JyCollectPackageGatew
         }
     }
 
+    /**
+     * 查询集包任务详情统计相关数据
+     *
+     * @param request 请求入参
+     * @return 统计结果
+     */
+    @Override
+    public JdCResponse<TaskDetailStatisticsResp> queryTaskDetailStatistics(TaskDetailReq request) {
+        try {
+            return retJdCResponse(jyCollectPackageService.queryTaskDetailStatistics(request));
+        } catch (Exception e) {
+            log.error("查询集包任务统计信息异常{}", JsonHelper.toJson(request), e);
+            return new JdCResponse<>(CODE_FAIL, "查询集包任务统计信息异常！");
+        }
+    }
+
     @Override
     public JdCResponse<SealingBoxResp> sealingBox(SealingBoxReq request) {
         try {

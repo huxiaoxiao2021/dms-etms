@@ -178,6 +178,15 @@ public class JyCollectPackageGatewayServiceImplTest {
     }
 
     @Test
+    public void queryTaskDetailStatisticsTest() {
+        TaskDetailReq taskDetailReq = new TaskDetailReq();
+        taskDetailReq.setBizId("JB23102300000004");
+        taskDetailReq.setBarCode("BC1001231019260000403101");
+        JdCResponse<TaskDetailStatisticsResp> response = jyCollectPackageGatewayService.queryTaskDetailStatistics(taskDetailReq);
+        System.out.println(JsonHelper.toJson(response));
+    }
+
+    @Test
     public void sealingBoxTest() {
         SealingBoxReq boxReq = new SealingBoxReq();
         List<SealingBoxDto> list = new ArrayList<>();
