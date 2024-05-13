@@ -17,8 +17,10 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.domain.SortingRequestDto;
+import com.jd.bluedragon.distribution.sorting.dto.request.SortingReq;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -275,5 +277,38 @@ public class DmsSortingServiceImpl implements DmsSortingService {
         sorting.setType(Constants.BUSSINESS_TYPE_POSITIVE);
         sorting.setBizSource(request.getBizSource());
         return sorting;
+    }
+
+    /**
+     * 根据包裹号查询最近一条装箱记录，如果装的不是真实箱则不返回数据
+     * 跨场地查询，传入的siteCode只是为了记录入参
+     * @param sortingReq 请求入参
+     * @return 装箱记录
+     * @author fanggang7
+     * @time 2024-04-10 21:09:57 周三
+     */
+    @Override
+    public InvokeResult<SortingDto> findLatestSortingBoxByPackageCode(SortingReq sortingReq) {
+        InvokeResult<SortingDto> result = new InvokeResult<>();
+        if(sortingReq == null){
+            result.parameterError("入参为空");
+            return result;
+        }
+        if(StringUtils.isBlank(sortingReq.getPackageCode())){
+            result.parameterError("入参packageCode为空");
+            return result;
+        }
+        if(sortingReq.getCreateSiteCode() == null){
+            result.parameterError("入参createSiteCode为空");
+            return result;
+        }
+        logger.info("DmsSortingServiceImpl->findLatestSortingBoxByPackageCode,入参：{}", JsonHelper.toJson(sortingReq));
+        final SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(sortingReq.getPackageCode());
+        if (sortingDto != null) {
+            if (BusinessUtil.isBoxcode(sortingDto.getBoxCode())) {
+                result.setData(sortingDto);
+            }
+        }
+        return result;
     }
 }

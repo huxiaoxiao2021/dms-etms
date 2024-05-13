@@ -844,7 +844,7 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         if(isSignInChars(waybillSign,53,'2','0')
-                && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
+                && isSignInChars(waybillSign,1,'2','3','6','9','B','K','Y')){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -1248,7 +1248,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isConvey(Integer siteType){
-        return siteType.equals(96);
+        return SITE_TYPE_FLEET.equals(siteType);
     }
 
 

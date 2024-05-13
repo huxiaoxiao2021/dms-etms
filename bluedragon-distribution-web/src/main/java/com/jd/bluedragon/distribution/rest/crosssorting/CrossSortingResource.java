@@ -30,8 +30,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
-import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_MIX;
-import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.COLLECT_CLAIM_SPECIFY_MIX;
+import static com.jd.bluedragon.distribution.box.domain.Box.BOX_TRANSPORT_TYPE_AIR;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.*;
+import static com.jdl.basic.api.domain.boxFlow.CollectBoxFlowDirectionConf.TRANSPORT_TYPE_AIR;
 
 /**
  * Created by yanghongqiang on 2015/7/8.
@@ -129,6 +130,12 @@ public class CrossSortingResource {
         conf.setStartSiteId(request.getCreateDmsCode());
         conf.setBoxReceiveId(request.getDestinationDmsCode());
         conf.setFlowType(FlowDirectionTypeEnum.OUT_SITE.getCode());
+        // 箱号和集包规则运输类型枚举值不同，需要转换一下，默认公路类型
+        Integer transportType = TRANSPORT_TYPE_HIGHWAY;
+        if (BOX_TRANSPORT_TYPE_AIR.equals(request.getTransportType())) {
+            transportType = TRANSPORT_TYPE_AIR;
+        }
+        conf.setTransportType(transportType);
         return conf;
     }
 

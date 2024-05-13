@@ -1784,6 +1784,10 @@ public class Constants {
     public static final Integer NUMBER_TWO = 2;
 
     /**
+     * 数字：5
+     */
+    public static final Integer NUMBER_FIVE = 5;
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
@@ -2550,5 +2554,15 @@ public class Constants {
      * 弃件暂存岗位限制配置
      */
     public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
+
+    /**
+     * 箱号目的地校验开关配置
+     */
+    public static final String CHECK_BOX_END_SITE_MATCH_SWITCH  = "check.box.end.site.match.switch";
+
+    /**
+     * 取消退货组，异常原因 白名单仓配置
+     */
+    public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
 
 }
