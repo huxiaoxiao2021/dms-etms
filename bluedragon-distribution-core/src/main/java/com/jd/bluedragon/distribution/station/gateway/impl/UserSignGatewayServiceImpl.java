@@ -282,7 +282,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			if(checkResult.needConfirm()) {
 				result.toConfirm(checkResult.getMessage());
 			}
-			if(checkResult.isError()) {
+			if(checkResult.isFail()) {
 				result.toFail(checkResult.getMessage());
 			}
 		}

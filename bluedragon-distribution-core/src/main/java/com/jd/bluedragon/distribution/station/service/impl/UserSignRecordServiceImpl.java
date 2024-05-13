@@ -2222,9 +2222,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignQueryRequest request = new UserSignQueryRequest();
 		request.setRefGridKey(dto.getPositionDetailRecord().getRefGridKey());
 		List<UserSignRecord> userSignRecords = queryUnSignOutListWithPosition(request);
-		if (log.isInfoEnabled()){
-			log.info("UserSignRecordServiceImpl.checkStandardNum 登陆数据：{}", JsonHelper.toJson(userSignRecords));
-		}
 		if (CollectionUtils.isEmpty(userSignRecords)){
 			return true;
 		}
@@ -2232,9 +2229,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if (userSignRecords.size() >= dto.getPositionDetailRecord().getStandardNum()){
 			// 已经登陆的用户可以继续登陆
 			List<String> userCodeList = userSignRecords.stream().map(UserSignRecord::getUserCode).collect(Collectors.toList());
-			log.info("UserSignRecordServiceImpl.checkStandardNum 登陆用户编码集合：{}", JsonHelper.toJson(userSignRecords));
+			if (log.isInfoEnabled()){
+				log.info("UserSignRecordServiceImpl.checkStandardNum 登陆用户编码集合：{}", JsonHelper.toJson(userCodeList));
+			}
 			if (CollectionUtils.isNotEmpty(userCodeList) && userCodeList.contains(userCode)){
-				log.info("UserSignRecordServiceImpl.checkStandardNum 跳过检验：{}", JsonHelper.toJson(userSignRecords));
 				return true;
 			}
 			return false;
