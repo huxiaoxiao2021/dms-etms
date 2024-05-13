@@ -326,7 +326,7 @@ public class BeanConverter {
 		}
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
 		mqData.setOperateBizKey(receive.getBoxCode());
-		mqData.setOperateBizType(OperateBizTypeEnum.INSPECTION.getCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.RECEIVE.getCode());
 		mqData.setOperateKey(StringHelper.getStringValue(receive.getReceiveId()));
 		mqData.setOperateTime(receive.getUpdateTime());
 		mqData.setOperateSiteCode(receive.getCreateSiteCode());

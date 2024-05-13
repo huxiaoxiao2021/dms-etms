@@ -10,6 +10,7 @@ public enum OperateBizSubTypeEnum {
 
 	INSPECTION("inspection","验货"),
 	RECEIVE("receive","收货"),
+	AR_RECEIVE("ar_receive", "空铁提货"),
 
 	SORTING("sorting","分拣"),
 	SORTING_CANCEL("sorting_cancel","取消分拣"),
@@ -25,6 +26,8 @@ public enum OperateBizSubTypeEnum {
 
 	BOARD_CANCEL("board_cancel","取消组板"),
 
+	SEAL("seal","封车"),
+
 	UNSEAL("unseal", "解封车"),
 	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),
 
@@ -34,9 +37,9 @@ public enum OperateBizSubTypeEnum {
 	SORT_WEIGHT_VOLUME_PACKAGE("sortWeightVolumePackage", "自动化按包裹称重"),
 	SORT_WEIGHT_VOLUME_WAYBILL("sortWeightVolumeWaybill", "自动化按运单称重"),
 	SORT_WEIGHT_VOLUME_BOX("sortWeightVolumeBox", "自动化按箱称重"),
-	SORT_WEIGHT_VOLUME_HANDOVER("sortWeightVolumeHandover", "自动化按加盟商交接称重"),
-	;
-	
+	SORT_WEIGHT_VOLUME_HANDOVER("sortWeightVolumeHandover", "自动化按加盟商交接称重");
+
+
 	private OperateBizSubTypeEnum(String code, String name) {
 		this.code = code;
 		this.name = name;
