@@ -377,6 +377,7 @@
 		<property name="jyCollectPackCheckBoxEndSiteMatchSwitch" value="${jyCollectPackCheckBoxEndSiteMatchSwitch:true}"/>
 		<property name="routerDynamicLineReplaceEnableSiteStr" value="${routerDynamicLineReplaceEnableSiteStr:'-1'}"/>
 		<property name="selfCheckTaskConfigCode" value="${selfCheckTaskConfigCode:task_xc_config_2}"/>
+		<property name="collectPackageTaskStatisticsUseIndependentInterfaceSwitch" value="${collectPackageTaskStatisticsUseIndependentInterfaceSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -755,6 +756,7 @@
 				<value>uccPropertyConfiguration.jyCollectPackCheckBoxEndSiteMatchSwitch</value>
 				<value>uccPropertyConfiguration.routerDynamicLineReplaceEnableSiteStr</value>
 				<value>uccPropertyConfiguration.selfCheckTaskConfigCode</value>
+				<value>uccPropertyConfiguration.collectPackageTaskStatisticsUseIndependentInterfaceSwitch</value>
 			</list>
 		</property>
 	</bean>
