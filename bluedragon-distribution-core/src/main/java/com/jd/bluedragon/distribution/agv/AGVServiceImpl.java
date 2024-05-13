@@ -47,7 +47,7 @@ public class AGVServiceImpl implements AGVService {
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(pdaRequest.getCurrentOperate().getSiteCode());
         AGVRequest request = new AGVRequest();
         BeanUtils.copyProperties(pdaRequest, request);
-        request.setAGVNumber(pdaRequest.getAgvNumber());
+        request.setAgvNumber(pdaRequest.getAgvNumber());
         request.setOperateType(pdaRequest.getAgvOperateType());
         request.setProvinceAgencyCode(Objects.isNull(siteOrgDto) ? null : siteOrgDto.getProvinceAgencyCode());
         request.setProvinceAgencyName(Objects.isNull(siteOrgDto) ? null : siteOrgDto.getProvinceAgencyName());
