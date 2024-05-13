@@ -896,7 +896,10 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         HashMap<String, List<CollectPackageFlowDto>> flowMap = getFlowMapByTask(bizIds, taskMap);
 
         // 批量获取统计信息
-        HashMap<String, List<CollectScanDto>> aggMap = getScanAgg(bizIds);
+        final HashMap<String, List<CollectScanDto>> aggMap = new HashMap<>();
+        if(dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
+            aggMap.putAll(getScanAgg(bizIds));
+        }
 
         // 组装任务
         List<CollectPackageTaskDto> collectPackTaskDtoList = taskList.stream().map(task -> {
@@ -1143,6 +1146,57 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
                 && !BusinessUtil.isBoxcode(request.getBarCode())) {
             result.setCode(RESULT_NULL_CODE);
             result.setMessage("请扫描正确的箱号或包裹号！");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 查询集包任务详情统计相关数据
+     *
+     * @param request 请求入参
+     * @return 统计结果
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyCollectPackageServiceImpl.queryTaskDetailStatistics", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<TaskDetailStatisticsResp> queryTaskDetailStatistics(TaskDetailReq request){
+        InvokeResult<TaskDetailStatisticsResp> result = new InvokeResult<>();
+
+        if (!checkParam4QueryTaskDetailStatistics(request, result)) {
+            return result;
+        }
+
+        final TaskDetailStatisticsResp taskDetailStatisticsResp = new TaskDetailStatisticsResp();
+        result.setData(taskDetailStatisticsResp);
+
+        // 统计数据
+        HashMap<String, List<CollectScanDto>> scanAgg = getScanAgg(Collections.singletonList(request.getBizId()));
+        List<CollectScanDto> collectScanDtos = scanAgg.get(request.getBizId());
+        if (!CollectionUtils.isEmpty(collectScanDtos)) {
+            for (CollectScanDto collectScanDto : collectScanDtos) {
+                if (CollectPackageExcepScanEnum.HAVE_SCAN.getCode().equals(collectScanDto.getType())) {
+                    taskDetailStatisticsResp.setScanCount(collectScanDto.getCount());
+                } else if (CollectPackageExcepScanEnum.INTERCEPTED.getCode().equals(collectScanDto.getType())) {
+                    taskDetailStatisticsResp.setInterceptCount(collectScanDto.getCount());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private boolean checkParam4QueryTaskDetailStatistics(TaskDetailReq request, InvokeResult<TaskDetailStatisticsResp> result) {
+        if (request == null || (StringUtils.isEmpty(request.getBizId()) && StringUtils.isEmpty(request.getBarCode()))) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage("参数异常！");
+            return false;
+        }
+
+        if (!StringUtils.isEmpty(request.getBarCode())
+                && !WaybillUtil.isPackageCode(request.getBarCode())
+                && !BusinessUtil.isBoxcode(request.getBarCode())) {
+            result.setCode(RESULT_NULL_CODE);
+            result.setMessage("入参必须有正确的箱号或包裹号！");
             return false;
         }
         return true;

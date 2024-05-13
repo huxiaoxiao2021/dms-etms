@@ -2146,6 +2146,11 @@ public class UccPropertyConfiguration{
     private String routerDynamicLineReplaceEnableSiteStr;
     private List<Integer> routerDynamicLineReplaceEnableSiteList = new ArrayList<>();
 
+    /**
+     * 集包任务统计使用独立接口开关
+     */
+    private Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4791,5 +4796,13 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.routerDynamicLineReplaceEnableSiteList.contains(siteCode);
+    }
+
+    public Boolean getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch() {
+        return collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+    }
+
+    public void setCollectPackageTaskStatisticsUseIndependentInterfaceSwitch(Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch) {
+        this.collectPackageTaskStatisticsUseIndependentInterfaceSwitch = collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
     }
 }
