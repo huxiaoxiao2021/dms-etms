@@ -726,6 +726,7 @@
 				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
 				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 				<value>uccPropertyConfiguration.routerDynamicLineReplaceEnableSiteStr</value>
+				<value>uccPropertyConfiguration.collectPackageTaskStatisticsUseIndependentInterfaceSwitch</value>
 			</list>
 		</property>
 	</bean>
