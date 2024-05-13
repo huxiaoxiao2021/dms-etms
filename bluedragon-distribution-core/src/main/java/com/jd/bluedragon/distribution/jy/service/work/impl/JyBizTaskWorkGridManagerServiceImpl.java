@@ -1,27 +1,29 @@
 package com.jd.bluedragon.distribution.jy.service.work.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.work.*;
-import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.HrUserManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.work.VideoTraceCameraJsfManager;
+import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskConfigJsfManager;
+import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
 import com.jd.bluedragon.core.jsf.workStation.JyUserManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
+import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
 import com.jd.bluedragon.distribution.jy.dto.work.*;
+import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerBusinessService;
 import com.jd.bluedragon.distribution.jy.service.work.JyWorkGridManagerResponsibleInfoService;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskStatusEnum;
 import com.jd.bluedragon.distribution.jy.work.enums.WorkTaskTypeEnum;
 import com.jd.bluedragon.distribution.work.constant.ViolentSortingResponsibleStatusEnum;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.exception.JMQException;
@@ -34,10 +36,14 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.user.JyUser;
 import com.jdl.basic.api.domain.user.JyUserDto;
+import com.jdl.basic.api.domain.work.WorkGridManagerTask;
 import com.jdl.basic.api.domain.work.WorkGridManagerTaskConfigVo;
 import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkGridQuery;
+import com.jdl.basic.api.enums.WorkFinishTypeEnum;
+import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
 import com.jdl.basic.common.utils.DateUtil;
+import com.jdl.basic.common.utils.Result;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
@@ -49,13 +55,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.jd.bluedragon.core.jsf.work.WorkGridManagerTaskJsfManager;
-import com.jd.bluedragon.distribution.jy.dao.work.JyBizTaskWorkGridManagerDao;
-import com.jd.bluedragon.distribution.jy.service.work.JyBizTaskWorkGridManagerService;
-import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jdl.basic.api.domain.work.WorkGridManagerTask;
-import com.jdl.basic.common.utils.Result;
-import com.jdl.basic.api.enums.WorkGridManagerTaskBizType;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.DATE_TIME_FORMAT;
 import static com.jd.bluedragon.common.dto.work.ResponsibleWorkTypeEnum.FORMAL_WORKER;
@@ -118,6 +119,12 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 	
 	@Autowired
 	private JyWorkGridManagerResponsibleInfoService jyWorkGridManagerResponsibleInfoService;
+
+	@Autowired
+	private WorkGridManagerTaskConfigJsfManager workGridManagerTaskConfigJsfManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@Override
 	public JyWorkGridManagerData queryTaskDataByBizId(String bizId) {
@@ -373,6 +380,113 @@ public class JyBizTaskWorkGridManagerServiceImpl implements JyBizTaskWorkGridMan
 		List<String> bizIdList = bizTaskWorkGridManagers.stream().map(JyBizTaskWorkGridManager::getBizId).collect(Collectors.toList());
 		//保持超时任务
 		saveAutoCloseTask(preFinishTime,siteCode, bizIdList);
+	}
+
+	@Override
+	public JdCResponse<String> createSelfCheckTask(ScanTaskPositionRequest request) {
+		// params check
+		JdCResponse<String> jdCResponse = new JdCResponse<>();
+		jdCResponse.toSucceed();
+		if(request == null || StringUtils.isEmpty(request.getScanPositionCode())){
+			jdCResponse.toFail("参数错误:缺少岗位码!");
+			return jdCResponse;
+		}
+		if(request.getUser() == null || StringUtils.isEmpty(request.getUser().getUserErp())
+				|| StringUtils.isEmpty(request.getUser().getUserName())){
+			jdCResponse.toFail("参数错误:缺少用户信息!");
+			return jdCResponse;
+		}
+		if(request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() <= 0
+				|| StringUtils.isEmpty(request.getCurrentOperate().getSiteName())){
+			jdCResponse.toFail("参数错误:缺少场地信息!");
+			return jdCResponse;
+		}
+		Result<JyUser> jyUserResult = jyUserManager.queryUserInfo(request.getUser().getUserErp());
+		if(jyUserResult.getData() == null){
+			jdCResponse.toFail("参数错误:登录人岗位信息不存在!!");
+			return jdCResponse;
+		}
+		String scanPositionCode = request.getScanPositionCode();
+		Result<PositionDetailRecord> recordResult = positionManager.queryOneByPositionCode(scanPositionCode);
+		if(recordResult == null || recordResult.getData() == null){
+			jdCResponse.toFail(String.format("网格码:%s不存在,请检查!", scanPositionCode));
+			return jdCResponse;
+		}
+		PositionDetailRecord detailRecord = recordResult.getData();
+		Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(detailRecord.getRefWorkGridKey());
+		if(workGridResult == null || workGridResult.getData() == null){
+			jdCResponse.toFail("网格码未关联对应网格,请联系分拣小秘!");
+			return jdCResponse;
+		}
+		Integer siteCode = detailRecord.getSiteCode();
+		BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+		if(siteInfo == null) {
+			jdCResponse.toFail(String.format("网格码:%s所属的场地在青龙基础资料不存在,请检查!", scanPositionCode));
+			return jdCResponse;
+		}
+		// build task vo
+		JyBizTaskWorkGridManager jyTask = buildSelfCheckTask(request, workGridResult.getData(), siteInfo, jyUserResult.getData(), jdCResponse);
+		if(jyTask == null){
+			return jdCResponse;
+		}
+		// 保存自建任务
+		this.addTask(jyTask);
+		// 超时任务
+		saveAutoCloseTask(jyTask.getPreFinishTime(), request.getCurrentOperate().getSiteCode(), Lists.newArrayList(jyTask.getBizId()));
+		
+		jdCResponse.setData(jyTask.getBizId());
+		return jdCResponse;
+	}
+
+	/**
+	 * 组装任务明细数据
+	 * 
+	 * @param request
+	 * @param workGrid
+	 * @param siteInfo
+	 * @param jyUser
+	 * @param workGrid
+	 * @return
+	 */
+	private JyBizTaskWorkGridManager buildSelfCheckTask(ScanTaskPositionRequest request, WorkGrid workGrid, 
+														BaseSiteInfoDto siteInfo, JyUser jyUser,
+														JdCResponse<String> jdCResponse) {
+		// 作业区巡检任务
+		Result<WorkGridManagerTaskConfigVo> workGridManagerTaskConfigResult 
+				= workGridManagerTaskConfigJsfManager.queryByTaskConfigCode(uccPropertyConfiguration.getSelfCheckTaskConfigCode());
+		if(workGridManagerTaskConfigResult == null || workGridManagerTaskConfigResult.getData() == null){
+			jdCResponse.toFail("不存在网格任务配置,请联系分拣小秘!");
+			return null;
+		}
+		Result<WorkGridManagerTask> workGridManagerTaskResult = workGridManagerTaskJsfManager.queryByTaskCode(workGridManagerTaskConfigResult.getData().getTaskCode());
+		if(workGridManagerTaskResult == null || workGridManagerTaskResult.getData() == null){
+			jdCResponse.toFail("不存在网格巡检任务,请联系分拣小秘!");
+			return null;
+		}
+		TaskWorkGridManagerSiteScanData taskWorkGridManagerScan = new TaskWorkGridManagerSiteScanData();
+		taskWorkGridManagerScan.setTaskConfigCode(Constants.EMPTY_FILL);
+		taskWorkGridManagerScan.setTaskBatchCode(Constants.EMPTY_FILL);
+		WorkGridManagerTaskConfigVo configData = new WorkGridManagerTaskConfigVo();
+		configData.setHandlerUserPositionCode(jyUser.getPositionCode());
+		configData.setHandlerUserPositionName(jyUser.getPositionName());
+		
+		Date currentDate = new Date();
+		JyBizTaskWorkGridManager jyTask = jyWorkGridManagerBusinessService.initJyBizTaskWorkGridManager(siteInfo, taskWorkGridManagerScan,
+				workGridManagerTaskResult.getData(), configData, workGrid, currentDate);
+		// 任务配置信息
+		jyTask.setHandlerPositionCode(jyUser.getPositionCode());
+		jyTask.setTaskBizType(WorkGridManagerTaskBizType.DAILY_PATROL.getCode());
+		jyTask.setProcessBeginTime(currentDate);
+		jyTask.setHandlerErp(request.getUser().getUserErp());
+		jyTask.setHandlerUserName(request.getUser().getUserName());
+		Date preFinishTime = DateUtil.addDay(currentDate, 1);
+		if(WorkFinishTypeEnum.ONE_WEEK.getCode().equals(configData.getFinishType())) {
+			preFinishTime = DateHelper.addDate(currentDate, 7);
+		}
+		jyTask.setPreFinishTime(preFinishTime);
+		jyTask.setStatus(WorkTaskStatusEnum.TODO.getCode());
+		jyTask.setTaskDate(currentDate);
+		return jyTask;
 	}
 
 	@Override

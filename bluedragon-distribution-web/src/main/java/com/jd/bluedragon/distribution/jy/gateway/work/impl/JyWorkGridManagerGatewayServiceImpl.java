@@ -196,6 +196,13 @@ public class JyWorkGridManagerGatewayServiceImpl implements JyWorkGridManagerGat
 		return jyBizTaskWorkGridManagerService.transferCandidate(request);
 	}
 
+	@JProfiler(jKey = "dmsWeb.server.jyWorkGridManagerGatewayService.createSelfCheckTask",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JdCResponse<String> createSelfCheckTask(ScanTaskPositionRequest request) {
+		return jyBizTaskWorkGridManagerService.createSelfCheckTask(request);
+	}
+
 	@Override
 	@Deprecated
 	public JdCResponse<List<String>> queryCandidateList(JyWorkGridManagerQueryRequest query) {

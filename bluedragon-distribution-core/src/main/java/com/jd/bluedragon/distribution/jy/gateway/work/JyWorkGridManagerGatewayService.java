@@ -54,6 +54,14 @@ public interface JyWorkGridManagerGatewayService {
 	JdCResponse<Boolean> transferCandidate(JyWorkGridManagerTransferData request);
 
 	/**
+	 * 创建自检任务
+	 * 
+	 * @param request
+	 * @return
+	 */
+	JdCResponse<String> createSelfCheckTask(ScanTaskPositionRequest request);
+
+	/**
 	 * 查询可转派责任人列表
 	 * @param query
 	 * @return
