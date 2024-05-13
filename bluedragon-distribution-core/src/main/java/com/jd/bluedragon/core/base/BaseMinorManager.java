@@ -1,10 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
-import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
-import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.ldop.basic.dto.*;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 
@@ -107,4 +104,13 @@ public interface BaseMinorManager {
      * @return
      */
     JdResult<SortCrossDetail> queryCrossDetailByDmsIdAndSiteCode(Integer dmsId, String siteCode, Integer crossType);
+
+
+    /**
+     * 查询航空危险品备案接口 https://joyspace.jd.com/pages/EHD6x18m6khIuEBMkW1d
+     * @param traderCode 青龙商家编码
+     * @param goodsId 托寄物ID
+     * @return
+     */
+    List<DangerousGoodsRecordDTO>  queryByTraderCodeAndGoodsId(String traderCode, Long goodsId);
 }

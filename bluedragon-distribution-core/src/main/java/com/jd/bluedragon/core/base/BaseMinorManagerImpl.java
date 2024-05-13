@@ -8,6 +8,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
+import com.jd.ldop.basic.api.DangerousGoodsRecordAPI;
 import com.jd.ldop.basic.dto.*;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
@@ -21,6 +22,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private BasicSortCrossDetailWS basicSortCrossDetailWS;
+
+	@Autowired
+	private DangerousGoodsRecordAPI dangerousGoodsRecordAPI;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
@@ -491,6 +496,28 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			Profiler.registerInfoEnd(callerInfo);
 		}
 		return result;
+	}
+
+	/**
+	 * 查询航空危险品备案接口 https://joyspace.jd.com/pages/EHD6x18m6khIuEBMkW1d
+	 * @param traderCode
+	 * @param goodsId
+	 * @return
+	 */
+	@Override
+	public List<DangerousGoodsRecordDTO> queryByTraderCodeAndGoodsId(String traderCode, Long goodsId) {
+		try{
+			ResponseDTO<List<DangerousGoodsRecordDTO>> response = dangerousGoodsRecordAPI
+					.queryByTraderCodeAndGoodsId(traderCode, goodsId);
+			log.info("查询航空危险品备案成功商家编码: {} 托寄物: {} 响应信息 {}", traderCode, goodsId, JsonHelper.toJson(response));
+			if (response != null && response.isSuccess() && !CollectionUtils.isEmpty(response.getResult())) {
+				return response.getResult();
+			}
+		}catch (Exception e) {
+			log.error("查询航空危险品备案接口异常,入参青龙商家编码: {} 托寄物: {}", traderCode, goodsId, e);
+			return null;
+		}
+		return null;
 	}
 
 }

@@ -1649,4 +1649,14 @@
                   retries="${jsf.retries}"
                   serialization="hessian">
     </jsf:consumer>
+
+    <!--  航空危险品备案接口  -->
+    <jsf:consumer id="dangerousGoodsRecordAPI"
+                  interface="com.jd.ldop.basic.api.DangerousGoodsRecordAPI"
+                  protocol="jsf"
+                  alias="${ldop.basic.return.jsf.alias}"
+                  timeout="${ldop.basic.return.jsf.timeout}"
+                  retries="${jsf.retries}"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

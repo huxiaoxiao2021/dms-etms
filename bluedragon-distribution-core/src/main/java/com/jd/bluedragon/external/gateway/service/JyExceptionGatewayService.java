@@ -219,4 +219,10 @@ public interface JyExceptionGatewayService {
      */
     JdCResponse<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req);
 
+    /**
+     * 违禁品包裹校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> contrabandPackageCheck(ContrabandPackageCheckReq req);
 }
