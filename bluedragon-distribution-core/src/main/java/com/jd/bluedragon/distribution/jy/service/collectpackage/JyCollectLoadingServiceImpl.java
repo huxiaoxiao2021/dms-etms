@@ -306,21 +306,4 @@ public class JyCollectLoadingServiceImpl extends JyCollectPackageServiceImpl{
             throw new JyBizException("暂不支持改类型的任务检索方式!");
         }
     }
-
-
-    @Override
-    public void calculateCollectStatistic(CollectPackageTaskDto taskDto) {
-        StatisticsUnderTaskQueryDto queryDto =new StatisticsUnderTaskQueryDto();
-        queryDto.setBizId(taskDto.getBizId());
-        StatisticsUnderTaskDto statisticsUnderTaskDto = getCollectPackageManger().queryTaskStatistic(queryDto);
-        if (ObjectHelper.isNotNull(statisticsUnderTaskDto) && ObjectHelper.isNotNull(statisticsUnderTaskDto.getCollectStatisticDto())){
-            CollectStatisticDto collectStatisticDto = statisticsUnderTaskDto.getCollectStatisticDto();
-            taskDto.setScanCount(collectStatisticDto.getTotalScanCount());
-            taskDto.setPackageScanCount(collectStatisticDto.getPackageScanCount());
-            taskDto.setBoxScanCount(collectStatisticDto.getBoxScanCount());
-            taskDto.setInterceptCount(collectStatisticDto.getTotalInterceptCount());
-            taskDto.setPackageInterceptCount(collectStatisticDto.getPackageInterceptCount());
-            taskDto.setBoxInterceptCount(collectStatisticDto.getBoxInterceptCount());
-        }
-    }
 }
