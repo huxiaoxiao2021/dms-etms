@@ -453,7 +453,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         //BC开头的箱号校验
         if (BoxTypeV2Enum.TYPE_BC.equals(boxType) && !bcBoxEndSiteTypeCheck(siteInfo, isTAWaybill(request))) {
-            throw new JyBizException("BC开头的箱号，只能扫描除目的地是三方配送公司，特安标识的运单以外的其它运单!");
+            throw new JyBizException("BC开头的箱号，只能扫描除特安标识的运单以外的其它运单!");
         }
 
         //BC-航空类型的箱号 只能集航空单
@@ -483,18 +483,18 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      */
     private boolean bchkBoxCheck(Waybill waybill) {
         Integer originalCrossType = getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
-        return ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType);
+        return ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType) || ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType);
     }
 
 
     /**
-     * BC开头的箱号，只能扫描除目的地是三方配送公司，特安标识的运单以外的其它运单
+     * BC开头的箱号，只能扫描除目的地是特安标识的运单以外的其它运单
      * @param siteInfo 入参参数描述
      * @param isTAWaybill 入参参数描述
      */
     private boolean bcBoxEndSiteTypeCheck(BaseStaffSiteOrgDto siteInfo, boolean isTAWaybill) {
-        // BC开头的箱号，只能扫描除目的地是三方配送公司，特安标识的运单以外的其它运单
-        if (isThirdSite(siteInfo) || isTAWaybill) {
+        // BC开头的箱号，只能扫描除目的地是特安标识的运单以外的其它运单
+        if (isTAWaybill) {
             return false;
         }
         return true;
