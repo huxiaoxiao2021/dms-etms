@@ -1816,7 +1816,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
           throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
         }
-        //TODO 一笼一板的校验，件数限制的校验
+
         if (ObjectHelper.isNotNull(boardDto.getBoxCode())){
           if (BusinessUtil.isLLBoxcode(request.getBarCode())){
             throw new JyBizException("请操作下一板换板再扫描LL箱号！");
