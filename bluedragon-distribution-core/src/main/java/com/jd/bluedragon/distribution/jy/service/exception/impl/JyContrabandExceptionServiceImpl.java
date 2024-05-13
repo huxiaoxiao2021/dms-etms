@@ -602,8 +602,12 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      */
     private boolean  isFiling(ContrabandPackageCheckReq req, JdCResponse<Boolean> response) {
         BigWaybillDto bigWaybillDto = getBigWaybillDtoByWaybillCode(WaybillUtil.getWaybillCode(req.getBarCode()));
-        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null || bigWaybillDto.getWaybill().getWaybillExt() == null) {
+        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
             response.toFail("未获取到运单信息！");
+            return false;
+        }
+        if (bigWaybillDto.getWaybill().getWaybillExt() == null) {
+            logger.info("单号{}未获取到运单扩展信息", req.getBarCode());
             return false;
         }
         // 获取寄托物code
