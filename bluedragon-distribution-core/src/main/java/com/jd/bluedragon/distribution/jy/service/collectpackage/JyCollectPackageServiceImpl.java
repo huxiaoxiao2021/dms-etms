@@ -897,7 +897,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
 
         // 批量获取统计信息
         final HashMap<String, List<CollectScanDto>> aggMap = new HashMap<>();
-        if(dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
+        if(!dmsConfigManager.getPropertyConfig().getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch()){
             aggMap.putAll(getScanAgg(bizIds));
         }
 
