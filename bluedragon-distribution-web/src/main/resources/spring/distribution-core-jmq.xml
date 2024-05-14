@@ -1067,4 +1067,10 @@
         <property name="topic" value="${jmq.topic.violent.sorting.responsible.info}" />
         <property name="timeout" value="1000" />
     </bean>
+
+    <!--循环物资新平台消息 -->
+    <bean id="recycleMaterialOperateRecordProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.recycleMaterialOperateRecord}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
