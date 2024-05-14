@@ -280,9 +280,9 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
                 return;
             }
 
-            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(packageCode));
+            Waybill waybill = waybillService.getWaybillByWayCode(WaybillUtil.getWaybillCode(barCode));
             if(waybill == null){
-                logger.warn("查询运单waybillSign失败!-{}", packageCode);
+                logger.warn("查询运单waybillSign失败!-{}", barCode);
                 throw new JyBizException("获取运单信息失败！");
             }
 
@@ -299,7 +299,7 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             updateDamageEntity.setUpdateTime(new Date());
             updateDamageEntity.setSaveType(JyExceptionDamageEnum.SaveTypeEnum.SBUMIT_FEEBACK.getCode());
 
-            boolean sendMQFlag = sendMQNoticCustomerCheck(packageCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity,waybill);
+            boolean sendMQFlag = sendMQNoticCustomerCheck(barCode, qcReportJmqDto,exceptionEntity, damageEntity, updateExp, updateDamageEntity,waybill);
             logger.info("最新的异常任务-{}",JSON.toJSONString(updateExp));
             logger.info("最新的破损数据-{}",JSON.toJSONString(updateDamageEntity));
             if (jyBizTaskExceptionDao.updateByBizId(updateExp) < 1) {
