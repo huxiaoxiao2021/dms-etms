@@ -2060,6 +2060,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @time 2024-01-17 18:39:37 周三
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> handleDmsBusinessInterceptReportUpload(BusinessInterceptReport businessInterceptReport) {
         if(logger.isInfoEnabled()){
             logger.info("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload param: {}", JsonHelper.toJson(businessInterceptReport));
@@ -2192,7 +2193,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
 
         } catch (Exception e) {
-            logger.error("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload param: {}", JsonHelper.toJson(businessInterceptReport), e);
+            logger.error("JyExceptionServiceImpl.handleDmsBusinessInterceptReportUpload exception param: {}", JsonHelper.toJson(businessInterceptReport), e);
             result.toFail("系统异常");
         } finally {
             redisClientOfJy.del(concurrencyCacheKey);
