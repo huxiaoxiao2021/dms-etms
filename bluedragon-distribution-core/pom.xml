@@ -2329,7 +2329,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>automatic-platform-sdk</artifactId>
-            <version>1.41-SNAPSHOT</version>
+            <version>1.0.0-UAT-SNAPSHOT</version>
         </dependency>
 
         <dependency>
