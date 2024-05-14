@@ -16,6 +16,11 @@ public class PackageTemplate implements Serializable{
     private Integer releaseTemplateVersion;
 
     /**
+     * 模版系统
+     */
+    private String releaseTemplateSysName;
+
+    /**
      * 适用版本的模板及适用站点
      */
     private List<TemporaryPackageTemplate> temporaryTemplate ;
@@ -49,4 +54,12 @@ public class PackageTemplate implements Serializable{
 	public void setReleaseTemplateVersion(Integer releaseTemplateVersion) {
 		this.releaseTemplateVersion = releaseTemplateVersion;
 	}
+
+    public String getReleaseTemplateSysName() {
+        return releaseTemplateSysName;
+    }
+
+    public void setReleaseTemplateSysName(String releaseTemplateSysName) {
+        this.releaseTemplateSysName = releaseTemplateSysName;
+    }
 }

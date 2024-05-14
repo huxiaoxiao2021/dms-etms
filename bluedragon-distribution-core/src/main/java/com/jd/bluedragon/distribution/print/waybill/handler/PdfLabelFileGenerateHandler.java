@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -43,6 +44,7 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
      * 包裹列表字段
      */
     private static final String FIELD_NAME_PACKLIST = "packList";
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         log.debug("PdfLabelFileGenerateHandler-pdf标签文件生成处理");
@@ -74,6 +76,9 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	jdCloudPrintRequest.setTemplateVer(basePrintWaybill.getTemplateVersionStr());
         }
         jdCloudPrintRequest.setModel(printDatas);
+		if (StringUtils.isNotEmpty(basePrintWaybill.getTemplateSysName())) {
+			jdCloudPrintRequest.setSys(basePrintWaybill.getTemplateSysName());
+		}
         JdResult<List<JdCloudPrintResponse>> printResult = jdCloudPrintService.jdCloudPrint(jdCloudPrintRequest);
         if(printResult.isSucceed()){
         	List<JdCloudPrintResponse> pdfList = printResult.getData();

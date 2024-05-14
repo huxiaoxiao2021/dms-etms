@@ -148,6 +148,9 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                 if(matchedTemplate.getTemplateVersion() != null){
                 	basePrintWaybill.setTemplateVersionStr(matchedTemplate.getTemplateVersion().toString());
                 }
+                if (StringUtils.isNotEmpty(matchedTemplate.getTemplateSysName())) {
+                    basePrintWaybill.setTemplateSysName(matchedTemplate.getTemplateSysName());
+                }
             }
         }
         basePrintWaybill.setTemplateName(templateName);
