@@ -1317,14 +1317,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public void execCollect(ComboardScanReq request) {
     log.info("execCollect request:{}",JsonHelper.toJson(request));
     if (DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode().equals(request.getDeliveryType())){
-      //执行绑定循环物资
-      if (ObjectHelper.isNotNull(request.getCageCarMaterialCode())){
-        BoxMaterialRelationRequest req = assembleBoxMaterialRelationRequest(request);
-        InvokeResult bindMaterialResp = cycleBoxService.boxMaterialRelationAlter(req);
-        if (!bindMaterialResp.codeSuccess()) {
-          throw new JyBizException("笼车箱号绑定集包袋失败：" + bindMaterialResp.getMessage());
-        }
-      }
       //执行集包/箱
       CollectPackageReq collectPackageReq =assembleCollectPackageReq(request);
       if (WaybillUtil.isPackageCode(request.getBarCode())){
@@ -1887,28 +1879,34 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
     } else {
       if (!BusinessUtil.isLLBoxcode(request.getCageCarCode())){
-        throw new JyBizException("请扫描正确的笼车箱号!");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"请扫描正确的笼车箱号!");
       }
       if (!BusinessUtil.isLLBoxBindingCollectionBag(request.getCageCarMaterialCode())){
-        throw new JyBizException("请扫描正确的笼车物资编号!");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"请扫描正确的笼车物资编号!");
       }
       Box box =boxService.findBoxByCode(request.getCageCarCode());
       if (ObjectHelper.isEmpty(box)){
-        throw new JyBizException("该箱号不存在!");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"该笼车箱号不存在!");
       }
       JyBizTaskCollectPackageEntity jyBizTaskCollectPackageEntity =jyBizTaskCollectPackageService.findByBoxCode(box.getCode());
       if (ObjectHelper.isEmpty(jyBizTaskCollectPackageEntity) || ObjectHelper.isEmpty(jyBizTaskCollectPackageEntity.getBizId())){
-        throw new JyBizException("未找到该笼车箱号对应的任务，请使用打印客户端打印LL箱号！");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"未找到该笼车箱号对应的任务，请使用打印客户端打印LL箱号！");
       }
       if (ObjectHelper.isNotNull(box.getReceiveSiteCode()) && !box.getReceiveSiteCode().equals(request.getDestinationId())){
-        throw new JyBizException("该箱号目的地"+box.getReceiveSiteCode()+"与组板发货目的地"+request.getDestinationId()+"不一致!");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"该箱号目的地"+box.getReceiveSiteCode()+"与组板发货目的地"+request.getDestinationId()+"不一致!");
       }
       if (boxService.checkBoxIsSent(box.getCode(), box.getCreateSiteCode())) {
-        throw new JyBizException("该笼车箱号已经发货，禁止继续集包！");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"该笼车箱号已经发货，禁止继续集包！");
       }
       Integer count =sortingService.getSumByBoxCode(box.getCode());
       if (ObjectHelper.isNotNull(count) && count > 0){
-        throw new JyBizException("该笼车箱号已经单独操作过集笼！");
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"该笼车箱号已经单独操作过集笼！");
+      }
+
+      BoxMaterialRelationRequest req = assembleBoxMaterialRelationRequest(request);
+      InvokeResult bindMaterialResp = cycleBoxService.boxMaterialRelationAlter(req);
+      if (!bindMaterialResp.codeSuccess()) {
+        throw new JyBizException(COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE,"笼车箱号绑定集包袋失败：" + bindMaterialResp.getMessage());
       }
       request.setCollectPackageTaskBizId(jyBizTaskCollectPackageEntity.getBizId());
       request.setDeliveryType(DeliveryTypeEnum.DELIVERY_BY_CAGE.getCode());
