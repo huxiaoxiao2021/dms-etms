@@ -1707,7 +1707,8 @@ public class JyWarehouseSendVehicleServiceImpl extends JySendVehicleServiceImpl 
             resData.setSendDetailBizId(request.getSendVehicleDetailBizId());
         }
 
-        if(response.codeSuccess() && !Objects.isNull(request.getLastNextSiteCode()) && !Objects.isNull(request.getPreNextSiteCode())) {
+        if(response.codeSuccess() && CollectionUtils.isEmpty(response.getMsgBoxes()) &&
+                !Objects.isNull(request.getLastNextSiteCode()) && !Objects.isNull(request.getPreNextSiteCode())) {
             if(!request.getLastNextSiteCode().trim().equals(request.getPreNextSiteCode().toString().trim())) {
                 response.setCode(SendScanRes.CODE_FOCUS_FLOW_DIFFER);
                 response.setMessage(SendScanRes.String_FOCUS_FLOW_DIFFER);
