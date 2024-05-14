@@ -505,6 +505,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	 * @return
 	 */
 	@Override
+	@JProfiler(jKey = "DMSWEB.BASE.BaseMinorManagerImpl.queryByTraderCodeAndGoodsId",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public List<DangerousGoodsRecordDTO> queryByTraderCodeAndGoodsId(String traderCode, Long goodsId) {
 		try{
 			ResponseDTO<List<DangerousGoodsRecordDTO>> response = dangerousGoodsRecordAPI

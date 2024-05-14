@@ -96,6 +96,7 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.EcpQueryWSManagerImpl.selectByScanOrderNumber", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public List<EcpAbnormalScanOrderRecordDto> selectByScanOrderNumber(String barCode) {
         CommonDto<List<EcpAbnormalScanOrderRecordDto>> commonDto = ecpQueryWS.selectByScanOrderNumber(barCode);
         log.info("根据箱号或者运单号等信息查询运输违禁品信息 入参: {} 响应信息 {}", barCode, JsonHelper.toJson(commonDto));

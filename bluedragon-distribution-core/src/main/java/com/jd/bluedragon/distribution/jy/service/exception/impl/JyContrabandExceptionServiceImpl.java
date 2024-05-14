@@ -636,7 +636,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         try {
             // 根据箱号匹配违禁品
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
-            if (sortingService != null) {
+            if (sortingDto != null) {
                 List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
                 if (!CollectionUtils.isEmpty(recordDtos)) {
                     return ;
@@ -648,6 +648,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
             }
         }catch (Exception e) {
+            logger.error("运力接口故障{}",JsonHelper.toJson(req), e);
             response.toFail("运力接口故障，请稍后上报!");
         }
     }
