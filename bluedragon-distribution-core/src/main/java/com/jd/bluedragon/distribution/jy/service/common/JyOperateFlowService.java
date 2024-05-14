@@ -104,4 +104,14 @@ public interface JyOperateFlowService {
      */
     void sendWeightVolumeOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
 
+    /**
+     * 发送封车操作流水
+     */
+    void sendSealOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
+
+    /**
+     * 发送空铁提货操作流水
+     */
+    void sendArReceiveOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
+
 }
