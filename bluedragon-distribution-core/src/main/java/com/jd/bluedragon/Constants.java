@@ -2634,4 +2634,9 @@ public class Constants {
      */
     public static final String CHECK_BOX_END_SITE_MATCH_SWITCH  = "check.box.end.site.match.switch";
 
+    /**
+     * 网格工序编制人数配置-PDA强卡开关
+     */
+    public static final String STAND_NUM_PDA_SIGN_CHECK_SWITCH = "stand.num.pda.sign.check.switch";
+
 }

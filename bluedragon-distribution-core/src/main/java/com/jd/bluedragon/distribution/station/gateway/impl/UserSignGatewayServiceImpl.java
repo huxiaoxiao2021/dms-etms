@@ -289,6 +289,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			if(checkResult.needConfirm()) {
 				result.toConfirm(checkResult.getMessage());
 			}
+			if(checkResult.isFail()) {
+				result.toFail(checkResult.getMessage());
+			}
 		}
 
 		return result;
@@ -373,6 +376,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				JdCResponse<UserSignRecordData> checkResult = userSignRecordService.checkUserSignStatus(positionCode, scanRequest.getJobCode(), scanRequest.getUserCode());
 				if(checkResult.needConfirm()) {
 					result.toConfirm(checkResult.getMessage());
+				}
+				if(checkResult.isFail()) {
+					result.toFail(checkResult.getMessage());
 				}
 			}
 		}catch (Exception e){
