@@ -2555,4 +2555,14 @@ public class Constants {
      */
     public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
 
+    /**
+     * 箱号目的地校验开关配置
+     */
+    public static final String CHECK_BOX_END_SITE_MATCH_SWITCH  = "check.box.end.site.match.switch";
+
+    /**
+     * 取消退货组，异常原因 白名单仓配置
+     */
+    public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
+
 }

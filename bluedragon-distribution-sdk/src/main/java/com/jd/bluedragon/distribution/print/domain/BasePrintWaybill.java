@@ -515,7 +515,12 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * 标签文件url（下载地址）
 	 */
-	private String labelFileDownloadUrl;	
+	private String labelFileDownloadUrl;
+
+	/**
+	 * 云打印打印模版所属系统
+	 */
+	private String templateSysName;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1809,5 +1814,13 @@ public class BasePrintWaybill implements Serializable {
 	}
 	public void setLabelFileDownloadUrl(String labelFileDownloadUrl) {
 		this.labelFileDownloadUrl = labelFileDownloadUrl;
+	}
+
+	public String getTemplateSysName() {
+		return templateSysName;
+	}
+
+	public void setTemplateSysName(String templateSysName) {
+		this.templateSysName = templateSysName;
 	}
 }

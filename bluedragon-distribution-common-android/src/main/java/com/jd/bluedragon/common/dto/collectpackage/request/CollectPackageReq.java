@@ -71,6 +71,11 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
 
     private String  boxType;
 
+    /**
+     * 二级箱号类型
+     */
+    private String boxSubType;
+
     public Integer getBusinessType() {
         return businessType;
     }
@@ -140,5 +145,13 @@ public class CollectPackageReq  extends BaseReq implements Serializable {
 
     public String getBoxReceiveName() {
         return boxReceiveName;
+    }
+
+    public String getBoxSubType() {
+        return boxSubType;
+    }
+
+    public void setBoxSubType(String boxSubType) {
+        this.boxSubType = boxSubType;
     }
 }

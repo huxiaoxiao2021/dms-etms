@@ -123,8 +123,19 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
+                if(logger.isInfoEnabled()){
+                    logger.info("PushPrintWaybillTrackHandler改址打印需新增额外属性reprintType!单号:{}", printData.getWaybillCode());
+                }
                 // 快运改址打印：reprintType = 1
                 waybillStatus.putExtendParamMap("reprintType", 1);
+            }else {
+                if(logger.isInfoEnabled()){
+                    logger.info("PushPrintWaybillTrackHandler改址打印已解除拦截，不发reprintType!单号:{}", printData.getWaybillCode());
+                }
+            }
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("PushPrintWaybillTrackHandler补打解除改址拦截校验waybillSign为非改址单!单号:{}", printData.getWaybillCode());
             }
         }
     }

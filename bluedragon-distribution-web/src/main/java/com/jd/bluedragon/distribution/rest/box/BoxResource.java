@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -17,6 +16,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxSubTypeEnum;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -31,10 +31,8 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.SortingDto;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.dms.utils.BoxCodeUtil;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -56,7 +54,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
+import static com.jd.bluedragon.Constants.CHECK_BOX_END_SITE_MATCH_SWITCH;
+import static com.jd.bluedragon.distribution.api.response.BoxResponse.*;
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
+import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 
 
 @Component
@@ -264,8 +267,39 @@ public class BoxResource {
                 return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, "箱号子类型错误");
             }
             request.setType(boxSubTypeEnum.getParentTypeCode());
+            //校验箱号类型与目的地站点类型是否匹配
+            BoxResponse boxResponse = checkBoxEndSiteMatch(request);
+            if (!BoxResponse.CODE_OK.equals(boxResponse.getCode())) {
+                return boxResponse;
+            }
         }
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
+    }
+
+    private BoxResponse checkBoxEndSiteMatch(BoxRequest request) {
+        if (!sysConfigService.getByListContainOrAllConfig(CHECK_BOX_END_SITE_MATCH_SWITCH, String.valueOf(request.getCreateSiteCode()))) {
+            return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
+        }
+        if (Objects.isNull(request.getReceiveSiteCode())) {
+            return new BoxResponse(BoxResponse.CODE_NO_BOX_END_SITE, MESSAGE_NO_BOX_END_SITE);
+        }
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
+        if (siteInfo == null) {
+            return new BoxResponse(BoxResponse.CODE_NO_BOX_END_SITE, MESSAGE_NO_BOX_END_SITE);
+        }
+        BoxTypeV2Enum boxType = BoxTypeV2Enum.getFromCode(request.getType());
+        // TC 开头的箱号，目的地只能是 备件库、仓储、退货组、逆向仓、售后仓
+        if (BoxTypeV2Enum.TYPE_TC.equals(boxType)
+                && !(isReverseSite(siteInfo.getSiteType())
+                || Objects.equals(RETURN_CENTER.getFirstTypesOfThird(), siteInfo.getSortType()))) {
+            return new BoxResponse(BoxResponse.CODE_TC_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_TC_BOX_END_SITE_TYPE_NOT_MATCH);
+        }
+        // BX 开头的箱号，目的地只能是 三方配送公司
+        if (BoxTypeV2Enum.TYPE_BX.equals(boxType)
+                && !bxBoxEndSiteTypeCheck(siteInfo)) {
+            return new BoxResponse(BoxResponse.CODE_BX_BOX_END_SITE_TYPE_NOT_MATCH, MESSAGE_BX_BOX_END_SITE_TYPE_NOT_MATCH);
+        }
+        return new BoxResponse(BoxResponse.CODE_OK, BoxResponse.MESSAGE_OK);
     }
 
     /**
