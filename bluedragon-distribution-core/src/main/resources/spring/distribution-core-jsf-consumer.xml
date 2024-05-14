@@ -167,7 +167,6 @@
 
     <jsf:consumer id="refundApi" interface="com.jd.ldop.center.api.refund.RefundApi" protocol="jsf"
                   alias="${ldop.refundApi.jsf.alias}" timeout="${ldop.refundApi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
-        <jsf:parameter key="token" value="${ldop.refundApi.jsf.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
@@ -1691,4 +1690,13 @@
                   alias="${jsf.alias.cloud.print}">
     </jsf:consumer>
 
+
+    <!--  AGV  -->
+    <jsf:consumer id="agvJsfService"
+                  interface="com.jd.bluedragon.distribution.sdk.modules.agv.AGVJSFService"
+                  protocol="jsf"
+                  alias="${automatic.platform.jsf.alias}"
+                  timeout="${jsf.timeout.agv}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
 </beans>
