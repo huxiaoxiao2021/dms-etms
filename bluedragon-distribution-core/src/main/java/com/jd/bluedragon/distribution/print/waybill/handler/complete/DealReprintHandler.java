@@ -121,6 +121,14 @@ public class DealReprintHandler extends AbstractHandler<WaybillPrintCompleteCont
                 }
                 // 快运改址补打：reprintType = 1
                 waybillStatus.putExtendParamMap("reprintType", 1);
+            }else {
+                if(logger.isInfoEnabled()){
+                    logger.info("DealReprintHandler改址打印已解除拦截，不发reprintType!单号:{}", printData.getWaybillCode());
+                }
+            }
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("DealReprintHandler补打解除改址拦截校验waybillSign为非改址单!单号:{}", printData.getWaybillCode());
             }
         }
     }
