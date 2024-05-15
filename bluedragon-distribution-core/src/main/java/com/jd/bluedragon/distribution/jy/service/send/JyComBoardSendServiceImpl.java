@@ -1853,11 +1853,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void checkIfNeedAutoCollectLoading(ComboardScanReq request) {
+    //兼容未升级的客户端逻辑
     if (!request.getAutoCollectVersion()){
-      //兼容未升级的客户端逻辑
       return;
     }
     if (BusinessUtil.isLLBoxcode(request.getBarCode())){
+      return;
+    }
+    if (WaybillUtil.isWaybillCode(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())){
       return;
     }
     if (ObjectHelper.isEmpty(request.getCageCarCode()) || ObjectHelper.isEmpty(request.getCageCarMaterialCode())){
