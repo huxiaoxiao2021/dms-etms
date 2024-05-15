@@ -58,4 +58,15 @@ public abstract class AbstractPrintCompleteCommandHandler<T, R> implements Handl
     public void setOperateHandlerMapping(PrintCompleteOperateHandlerMapping<T, JdResult<Boolean>> operateHandlerMapping) {
         this.operateHandlerMapping = operateHandlerMapping;
     }
+
+    /**
+     * 是否跳过执行，当返回true时跳过此handler
+     *
+     * @param target
+     * @return
+     */
+    @Override
+    public Boolean isSkip(JdCommand<PrintCompleteRequest> target) {
+        return Boolean.FALSE;
+    }
 }

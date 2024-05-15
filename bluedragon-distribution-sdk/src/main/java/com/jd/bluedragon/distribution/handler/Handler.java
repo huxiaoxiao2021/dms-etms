@@ -18,4 +18,11 @@ public interface Handler<T,R> {
 	 * @return
 	 */
 	R handle(T target);
+
+	/**
+	 * 是否跳过执行，当返回true时跳过此handler
+	 * @param target
+	 * @return
+	 */
+	Boolean isSkip(T target);
 }

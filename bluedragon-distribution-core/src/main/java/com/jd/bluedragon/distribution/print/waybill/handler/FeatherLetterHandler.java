@@ -5,7 +5,7 @@ import com.jd.bluedragon.core.base.IotServiceWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.apache.commons.lang.StringUtils;
@@ -21,7 +21,7 @@ import java.util.Objects;
  * 鸡毛信拦截校验
  */
 @Service("featherLetterHandler")
-public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class FeatherLetterHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
     private static final Log logger= LogFactory.getLog(FeatherLetterHandler.class);
 
     @Autowired

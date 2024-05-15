@@ -5,37 +5,31 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi;
 import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE;
-import static java.util.Arrays.asList;
 
 @Service
-public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class TemplateSelectorWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
     
     /**B网统一面单 **/

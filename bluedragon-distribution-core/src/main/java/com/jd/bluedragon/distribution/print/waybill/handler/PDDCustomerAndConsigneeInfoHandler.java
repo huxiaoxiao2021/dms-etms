@@ -4,14 +4,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -32,7 +31,7 @@ import java.text.MessageFormat;
  * @since 2019/10/16
  **/
 @Service("pddCustomerAndConsigneeInfoHandler")
-public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<WaybillPrintContext, String> {
+public class PDDCustomerAndConsigneeInfoHandler extends AbstractInterceptHandler<WaybillPrintContext, String> {
 
     private static final Logger log = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
 

@@ -1,25 +1,16 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -37,7 +28,7 @@ import java.util.Date;
  * @date 2021/12/2 23:03
  **/
 @Service("reprintCompletePostHandler")
-public class ReprintCompletePostHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class ReprintCompletePostHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReprintCompletePostHandler.class);
 

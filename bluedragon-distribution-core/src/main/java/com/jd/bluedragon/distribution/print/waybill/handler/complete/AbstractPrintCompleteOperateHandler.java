@@ -55,4 +55,15 @@ public abstract class AbstractPrintCompleteOperateHandler implements InterceptHa
     public void setHandlers(List<Handler<WaybillPrintCompleteContext, JdResult<Boolean>>> handlers) {
         this.handlers = handlers;
     }
+
+    /**
+     * 是否跳过执行，当返回true时跳过此handler
+     *
+     * @param target
+     * @return
+     */
+    @Override
+    public Boolean isSkip(WaybillPrintCompleteContext target) {
+        return null;
+    }
 }

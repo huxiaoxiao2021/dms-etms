@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.text.MessageFormat;
  * @date: 2019/12/6 18:20
  */
 @Service("overLengthRemindHandler")
-public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class OverLengthRemindHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

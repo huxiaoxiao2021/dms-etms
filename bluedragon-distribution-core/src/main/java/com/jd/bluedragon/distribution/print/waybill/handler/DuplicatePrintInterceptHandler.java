@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.utils.StringHelper;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/5
  */
 @Service("duplicatePrintInterceptHandler")
-public class DuplicatePrintInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class DuplicatePrintInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DuplicatePrintInterceptHandler.class);
 

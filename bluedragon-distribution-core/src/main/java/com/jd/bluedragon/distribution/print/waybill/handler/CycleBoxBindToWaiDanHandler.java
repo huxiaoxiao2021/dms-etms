@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -21,7 +21,7 @@ import java.util.List;
  * 驻厂打印-外单靑流箱绑定，发送MQ
  */
 @Service("cycleBoxBindToWaiDanHandler")
-public class CycleBoxBindToWaiDanHandler implements InterceptHandler<WaybillPrintContext, String> {
+public class CycleBoxBindToWaiDanHandler extends AbstractInterceptHandler<WaybillPrintContext, String> {
     private static final Logger log = LoggerFactory.getLogger(CycleBoxBindToWaiDanHandler.class);
 
     @Autowired

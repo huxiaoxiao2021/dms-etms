@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/18
  */
 @Service("oldWaybillQueryHandler")
-public class OldWaybillQueryHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class OldWaybillQueryHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OldWaybillQueryHandler.class);
 
