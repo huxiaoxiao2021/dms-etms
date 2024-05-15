@@ -87,7 +87,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         }
 
         // 判断当前用户是否已经作答
-        if (checkUserHasAnswered(questionnaireId,req.getUserErp(), dataResult)) {
+        if (StringUtils.isNotEmpty(req.getPositionCode()) && checkUserHasAnswered(questionnaireId,req.getUserErp(), dataResult)) {
             log.info("用户已经作答:{}", req.getUserErp());
             response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
             response.setMessage("用户已经作答！");
