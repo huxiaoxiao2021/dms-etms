@@ -311,6 +311,9 @@ public class BoxResource {
             }
             boxResponse.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
 
+            // 滑道笼车信息
+            setCrossCodeTabletrolleyCode(boxResponse);
+
             // 路由字段去除 分拣中心 接货仓 营业部字样
             String[] routers = boxResponse.getRouterInfo();
             if (routers != null) {
@@ -324,6 +327,21 @@ public class BoxResource {
             }
         }catch (Exception e) {
             log.error("箱号打印获取免单信息异常：{}", JsonHelper.toJson(boxResponse), e);
+        }
+    }
+
+    /**
+     * 查询滑道笼车信息
+     * @param boxResponse
+     */
+    private void setCrossCodeTabletrolleyCode(BoxResponse boxResponse) {
+        if (StringUtils.isEmpty(boxResponse.getDestinationCrossCode()) && StringUtils.isEmpty(boxResponse.getDestinationTabletrolleyCode())) {
+            SortCrossDetail sortCrossDetail = basicPrimaryWS
+                    .getCrossCodeDetailByDmsID(boxResponse.getCreateSiteCode(), String.valueOf(boxResponse.getReceiveSiteCode()));
+            if (sortCrossDetail != null) {
+                boxResponse.setDestinationCrossCode(sortCrossDetail.getCrossCode());
+                boxResponse.setDestinationTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+            }
         }
     }
 
