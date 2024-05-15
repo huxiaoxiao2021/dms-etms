@@ -61,12 +61,10 @@ import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum.MIX_DISABLE;
 import static com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.DMS_TYPE;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RWMS_TYPE;
-import static com.jdl.basic.common.enums.CollectClaimEnum.FINISHED_PRODUCT;
 
 
 @Component
@@ -551,7 +549,7 @@ public class BoxResource {
             autoSortingBoxResult.setReceiveSiteName(getEndSiteName(flowConf, receiveSiteInfo));
 
             // 滑道笼车信息
-            setCrossCodeTabletrolleyCode(autoSortingBoxResult, receiveSiteInfo);
+            setCrossCodeTabletrolleyCode(autoSortingBoxResult, receiveSiteInfo, request);
 
             // 集包要求集包规则-集包要求
             if (flowConf != null && flowConf.getCollectClaim() != null) {
@@ -573,22 +571,24 @@ public class BoxResource {
 
     /**
      * 查询滑道笼车信息
+     *
      * @param autoSortingBoxResult
      * @param receiveSiteInfo
+     * @param request
      */
-    private void setCrossCodeTabletrolleyCode(AutoSortingBoxResult autoSortingBoxResult, BaseStaffSiteOrgDto receiveSiteInfo) {
+    private void setCrossCodeTabletrolleyCode(AutoSortingBoxResult autoSortingBoxResult, BaseStaffSiteOrgDto receiveSiteInfo, BoxRequest request) {
         if (receiveSiteInfo == null) {
             return;
         }
         if (!DMS_TYPE.getFirstTypesOfThird().equals(receiveSiteInfo.getSortType())) {
             CrossPackageTagNew crossPackageTag = baseMinorManager
-                    .queryNonDmsSiteCrossPackageTagForPrint(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
+                    .queryNonDmsSiteCrossPackageTagForPrint(request.getCreateSiteCode(), request.getReceiveSiteCode());
             if (crossPackageTag != null) {
                 autoSortingBoxResult.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
                 autoSortingBoxResult.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
             }
         }else {
-            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(autoSortingBoxResult.getCreateSiteCode(), String.valueOf(autoSortingBoxResult.getReceiveSiteCode()));
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(request.getCreateSiteCode(), String.valueOf(request.getReceiveSiteCode()));
             if (sortCrossDetail != null) {
                 autoSortingBoxResult.setDestinationCrossCode(sortCrossDetail.getCrossCode());
                 autoSortingBoxResult.setDestinationTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
