@@ -35,8 +35,11 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -48,6 +51,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -64,7 +68,6 @@ import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollect
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.RETURN_CENTER;
 import static com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum.MIX_DISABLE;
-import static com.jd.bluedragon.distribution.jy.enums.MixBoxTypeEnum.MIX_ENABLE;
 import static com.jd.bluedragon.distribution.jy.enums.SiteTypeLevel.SiteTypeOneLevelEnum.TERMINAL_SITE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isReverseSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.DMS_TYPE;
@@ -133,6 +136,10 @@ public class BoxResource {
 
     @Autowired
     private BoxLimitConfigManager boxLimitConfigManager;
+
+    @Autowired
+    @Qualifier("basicPrimaryWS")
+    private BasicPrimaryWS basicPrimaryWS;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -302,42 +309,18 @@ public class BoxResource {
      */
     public void assemblyBoxResponseInfo(BoxResponse boxResponse) {
         try {
-            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse);
+            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(boxResponse.getCreateSiteCode(), boxResponse.getReceiveSiteCode());
             // 始发地处理 去除接货仓 分拣中心字样
-            BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getCreateSiteCode());
-            if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
-                String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
-                boxResponse.setCreateSiteName(createSiteName);
-            }
-
-            // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
+            boxResponse.setCreateSiteName(getStartName(boxResponse.getCreateSiteCode()));
+            // 处理目的地字段
             BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(boxResponse.getReceiveSiteCode());
-            if (receiveSiteInfo != null) {
-                String receiveSiteName = receiveSiteInfo.getSiteName();
-                // 如果是营业部
-                if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
-                    receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
-                } else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
-                    // 获取包牌名称
-                    if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
-                        receiveSiteName = flowConf.getBoxPkgName();
-                    }
-                }
-                boxResponse.setReceiveSiteName(receiveSiteName);
-            }
+            boxResponse.setReceiveSiteName(getEndSiteName(flowConf, receiveSiteInfo));
 
-            // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
-            if (MIX_DISABLE.getCode().equals(boxResponse.getMixBoxType())) {
-                boxResponse.setCollectClaimDesc(FINISHED_PRODUCT.getName());
-                boxResponse.setCollectClaim(FINISHED_PRODUCT.getCode());
-                boxResponse.setMixBoxTypeText(FINISHED_PRODUCT.getName());
-            } else {
-                // 获取集包要求
-                if (flowConf != null && flowConf.getCollectClaim() != null) {
-                    boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
-                    boxResponse.setCollectClaim(flowConf.getCollectClaim());
-                    boxResponse.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
-                }
+            // 获取集包要求
+            if (flowConf != null && flowConf.getCollectClaim() != null) {
+                boxResponse.setCollectClaimDesc(CollectClaimEnum.getName(flowConf.getCollectClaim()));
+                boxResponse.setCollectClaim(flowConf.getCollectClaim());
+                boxResponse.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
             }
             boxResponse.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
 
@@ -357,6 +340,38 @@ public class BoxResource {
         }
     }
 
+    private String getStartName(Integer createSiteCode) {
+        BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+        if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
+            return createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
+        }
+        return "";
+    }
+
+    /**
+     * 处理目的地字段
+     *
+     * @param flowConf
+     * @param receiveSiteInfo
+     */
+    private String getEndSiteName(CollectBoxFlowDirectionConf flowConf, BaseStaffSiteOrgDto receiveSiteInfo) {
+        // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
+        if (receiveSiteInfo != null) {
+            String receiveSiteName = receiveSiteInfo.getSiteName();
+            // 如果是营业部
+            if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
+                receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
+            } else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
+                // 获取包牌名称
+                if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
+                    receiveSiteName = flowConf.getBoxPkgName();
+                }
+            }
+            return receiveSiteName;
+        }
+        return "";
+    }
+
     private static String getReplaceName(String router) {
         if (StringUtils.isEmpty(router)) {
             return "";
@@ -368,30 +383,22 @@ public class BoxResource {
 
     /**
      * 获取一条集包规则
-     * @param boxResponse
+     * @param startSiteCode
+     * @param endSiteCode
      * @return
      */
-    private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(BoxResponse boxResponse) {
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(boxResponse.getCreateSiteCode(), boxResponse.getReceiveSiteCode());
-        List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
-        // 获取包牌名称
-        if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
-           return flowDirectionConfList.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * 获取一条集包规则
-     * @param autoSortingBoxResult
-     * @return
-     */
-    private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(AutoSortingBoxResult autoSortingBoxResult) {
-        CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
-        List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
-        // 获取包牌名称
-        if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
-            return flowDirectionConfList.get(0);
+    @CacheMethod(key="BoxResource.getCollectBoxFlowDirectionConf-{0}-{1}", cacheBean="redisCache", nullTimeout = 1000 * 60 * 10, timeout = 1000 * 60 * 5)
+    private CollectBoxFlowDirectionConf getCollectBoxFlowDirectionConf(Integer startSiteCode, Integer endSiteCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BoxResource.getCollectBoxFlowDirectionConf", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            CollectBoxFlowDirectionConf con = assembleCollectBoxFlowDirectionConf(startSiteCode, endSiteCode);
+            List<CollectBoxFlowDirectionConf> flowDirectionConfList = boxLimitConfigManager.listCollectBoxFlowDirection(con, null);
+            // 获取包牌名称
+            if (CollectionUtils.isNotEmpty(flowDirectionConfList)) {
+                return flowDirectionConfList.get(0);
+            }
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
@@ -572,44 +579,20 @@ public class BoxResource {
      */
     private void assemblyAutoSortingBoxResult(AutoSortingBoxResult autoSortingBoxResult, BoxRequest request) {
         try {
-            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(autoSortingBoxResult);
+            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
             // 始发地处理 去除接货仓 分拣中心字样
-            BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getCreateSiteCode());
-            if (createSiteInfo != null && !StringUtils.isEmpty(createSiteInfo.getSiteName())) {
-                String createSiteName = createSiteInfo.getSiteName().replace(RWMS_TYPE.getName(), "").replace(DMS_TYPE.getName(), "");
-                autoSortingBoxResult.setCreateSiteName(createSiteName);
-            }
+            autoSortingBoxResult.setCreateSiteName(getStartName(autoSortingBoxResult.getCreateSiteCode()));
 
-            CrossPackageTagNew crossPackageTag = baseMinorManager
-                    .queryNonDmsSiteCrossPackageTagForPrint(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
-            if (crossPackageTag != null) {
-                autoSortingBoxResult.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
-                autoSortingBoxResult.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
-            }
             // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
             BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getReceiveSiteCode());
-            if (receiveSiteInfo != null) {
-                String receiveSiteName = receiveSiteInfo.getSiteName();
-                // 如果是营业部
-                if (BusinessHelper.isSiteType(receiveSiteInfo.getSiteType())) {
-                    receiveSiteName = receiveSiteName.replace(TERMINAL_SITE.getName(), "");
-                } else if (!isReverseSite(receiveSiteInfo.getSiteType())) {
-                    // 获取包牌名称
-                    if (flowConf != null && !StringUtils.isEmpty(flowConf.getBoxPkgName())) {
-                        receiveSiteName = flowConf.getBoxPkgName();
-                    }
-                }
-                autoSortingBoxResult.setReceiveSiteName(receiveSiteName);
-            }
+            autoSortingBoxResult.setReceiveSiteName(getEndSiteName(flowConf, receiveSiteInfo));
 
-            // 集包要求 不允许混装：成品包  允许混装：集包规则-集包要求
-            if (MIX_DISABLE.getCode().equals(request.getMixBoxType())) {
-                autoSortingBoxResult.setMixBoxTypeText(FINISHED_PRODUCT.getName());
-            } else {
-                // 获取集包要求
-                if (flowConf != null && flowConf.getCollectClaim() != null) {
-                    autoSortingBoxResult.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
-                }
+            // 滑道笼车信息
+            setCrossCodeTabletrolleyCode(autoSortingBoxResult, receiveSiteInfo);
+
+            // 集包要求集包规则-集包要求
+            if (flowConf != null && flowConf.getCollectClaim() != null) {
+                autoSortingBoxResult.setMixBoxTypeText(CollectClaimEnum.getName(flowConf.getCollectClaim()));
             }
             autoSortingBoxResult.setCreateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
 
@@ -622,6 +605,28 @@ public class BoxResource {
             }
         }catch (Exception e) {
             log.error("自动化箱号打印获取免单信息异常：{}", JsonHelper.toJson(autoSortingBoxResult), e);
+        }
+    }
+
+    /**
+     * 查询滑道笼车信息
+     * @param autoSortingBoxResult
+     * @param receiveSiteInfo
+     */
+    private void setCrossCodeTabletrolleyCode(AutoSortingBoxResult autoSortingBoxResult, BaseStaffSiteOrgDto receiveSiteInfo) {
+        if (receiveSiteInfo != null && !DMS_TYPE.getFirstTypesOfThird().equals(receiveSiteInfo.getSortType())) {
+            CrossPackageTagNew crossPackageTag = baseMinorManager
+                    .queryNonDmsSiteCrossPackageTagForPrint(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
+            if (crossPackageTag != null) {
+                autoSortingBoxResult.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
+                autoSortingBoxResult.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+            }
+        }else {
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(autoSortingBoxResult.getCreateSiteCode(), String.valueOf(autoSortingBoxResult.getReceiveSiteCode()));
+            if (sortCrossDetail != null) {
+                autoSortingBoxResult.setDestinationCrossCode(sortCrossDetail.getCrossCode());
+                autoSortingBoxResult.setDestinationTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+            }
         }
     }
 
