@@ -211,12 +211,14 @@ public class AutoCageConsumer extends MessageBaseConsumer {
         BaseSite site = baseMajorManager.getSiteBySiteCode(mq.getSiteCode());
         currentOperate.setSiteName(site.getSiteName());
         currentOperate.setOperateTime(mq.getOperatorTime());
-        OperatorData operatorData = new OperatorData();
-        operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
-        operatorData.setOperatorId(mq.getMachineCode());
-        operatorData.setMachineCode(mq.getMachineCode());
-        currentOperate.setOperatorTypeCode(operatorData.getOperatorTypeCode());
-        currentOperate.setOperatorId(operatorData.getOperatorId());
+        OperatorData operatorData = mq.getOperatorData();
+        if (operatorData!=null){
+            operatorData.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+            operatorData.setOperatorId(mq.getMachineCode());
+            operatorData.setMachineCode(mq.getMachineCode());
+            currentOperate.setOperatorTypeCode(operatorData.getOperatorTypeCode());
+            currentOperate.setOperatorId(operatorData.getOperatorId());
+        }
         currentOperate.setOperatorData(operatorData);
         req.setCurrentOperate(currentOperate);
 
