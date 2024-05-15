@@ -542,12 +542,12 @@ public class BoxResource {
      */
     private void assemblyAutoSortingBoxResult(AutoSortingBoxResult autoSortingBoxResult, BoxRequest request) {
         try {
-            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
+            CollectBoxFlowDirectionConf flowConf = getCollectBoxFlowDirectionConf(request.getCreateSiteCode(), request.getReceiveSiteCode());
             // 始发地处理 去除接货仓 分拣中心字样
-            autoSortingBoxResult.setCreateSiteName(getStartName(autoSortingBoxResult.getCreateSiteCode()));
+            autoSortingBoxResult.setCreateSiteName(getStartName(request.getCreateSiteCode()));
 
             // 目的地处理  营业部去除营业部字段；逆向打印全称；干、传、摆取集包规则-包牌名称
-            BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(autoSortingBoxResult.getReceiveSiteCode());
+            BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
             autoSortingBoxResult.setReceiveSiteName(getEndSiteName(flowConf, receiveSiteInfo));
 
             // 滑道笼车信息
