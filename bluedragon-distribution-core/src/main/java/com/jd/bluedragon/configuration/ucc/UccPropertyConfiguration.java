@@ -1970,6 +1970,11 @@ public class UccPropertyConfiguration{
      */
     private boolean operateFlowNewSwitch;
 
+    /**
+     * 自检任务-任务配置编码
+     */
+    private String selfCheckTaskConfigCode;
+
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
     }
@@ -4804,5 +4809,13 @@ public class UccPropertyConfiguration{
 
     public void setCollectPackageTaskStatisticsUseIndependentInterfaceSwitch(Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch) {
         this.collectPackageTaskStatisticsUseIndependentInterfaceSwitch = collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+    }
+
+    public String getSelfCheckTaskConfigCode() {
+        return selfCheckTaskConfigCode;
+    }
+
+    public void setSelfCheckTaskConfigCode(String selfCheckTaskConfigCode) {
+        this.selfCheckTaskConfigCode = selfCheckTaskConfigCode;
     }
 }
