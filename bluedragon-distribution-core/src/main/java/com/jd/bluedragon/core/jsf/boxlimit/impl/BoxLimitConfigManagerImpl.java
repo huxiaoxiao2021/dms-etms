@@ -56,6 +56,7 @@ public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "BoxLimitConfigManagerImpl.listCollectBoxFlowDirection",mState={JProEnum.TP,JProEnum.FunctionError})
     public List<CollectBoxFlowDirectionConf> listCollectBoxFlowDirection(CollectBoxFlowDirectionConf collectBoxFlowDirectionConf, List<Integer> collectClaimList) {
         if (log.isInfoEnabled()){
             log.info("小件集包查询集包规则参数：{}", JsonHelper.toJSONString(collectBoxFlowDirectionConf));
