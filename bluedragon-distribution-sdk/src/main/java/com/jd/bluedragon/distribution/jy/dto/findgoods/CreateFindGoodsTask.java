@@ -3,6 +3,11 @@ package com.jd.bluedragon.distribution.jy.dto.findgoods;
 import com.jd.bluedragon.distribution.jy.dto.JyReqBaseDto;
 import java.io.Serializable;
 
+/**
+ * 清场任务创建dto
+ * @author weixiaofeng
+ * @date 2024-04-02
+ */
 public class CreateFindGoodsTask extends JyReqBaseDto implements Serializable {
 
   private static final long serialVersionUID = 6719232759149459943L;
@@ -11,6 +16,31 @@ public class CreateFindGoodsTask extends JyReqBaseDto implements Serializable {
   private String date;
   private String waveStartTime;
   private String waveEndTime;
+
+  /**
+   * 网格编码
+   */
+  private String gridCode;
+  /**
+   * 网格名称
+   */
+  private String gridName;
+
+  public String getGridCode() {
+    return gridCode;
+  }
+
+  public void setGridCode(String gridCode) {
+    this.gridCode = gridCode;
+  }
+
+  public String getGridName() {
+    return gridName;
+  }
+
+  public void setGridName(String gridName) {
+    this.gridName = gridName;
+  }
 
   public Integer getSiteCode() {
     return siteCode;

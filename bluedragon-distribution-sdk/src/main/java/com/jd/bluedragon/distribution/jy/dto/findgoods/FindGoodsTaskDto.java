@@ -46,6 +46,24 @@ public class FindGoodsTaskDto implements Serializable {
 
   private boolean newCreateFlag;
 
+  private String gridCode;
+  private String gridName;
+
+  public String getGridCode(){
+    return gridCode;
+  }
+
+  public String getGridName(){
+    return gridName;
+  }
+  public void setGridCode(String gridCode) {
+    this.gridCode = gridCode;
+  }
+
+  public void setGridName(String gridName) {
+    this.gridName = gridName;
+  }
+
   public boolean getNewCreateFlag() {
     return newCreateFlag;
   }
