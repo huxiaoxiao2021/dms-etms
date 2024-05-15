@@ -4,10 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerCountData;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerData;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerQueryRequest;
-import com.jd.bluedragon.common.dto.work.JyWorkGridManagerTransferData;
+import com.jd.bluedragon.common.dto.work.*;
 import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManager;
 import com.jd.bluedragon.distribution.jy.dto.work.JyBizTaskWorkGridManagerBatchUpdate;
@@ -110,4 +107,12 @@ public interface JyBizTaskWorkGridManagerService {
     String selectLastHandlerErp(String taskCode, Integer siteCode);
 	
 	void generateViolentSortingTask(ViolentSortingMessageDTO violentSortingDto);
+
+	/**
+	 * 创建自建任务
+	 * 
+	 * @param request
+	 * @return
+	 */
+	JdCResponse<String> createSelfCheckTask(ScanTaskPositionRequest request);
 }
