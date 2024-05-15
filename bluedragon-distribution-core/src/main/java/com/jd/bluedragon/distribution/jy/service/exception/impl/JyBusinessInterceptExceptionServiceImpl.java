@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptDisposeRecord;
 import com.jd.bluedragon.distribution.businessIntercept.dto.BusinessInterceptReport;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyBusinessInterceptEx
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.jy.service.exception.capabilityDomain.businessIntercept.helper.JyExceptionBusinessInterceptTaskConstants;
 import com.jd.dms.java.utils.sdk.base.Result;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +52,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      * @time 2024-01-14 17:37:50 周日
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyBusinessInterceptExceptionServiceImpl.consumeDmsBusinessInterceptReport", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> consumeDmsBusinessInterceptReport(BusinessInterceptReport businessInterceptReport) {
         if(log.isInfoEnabled()){
             log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptReport param: {}", JsonHelper.toJson(businessInterceptReport));
@@ -72,7 +76,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
             }
 
             // 3. 执行逻辑
-            jyExceptionService.handleDmsBusinessInterceptReportUpload(businessInterceptReport);
+            return jyExceptionService.handleDmsBusinessInterceptReportUpload(businessInterceptReport);
 
         } catch (Exception e) {
             result.toFail("接口异常");
@@ -116,6 +120,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      * @time 2024-01-14 17:38:09 周日
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyBusinessInterceptExceptionServiceImpl.consumeDmsBusinessInterceptDispose", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<Boolean> consumeDmsBusinessInterceptDispose(BusinessInterceptDisposeRecord businessInterceptDisposeRecord) {
         if(log.isInfoEnabled()){
             log.info("BusinessInterceptExceptionTaskServiceImpl.consumeDmsBusinessInterceptDispose param: {}", JsonHelper.toJson(businessInterceptDisposeRecord));
@@ -134,7 +139,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
                 return result.toFail(businessCheckResult.getMessage(), businessCheckResult.getCode());
             }
 
-            jyExceptionService.handleDmsBusinessInterceptDispose(businessInterceptDisposeRecord);
+            return jyExceptionService.handleDmsBusinessInterceptDispose(businessInterceptDisposeRecord);
 
         } catch (Exception e) {
             result.toFail("接口异常");
@@ -176,6 +181,7 @@ public class JyBusinessInterceptExceptionServiceImpl implements JyBusinessInterc
      * @return 结果列表
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyBusinessInterceptExceptionServiceImpl.queryPackageWithInterceptTypeLastHandleSiteRecord", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Result<List<JyBizTaskExceptionEntity>> queryPackageWithInterceptTypeLastHandleSiteRecord(PackageWithInterceptTypeLastHandleSiteQuery query) {
         Result<List<JyBizTaskExceptionEntity>> result = Result.success();
         try {
