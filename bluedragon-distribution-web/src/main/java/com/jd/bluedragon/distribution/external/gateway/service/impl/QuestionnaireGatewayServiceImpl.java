@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
@@ -167,10 +168,17 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             return true;
         }
         PositionData positionData = dataResult.getData();
+        String siteName;
+        try {
+            siteName = URLEncoder.encode(positionData.getSiteName(), ENCODE);
+        } catch (Exception e) {
+            log.info("场地名称编码转换失败{}",positionData.getSiteName());
+            return true;
+        }
         String body = exeHttpGetMethod(HTTP_REQUEST_PREFIX + "/wj/checkUserHasAnswered"
                 + "?pin=" + userErp + "&questionnaireId=" + questionnaireId
                 + "&extra1=" + userErp + "&extra2=" + positionData.getSiteCode()
-                + "&extra3=" + positionData.getSiteName() + "&extra4=" + positionData.getDefaultMenuCode());
+                + "&extra3=" + siteName + "&extra4=" + positionData.getDefaultMenuCode());
         log.info("校验用户问卷状态返回值:{}", body);
         if (!StringUtils.isEmpty(body)) {
             JdCResponse response = JsonHelper.fromJson(body, JdCResponse.class);
