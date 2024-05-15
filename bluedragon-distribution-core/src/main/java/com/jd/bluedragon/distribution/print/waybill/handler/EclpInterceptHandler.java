@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.BusinessHelper;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("eclpInterceptHandler")
-public class EclpInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class EclpInterceptHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
     private static final Logger log = LoggerFactory.getLogger(EclpInterceptHandler.class);
 
     @Override

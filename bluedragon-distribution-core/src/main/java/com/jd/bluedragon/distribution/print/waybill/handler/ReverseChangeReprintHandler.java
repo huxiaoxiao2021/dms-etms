@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
@@ -24,7 +24,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
  *
  */
 @Service("reverseChangeReprintHandler")
-public class ReverseChangeReprintHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ReverseChangeReprintHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeReprintHandler.class);
 

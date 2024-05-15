@@ -58,6 +58,11 @@ public class WaybillPrintContext implements Context{
 	private String traderSign;
 
 	/**
+	 * 使用云打印标识用于在系统内部流转使用
+	 */
+	private boolean useCloudPrint;
+
+	/**
 	 * 获取waybillSign信息
 	 * @return
 	 */
@@ -268,5 +273,13 @@ public class WaybillPrintContext implements Context{
 	}
 	public void setWaybillEndDmsId(Integer waybillEndDmsId) {
 		this.waybillEndDmsId = waybillEndDmsId;
+	}
+
+	public boolean getUseCloudPrint() {
+		return useCloudPrint;
+	}
+
+	public void setUseCloudPrint(boolean useCloudPrint) {
+		this.useCloudPrint = useCloudPrint;
 	}
 }

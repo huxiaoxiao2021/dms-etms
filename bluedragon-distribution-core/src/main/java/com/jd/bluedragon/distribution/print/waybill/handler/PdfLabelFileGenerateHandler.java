@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputMsgItem;
@@ -29,7 +29,7 @@ import java.util.*;
  * @date: 2019年8月14日 上午11:35:15
  *
  */
-public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PdfLabelFileGenerateHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
     private static final Logger log = LoggerFactory.getLogger(PdfLabelFileGenerateHandler.class);
     /**
      * 云打印输出文件oss配置

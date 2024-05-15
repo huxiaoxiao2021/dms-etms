@@ -12,7 +12,7 @@ import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
  * @date: 2018年1月30日 上午9:18:31
  */
 @Service
-public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
+public class InterceptWaybillHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(InterceptWaybillHandler.class);
 	
     @Autowired

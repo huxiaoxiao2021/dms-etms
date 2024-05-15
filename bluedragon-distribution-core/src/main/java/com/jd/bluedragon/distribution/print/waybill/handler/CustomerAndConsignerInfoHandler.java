@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -36,7 +35,7 @@ import java.util.List;
  * @date: 2018年1月30日 上午9:18:31
  */
 @Service
-public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintContext,JdResult<String>> {
+public class CustomerAndConsignerInfoHandler extends AbstractHandler<WaybillPrintContext,JdResult<String>> {
 	private static final Logger log = LoggerFactory.getLogger(CustomerAndConsignerInfoHandler.class);
 	@Autowired
 	@Qualifier("hideInfoService")

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.ump.annotation.JProEnum;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @time 2021-05-28 14:44:53 周五
  */
 @Service("hideSpecialStartSiteNameHandler")
-public class HideSpecialStartSiteNameHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class HideSpecialStartSiteNameHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

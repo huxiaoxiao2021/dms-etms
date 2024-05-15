@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2021/12/8 11:04
  **/
 @Service("firstPrintInterceptHandler")
-public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class FirstPrintInterceptHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
