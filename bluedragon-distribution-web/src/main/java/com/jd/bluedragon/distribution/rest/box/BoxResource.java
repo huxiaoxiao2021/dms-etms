@@ -614,7 +614,10 @@ public class BoxResource {
      * @param receiveSiteInfo
      */
     private void setCrossCodeTabletrolleyCode(AutoSortingBoxResult autoSortingBoxResult, BaseStaffSiteOrgDto receiveSiteInfo) {
-        if (receiveSiteInfo != null && !DMS_TYPE.getFirstTypesOfThird().equals(receiveSiteInfo.getSortType())) {
+        if (receiveSiteInfo == null) {
+            return;
+        }
+        if (!DMS_TYPE.getFirstTypesOfThird().equals(receiveSiteInfo.getSortType())) {
             CrossPackageTagNew crossPackageTag = baseMinorManager
                     .queryNonDmsSiteCrossPackageTagForPrint(autoSortingBoxResult.getCreateSiteCode(), autoSortingBoxResult.getReceiveSiteCode());
             if (crossPackageTag != null) {
