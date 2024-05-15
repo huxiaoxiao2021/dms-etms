@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateAppealPermissionsDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity"
+               id="jyEvaluateAppealPermissionsMap">
+        <result property="id" column="id"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="evaluate" column="evaluate"/>
+        <result property="appeal" column="appeal"/>
+        <result property="evaluateClosureDate" column="evaluate_closure_date"/>
+        <result property="appealClosureDate" column="appeal_closure_date"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="ts" column="ts"/>
+        <result property="yn" column="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, site_code, evaluate, appeal, evaluate_closure_date, appeal_closure_date, create_user_erp, create_user_name,
+        update_user_erp, update_user_name, create_time, update_time, ts, yn
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        INSERT INTO jy_evaluate_appeal_permissions (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+
+            <if test="siteCode != null">
+                site_code,
+            </if>
+
+            <if test="evaluate != null">
+                evaluate,
+            </if>
+
+            <if test="appeal != null">
+                appeal,
+            </if>
+
+            <if test="evaluateClosureDate != null">
+                evaluate_closure_date,
+            </if>
+
+            <if test="appealClosureDate != null">
+                appeal_closure_date,
+            </if>
+
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+
+            <if test="createTime != null">
+                create_time,
+            </if>
+
+            <if test="updateTime != null">
+                update_time,
+            </if>
+
+            <if test="ts != null">
+                ts,
+            </if>
+
+            <if test="yn != null">
+                yn
+            </if>
+
+        </trim>
+        ) VALUES (
+        <trim suffixOverrides=",">
+
+            <if test="id != null">
+                #{id},
+            </if>
+
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+
+            <if test="evaluate != null">
+                #{evaluate},
+            </if>
+
+            <if test="appeal != null">
+                #{appeal},
+            </if>
+
+            <if test="evaluateClosureDate != null">
+                #{evaluateClosureDate},
+            </if>
+
+            <if test="appealClosureDate != null">
+                #{appealClosureDate},
+            </if>
+
+            <if test="createUserErp != null">
+                #{createUserErp},
+            </if>
+
+            <if test="createUserName != null">
+                #{createUserName},
+            </if>
+
+            <if test="updateUserErp != null">
+                #{updateUserErp},
+            </if>
+
+            <if test="updateUserName != null">
+                #{updateUserName},
+            </if>
+
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+
+            <if test="ts != null">
+                #{ts},
+            </if>
+
+            <if test="yn != null">
+                #{yn}
+            </if>
+
+        </trim>
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        UPDATE jy_evaluate_appeal_permissions
+        <set>
+            <if test="siteCode != null">
+                site_code = #{siteCode} ,
+            </if>
+            <if test="evaluate != null">
+                evaluate = #{evaluate} ,
+            </if>
+            <if test="appeal != null">
+                appeal = #{appeal} ,
+            </if>
+            <if test="evaluateClosureDate != null">
+                evaluate_closure_date = #{evaluateClosureDate} ,
+            </if>
+            <if test="appealClosureDate != null">
+                appeal_closure_date = #{appealClosureDate} ,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp} ,
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime} ,
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+            <if test="ts != null">
+                ts = #{ts} ,
+            </if>
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        update jy_evaluate_appeal_permissions
+        <set>
+            yn = 0,
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="queryByCondition" parameterType="java.lang.Integer" resultMap="jyEvaluateAppealPermissionsMap">
+        select <include refid="Base_Column_List" />
+        from jy_evaluate_appeal_permissions
+        WHERE yn = 1 and site_code = #{siteCode} limit 1
+    </select>
+
+    <update id="updateAppealStatusById"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        update jy_evaluate_appeal_permissions
+        <set>
+            <if test="appeal != null">
+                appeal = #{appeal} ,
+            </if>
+            <if test="appealClosureDate != null or appealClosureDate == null">
+                appeal_closure_date = #{appealClosureDate} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <update id="updateEvaluateStatusById"
+            parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateAppealPermissionsEntity">
+        update jy_evaluate_appeal_permissions
+        <set>
+            <if test="evaluate != null">
+                evaluate = #{evaluate} ,
+            </if>
+            <if test="evaluateClosureDate != null or evaluateClosureDate == null">
+                evaluate_closure_date = #{evaluateClosureDate} ,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp} ,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName} ,
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime} ,
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jdl.express.collect.api.CommonDTO;
+import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskcollectwaybillterminate.NoTaskCollectWaybillTerminateCommand;
+import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskcollectwaybillterminate.NoTaskCollectWaybillTerminateDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillCommand;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillDTO;
 
@@ -19,4 +21,12 @@ public interface MerchCollectManager {
      * @return
      */
     CommonDTO<NoTaskFinishCollectWaybillDTO> noTaskFinishCollectWaybill(NoTaskFinishCollectWaybillCommand command);
+
+    /**
+     * 揽收终止
+     * 
+     * @param command
+     * @return
+     */
+    CommonDTO<NoTaskCollectWaybillTerminateDTO> terminateNoTaskCollectWaybill(NoTaskCollectWaybillTerminateCommand command);
 }

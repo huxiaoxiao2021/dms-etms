@@ -154,6 +154,8 @@ public class JyEvaluateTargetInitConsumer extends MessageBaseConsumer {
             targetResultDto.setTargetStartTime(targetScheduleTask.getTaskStartTime());
             targetResultDto.setTargetFinishTime(targetScheduleTask.getTaskEndTime());
         }
+        // 评价申诉状态初始化 1 -未申诉
+        targetResultDto.setAppealStatus(Constants.NUMBER_ONE);
         return targetResultDto;
     }
 

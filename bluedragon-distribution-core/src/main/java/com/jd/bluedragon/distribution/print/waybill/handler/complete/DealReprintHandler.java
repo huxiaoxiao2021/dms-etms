@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.google.common.collect.Maps;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -17,11 +16,12 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,7 +31,8 @@ import java.util.Objects;
  * @date 2021/12/2 18:08
  **/
 @Service("dealReprintHandler")
-public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class DealReprintHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+    private static final Logger logger = LoggerFactory.getLogger(DealReprintHandler.class);
 
     @Autowired
     private ReprintRecordService reprintRecordService;
@@ -115,7 +116,18 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
                 // 快运改址补打：reprintType = 1
+                if(logger.isInfoEnabled()){
+                    logger.info("DealReprintHandler改址打印需新增额外属性reprintType!单号:{}", printData.getWaybillCode());
+                }
                 waybillStatus.putExtendParamMap("reprintType", 1);
+            }else {
+                if(logger.isInfoEnabled()){
+                    logger.info("DealReprintHandler改址打印已解除拦截，不发reprintType!单号:{}", printData.getWaybillCode());
+                }
+            }
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("DealReprintHandler补打解除改址拦截校验waybillSign为非改址单!单号:{}", printData.getWaybillCode());
             }
         }
     }

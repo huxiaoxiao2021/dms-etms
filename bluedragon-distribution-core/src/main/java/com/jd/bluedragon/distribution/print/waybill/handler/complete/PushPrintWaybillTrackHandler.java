@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,7 +32,7 @@ import java.util.Objects;
  * @date 2021/12/4 19:34
  **/
 @Service("pushPrintWaybillTrackHandler")
-public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class PushPrintWaybillTrackHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushPrintWaybillTrackHandler.class);
 
@@ -123,8 +121,19 @@ public class PushPrintWaybillTrackHandler implements Handler<WaybillPrintComplet
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
+                if(logger.isInfoEnabled()){
+                    logger.info("PushPrintWaybillTrackHandler改址打印需新增额外属性reprintType!单号:{}", printData.getWaybillCode());
+                }
                 // 快运改址打印：reprintType = 1
                 waybillStatus.putExtendParamMap("reprintType", 1);
+            }else {
+                if(logger.isInfoEnabled()){
+                    logger.info("PushPrintWaybillTrackHandler改址打印已解除拦截，不发reprintType!单号:{}", printData.getWaybillCode());
+                }
+            }
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("PushPrintWaybillTrackHandler补打解除改址拦截校验waybillSign为非改址单!单号:{}", printData.getWaybillCode());
             }
         }
     }

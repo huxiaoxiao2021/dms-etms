@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.inspection;
 
-import com.github.houbb.opencc4j.util.StringUtil;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -136,9 +135,8 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
 
             //PDA实操互斥打标
             this.markTaskAutoInspection(taskUnloadVehicleEntity);
-
             //自动验货执行
-            InspectionVO vo = this.convertArriveCarAutoInspectionVO(paramDto);
+            InspectionVO vo = this.convertArriveCarAutoInspectionVO(paramDto,taskUnloadVehicleEntity);
             logInfo("packageArriveCarAutoInspection:围栏到车包裹自动验货addTask={}", JsonHelper.toJson(paramDto));
             this.addInspectionTask(vo, InspectionBizSourceEnum.ELECTRONIC_FENCE);
 
@@ -162,7 +160,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     }
 
     //围栏到车自动验货task对象组装
-    private InspectionVO convertArriveCarAutoInspectionVO(PackageArriveAutoInspectionDto paramDto) {
+    private InspectionVO convertArriveCarAutoInspectionVO(PackageArriveAutoInspectionDto paramDto, JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity) {
         InspectionVO inspectionVO = new InspectionVO();
         inspectionVO.setBarCodes(Collections.singletonList(paramDto.getPackageCode()));
         inspectionVO.setSiteCode(paramDto.getArriveSiteId());
@@ -171,6 +169,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
         inspectionVO.setUserName("-1");
         inspectionVO.setOperateTime(DateHelper.formatDateTime(paramDto.getOperateTime()));
         inspectionVO.setOperatorData(this.getOperatorData(OperatorTypeEnum.VEHICLE.getCode(), paramDto.getTransWorkItemCode()));
+        inspectionVO.setVehicleNumber(taskUnloadVehicleEntity.getVehicleNumber());
         return inspectionVO;
     }
 
@@ -236,6 +235,7 @@ public class JyTrustHandoverAutoInspectionServiceImpl implements JyTrustHandover
     }
 
     //验货
+    @JProfiler(jKey = "DMSWORKER.jy.JyTrustHandoverAutoInspectionServiceImpl.addInspectionTask",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     private void addInspectionTask(InspectionVO inspectionVO, InspectionBizSourceEnum inspectionBizSourceEnum) {
         InvokeResult<Boolean> taskResult = inspectionService.addInspection(inspectionVO, inspectionBizSourceEnum);
         if (!taskResult.codeSuccess()) {

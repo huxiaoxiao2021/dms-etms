@@ -24,4 +24,15 @@ public abstract class NeedPrepareDataInterceptHandler <T,R>  implements Intercep
         this.prepareData(param);
         return this.doHandler(param);
     }
+
+    /**
+     * 是否跳过执行，当返回true时跳过此handler
+     *
+     * @param target
+     * @return
+     */
+    @Override
+    public Boolean isSkip(T target) {
+        return Boolean.FALSE;
+    }
 }

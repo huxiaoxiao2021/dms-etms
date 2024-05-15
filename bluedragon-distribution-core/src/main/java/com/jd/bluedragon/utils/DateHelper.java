@@ -12,6 +12,8 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,6 +75,11 @@ public class DateHelper {
      * 三小时的毫秒数
      */
     public static final long Three_HOUR_MILLI = 3 * 60 * 60 * 1000;
+
+    /**
+     * 六小时的毫秒数
+     */
+    public static final long SIX_HOUR_MILLI = 6 * 60 * 60 * 1000;
 
     /**
      * 一天的毫秒数
@@ -151,6 +158,11 @@ public class DateHelper {
     public static Date addHours(final Date date, int hours) {
         return DateHelper.add(date, Calendar.HOUR, hours);
     }
+
+    public static Date addSeconds(final Date date, int seconds) {
+        return DateHelper.add(date, Calendar.SECOND, seconds);
+    }
+
     public static Date addHoursByDay(final Date date, Double days) {
         int hours =(int)(days * 24);
         return DateHelper.add(date, Calendar.HOUR, hours);
@@ -282,7 +294,7 @@ public class DateHelper {
         return c.getTime();
     }
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
 
         for(int i=1;i<=28;i++) {
         	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
@@ -835,5 +847,20 @@ public class DateHelper {
 			afterTime = DateHelper.add(time,Calendar.SECOND , delaySeconds);
 		}
 		return afterTime;
-    }   
+    }
+
+
+    /**
+     * 判断给定日期是否早于指定天数前
+     * @param givenDate 给定日期
+     * @param days 指定天数
+     * @return 如果给定日期早于指定天数前返回true，否则返回false
+     */
+    public static boolean isDateMoreThanDaysAgo(Date givenDate, int days) {
+        Calendar sevenDaysAgo = Calendar.getInstance();
+        sevenDaysAgo.add(Calendar.DAY_OF_MONTH, -days);
+        Calendar givenDateCal = Calendar.getInstance();
+        givenDateCal.setTime(givenDate);
+        return givenDateCal.before(sevenDaysAgo);
+    }
 }

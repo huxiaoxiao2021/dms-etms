@@ -4,7 +4,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -27,7 +27,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  * @since 2019/4/5
  */
 @Service("pickWillPrintPackageInterceptHandler")
-public class PickWillPrintPackageInterceptHandler implements  InterceptHandler<WaybillPrintContext,String> {
+public class PickWillPrintPackageInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PickWillPrintPackageInterceptHandler.class);
 

@@ -77,11 +77,16 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.collectpackage.JyBizTaskCollectPackageEntity;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskCollectPackageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.collectpackage.JyBizTaskCollectPackageService;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.dto.RecycleMaterialOperateRecordPublicDto;
+import com.jd.bluedragon.distribution.material.enums.MaterialFlowActionDetailV2Enum;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -447,6 +452,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     CycleBoxService cycleBoxService;
 
     @Autowired
+    JyBizTaskCollectPackageService jyBizTaskCollectPackageService;
+
+
+    @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
     @Autowired
@@ -454,6 +463,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     @Qualifier("bigBoxCancelSendProducer")
     private DefaultJMQProducer bigBoxCancelSendProducer;
+
+    @Autowired
+    @Qualifier("recycleMaterialOperateRecordProducer")
+    private DefaultJMQProducer recycleMaterialOperateRecordProducer;
 
     /**
      * 自动过期时间 30分钟
@@ -1623,9 +1636,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
-            // 判断当前操作场地站点类型，是6420的走新逻辑
+            // 判断当前操作场地站点类型，是6420或者6460的走新逻辑
             BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getCreateSiteCode() + "");
-            if (siteInfo != null && Integer.valueOf(Constants.B2B_SITE_TYPE).equals(siteInfo.getSubType())) {
+            if (siteInfo != null && (Integer.valueOf(Constants.B2B_SITE_TYPE).equals(siteInfo.getSubType())
+                    || Integer.valueOf(Constants.B2B_CODE_SITE_TYPE).equals(siteInfo.getSubType()))) {
                 sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             } else {
                 sortingCheck.setOperateType(1);
@@ -3699,6 +3713,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
                                 coldChainSendDetails.add(model);
                             }
+                            sendRecycleMaterialOperateRecordMq(model);
                         }
                     }
                 }
@@ -3890,6 +3905,52 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         cycleMaterialSendMQ.sendOnFailPersistent(materialCode, JsonHelper.toJson(boxMaterialRelationMQ));
     }
 
+    private void sendRecycleMaterialOperateRecordMq(SendDetail sendDetail) {
+        log.info("DeliveryServiceImpl sendRecycleMaterialOperateRecordMq {}", JsonHelper.toJson(sendDetail));
+        try {
+            final RecycleMaterialOperateRecordPublicDto recycleMaterialOperateRecordDto = new RecycleMaterialOperateRecordPublicDto();
+            recycleMaterialOperateRecordDto.setPackageCode(sendDetail.getPackageBarcode());
+            recycleMaterialOperateRecordDto.setOperateNodeCode(MaterialFlowActionDetailV2Enum.NODE_DELIVERY_CANCEL.getCode());
+            recycleMaterialOperateRecordDto.setOperateNodeName(MaterialFlowActionDetailV2Enum.NODE_DELIVERY_CANCEL.getDesc());
+            if (null != sendDetail.getCreateUserCode() && sendDetail.getCreateSiteCode() > 0) {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateUserCode());
+                if (null != baseStaffSiteOrgDto) {
+                    recycleMaterialOperateRecordDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
+                    recycleMaterialOperateRecordDto.setOperateUserName(baseStaffSiteOrgDto.getStaffName());
+                }
+            }
+            recycleMaterialOperateRecordDto.setOperateSiteId(String.valueOf(sendDetail.getCreateSiteCode()));
+            final BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+            if (createSiteDto != null) {
+                recycleMaterialOperateRecordDto.setOperateSiteName(createSiteDto.getSiteName());
+            }
+            final Long operateTimeMillSeconds = sendDetail.getOperateTime() != null ? sendDetail.getOperateTime().getTime() : System.currentTimeMillis();
+            recycleMaterialOperateRecordDto.setOperateTime(operateTimeMillSeconds);
+            if (sendDetail.getReceiveSiteCode() != null) {
+                recycleMaterialOperateRecordDto.setReceiveSiteId(sendDetail.getReceiveSiteCode().toString());
+
+                final BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
+                if (createSiteDto != null) {
+                    recycleMaterialOperateRecordDto.setOperateSiteName(createSiteDto.getSiteName());
+                }
+                // 查询目的地，判断如果是仓，则取仓的仓号_配送中心号
+                if (receiveSiteDto != null) {
+                    recycleMaterialOperateRecordDto.setReceiveSiteName(receiveSiteDto.getSiteName());
+                    if (org.apache.commons.lang.StringUtils.isNotBlank(receiveSiteDto.getStoreCode())) {
+                        String[] storeCodeArr = receiveSiteDto.getStoreCode().split(Constants.SEPARATOR_HYPHEN);
+                        if(storeCodeArr.length == 3){
+                            // 仓号_配送中心号
+                            recycleMaterialOperateRecordDto.setReceiveSiteId(storeCodeArr[2] + Constants.UNDER_LINE + storeCodeArr[1]);
+                        }
+                    }
+                }
+            }
+            recycleMaterialOperateRecordDto.setSendTime(System.currentTimeMillis());
+            recycleMaterialOperateRecordProducer.sendOnFailPersistent(recycleMaterialOperateRecordDto.getPackageCode(), JsonHelper.toJson(recycleMaterialOperateRecordDto));
+        } catch (Exception e) {
+            log.error("DeliveryServiceImpl sendRecycleMaterialOperateRecordMq exception {}", JsonHelper.toJson(sendDetail), e);
+        }
+    }
 
     //处理箱子
     private ThreeDeliveryResponse cancelUpdateDataByBox(SendM tSendM,
@@ -4590,6 +4651,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null)
             return true;
 
+        checkIfNeedDealSortingTask(task);
+
         List<SendM> tSendM = null;
         if (JsonHelper.isJsonString(task.getBody())) {
             SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
@@ -4624,6 +4687,24 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
         }
         return true;
+    }
+
+    private void checkIfNeedDealSortingTask(Task task) {
+        try {
+            if (ObjectHelper.isNotNull(task) && ObjectHelper.isNotNull(task.getBoxCode())){
+                JyBizTaskCollectPackageEntity jyBizTaskCollectPackageEntity = jyBizTaskCollectPackageService.findByBoxCode(task.getBoxCode());
+                if (ObjectHelper.isNotNull(jyBizTaskCollectPackageEntity) && !JyBizTaskCollectPackageStatusEnum.SEALED.getCode().equals(jyBizTaskCollectPackageEntity.getTaskStatus())){
+                    JyBizTaskCollectPackageEntity update =new JyBizTaskCollectPackageEntity();
+                    update.setId(jyBizTaskCollectPackageEntity.getId());
+                    update.setTaskStatus(JyBizTaskCollectPackageStatusEnum.SEALED.getCode());
+                    update.setUpdateTime(new Date());
+                    jyBizTaskCollectPackageService.updateById(update);
+                    log.info("按箱操作发货后变更集包任务的状态成功:{}",JsonHelper.toJson(task));
+                }
+            }
+        } catch (Exception e) {
+            log.error("按箱操作发货后变更集包任务的状态异常，箱号:{}",task.getBoxCode(),e);
+        }
     }
 
     /**
@@ -7105,7 +7186,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             // 分拣机发货
             //切换新服务
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(domain.getCreateSiteCode()))){
                 log.info("自动化分拣机发货 启用新模式 {}",domain.getBoxCode());
                 //新接口
                 SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);
@@ -7118,7 +7199,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         } else {
             //切换新服务
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(domain.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(domain.getCreateSiteCode()))){
                 log.info("自动化龙门架发货 启用新模式 {}",domain.getBoxCode());
                 //新接口
                 SendRequest sendRequest = makeSendRequestOfScannerFrameAuto(domain);

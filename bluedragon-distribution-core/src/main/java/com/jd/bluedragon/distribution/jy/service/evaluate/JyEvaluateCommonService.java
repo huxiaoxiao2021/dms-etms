@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.evaluate.JyEvaluateRecordDao;
 import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
+import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto;
 import com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
@@ -146,4 +147,23 @@ public class JyEvaluateCommonService {
         return siteOrgDto;
     }
 
+    /**
+     * 根据条件查找评价记录实体列表
+     * @param updatePassDto 更新通过DTO
+     * @return 评价记录实体列表
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findByCondition", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<JyEvaluateRecordEntity> findByCondition(JyEvaluateRecordAppealUpdateDto updatePassDto) {
+        return jyEvaluateRecordDao.findByCondition(updatePassDto);
+    }
+
+    /**
+     * 批量更新数据
+     * @param ids 要更新的数据的ID列表
+     * @return 更新结果的数量
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "JyEvaluateCommonService.findByCondition", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public int batchUpdate(List<Long> ids) {
+        return jyEvaluateRecordDao.batchUpdate(ids);
+    }
 }

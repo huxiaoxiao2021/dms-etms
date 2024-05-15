@@ -41,8 +41,11 @@ public class SendUnLockHandler extends SendDimensionStrategyHandler {
      */
     @Override
     public boolean doWaybillHandler(SendOfCAContext context) {
-        deliveryService.unlockWaybillSend(context.getWaybill().getWaybillCode(),
-                context.getRequestTurnToSendM().getCreateSiteCode());
+        if(context.getWaybill() != null && context.getRequestTurnToSendM() != null){
+            //存在数据时在释放锁
+            deliveryService.unlockWaybillSend(context.getWaybill().getWaybillCode(),
+                    context.getRequestTurnToSendM().getCreateSiteCode());
+        }
         return true;
     }
 }

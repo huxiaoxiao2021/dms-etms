@@ -121,6 +121,9 @@
             yn = 1
         AND bar_code = #{barCode, jdbcType=VARCHAR}
         AND create_site_id = #{createSiteId, jdbcType=BIGINT}
+        <if test="sendVehicleBizId != null">
+            and send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
         LIMIT 1
     </select>
 

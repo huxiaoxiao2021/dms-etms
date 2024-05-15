@@ -32,6 +32,11 @@ public interface JyOperateFlowService {
      */
     int insert(JyOperateFlowDto data);
     /**
+     * 根据分区键和id查询一条记录
+     * @param data
+     */
+    JyOperateFlowDto findByOperateBizKeyAndId(JyOperateFlowDto data);
+    /**
      * 发送mq服务
      * @param jyOperateFlow
      * @return

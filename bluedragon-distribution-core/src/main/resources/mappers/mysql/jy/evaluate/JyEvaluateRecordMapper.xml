@@ -186,4 +186,33 @@
     and yn = 1 and evaluate_status = 0
   </select>
 
+  <select id="findByCondition" parameterType="com.jd.bluedragon.distribution.jy.evaluate.JyEvaluateRecordAppealUpdateDto" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_evaluate_record
+    where source_biz_id = #{sourceBizId,jdbcType=VARCHAR}
+    and target_biz_id = #{targetBizId,jdbcType=VARCHAR}
+    AND dimension_code in
+    <foreach item="code" index="index" collection="dimensionCodeList"
+             open="(" separator="," close=")">
+      #{code}
+    </foreach>
+    and yn = 1 and evaluate_status = 0
+  </select>
+
+  <update id="batchUpdate"
+          parameterType="list">
+    UPDATE jy_evaluate_record
+    SET
+    YN = 0,
+    UPDATE_TIME = NOW()
+    WHERE
+    YN = 1
+    AND id in
+    <foreach item="id" index="index" collection="list"
+             open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </update>
+
 </mapper>

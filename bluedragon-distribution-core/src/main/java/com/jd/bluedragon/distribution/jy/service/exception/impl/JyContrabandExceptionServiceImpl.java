@@ -16,11 +16,13 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
@@ -245,6 +247,66 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             jyExceptionContrabandUploadProducer.send(entity.getBizId(), JsonHelper.toJson(dto));
             logger.info("违禁品上报发送MQ-{}",JSON.toJSONString(dto));
 
+            StringBuilder errorMessage = new StringBuilder();
+            //质控上报
+            InvokeResult<String> qualityReport = qualityReport(req, bigWaybillDto);
+            if (!qualityReport.codeSuccess()){
+                errorMessage.append(qualityReport.getMessage());
+            }
+
+            // 取消集包
+            InvokeResult<String> invokeResult = cancelCollectPackage(dto);
+            if (!invokeResult.codeSuccess()){
+                errorMessage.append(invokeResult.getMessage());
+            }
+            if (!qualityReport.codeSuccess() || !invokeResult.codeSuccess()){
+                return JdCResponse.fail(errorMessage.toString());
+            }
+        } catch (Exception e) {
+            logger.error("提交违禁品上报报错:", e);
+            return JdCResponse.fail(e.getMessage());
+        }finally {
+            redisClientOfJy.del(existKey);
+        }
+        return JdCResponse.ok();
+    }
+
+    /**
+     * 上报质量检测结果
+     * @param req 运单异常申报请求对象
+     * @param bigWaybillDto 大运单DTO对象
+     * @return result 调用结果
+     * @throws NullPointerException 如果req为null
+     */
+    private  InvokeResult<String> qualityReport(ExpContrabandReq req, BigWaybillDto bigWaybillDto) {
+        InvokeResult<String> result = new InvokeResult<>();
+        // 该判断为了兼容新老版本，新版app上线后可删除
+        if (!StringUtils.isEmpty(req.getFirstReasonLevelCode())) {
+            // 如果是航空转路由，向路由发送消息
+            if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
+                doSendArTransportModeChangeMq(req, bigWaybillDto);
+            }
+
+            // 调用质控接口，上报异常
+            List<ReportRecord> reportRecords =  convertReportRecord(req);
+            logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
+            JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
+            if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
+                result.error(WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 取消集包
+     * @param dto 检查违禁品DTO
+     * @return result 调用结果
+     * @throws JyBizException 业务异常
+     */
+    private InvokeResult<String> cancelCollectPackage(JyExceptionContrabandDto dto) {
+        InvokeResult<String> result = new InvokeResult<>();
+        try {
             // 新增自动取消集包:根据包裹号获取箱号
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(dto.getBarCode());
             if (logger.isInfoEnabled()){
@@ -260,32 +322,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                     logger.info("该包裹关联集包已经被取消或不存在！包裹号：{}", dto.getBarCode());
                 }
             }
-
-            // 该判断为了兼容新老版本，新版app上线后可删除
-            if (!StringUtils.isEmpty(req.getFirstReasonLevelCode())) {
-                // 如果是航空转路由，向路由发送消息
-                if (AIR_TO_LAND.getCode().equals(req.getContrabandType())) {
-                    doSendArTransportModeChangeMq(req,bigWaybillDto);
-                }
-
-                // 调用质控接口，上报异常
-                List<ReportRecord> reportRecords =  convertReportRecord(req);
-                logger.info("违禁品上报调用质控jsf, req={}", JsonHelper.toJson(reportRecords));
-                JdCResponse<List<String>> reportResponse = iAbnPdaAPIManager.report(reportRecords);
-                if (reportResponse == null || !ALL_SUCCESS.equals(reportResponse.getCode())) {
-                    return new JdCResponse<>(WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE,WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE);
-                }
-            }
         } catch (JyBizException e) {
-            logger.error("jy取消集包服务异常{}", req.getBarCode(), e);
-            return JdCResponse.fail("违禁品正常上报,取消集包失败:" + e.getMessage());
+            logger.error("jy取消集包服务业务异常{}", dto.getBarCode(), e);
+            result.error(e.getMessage());
         } catch (Exception e) {
-            logger.error("提交违禁品上报报错:", e);
-            return JdCResponse.fail(e.getMessage());
-        }finally {
-            redisClientOfJy.del(existKey);
+            logger.error("jy取消集包服务异常{}", dto.getBarCode(), e);
+            result.error("取消集包失败，服务异常！");
         }
-        return JdCResponse.ok();
+        return result;
+
     }
 
     private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
@@ -587,14 +632,14 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
                 mq.setExptOneLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getCode());
                 mq.setExptOneLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonOneLevelEnum.MAIN_LAND_CONTRABAND.getName());
                 switch (contrabandType) {
-                    case RETURN:
-                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getCode());
-                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getName());
-                        break;
-                    case AIR_TO_LAND:
-                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getCode());
-                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getName());
-                        break;
+//                    case RETURN:
+//                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getCode());
+//                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_RETURN.getName());
+//                        break;
+//                    case AIR_TO_LAND:
+//                        mq.setExptTwoLevel(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getCode());
+//                        mq.setExptTwoLevelName(JyExpNoticCustomerExpReasonEnum.ExpReasonTwoLevelEnum.MAIN_LAND_AIR_CHANGE_LAND.getName());
+//                        break;
                     default:
                         logger.warn("此违禁品上报类型不做处理-{}", contrabandType);
                         return null;

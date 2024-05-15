@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -10,6 +11,9 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -27,6 +31,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -46,6 +52,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.box.constants.BoxTypeV2Enum.TYPE_BX;
+import static com.jd.bluedragon.distribution.jy.service.collectpackage.JyCollectPackageServiceImpl.bxBoxEndSiteTypeCheck;
 
 @Component
 @Path(Constants.REST_URL)
@@ -76,6 +85,16 @@ public class SortingResource {
 
     @Autowired
 	private SortingServiceFactory sortingServiceFactory;
+
+	@Autowired
+	private BoxService boxService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+
 	/**
 	 * 取消分拣
 	 * 
@@ -392,7 +411,44 @@ public class SortingResource {
 		return result;
 	}
 
+	/**
+	 * 打印客户端批量分拣称重 分拣校验
+	 * @param pdaOperateRequest
+	 * @return
+	 */
 	@POST
+	@Path("/sorting/post/clientBatchSortingCheck")
+	@BusinessLog(sourceSys = 1,bizType = 700,operateType = 60016)
+	@JProfiler(jKey = "DMS.WEB.SortingResource.clientBatchSortingCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public SortingJsfResponse clientBatchSortingCheck(PdaOperateRequest pdaOperateRequest) {
+		if (StringUtils.isEmpty(pdaOperateRequest.getBoxCode())) {
+			return new SortingJsfResponse(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "未获取到箱号！");
+		}
+		if (StringUtils.isEmpty(pdaOperateRequest.getPackageCode())) {
+			return new SortingJsfResponse(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "未获取到包裹号！");
+		}
+		// 箱号类型校验
+		Box box = boxService.findBoxByCode(pdaOperateRequest.getBoxCode());
+		String boxType = box.getType();
+		if (!TYPE_BX.getCode().equals(boxType)) {
+			return new SortingJsfResponse(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "只支持扫描BX开头箱号！");
+		}
+
+		// 包裹目的地校验
+		Waybill waybill = waybillQueryManager.getWaybillByWayCode(WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode()));
+		Integer oldSiteId = waybill.getOldSiteId();
+		if (oldSiteId == null) {
+			return new SortingJsfResponse(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "未获取到包裹号预分拣站点！");
+		}
+		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(oldSiteId);
+		if (!bxBoxEndSiteTypeCheck(siteInfo)) {
+			return new SortingJsfResponse(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "BX开头的箱号，只能扫描目的地只能是三方配送公司！");
+		}
+
+		return this.check(pdaOperateRequest);
+	}
+
+		@POST
 	@Path("/sorting/post/check")
 	@BusinessLog(sourceSys = 1,bizType = 700,operateType = 60016)
 	@JProfiler(jKey = "DMS.WEB.SortingResource.check", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

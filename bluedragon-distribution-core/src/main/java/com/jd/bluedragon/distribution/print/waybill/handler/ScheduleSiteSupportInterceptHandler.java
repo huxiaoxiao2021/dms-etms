@@ -11,7 +11,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -41,7 +41,7 @@ import java.util.Objects;
  * @since 2019/4/8
  */
 @Service("scheduleSiteSupportInterceptHandler")
-public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ScheduleSiteSupportInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleSiteSupportInterceptHandler.class);
 

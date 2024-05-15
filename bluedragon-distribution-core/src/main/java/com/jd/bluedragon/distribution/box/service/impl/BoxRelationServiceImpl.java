@@ -236,4 +236,24 @@ public class BoxRelationServiceImpl implements BoxRelationService {
     public int countByBoxCode(BoxRelation relation) {
         return boxRelationDao.countByBoxCode(relation);
     }
+
+    @Override
+    public InvokeResult<List<BoxRelation>> getBoxCodeByRelationCode(String boxCode) {
+        InvokeResult<List<BoxRelation>> result = new InvokeResult<>();
+        if (StringUtils.isBlank(boxCode)) {
+            result.parameterError("缺少必要参数");
+            return result;
+        }
+        try {
+
+            result.setData(boxRelationDao.getByRelationCode(boxCode));
+
+        }
+        catch (Exception ex) {
+            LOGGER.error("根据箱号查新绑定记录失败. param:{}", boxCode, ex);
+            result.error();
+        }
+
+        return result;
+    }
 }

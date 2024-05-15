@@ -72,6 +72,7 @@ public class PackageInspectionHook extends AbstractTaskHook {
             mq.setOperatorData(inspection.getOperatorData());
             mq.setOperateFlowId(inspection.getOperateFlowId());
             if (null != inspectionRequest){
+                mq.setVehicleNumber(inspectionRequest.getVehicleNumber());
                 mq.setMachineCode(inspectionRequest.getMachineCode());
                 mq.setBizSource(inspectionRequest.getBizSource());
                 mq.setWaybillInspectionFlag(inspectionRequest.getWaybillInspectionFlag()== null ? false : inspectionRequest.getWaybillInspectionFlag());

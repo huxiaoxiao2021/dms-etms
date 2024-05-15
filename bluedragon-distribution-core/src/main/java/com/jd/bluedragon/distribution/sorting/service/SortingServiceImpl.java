@@ -260,6 +260,7 @@ public class SortingServiceImpl implements SortingService {
 		if (result) {
             JyOperateFlowMqData sortingCancelFlowMq = BeanConverter.convertToJyOperateFlowMqData(sorting);
             sortingCancelFlowMq.setOperateBizSubType(OperateBizSubTypeEnum.SORTING_CANCEL.getCode());
+			sortingCancelFlowMq.setId(jyOperateFlowService.createOperateFlowId());
 			jyOperateFlowService.sendMq(sortingCancelFlowMq);
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting");
 		}

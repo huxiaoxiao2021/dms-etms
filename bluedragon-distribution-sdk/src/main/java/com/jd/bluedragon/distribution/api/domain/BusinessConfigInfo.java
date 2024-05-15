@@ -38,6 +38,16 @@ public class BusinessConfigInfo implements Serializable {
      */
     private Boolean silentUpdate;
 
+    /**
+     * 图像清晰度判断阈值
+     */
+    private String imageClarityThreshold;
+
+    /**
+     * 是否启用临时线路切换
+     */
+    private Boolean routerDynamicLineReplaceLineEnable = false;
+
     public List<JyDemotionConfigInfo> getJyDemotionConfigList() {
         return jyDemotionConfigList;
     }
@@ -76,5 +86,21 @@ public class BusinessConfigInfo implements Serializable {
 
     public void setSilentUpdate(Boolean silentUpdate) {
         this.silentUpdate = silentUpdate;
+    }
+
+    public String getImageClarityThreshold() {
+        return imageClarityThreshold;
+    }
+
+    public void setImageClarityThreshold(String imageClarityThreshold) {
+        this.imageClarityThreshold = imageClarityThreshold;
+    }
+
+    public Boolean getRouterDynamicLineReplaceLineEnable() {
+        return routerDynamicLineReplaceLineEnable;
+    }
+
+    public void setRouterDynamicLineReplaceLineEnable(Boolean routerDynamicLineReplaceLineEnable) {
+        this.routerDynamicLineReplaceLineEnable = routerDynamicLineReplaceLineEnable;
     }
 }

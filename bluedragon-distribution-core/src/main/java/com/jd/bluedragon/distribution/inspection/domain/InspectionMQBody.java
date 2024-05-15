@@ -38,6 +38,10 @@ public class InspectionMQBody implements Serializable {
      * 系统来源
      */
     private String source;
+    /**
+     * 数据来源
+     */
+    private Integer bizSource;
 
 
     public Integer getInspectionSiteCode() {
@@ -86,5 +90,13 @@ public class InspectionMQBody implements Serializable {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

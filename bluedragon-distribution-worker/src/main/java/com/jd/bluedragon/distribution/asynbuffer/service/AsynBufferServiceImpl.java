@@ -40,6 +40,8 @@ import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeServic
 import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.openplateform.IJYOpenCargoOperate;
+import com.jd.bluedragon.openplateform.entity.JYCargoOperateEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RandomUtils;
 import com.jd.bluedragon.utils.converter.BeanConverter;
@@ -78,6 +80,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     @Autowired
     private InspectionTaskExeStrategy inspectionTaskExeStrategy;
+
+    @Autowired
+    private IJYOpenCargoOperate jyOpenCargoOperate;
     
 
     public boolean receiveTaskProcess(Task task)
@@ -537,4 +542,111 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
         return true;
     }
+
+    /**
+     * 1001-拣运开放平台验货异步任务处理
+     * @param task 任务对象
+     * @return 是否成功打开检验流程
+     */
+    @Override
+    public boolean jyOpenInspectionProcess(Task task) {
+        if (log.isInfoEnabled()) {
+            log.info("jyOpenInspectionProcess:task={}", JsonHelper.toJsonMs(task));
+        }
+        CallerInfo inspectionMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenInspectionProcess",
+                Constants.UMP_APP_NAME_DMSWORKER);
+        try {
+            // task对象转换为业务对象
+            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+            // 调用验货处理类
+            InvokeResult<Boolean> result = jyOpenCargoOperate.inspection(jyCargoOperateEntity);
+            if (result != null) {
+                return result.codeSuccess();
+            }
+        } finally {
+            Profiler.registerInfoEnd(inspectionMonitor);
+        }
+        return true;
+    }
+
+    /**
+     * 1002-拣运开放平台分拣异步任务处理
+     * @param task 任务对象
+     * @return 返回是否成功的布尔值
+     */
+    @Override
+    public boolean jyOpenSortingProcess(Task task) {
+        if (log.isInfoEnabled()) {
+            log.info("jyOpenSortingProcess:task={}", JsonHelper.toJsonMs(task));
+        }
+        CallerInfo sortingMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSortingProcess",
+                Constants.UMP_APP_NAME_DMSWORKER);
+        try {
+            // task对象转换为业务对象
+            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+            // 调用分拣处理类
+            InvokeResult<Boolean> result = jyOpenCargoOperate.sorting(jyCargoOperateEntity);
+            if (result != null) {
+                return result.codeSuccess();
+            }
+        } finally {
+            Profiler.registerInfoEnd(sortingMonitor);
+        }
+        return true;
+    }
+
+    /**
+     * 1003-拣运开放平台发货异步任务处理
+     * @param task 任务对象
+     * @return 返回处理结果
+     */
+    @Override
+    public boolean jyOpenSendProcess(Task task) {
+        if (log.isInfoEnabled()) {
+            log.info("jyOpenSendProcess:task={}", JsonHelper.toJsonMs(task));
+        }
+        CallerInfo sendMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendProcess",
+                Constants.UMP_APP_NAME_DMSWORKER);
+        try {
+            // task对象转换为业务对象
+            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+            // 调用发货处理类
+            InvokeResult<Boolean> result = jyOpenCargoOperate.send(jyCargoOperateEntity);
+            // 1002-拣运开放平台分拣
+            if (result != null) {
+                return result.codeSuccess();
+            }
+        } finally {
+            Profiler.registerInfoEnd(sendMonitor);
+        }
+        return true;
+    }
+
+    /**
+     * 1004-拣运开放平台发货完成异步任务处理
+     * @param task 任务对象
+     * @return 返回处理结果的布尔值
+     */
+    @Override
+    public boolean jyOpenSendVehicleFinishProcess(Task task) {
+        if (log.isInfoEnabled()) {
+            log.info("jyOpenSendVehicleFinishProcess:task={}", JsonHelper.toJsonMs(task));
+        }
+        CallerInfo sendVehicleFinishMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendVehicleFinishProcess",
+                Constants.UMP_APP_NAME_DMSWORKER);
+        try {
+            // task对象转换为业务对象
+            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+            // 调用发货完成处理类
+            InvokeResult<Boolean> result = jyOpenCargoOperate.sendVehicleFinish(jyCargoOperateEntity);
+            if (result != null) {
+                return result.codeSuccess();
+            }
+        } finally {
+            Profiler.registerInfoEnd(sendVehicleFinishMonitor);
+        }
+        return true;
+    }
+
+
 }

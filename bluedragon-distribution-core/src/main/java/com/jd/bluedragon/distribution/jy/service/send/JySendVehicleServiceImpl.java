@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
@@ -65,6 +66,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.core.jsf.vehicle.VehicleBasicManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkGridManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -170,6 +172,7 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.api.domain.transferDp.ConfigTransferDpSite;
@@ -425,6 +428,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private WorkGridManager workGridManager;
+
+    @Autowired
+    private IVirtualBoardJsfManager virtualBoardJsfManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1679,7 +1685,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
-
+        CallerInfo info = Profiler.registerInfo(UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendScan.seconds", false, true);
         logInfo("拣运发货扫描:{}", JsonHelper.toJson(request));
 
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
@@ -1771,7 +1777,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return result;
             }
 
-            if(sysConfigService.getStringListConfig(Constants.SEND_CAPABILITY_SITE_CONF).contains(String.valueOf(sendM.getCreateSiteCode()))){
+            if(sysConfigService.getByListContainOrAllConfig(Constants.SEND_CAPABILITY_SITE_CONF,String.valueOf(sendM.getCreateSiteCode()))){
                 log.info("IJySendVehicleService.sendScan 启用新模式 {}",sendM.getBoxCode());
                 SendRequest sendRequest = getSendRequest(request, sendType, sendM);
                 JdVerifyResponse<SendResult> response = sendOfCapabilityAreaService.doSend(sendRequest);
@@ -1858,12 +1864,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             //回调执行
             this.sendScanOfCallback(result,request);
 
+            this.saveWaybillReScanCache(request);
+
         } catch (EconomicNetException e) {
+            Profiler.functionError(info);
             log.error("发货任务扫描失败. 三方箱号未准备完成{}", JsonHelper.toJson(request), e);
             result.toError(e.getMessage());
         } catch (Exception ex) {
             log.error("发货任务扫描失败. {}", JsonHelper.toJson(request), ex);
             result.toError("服务器异常，发货任务扫描失败，请咚咚联系分拣小秘！");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return result;
@@ -1923,6 +1934,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     private SendScanCallbackReqDto transferDto(SendScanRequest request) {
         SendScanCallbackReqDto callbackReqDto = new SendScanCallbackReqDto();
         callbackReqDto.setBarCode(request.getBarCode());
+        com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum currEnum = com.jd.bluedragon.distribution.jy.enums.SendVehicleScanTypeEnum.getEnumByCode(request.getBarCodeType());
+        if (currEnum == null) {
+            throw new JyBizException("扫描类型转换不正确");
+        }
         callbackReqDto.setBarCodeType(request.getBarCodeType());
         callbackReqDto.setForceSubmit(request.getForceSubmit());
         callbackReqDto.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1932,6 +1947,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             callbackReqDto.setUserName(request.getUser().getUserName());
         }
         callbackReqDto.setOperateTime(new Date());
+        if(request.getStevedoringMerchant() != null){
+            callbackReqDto.setMerchantCode(request.getStevedoringMerchant().getMerchantCode());
+            callbackReqDto.setMerchantName(request.getStevedoringMerchant().getMerchantName());
+        }
         return callbackReqDto;
     }
 
@@ -2850,7 +2869,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
             request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
-
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_BOARD.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOARD_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或板号！");
+                return false;
+            }
+            //按板并扫描的是包裹号
+            if (Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())) {
+                // 根据包裹号找到板号
+                Board boardResult = virtualBoardJsfManager.getBoardByBarCode(request.getBarCode(), siteCode);
+                if(boardResult == null || StringUtils.isBlank(boardResult.getCode())) {
+                    response.toFail("根据包裹或运单号未找到对应板数据");
+                    return false;
+                }
+                log.info("getBoardCode param boxCode:{},siteCode:{},result getCode: {}",request.getBarCode(),siteCode, boardResult.getCode());
+                request.setBarCode(boardResult.getCode());
+            }
+        }
         return true;
     }
 
@@ -2994,7 +3029,58 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         //sendScanCheckOfCallback
 
+        //filter repeat scan by waybill
+        if(!this.waybillReScanCheck(response, request)) {
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * filter repeat scan by waybill
+     * true 放行  false  重复操作，拦截
+     */
+    private boolean waybillReScanCheck(JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
+        if(Objects.isNull(request) || Objects.isNull(response)) {
+            return true;
+        }
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode().trim());
+            if(this.existCacheWaybillScanSend(waybillCode, request.getSendVehicleBizId(), request.getCurrentOperate().getSiteCode())) {
+                response.toBizError();
+                response.addInterceptBox(0, "该单已在当前任务操作按单发货，无需重复操作");
+                return false;
+            }
+        }
+        return true;
+    }
+    //add waybill repeat scan cache
+    private void saveWaybillReScanCache(SendScanRequest request) {
+        if(Objects.nonNull(request) && Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode().trim());
+            String cacheKey = this.getWaybillScanSendCacheKey(waybillCode, request.getSendVehicleBizId(), request.getCurrentOperate().getSiteCode());
+            redisClientOfJy.setEx(cacheKey, Constants.NUMBER_ONE.toString(), CacheKeyConstants.JY_SEND_WAYBILL_SCAN_TIMEOUT_HOURS, TimeUnit.HOURS);
+        }
+    }
+    //exist waybill repeat scan
+    private boolean existCacheWaybillScanSend(String waybillCode, String bizId, Integer siteId) {
+        String cacheKey = this.getWaybillScanSendCacheKey(waybillCode, bizId, siteId);
+        boolean existScanFlag = redisClientOfJy.exists(cacheKey);
+        if(existScanFlag) {
+            return true;
+        }
+        JySendEntity queryEntity = new JySendEntity(waybillCode, siteId.longValue());
+        queryEntity.setSendVehicleBizId(bizId);
+        JySendEntity sendEntity = jySendService.queryByCodeAndSite(queryEntity);
+        if(Objects.nonNull(sendEntity)) {
+            redisClientOfJy.setEx(cacheKey, Constants.NUMBER_ONE.toString(), CacheKeyConstants.JY_SEND_WAYBILL_SCAN_TIMEOUT_HOURS, TimeUnit.HOURS);
+            return true;
+        }
+        return false;
+    }
+    //get waybill repeat scan cache key
+    private String getWaybillScanSendCacheKey(String waybillCode, String bizId, Integer siteId) {
+        return String.format(CacheKeyConstants.JY_SEND_WAYBILL_SCAN_KEY, waybillCode.trim(), bizId, siteId);
     }
 
     public Integer getTaskSendDetailCount(JyBizTaskSendVehicleDetailEntity detail) {

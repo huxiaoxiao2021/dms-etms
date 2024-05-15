@@ -129,6 +129,23 @@ public class WeightVolumeEntity {
      * 操作信息对象
      */
     private OperatorData operatorData;
+    
+    /**
+     * 上传运单称重流水标识
+     * <p>
+     *     true：上传运单称重流水（默认值）
+     *     false：不上传运单称重流水
+     * </p>
+     */
+    private boolean uploadWaybillFlowFlag = true;
+    /**
+     * 发称重全程跟踪标识
+     * <P>
+     *     true：发称重全程跟踪（默认值）
+     *     false：不发称重全程跟踪
+     * </P>
+     */
+    private boolean recordWaybillTraceFlag = true;
 
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
@@ -417,5 +434,21 @@ public class WeightVolumeEntity {
 
     public void setOperatorData(OperatorData operatorData) {
         this.operatorData = operatorData;
+    }
+
+    public boolean getUploadWaybillFlowFlag() {
+        return uploadWaybillFlowFlag;
+    }
+
+    public void setUploadWaybillFlowFlag(boolean uploadWaybillFlowFlag) {
+        this.uploadWaybillFlowFlag = uploadWaybillFlowFlag;
+    }
+
+    public boolean getRecordWaybillTraceFlag() {
+        return recordWaybillTraceFlag;
+    }
+
+    public void setRecordWaybillTraceFlag(boolean recordWaybillTraceFlag) {
+        this.recordWaybillTraceFlag = recordWaybillTraceFlag;
     }
 }

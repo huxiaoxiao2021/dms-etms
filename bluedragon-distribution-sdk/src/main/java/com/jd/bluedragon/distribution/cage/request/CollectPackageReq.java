@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.cage.request;
 
 
 import java.io.Serializable;
+import java.util.Date;
+
 public class CollectPackageReq implements Serializable {
     private static final long serialVersionUID = 1524434357342779618L;
 
@@ -15,6 +17,8 @@ public class CollectPackageReq implements Serializable {
     private String userErp;
 
     private String userName;
+
+    private Date operateTime;
 
 
     public String getBarCode() {
@@ -55,5 +59,13 @@ public class CollectPackageReq implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
     }
 }

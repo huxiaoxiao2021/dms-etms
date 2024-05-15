@@ -4,13 +4,17 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.dto.base.OperatorInfo;
+import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 分拣虚拟组板服务
@@ -21,6 +25,8 @@ import java.util.List;
  */
 @Component
 public class VirtualBoardJsfManagerImpl implements IVirtualBoardJsfManager {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private IVirtualBoardService virtualBoardJsfService;
@@ -128,4 +134,22 @@ public class VirtualBoardJsfManagerImpl implements IVirtualBoardJsfManager {
     public Response<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
         return virtualBoardJsfService.getBoxCountByBoardCode(boardCode);
     }
+
+    /**
+     * 获取根据条形码和站点代码获取板子
+     * @param barCode 箱子条形码
+     * @param siteCode 站点代码
+     * @return 响应包含板子的对象
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardJsfManagerImpl.getBoardByBarCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Board getBoardByBarCode(String barCode, Integer siteCode){
+        Response<Board> result = virtualBoardJsfService.getBoardByBarCode(barCode,siteCode);
+        if(result == null || !Objects.equals(ResponseEnum.SUCCESS.getIndex(),result.getCode())){
+            log.error("VirtualBoardJsfManagerImpl->getBoardByBarCode,单号{}未查询到板信息,场地:{}",barCode,siteCode);
+            return null;
+        }
+        return result.getData();
+    }
+
 }

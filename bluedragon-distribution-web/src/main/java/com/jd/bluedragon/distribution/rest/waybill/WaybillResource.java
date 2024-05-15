@@ -21,6 +21,7 @@ import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWaybillDiff;
@@ -74,6 +75,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -85,6 +88,8 @@ import com.jd.etms.waybill.dto.WaybillRegionDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.receive.api.dto.PackDTO;
+import com.jd.ql.dms.receive.api.dto.ResultObject;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -186,6 +191,11 @@ public class WaybillResource {
 
 	@Autowired
 	private SysConfigService sysConfigService;
+
+
+	@Autowired
+	@Qualifier("cancelWaybillJsfManager")
+	private CancelWaybillJsfManager cancelWaybillJsfManager;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -468,7 +478,11 @@ public class WaybillResource {
 		// 验证运单号，是否锁定、删除等
     	com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse cancelWaybill = null;
 		try {
-			cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
+			JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(waybill.getWaybillCode());
+			if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
+				cancelWaybill = new com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse();
+				cancelWaybill.setCode( waybillCancelResponse.getData().getCode());
+			}
 		} catch (Exception e) {
 			this.log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:{}", waybill.getWaybillCode(), e);
 		}
@@ -1837,7 +1851,7 @@ public class WaybillResource {
 			}else {
 				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
 				// fill request
-				request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+				request.setReverseReasonCode(waybillService.queryReverseReasonCode(request.getWaybillCode()));
 				// build waybillReverseDTO
 				DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 				waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
@@ -1861,29 +1875,7 @@ public class WaybillResource {
         return invokeResult;
 	}
 
-	private Integer queryReverseReasonCode(String waybillCode) {
-		// 外单逆向换单
-		// 1、港澳单-默认设置1（拦截逆向）；全程跟踪节点是-3040|700节点则设置3（清关逆向）(国际单同港澳单)
-		// 2、快运单子-默认设置1
-		// 3、其它-默认不设置
-		com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-		if(waybill != null){ 
-			String waybillSign = waybill.getWaybillSign();
-			String waybillStart = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getStartFlowDirection();
-			String waybillEnd = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getEndFlowDirection();
-			if(BusinessUtil.isGAWaybill(waybillStart, waybillEnd) || BusinessUtil.isInternational(waybillSign, waybillStart, waybillEnd)){
-				if(waybillTraceManager.isExReturn(waybillCode)){
-					// fill reverseReasonCode
-					return Constants.INTERCEPT_REVERSE_CODE_3;
-				}
-				return Constants.INTERCEPT_REVERSE_CODE_1;
-			}
-			if(BusinessUtil.isKyWaybillOfReverseExchange(waybillSign)){
-				return Constants.INTERCEPT_REVERSE_CODE_1;
-			}
-		}
-		return null;
-	}
+
 
 
 	/**
@@ -1913,7 +1905,7 @@ public class WaybillResource {
 		
 		try {
 			// fill request
-			request.setReverseReasonCode(queryReverseReasonCode(request.getWaybillCode()));
+			request.setReverseReasonCode(waybillService.queryReverseReasonCode(request.getWaybillCode()));
 			// build waybillReverseDTO
 			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
@@ -2730,5 +2722,29 @@ public class WaybillResource {
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
 		return spotCheckDto;
+	}
+
+
+	@GET
+	@Path("/dy/getOrderByPackCode/{deliveryId}")
+	@JProfiler(jKey = "DMS.WEB.CommandResource.getWaybillPackageList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<List<PackDTO>> getWaybillPackageList(@PathParam("deliveryId") String deliveryId) {
+		InvokeResult<List<PackDTO>> result = new InvokeResult<>();
+		try {
+			log.info("查询B商家订单 getWaybillPackageList deliveryId={}", deliveryId);
+			ResultObject<List<PackDTO>> resultObject = ldopManager.getPackLists(deliveryId);
+			if (resultObject == null || !resultObject.isSuccess() || CollectionUtils.isEmpty(resultObject.getData())) {
+				log.info("getPackLists 运单号={}, 查询不到包裹", deliveryId);
+				result.error("getWaybillPackageList 查询不到包裹");
+				return result;
+			}
+			result.setData(resultObject.getData());
+			return result;
+		} catch (Exception e) {
+			log.error("查询B商家订单异常 getWaybillPackageList deliveryId={}", deliveryId, e);
+			result.error("查询B商家订单后端出现异常-getWaybillPackageList，请联系分拣小秘处理！");
+			return result;
+		}
+
 	}
 }

@@ -546,6 +546,11 @@ public class HintCodeConstants {
      */
     public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
     /**
+     * 此单为改址拦截单，请换单打印
+     */
+    public static String CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT = "40043";
+
+    /**
      * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
      */
     public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
@@ -1048,7 +1053,7 @@ public class HintCodeConstants {
 
     public static final String CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG = "当前网格码所属场地与人员所属场地不符，登录后会影响计提取量，是否确认登录？";
 
-    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到，请联系网格负责人%s";
+    public static String JY_SIGN_IN_JOB_TYPE_TIP_MSG = "作业区【%s】不允许工种【%s】进行签到或工种已被停用，请联系网格负责人%s";
 
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED = "40027";
     public static String TRANSPORT_SEND_VEHICLE_ARRIVE_DOCK_QRCODE_EXPIRED_MSG = "二维码已过期";
@@ -1113,5 +1118,19 @@ public class HintCodeConstants {
     // 您扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作
     public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40038";
     public static String TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "扫描的岗位码不是特安作业区，禁止操作特安件，请将货物交给特安人员操作";
+
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_CODE = "40039";
+    public static String NOT_TEAN_WAYBILL_WRONG_WORK_AREA_CODE_HINT_MSG_DEFAULT = "您扫描的岗位码是特安作业区，禁止操作非特安件";
+
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_CODE = "40040";
+    public static String OPERATE_EMPTY_WORK_AREA_CODE_HINT_MSG_DEFAULT = "未找到网格信息，请检查网格码网格数据";
+
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_CODE = "40042";
+    public static String DISCARDED_PACKAGE_ERP_NOT_EXCEPTION_POSITION_CODE_HINT_MSG_DEFAULT = "ERP在人资系统中不是【异常岗】，无法操作弃件暂存功能，请联系异常岗人员操作。";
+
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_CODE = "40041";
+    public static final String ROUTER_DYNAMIC_LINE_REPLACE_SWITCH_ENABLE_HINT_MSG_DEFAULT = "切换后，在波次结束前，A流向（原线路目的地）的货物会自动落入B流向（临时方案线路目的地）的格口，按新流向发货不会错发";
+
+    public static String JY_SIGN_IN_JOB_TYPE_MSG = "当前工种,工种编码【%s】已被停用或者不存在，请联系网格负责人%s";
 
 }

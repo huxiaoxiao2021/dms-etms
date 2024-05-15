@@ -844,7 +844,7 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         if(isSignInChars(waybillSign,53,'2','0')
-                && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
+                && isSignInChars(waybillSign,1,'2','3','6','9','B','K','Y')){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -1248,7 +1248,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isConvey(Integer siteType){
-        return siteType.equals(96);
+        return SITE_TYPE_FLEET.equals(siteType);
     }
 
 
@@ -1990,7 +1990,9 @@ public class BusinessUtil {
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15) ||
-                isWmsTurnoverBox(materialCode);
+                isWmsTurnoverBox(materialCode) ||
+                isInsulatedBox(materialCode) ||
+                isRecycleTurnoverBox(materialCode);
     }
 
     /**
@@ -1999,6 +2001,30 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_WMS_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
+    }
+
+    /**
+     * 判断是否是保温箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isInsulatedBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_INSULATED_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
+    }
+
+    /**
+     * 判断是否是周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isRecycleTurnoverBox(String materialCode) {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
@@ -3158,5 +3184,15 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否是快递直送分拣
+     * 
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isDirectDeliverySort(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
     }
 }

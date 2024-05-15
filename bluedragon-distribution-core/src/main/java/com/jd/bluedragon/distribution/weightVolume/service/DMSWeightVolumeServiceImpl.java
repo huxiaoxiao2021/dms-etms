@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
@@ -40,7 +41,6 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.alibaba.fastjson.JSON;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -64,13 +64,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.*;
-import static com.jd.bluedragon.distribution.weightvolume.FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isConvey;
 import static com.jd.bluedragon.utils.BusinessHelper.isThirdSite;
 import static com.jdl.basic.api.enums.WorkSiteTypeEnum.*;
@@ -824,8 +824,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         InvokeResult<Void> result = new InvokeResult<>();
         result.success();
 
+        // 获取运单信息
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        BigWaybillDto bigWaybill = getWaybillBaseEntity(waybillCode);
+        if (bigWaybill == null || bigWaybill.getWaybill() == null || bigWaybill.getWaybill().getWaybillSign() == null) {
+            logger.info("未获取运单信息{}", waybillCode);
+            return result;
+        }
+        
         // 拦截开关
-        if (!dmsConfigManager.getPropertyConfig().getWaybillZeroWeightInterceptSwitch()) {
+        if(!checkWaybillNotZeroWeightInterceptSwitchOn(entity.getOperateSiteCode(), waybillCode, bigWaybill)){
             return result;
         }
 
@@ -844,14 +852,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         // 根据erp判断当前操作人员所属机构是否为分拣场地人员
         if (checkErpBindingSite(operatorCode, barCode, sourceCode)) {
             logger.info("{}操作人员非分拣场地人员", barCode);
-            return result;
-        }
-
-        // 获取运单信息
-        String waybillCode = WaybillUtil.getWaybillCode(barCode);
-        BigWaybillDto bigWaybill = getWaybillBaseEntity(waybillCode);
-        if (bigWaybill == null || bigWaybill.getWaybill() == null || bigWaybill.getWaybill().getWaybillSign() == null) {
-            logger.info("未获取运单信息{}", waybillCode);
             return result;
         }
 
@@ -889,6 +889,33 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 //            return result;
 //        }
         return result;
+    }
+
+    @Override
+    public boolean checkWaybillNotZeroWeightInterceptSwitchOn(Integer operateSiteCode, String waybillCode, BigWaybillDto bigWaybillDto) {
+        String waybillZeroWeightInterceptSites = dmsConfigManager.getPropertyConfig().getWaybillZeroWeightInterceptSites();
+        if(bigWaybillDto == null){
+            bigWaybillDto = getWaybillBaseEntity(waybillCode);
+        }
+        if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
+            logger.warn("运单号:{}无运单信息!", waybillCode);
+            return false;
+        }
+        if(BusinessUtil.isDirectDeliverySort(bigWaybillDto.getWaybill().getWaybillSign())){
+            // 直送分拣揽收单跳过拦截校验，直接上传称重（特殊场景）
+            Integer pickupSiteId = bigWaybillDto.getWaybillPickup() == null ? null : bigWaybillDto.getWaybillPickup().getPickupSiteId();
+            if(pickupSiteId != null){
+                BaseStaffSiteOrgDto packupSite = baseMajorManager.getBaseSiteBySiteId(pickupSiteId);
+                boolean directSortCollect = packupSite != null
+                        && Objects.equals(packupSite.getDmsId() == null ? pickupSiteId : packupSite.getDmsId(), operateSiteCode);
+                return !directSortCollect;
+            }
+        }
+        return Objects.equals(waybillZeroWeightInterceptSites, STR_ALL)
+                || Arrays.stream(waybillZeroWeightInterceptSites.split(SEPARATOR_COMMA))
+                .map(Integer::valueOf)
+                .collect(Collectors.toList())
+                .contains(operateSiteCode);
     }
 
     /**
@@ -946,35 +973,35 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     // 校验运单重量体积是否为非0重包裹
     private boolean checkWeightAndVolumeNotZero(BigWaybillDto bigWaybill, String waybillCode, Integer operateSiteCode, InvokeResult<Void> result, FromSourceEnum sourceCode) {
         // 人工称重 对0存在重量的运单，校验当前分拣中心在全程跟踪是否存在前置操作节点（解封车、验货、装箱、发货、分拣、封车等任意一条记录即可
-        if (NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE.contains(sourceCode)) {
-            Set<Integer> stateSet = getStateSet();
-            boolean isExistWaybillTrace = false;
-            // 不支持按场地查询，只能自己过滤
-            List<PackageState> waybillTrace = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
-            for (PackageState packageState : waybillTrace) {
-                if (Objects.equals(packageState.getOperatorSiteId(), operateSiteCode)) {
-                    isExistWaybillTrace = true;
-                }
-            }
-
-            // 如果没有全程跟踪 校验在当前分拣中心是否存在验货
-            if (!isExistWaybillTrace) {
-                Inspection inspectionQuery = new Inspection();
-                inspectionQuery.setWaybillCode(waybillCode);
-                inspectionQuery.setCreateSiteCode(operateSiteCode);
-                List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
-                if (CollectionUtils.isNotEmpty(inspectionList)) {
-                    isExistWaybillTrace = true;
-                }
-            }
-
-            if (!isExistWaybillTrace) {
-                logger.info("运单号{}不存在前置操作节点", waybillCode);
-                result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
-                result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
-                return true;
-            }
-        }
+//        if (NOT_ZERO_WEIGHT_VOLUME_CHECK_PRINT_FROM_SOURCE.contains(sourceCode)) {
+//            Set<Integer> stateSet = getStateSet();
+//            boolean isExistWaybillTrace = false;
+//            // 不支持按场地查询，只能自己过滤
+//            List<PackageState> waybillTrace = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
+//            for (PackageState packageState : waybillTrace) {
+//                if (Objects.equals(packageState.getOperatorSiteId(), operateSiteCode)) {
+//                    isExistWaybillTrace = true;
+//                }
+//            }
+//
+//            // 如果没有全程跟踪 校验在当前分拣中心是否存在验货
+//            if (!isExistWaybillTrace) {
+//                Inspection inspectionQuery = new Inspection();
+//                inspectionQuery.setWaybillCode(waybillCode);
+//                inspectionQuery.setCreateSiteCode(operateSiteCode);
+//                List<Inspection> inspectionList = inspectionDao.findPackageBoxCodesByWaybillCode(inspectionQuery);
+//                if (CollectionUtils.isNotEmpty(inspectionList)) {
+//                    isExistWaybillTrace = true;
+//                }
+//            }
+//
+//            if (!isExistWaybillTrace) {
+//                logger.info("运单号{}不存在前置操作节点", waybillCode);
+//                result.setCode(Integer.valueOf(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
+//                result.setMessage(HintService.getHint(WAYBILL_ZERO_WEIGHT_NOT_IN_HINT_CODE));
+//                return true;
+//            }
+//        }
 
         Double weight = bigWaybill.getWaybill().getAgainWeight();
         String volume = bigWaybill.getWaybill().getSpareColumn2();
@@ -988,6 +1015,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         logger.info("运单号{}不存在复重复量方，继续校验包裹数据！", waybillCode);
         // 如果当前运单不存在，则对包裹的重量体积进行校验
         List<DeliveryPackageD> packageList = bigWaybill.getPackageList();
+        if (CollectionUtils.isEmpty(packageList)){
+            return true;
+        }
         for (DeliveryPackageD deliveryPackageD : packageList) {
             if (deliveryPackageD.getAgainWeight() == null
                     || deliveryPackageD.getAgainWeight() <= 0
@@ -1033,7 +1063,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return true;
         }
         BaseStaffSiteOrgDto pickupSite = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
-        if (isConvey(pickupSite.getSiteType())) {
+        if (pickupSite != null && isConvey(pickupSite.getSiteType())) {
             return true;
         }
         return false;
