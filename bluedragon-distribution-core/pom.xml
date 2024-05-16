@@ -976,22 +976,22 @@
         <dependency>
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>hibernate-validator</artifactId>
-                    <groupId>org.hibernate</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>validation-api</artifactId>
-                    <groupId>javax.validation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.jd.eclp</groupId>
-            <artifactId>eclp-notice-api</artifactId>
-            <version>${eclp.notice.api.version}</version>
+            <version>1.0.2-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-notice-api</artifactId>
+			<version>${eclp.notice.api.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-beanutils</artifactId>

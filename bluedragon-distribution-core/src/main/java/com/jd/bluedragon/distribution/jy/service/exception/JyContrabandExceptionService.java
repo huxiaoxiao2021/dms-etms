@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.ContrabandPackageCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalReasonResp;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionContrabandDto;
@@ -40,4 +41,11 @@ public interface JyContrabandExceptionService {
      * @return 损坏次数，返回一个整数值
      */
     int getDamageCountByTime(String startTime, String endTime);
+
+    /**
+     * 违禁品包裹校验
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> contrabandPackageCheck(ContrabandPackageCheckReq req);
 }

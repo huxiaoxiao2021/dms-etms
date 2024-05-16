@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.tms.ecp.dto.AirPortDto;
 import com.jd.tms.ecp.dto.AirTplBillDto;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
+import com.jd.tms.ecp.dto.EcpAbnormalScanOrderRecordDto;
 
 import java.util.List;
 
@@ -36,4 +37,12 @@ public interface EcpQueryWSManager {
      * @return
      */
     AirTplBillDto getAirTplBillDetailInfo(String billCode);
+
+    /**
+     * 根据包裹号或者运单号等信息查询运输违禁品信息。
+     * @param barCode
+     * @return
+     */
+    List<EcpAbnormalScanOrderRecordDto> selectByScanOrderNumber(String barCode);
+
 }
