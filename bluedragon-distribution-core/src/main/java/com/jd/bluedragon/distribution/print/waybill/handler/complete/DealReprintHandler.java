@@ -105,7 +105,7 @@ public class DealReprintHandler extends AbstractHandler<WaybillPrintCompleteCont
     }
 
     private void kyAddressModifyReprintDeal(PrintCompleteRequest printData, WaybillStatus waybillStatus) {
-        if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign())){
+        if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign()) || BusinessUtil.isMedicineCpModifyWaybill(printData.getWaybillSign())){
             BlockResponse blockResponse;
             if(WaybillUtil.isPackageCode(printData.getPackageBarcode())){
                 blockResponse = waybillService.checkPackageBlock(printData.getPackageBarcode(),
