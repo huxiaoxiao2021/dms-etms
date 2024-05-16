@@ -1,8 +1,7 @@
-package com.jd.bluedragon.distribution.api.request;
+package com.jd.bluedragon.distribution.seal.domain;
 
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
-
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,8 +17,12 @@ public class DmsSealVehicleRequest implements Serializable {
     /**
      * 分拣封车对象列表
      */
-    private List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars;
+    private List<SealCarDto> sealCarList;
 
+    /**
+     * 运输封车对象列表
+     */
+    List<com.jd.etms.vos.dto.SealCarDto> tmsSealCarList;
 
     /**
      * 空批次集合
@@ -36,12 +39,20 @@ public class DmsSealVehicleRequest implements Serializable {
      */
     private String bizType;
 
-    public List<SealCarDto> getSealCars() {
-        return sealCars;
+    public List<SealCarDto> getSealCarList() {
+        return sealCarList;
     }
 
-    public void setSealCars(List<SealCarDto> sealCars) {
-        this.sealCars = sealCars;
+    public void setSealCarList(List<SealCarDto> sealCarList) {
+        this.sealCarList = sealCarList;
+    }
+
+    public List<com.jd.etms.vos.dto.SealCarDto> getTmsSealCarList() {
+        return tmsSealCarList;
+    }
+
+    public void setTmsSealCarList(List<com.jd.etms.vos.dto.SealCarDto> tmsSealCarList) {
+        this.tmsSealCarList = tmsSealCarList;
     }
 
     public Map<String, String> getEmptyBatchCode() {

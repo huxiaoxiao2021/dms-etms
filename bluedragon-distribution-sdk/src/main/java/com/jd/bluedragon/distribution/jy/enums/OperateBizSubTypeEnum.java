@@ -29,8 +29,11 @@ public enum OperateBizSubTypeEnum {
 	TRUNK_SEAL("trunk_seal","干支封车"),
 	SHUTTLE_SEAL("shuttle_seal","传摆封车"),
 	WAREHOUSE_SEAL("warehouse_seal","接货仓封车"),
-	BOARD_SEAL("comBoard_seal","组板封车"),
+	BOARD_SEAL("board_seal","组板封车"),
 	AR_SEAL("ar_seal","空铁封车"),
+	WORKBENCH_SEAL("workbench_seal","工作台一键封车"),
+	OFFLINE_SEAL("offline_seal","离线封车"),
+	OFFLINE_SHUTTLE_SEAL("offline_shuttle_seal","离线传摆封车"),
 
 	UNSEAL("unseal", "解封车"),
 	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),

@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
-import com.jd.bluedragon.distribution.api.request.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
@@ -9,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.seal.domain.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;

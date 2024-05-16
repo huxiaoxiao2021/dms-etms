@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
@@ -57,6 +58,7 @@ import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
 import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
+import com.jd.bluedragon.distribution.seal.domain.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -85,6 +87,8 @@ import com.jd.tms.dtp.dto.TransAbnormalBillCreateDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -222,7 +226,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<String> seal(DmsSealVehicleRequest request) throws Exception{
         // 待封车请求参数列表
-        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars = request.getSealCars();
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars = request.getSealCarList();
         // 空批次集合
         Map<String, String> emptyBatchCode = request.getEmptyBatchCode();
 
@@ -274,8 +278,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 log.info("提交运输封车成功,transBookCode={}", sealCarInfo.getData());
                 msg = MESSAGE_SEAL_SUCCESS;
-                // 保存封车操作流水
-                saveSealOperateFlow(sendCodeList, request);
+                // 批量保存封车操作流水
+                saveSealOperateFlowBySealCarList(doSealCarDtos, request);
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
@@ -545,9 +549,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarWithVehicleJob(DmsSealVehicleRequest request) {
         // 待封车请求参数列表
-        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars = request.getSealCars();
-        // 空批次集合
-        Map<String, String> emptyBatchCode = request.getEmptyBatchCode();
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars = request.getSealCarList();
 
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
@@ -563,8 +565,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (!invokeResult.codeSuccess()) {
             return new NewSealVehicleResponse(invokeResult.getCode(), invokeResult.getMessage());
         }
-
-        return doSealCarWithVehicleJobCore(paramList, emptyBatchCode);
+        request.setTmsSealCarList(paramList);
+        return doSealCarWithVehicleJobCore(request);
     }
 
     /**
@@ -578,15 +580,22 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         Map<String, String> emptyBatchCode=Maps.newHashMap();
-        return doSealCarWithVehicleJobCore(sealCarDtoList,emptyBatchCode);
+        // 组装封车请求对象
+        DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+        dmsSealVehicleRequest.setTmsSealCarList(sealCarDtoList);
+        dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+        dmsSealVehicleRequest.setBizType(OperateBizSubTypeEnum.WORKBENCH_SEAL.getCode());
+        return doSealCarWithVehicleJobCore(dmsSealVehicleRequest);
     }
 
     /*
     * 执行传摆封车主体
     * */
-    private NewSealVehicleResponse doSealCarWithVehicleJobCore(DmsSealVehicleRequest request) {
-        List<SealCarDto> paramList = request.
-        Map<String, String> emptyBatchCode
+    private NewSealVehicleResponse doSealCarWithVehicleJobCore(DmsSealVehicleRequest dmsSealVehicleRequest) {
+        // 运输封车请求参数列表
+        List<SealCarDto> paramList = dmsSealVehicleRequest.getTmsSealCarList();
+        // 空批次
+        Map<String, String> emptyBatchCode = dmsSealVehicleRequest.getEmptyBatchCode();
 
         long startTime=System.currentTimeMillis();
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -644,8 +653,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 failCount++;
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.FAIL,singleErrorMsg));
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
+                Set<String> sendCodeList = new HashSet<>(param.getBatchCodes());
                 // 记录封车操作流水
-                saveSealOperateFlow();
+                saveSealOperateFlow(sendCodeList, dmsSealVehicleRequest);
                 successSealCarList.add(param);
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             } else {
@@ -822,7 +832,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         try {
             Map<String, String> emptyBatchCode=Maps.newHashMap();
             List<SealCarDto> paramList = offlineConvertList(sealCars);
-            newSealVehicleResponse = this.doSealCarWithVehicleJobCore(paramList,emptyBatchCode);
+
+            // 组装封车请求对象
+            DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+            dmsSealVehicleRequest.setTmsSealCarList(paramList);
+            dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+            dmsSealVehicleRequest.setBizType(OperateBizSubTypeEnum.OFFLINE_SHUTTLE_SEAL.getCode());
+
+            newSealVehicleResponse = this.doSealCarWithVehicleJobCore(dmsSealVehicleRequest);
 
             if(newSealVehicleResponse == null) {
                 msg += "传摆封车JSF接口返回为空";
@@ -1668,12 +1685,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     /**
-     * 保存封车操作流程
+     * 保存封车操作流水
      * @param sendCodeList 批次号列表
      * @param request DmsSealVehicleRequest请求对象
      */
     private void saveSealOperateFlow(Set<String> sendCodeList, DmsSealVehicleRequest request) {
-        String batchCode = "";
+        CallerInfo info = Profiler.registerInfo("NewSealVehicleServiceImpl.saveSealOperateFlow", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        if (CollectionUtils.isEmpty(sendCodeList)) {
+            log.warn("saveSealOperateFlow|保存封车操作流水,批次号集合为空,无需处理,request={}", com.jd.bluedragon.utils.JsonHelper.toJsonMs(request));
+            return;
+        }
+        String batchCode = Constants.EMPTY_FILL;
         try {
             for (String sendCode : sendCodeList) {
                 batchCode = sendCode;
@@ -1685,8 +1707,36 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 }
             }
         } catch (Exception e) {
-            log.error("saveSealOperateFlow|根据批次号查询封车编码接口异常,batchCode={},operateData={}", batchCode,
-                    com.jd.bluedragon.utils.JsonHelper.toJsonMs(request.getOperatorData()), e);
+            log.error("saveSealOperateFlow|根据批次号查询封车编码接口异常,batchCode={},request={}", batchCode,
+                    com.jd.bluedragon.utils.JsonHelper.toJsonMs(request), e);
+        } finally {
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 批量保存封车操作流水
+     * @param tmsSealCarList 运输封车对象列表
+     * @param request DmsSealVehicleRequest请求对象
+     */
+    private void saveSealOperateFlowBySealCarList(List<SealCarDto> tmsSealCarList, DmsSealVehicleRequest request) {
+        CallerInfo info = Profiler.registerInfo("NewSealVehicleServiceImpl.saveSealOperateFlowBySealCarList", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            if (CollectionUtils.isEmpty(tmsSealCarList)) {
+                log.warn("saveSealOperateFlowBySealCarList|批量保存封车操作流水,运输封车对象集合为空,无需处理,request={}", com.jd.bluedragon.utils.JsonHelper.toJsonMs(request));
+                return;
+            }
+            for (SealCarDto sealCarDto : tmsSealCarList) {
+                if (sealCarDto == null) {
+                    continue;
+                }
+                if (CollectionUtils.isEmpty(sealCarDto.getBatchCodes())) {
+                    continue;
+                }
+                saveSealOperateFlow(new HashSet<>(sealCarDto.getBatchCodes()), request);
+            }
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

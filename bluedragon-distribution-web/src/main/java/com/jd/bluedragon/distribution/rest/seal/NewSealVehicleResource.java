@@ -32,6 +32,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
+import com.jd.bluedragon.distribution.seal.domain.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -746,7 +747,7 @@ public class NewSealVehicleResource {
             Map<String, String> emptyBatchCode =new HashMap<String,String>();
             // 组装封车请求对象
             DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
-            dmsSealVehicleRequest.setSealCars(request.getData());
+            dmsSealVehicleRequest.setSealCarList(request.getData());
             dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
             dmsSealVehicleRequest.setOperatorData(request.getOperatorData());
             dmsSealVehicleRequest.setBizType(request.getBizType());
@@ -810,7 +811,7 @@ public class NewSealVehicleResource {
 
             // 组装封车请求对象
             DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
-            dmsSealVehicleRequest.setSealCars(request.getData());
+            dmsSealVehicleRequest.setSealCarList(request.getData());
             dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
             dmsSealVehicleRequest.setOperatorData(request.getOperatorData());
             dmsSealVehicleRequest.setBizType(request.getBizType());

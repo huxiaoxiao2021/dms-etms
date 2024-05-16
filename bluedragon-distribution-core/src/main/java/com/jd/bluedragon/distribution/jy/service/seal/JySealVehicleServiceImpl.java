@@ -21,7 +21,6 @@ import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -49,6 +48,7 @@ import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
 import com.jd.bluedragon.distribution.jy.task.*;
+import com.jd.bluedragon.distribution.seal.domain.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -300,7 +300,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             try {
                 // 组装封车请求对象
                 DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
-                dmsSealVehicleRequest.setSealCars(sealCarDtoList);
+                dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
                 dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
                 com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
                         = BeanConverter.convertToOperatorData(sealVehicleReq.getCurrentOperate());
@@ -427,7 +427,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
             // 组装封车请求对象
             DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
-            dmsSealVehicleRequest.setSealCars(sealCarDtoList);
+            dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
             dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
             com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
                     = BeanConverter.convertToOperatorData(sealVehicleReq.getCurrentOperate());
@@ -1330,7 +1330,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
             // 组装封车请求对象
             DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
-            dmsSealVehicleRequest.setSealCars(sealCarDtoList);
+            dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
             dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
             com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
                     = BeanConverter.convertToOperatorData(request.getCurrentOperate());
