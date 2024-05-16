@@ -316,6 +316,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
                 = BeanConverter.convertToOperatorData(sealCarRequest.getCurrentOperate());
         // 设置网格信息
         newSealVehicleRequest.setOperatorData(operatorData);
+        newSealVehicleRequest.setBizType(OperateBizSubTypeEnum.TRUNK_SEAL.getCode());
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.seal(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());

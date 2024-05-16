@@ -766,6 +766,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
+                // 组织封车参数
+                DmsSealVehicleRequest sealVehicleRequest = new DmsSealVehicleRequest();
+                sealVehicleRequest.setBizType(OperateBizSubTypeEnum.OFFLINE_SEAL.getCode());
+                // 批量保存封车操作流水
+                saveSealOperateFlowBySealCarList(doSealCarDtos, sealVehicleRequest);
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
                 saveNXSealData(doSealCarDtos);
