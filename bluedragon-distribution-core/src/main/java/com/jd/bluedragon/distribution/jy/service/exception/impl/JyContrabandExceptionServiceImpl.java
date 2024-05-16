@@ -646,8 +646,8 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
             if (sortingDto != null) {
                 List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
-                if (!CollectionUtils.isEmpty(recordDtos)) {
-                    return ;
+                if (CollectionUtils.isEmpty(recordDtos)) {
+                    response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
                 }
             }
             // 根据包裹号匹配违禁品
