@@ -26,7 +26,11 @@ public enum OperateBizSubTypeEnum {
 
 	BOARD_CANCEL("board_cancel","取消组板"),
 
-	SEAL("seal","封车"),
+	TRUNK_SEAL("trunk_seal","干支封车"),
+	SHUTTLE_SEAL("shuttle_seal","传摆封车"),
+	WAREHOUSE_SEAL("warehouse_seal","接货仓封车"),
+	BOARD_SEAL("comBoard_seal","组板封车"),
+	AR_SEAL("ar_seal","空铁封车"),
 
 	UNSEAL("unseal", "解封车"),
 	ABNORMAL_UNSEAL("abnormal_unseal", "提报异常并解封车"),

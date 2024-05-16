@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.request.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.board.domain.BindBoardRequest;
 import com.jd.bluedragon.distribution.board.domain.OperatorInfo;
@@ -17,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowData;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -241,7 +243,7 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 	public void sendUnsealOperateFlowData(SealCarDto sealCarDto, NewSealVehicleRequest request) {
 		try {
 			// 组装操作流水实体
-			JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToJyOperateFlowMqData(sealCarDto);
+			JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToUnsealJyOperateFlowMqData(sealCarDto);
 			JyOperateFlowData jyOperateFlowData = unsealFlowMq.getJyOperateFlowData();
 			// 填充操作信息对象
 			OperatorData operatorData = request.getOperatorData();
@@ -392,6 +394,44 @@ public class JyOperateFlowServiceImpl implements JyOperateFlowService {
 			sendMq(weightVolumeFlowMq);
 		} catch (Exception e) {
 			logger.error("发送称重操作流水出现异常:weightVolumeEntity={}", JsonHelper.toJsonMs(entity), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendSealOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendSealOperateFlowData(SealCarDto sealCarDto, DmsSealVehicleRequest request) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData unsealFlowMq = BeanConverter.convertToSealJyOperateFlowMqData(sealCarDto);
+			JyOperateFlowData jyOperateFlowData = unsealFlowMq.getJyOperateFlowData();
+			// 填充操作信息对象
+			OperatorData operatorData = request.getOperatorData();
+			jyOperateFlowData.setOperatorData(operatorData);
+			unsealFlowMq.setId(createOperateFlowId());
+			// 业务子类型
+			unsealFlowMq.setOperateBizSubType(request.getBizType());
+			sendMq(unsealFlowMq);
+		} catch (Exception e) {
+			logger.error("发送封车操作流水消息出现异常:sealCarDto={},request={}", JsonHelper.toJsonMs(sealCarDto),
+					JsonHelper.toJson(request), e);
+		}
+	}
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER, jKey = "DMS.service.JyOperateFlowServiceImpl.sendArReceiveOperateFlowData", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public void sendArReceiveOperateFlowData(ArReceive arReceive, OperateBizSubTypeEnum subTypeEnum) {
+		try {
+			// 组装操作流水实体
+			JyOperateFlowMqData boardFlowMq = BeanConverter.convertToJyOperateFlowMqData(arReceive);
+			// 业务子类型
+			boardFlowMq.setOperateBizSubType(subTypeEnum.getCode());
+			// 提前生成操作流水表业务主键
+			Long operateFlowId = sequenceGenAdaptor.newId(Constants.TABLE_JY_OPERATE_FLOW);
+			boardFlowMq.setId(operateFlowId);
+			sendMq(boardFlowMq);
+			arReceive.setOperateFlowId(operateFlowId);
+		} catch (Exception e) {
+			logger.error("发送空铁提货操作流水消息出现异常:request={}", JsonHelper.toJsonMs(arReceive), e);
 		}
 	}
 

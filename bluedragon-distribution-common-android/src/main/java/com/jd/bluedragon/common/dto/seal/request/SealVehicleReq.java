@@ -153,6 +153,11 @@ public class SealVehicleReq extends BaseReq implements Serializable {
      */
     private Boolean checkBoardSumAndFlow;
 
+    /**
+     * 业务来源
+     */
+    private String bizType;
+
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
     }
@@ -367,5 +372,13 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     public void setCheckBoardSumAndFlow(Boolean checkBoardSumAndFlow) {
         this.checkBoardSumAndFlow = checkBoardSumAndFlow;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }

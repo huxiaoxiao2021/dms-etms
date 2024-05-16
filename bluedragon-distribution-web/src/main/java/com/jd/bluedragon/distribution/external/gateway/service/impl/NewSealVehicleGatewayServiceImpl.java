@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealService;
 import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
@@ -382,7 +383,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
         List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
         newSealVehicleRequest.setData(convert(list));
-
+        newSealVehicleRequest.setBizType(OperateBizSubTypeEnum.SHUTTLE_SEAL.getCode());
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.doSealCarWithVehicleJob(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());

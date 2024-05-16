@@ -744,8 +744,13 @@ public class NewSealVehicleResource {
 
             //批次为空的列表信息
             Map<String, String> emptyBatchCode =new HashMap<String,String>();
-
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData(),emptyBatchCode);
+            // 组装封车请求对象
+            DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+            dmsSealVehicleRequest.setSealCars(request.getData());
+            dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+            dmsSealVehicleRequest.setOperatorData(request.getOperatorData());
+            dmsSealVehicleRequest.setBizType(request.getBizType());
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(dmsSealVehicleRequest);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -803,7 +808,14 @@ public class NewSealVehicleResource {
             //批次为空的列表信息
             Map<String, String> emptyBatchCode = new HashMap<String,String>();
 
-            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
+            // 组装封车请求对象
+            DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+            dmsSealVehicleRequest.setSealCars(request.getData());
+            dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+            dmsSealVehicleRequest.setOperatorData(request.getOperatorData());
+            dmsSealVehicleRequest.setBizType(request.getBizType());
+
+            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(dmsSealVehicleRequest);
             if (sealVehicleResponse != null) {
                 if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                     if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){

@@ -31,14 +31,14 @@ public interface NewSealVehicleService {
      * @param sealCars
      * @return
      */
-    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception;
+    public CommonDto<String> seal(DmsSealVehicleRequest request) throws Exception;
 
     /**
      * VOS封车业务同时生成车次任务
      * @param sealCars
      * @return
      */
-    NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode);
+    NewSealVehicleResponse doSealCarWithVehicleJob(DmsSealVehicleRequest request);
 
     /*
     * 分拣工作台一键封车

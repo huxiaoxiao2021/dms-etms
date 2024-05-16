@@ -43,6 +43,7 @@ public class OfflineArReceiveServiceImpl implements OfflineService {
 		receiveRequest.setShuttleBusType(offlineLogRequest.getOperateType());
 		receiveRequest.setShuttleBusNum(offlineLogRequest.getCarCode());
 		receiveRequest.setRemark(offlineLogRequest.getDemo());
+		receiveRequest.setOperatorData(offlineLogRequest.getOperatorData());
 		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
 				+ JsonHelper.toJson(receiveRequest)
 				+ Constants.PUNCTUATION_CLOSE_BRACKET;

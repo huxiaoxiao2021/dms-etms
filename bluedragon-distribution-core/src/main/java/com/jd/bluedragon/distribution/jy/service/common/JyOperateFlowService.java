@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.jy.service.common;
 
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.api.request.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowDto;
 import com.jd.bluedragon.distribution.jy.dto.common.JyOperateFlowMqData;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
+import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -107,11 +109,11 @@ public interface JyOperateFlowService {
     /**
      * 发送封车操作流水
      */
-    void sendSealOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
+    void sendSealOperateFlowData(SealCarDto sealCarDto, DmsSealVehicleRequest request);
 
     /**
      * 发送空铁提货操作流水
      */
-    void sendArReceiveOperateFlowData(WeightVolumeEntity entity, OperateBizSubTypeEnum subTypeEnum);
+    void sendArReceiveOperateFlowData(ArReceive arReceive, OperateBizSubTypeEnum subTypeEnum);
 
 }

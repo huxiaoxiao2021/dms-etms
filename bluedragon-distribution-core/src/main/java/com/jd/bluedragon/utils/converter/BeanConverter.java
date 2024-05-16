@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.jy.dto.User;
+import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -334,12 +335,36 @@ public class BeanConverter {
 		data.setOperatorData(receive.getOperatorData());
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
-			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+			log.debug("receive-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
 		}
 		return mqData;
 	}
 
-	public static JyOperateFlowMqData convertToJyOperateFlowMqData(SealCarDto sealCarDto) {
+	/**
+	 * 对象转换为数据库实体
+	 * @param jyOperateFlow
+	 * @return
+	 */
+	public static JyOperateFlowMqData convertToJyOperateFlowMqData(ArReceive arReceive) {
+		if (arReceive == null) {
+			return null;
+		}
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(arReceive.getBoxCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.RECEIVE.getCode());
+		mqData.setOperateKey(StringHelper.getStringValue(arReceive.getReceiveId()));
+		mqData.setOperateTime(arReceive.getUpdateTime());
+		mqData.setOperateSiteCode(arReceive.getCreateSiteCode());
+		JyOperateFlowData data = new JyOperateFlowData();
+		data.setOperatorData(arReceive.getOperatorData());
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("arReceive-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
+
+	public static JyOperateFlowMqData convertToUnsealJyOperateFlowMqData(SealCarDto sealCarDto) {
 		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
 		mqData.setOperateBizKey(sealCarDto.getSealCarCode());
 		mqData.setOperateBizType(OperateBizTypeEnum.UNSEAL.getCode());
@@ -349,10 +374,26 @@ public class BeanConverter {
 		JyOperateFlowData data = new JyOperateFlowData();
 		mqData.setJyOperateFlowData(data);
 		if(log.isDebugEnabled()) {
-			log.debug("inspection-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+			log.debug("unseal-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
 		}
 		return mqData;
 	}
+
+	public static JyOperateFlowMqData convertToSealJyOperateFlowMqData(SealCarDto sealCarDto) {
+		JyOperateFlowMqData mqData = new JyOperateFlowMqData();
+		mqData.setOperateBizKey(sealCarDto.getSealCarCode());
+		mqData.setOperateBizType(OperateBizTypeEnum.SEAL.getCode());
+		mqData.setOperateKey(sealCarDto.getSealCarCode());
+		mqData.setOperateTime(sealCarDto.getSealCarTime());
+		mqData.setOperateSiteCode(sealCarDto.getSealSiteId());
+		JyOperateFlowData data = new JyOperateFlowData();
+		mqData.setJyOperateFlowData(data);
+		if(log.isDebugEnabled()) {
+			log.debug("seal-convertToJyOperateFlowMqData:{}",JsonHelper.toJson(mqData));
+		}
+		return mqData;
+	}
+
 	/**
 	 * 对象转换为数据库实体
 	 * @param jyOperateFlow

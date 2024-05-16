@@ -33,6 +33,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -498,6 +499,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
 
         bodyDto.setBizId(taskPickingGoodEntity.getBizId());
+        // 设置网格信息
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        bodyDto.setOperatorData(operatorData);
         List<PickingGoodScanTaskBodyDto> bodyList = Arrays.asList(bodyDto);
         String bodyJson = JsonHelper.toJson(bodyList);
 
