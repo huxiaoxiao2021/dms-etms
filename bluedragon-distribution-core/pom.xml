@@ -597,7 +597,7 @@
         <dependency>
             <groupId>com.jd.ldop.basic</groupId>
             <artifactId>ldop-basic-api</artifactId>
-            <version>1.1.14-SNAPSHOT</version>
+            <version>UAT-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>hibernate-validator</artifactId>
