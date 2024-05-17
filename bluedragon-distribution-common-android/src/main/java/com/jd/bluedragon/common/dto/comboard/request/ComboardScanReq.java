@@ -104,6 +104,72 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private Long operateFlowId;
 
+    /**
+     * 笼车箱号
+     */
+    private String cageCarCode;
+
+    /**
+     * 笼车需绑定物资码
+     */
+    private String cageCarMaterialCode;
+
+
+    /**
+     * 下传方式
+     */
+    private Integer deliveryType;
+
+    /**
+     * 集包任务bizId
+     */
+    private String collectPackageTaskBizId;
+
+    /**
+     * 自动装笼版本标识
+     */
+    private boolean autoCollectVersion;
+
+    public boolean getAutoCollectVersion() {
+        return autoCollectVersion;
+    }
+
+    public void setAutoCollectVersion(boolean autoCollectVersion) {
+        this.autoCollectVersion = autoCollectVersion;
+    }
+
+    public String getCollectPackageTaskBizId() {
+        return collectPackageTaskBizId;
+    }
+
+    public void setCollectPackageTaskBizId(String collectPackageTaskBizId) {
+        this.collectPackageTaskBizId = collectPackageTaskBizId;
+    }
+
+    public Integer getDeliveryType() {
+        return deliveryType;
+    }
+
+    public void setDeliveryType(Integer deliveryType) {
+        this.deliveryType = deliveryType;
+    }
+
+    public String getCageCarMaterialCode() {
+        return cageCarMaterialCode;
+    }
+
+    public void setCageCarMaterialCode(String cageCarMaterialCode) {
+        this.cageCarMaterialCode = cageCarMaterialCode;
+    }
+
+    public String getCageCarCode() {
+        return cageCarCode;
+    }
+
+    public void setCageCarCode(String cageCarCode) {
+        this.cageCarCode = cageCarCode;
+    }
+
     public boolean getNeedSkipWeakIntercept() {
         return needSkipWeakIntercept;
     }

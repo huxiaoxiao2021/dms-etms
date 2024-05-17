@@ -226,7 +226,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
      * @param request 集包请求对象
      * @param response 集包响应对象
      */
-    protected void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
+    public void execCollectPackage(CollectPackageReq request, CollectPackageResp response) {
         String boxLockKey = String.format(Constants.JY_COLLECT_BOX_LOCK_PREFIX, request.getBoxCode());
         if (!jimDbLock.lock(boxLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
             throw new JyBizException("当前系统繁忙,请稍后再试！");
@@ -251,7 +251,9 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
             //保存集包扫描记录
             saveJyCollectPackageScanRecord(request);
             checkIfNeedUpdateStatus(request, collectPackageTask);
-            response.setEndSiteId(request.getEndSiteId());
+            if (ObjectHelper.isNotNull(response)) {
+                response.setEndSiteId(request.getEndSiteId());
+            }
         } finally {
             jimDbLock.releaseLock(boxLockKey, request.getRequestId());
         }
@@ -1718,7 +1720,7 @@ public class JyCollectPackageServiceImpl implements JyCollectPackageService {
         return result;
     }
 
-    protected void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
+    public void execCollectBox(CollectPackageReq request, CollectPackageResp response) {
         BoxRelation boxRelation =assmbleBoxRelation(request);
         InvokeResult<Boolean> rs =boxRelationService.saveBoxRelationWithoutCheck(boxRelation);
         if (ObjectHelper.isNotNull(rs) && RESULT_SUCCESS_CODE != rs.getCode()){

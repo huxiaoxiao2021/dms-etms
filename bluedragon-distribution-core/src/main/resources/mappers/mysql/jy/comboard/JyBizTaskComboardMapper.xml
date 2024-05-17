@@ -23,6 +23,9 @@
     <result column="have_scan_count" jdbcType="INTEGER" property="haveScanCount" />
     <result column="comboard_source" jdbcType="INTEGER" property="comboardSource" />
     <result column="group_code" jdbcType="VARCHAR" property="groupCode" />
+    <result column="box_code" jdbcType="VARCHAR" property="boxCode" />
+    <result column="material_code" jdbcType="VARCHAR" property="materialCode" />
+
   </resultMap>
   <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
     <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
@@ -31,7 +34,7 @@
   <sql id="Base_Column_List">
     id, biz_id, board_code, send_code, board_status, start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source,group_code
+    create_time, update_time, yn, ts, bulk_flag, have_scan_count,comboard_source,group_code,box_code,material_code
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -125,6 +128,12 @@
       <if test="groupCode != null">
         group_code,
       </if>
+      <if test="boxCode != null">
+        box_code,
+      </if>
+      <if test="materialCode != null">
+        material_code,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -189,6 +198,12 @@
       </if>
       <if test="groupCode != null">
         #{groupCode,jdbcType=VARCHAR},
+      </if>
+      <if test="boxCode != null">
+        #{boxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="materialCode != null">
+        #{materialCode,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
