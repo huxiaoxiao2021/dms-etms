@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.cage.request;
 
 
+
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,6 +23,7 @@ public class CollectPackageReq implements Serializable {
 
     private Date operateTime;
 
+    private OperatorData operatorData;
 
     public String getBarCode() {
         return barCode;
@@ -68,4 +72,13 @@ public class CollectPackageReq implements Serializable {
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
     }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
+
 }
