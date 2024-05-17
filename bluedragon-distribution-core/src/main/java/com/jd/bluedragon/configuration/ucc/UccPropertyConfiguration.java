@@ -4806,7 +4806,7 @@ public class UccPropertyConfiguration{
     public void setCageSwitch(boolean cageSwitch) {
         this.cageSwitch = cageSwitch;
     }
-}
+
 
     public String getSelfCheckTaskConfigCode() {
         return selfCheckTaskConfigCode;
