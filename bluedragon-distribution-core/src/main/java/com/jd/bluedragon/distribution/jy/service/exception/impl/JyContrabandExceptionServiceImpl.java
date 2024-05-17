@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -85,6 +86,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.CONTRABAND_PACKAGE_CHECK_SWITCH;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandImageUrlEnum.*;
@@ -174,6 +176,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private static final String SORTING_REPORT_SYSTEM = "20";
     private static final String SORTING_REPORT_ATTACH_TYPE = "img";
@@ -582,6 +587,9 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(true);
+        if (!sysConfigService.getConfigByName(CONTRABAND_PACKAGE_CHECK_SWITCH)) {
+            return response;
+        }
         if (!checkReq(req, response)) {
             return response;
         }
@@ -638,10 +646,16 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
             if (sortingDto != null) {
                 List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
-                if (CollectionUtils.isEmpty(recordDtos)) {
-                    response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
+                if (!CollectionUtils.isEmpty(recordDtos)) {
+                    return;
                 }
             }
+            // 根据运单号匹配违禁品
+            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(WaybillUtil.getWaybillCode(req.getBarCode()));
+            if (!CollectionUtils.isEmpty(waybillRecordDtos)) {
+                return;
+            }
+
             // 根据包裹号匹配违禁品
             List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
             if (CollectionUtils.isEmpty(recordDtos)) {

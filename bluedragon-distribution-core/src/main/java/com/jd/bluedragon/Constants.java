@@ -2565,4 +2565,9 @@ public class Constants {
      */
     public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
 
+    /**
+     * 违禁品上报包裹校验开关
+     */
+    public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
+
 }
