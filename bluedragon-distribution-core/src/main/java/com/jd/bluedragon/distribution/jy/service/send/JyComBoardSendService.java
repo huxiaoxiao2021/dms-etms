@@ -201,4 +201,23 @@ public interface JyComBoardSendService {
    * @param outContainerFlag
    */
   void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now , boolean outContainerFlag);
+
+
+  /**
+   * 执行组板
+   * @param request
+   */
+   void execComboard(ComboardScanReq request);
+
+  /**
+   * 执行发货
+   * @param request
+   */
+  void execSend(ComboardScanReq request);
+
+  /**
+   * 执行集包/笼
+   * @param request
+   */
+  void execCollect(ComboardScanReq request);
 }
