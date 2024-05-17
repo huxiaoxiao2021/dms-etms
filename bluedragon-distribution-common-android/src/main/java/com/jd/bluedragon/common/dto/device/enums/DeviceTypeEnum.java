@@ -14,7 +14,8 @@ public enum DeviceTypeEnum {
     SORTING_MACHINE("SORTING-MACHINE","自动分拣机"),
     SORTING_CABINET("SORTING-CABINET","智能分拣柜"),
     SORING_AGV("SORING-AGV","分拣AGV机器人"),
-    GANTRY("GANTRY","龙门架");
+    GANTRY("GANTRY","龙门架"),
+    NC_AGV("NC_AGV","AGV叉车");
 
 
     /**
