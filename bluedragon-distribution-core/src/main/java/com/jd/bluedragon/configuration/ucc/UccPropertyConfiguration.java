@@ -392,6 +392,12 @@ public class UccPropertyConfiguration {
     private boolean checkSiteSubType;
 
     /**
+     * 解封车查看运单包裹是否集齐
+     */
+    private String unSealCarHandlePackageFullCollectedSwitch;
+
+
+    /**
      * 发货交接清单-汇总scrollId查询单批次查询数量
      */
     private int scrollQuerySize;
@@ -2825,6 +2831,23 @@ public class UccPropertyConfiguration {
 
     public boolean getInspectionAssertDemotion() {
         return inspectionAssertDemotion;
+    }
+
+    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
+        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
+            return true;
+        }
+        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
     }
 
     public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
