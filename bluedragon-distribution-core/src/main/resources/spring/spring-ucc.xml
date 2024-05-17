@@ -379,6 +379,7 @@
 		<property name="selfCheckTaskConfigCode" value="${selfCheckTaskConfigCode:task_xc_config_2}"/>
 		<property name="collectPackageTaskStatisticsUseIndependentInterfaceSwitch" value="${collectPackageTaskStatisticsUseIndependentInterfaceSwitch:false}"/>
 		<property name="cageSwitch" value="${cageSwitch:true}"/>
+		<property name="cageSwitch" value="${cageSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
