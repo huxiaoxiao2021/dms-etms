@@ -270,10 +270,15 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
 
     private void outputResponseToFrontEnd(HttpServletRequest request, HttpServletResponse response, String tips) throws Exception {
         response.setCharacterEncoding("utf-8");
-        response.setContentType("text/html;charset=UTF-8");
+        String contentType = request.getContentType() != null ? request.getContentType() : "text/html;charset=UTF-8";
+        response.setContentType(contentType);
         if (StringUtils.equals("XMLHttpRequest", request.getHeader("X-Requested-With"))) {
             // ajax请求，返回提示语
-            response.getWriter().println("fallback" + tips);
+            /*String retData = "{\n" +
+                    "    \"code\": 400,\n" +
+                    "    \"message\": \"" + tips + "\"\n" +
+                    "}";*/
+            response.getWriter().println(tips);
         }
         else {
             response.getWriter().print("<html><head><meta charset='utf-8'/><script type='text/javascript'>alert(\"" +
