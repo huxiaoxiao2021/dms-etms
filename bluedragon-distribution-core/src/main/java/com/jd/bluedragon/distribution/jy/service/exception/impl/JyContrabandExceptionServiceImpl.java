@@ -644,19 +644,23 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         try {
             // 根据箱号匹配违禁品
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
-            if (sortingDto != null) {
+            if (sortingDto != null && BusinessUtil.isBoxcode(sortingDto.getBoxCode())) {
                 List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
+                logger.info("航空运力上报违禁品箱号匹配 req {}, resp {}", sortingDto.getBoxCode(), JsonHelper.toJson(recordDtos));
                 if (!CollectionUtils.isEmpty(recordDtos)) {
                     return;
                 }
             }
             // 根据包裹号匹配违禁品
             List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
+            logger.info("航空运力上报违禁品包裹号匹配 req {}, resp {}", req.getBarCode(), JsonHelper.toJson(recordDtos));
             if (!CollectionUtils.isEmpty(recordDtos)) {
                 return;
             }
             // 根据运单号匹配违禁品
-            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(WaybillUtil.getWaybillCode(req.getBarCode()));
+            String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
+            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(waybillCode);
+            logger.info("航空运力上报违禁品包裹号匹配 req {}, resp {}", waybillCode, JsonHelper.toJson(waybillRecordDtos));
             if (!CollectionUtils.isEmpty(waybillRecordDtos)) {
                 return;
             }
