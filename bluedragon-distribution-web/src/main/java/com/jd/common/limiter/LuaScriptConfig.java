@@ -10,6 +10,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scripting.support.ResourceScriptSource;
 
 import java.util.concurrent.TimeUnit;
@@ -22,11 +23,12 @@ import java.util.concurrent.TimeUnit;
  **/
 @Slf4j
 @Configuration
-@DependsOn(value = {"jimClient"})
+@DependsOn(value = {"redisClientCache"})
+@EnableAsync
 public class LuaScriptConfig {
 
     @Autowired
-    @Qualifier("jimClient")
+    @Qualifier("redisClientCache")
     private Cluster redisCache;
 
     private static final String LUA_SCRIPT_PATH = "redis/rateLimit.lua";

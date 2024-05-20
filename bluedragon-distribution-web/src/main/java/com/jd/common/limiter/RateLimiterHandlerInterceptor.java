@@ -3,6 +3,7 @@ package com.jd.common.limiter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.common.web.LoginContext;
 import com.jd.jim.cli.Cluster;
 import lombok.extern.slf4j.Slf4j;
@@ -43,50 +44,8 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
      */
     private static final String ACCESS_ANALYZE_KEY_PREFIX = "jdl:access:analyze:";
 
-    /**
-     * 限流功能总开关；true：打开
-     */
-    @Value("${rateLimiter.switch:false}")
-    private String rateLimiterSwitch;
-
-    @Value("${rateLimiter.tenant:jy}")
-    private String tenant;
-
-    /**
-     * 限流URL配置
-     */
-    @Value("${rateLimiter.body}")
-    private String limitJson;
-
-    /**
-     * 不限流的URL白名单
-     */
-    @Value("${rateLimiter.whiteList}")
-    private String whiteListJson;
-
-    /**
-     * IP黑名单，永久禁止访问
-     */
-    @Value("${rateLimiter.blackIPList}")
-    private String blackIPJson;
-
-    /**
-     * ERP黑名单，永久禁止访问
-     */
-    @Value("${rateLimiter.blackErpList}")
-    private String blackErpJson;
-
-    /**
-     * 功能降级全局提示语
-     */
-    @Value("${rateLimiter.fallback.globalTip: }")
-    private String fallbackGlobalTip;
-
-    /**
-     * 按URI配置的降级提示语
-     */
-    @Value("${rateLimiter.fallback.tips: }")
-    private String fallbackTips;
+    @Autowired
+    private DmsConfigManager dmsConfigManager;
 
     @Autowired
     @Qualifier("limitRedisScript")
@@ -97,45 +56,45 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
     private Cluster redisCache;
 
     private List<String> resolveWhiteUrlList() {
-        if (StringUtils.isBlank(whiteListJson)) {
+        if (StringUtils.isBlank(dmsConfigManager.getPropertyConfig().getRestRateLimiterWhiteList())) {
             return Lists.newArrayList();
         }
         List<String> whiteUrlList = Lists.newArrayList();
         try {
-            whiteUrlList = JSONArray.parseArray(whiteListJson, String.class);
+            whiteUrlList = JSONArray.parseArray(dmsConfigManager.getPropertyConfig().getRestRateLimiterWhiteList(), String.class);
         }
         catch (Exception e) {
-            log.error("解析限流白名单URL配置异常！{}", whiteListJson, e);
+            log.error("解析限流白名单URL配置异常！{}", dmsConfigManager.getPropertyConfig().getRestRateLimiterWhiteList(), e);
         }
 
         return whiteUrlList;
     }
 
     private List<String> resolveBlackIPList() {
-        if (StringUtils.isBlank(blackIPJson)) {
+        if (StringUtils.isBlank(dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackIpList())) {
             return Lists.newArrayList();
         }
         List<String> blackIPList = Lists.newArrayList();
         try {
-            blackIPList = JSONArray.parseArray(blackIPJson, String.class);
+            blackIPList = JSONArray.parseArray(dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackIpList(), String.class);
         }
         catch (Exception e) {
-            log.error("解析限流IP黑名单配置异常！{}", blackIPJson, e);
+            log.error("解析限流IP黑名单配置异常！{}", dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackIpList(), e);
         }
 
         return blackIPList;
     }
 
     private List<String> resolveBlackErpList() {
-        if (StringUtils.isBlank(blackErpJson)) {
+        if (StringUtils.isBlank(dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackErpList())) {
             return Lists.newArrayList();
         }
         List<String> blackErpList = Lists.newArrayList();
         try {
-            blackErpList = JSONArray.parseArray(blackErpJson, String.class);
+            blackErpList = JSONArray.parseArray(dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackErpList(), String.class);
         }
         catch (Exception e) {
-            log.error("解析限流ERP黑名单配置异常！{}", blackErpJson, e);
+            log.error("解析限流ERP黑名单配置异常！{}", dmsConfigManager.getPropertyConfig().getRestRateLimiterBlackErpList(), e);
         }
 
         return blackErpList;
@@ -143,14 +102,14 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
 
     private RateLimiterRule resolveRateLimiterConfig() {
         RateLimiterRule rateLimiterRule = new RateLimiterRule();
-        if (StringUtils.isBlank(limitJson)) {
+        if (StringUtils.isBlank(dmsConfigManager.getPropertyConfig().getRestRateLimiterBody())) {
             return rateLimiterRule;
         }
         try {
-            rateLimiterRule = JSON.parseObject(limitJson, RateLimiterRule.class);
+            rateLimiterRule = JSON.parseObject(dmsConfigManager.getPropertyConfig().getRestRateLimiterBody(), RateLimiterRule.class);
         }
         catch (Exception e) {
-            log.error("解析限流URL配置异常！{}", limitJson, e);
+            log.error("解析限流URL配置异常！{}", dmsConfigManager.getPropertyConfig().getRestRateLimiterBody(), e);
         }
 
         return rateLimiterRule;
@@ -162,9 +121,9 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
      * @return
      */
     private String getFallbackTips(String requestUri) {
-        AtomicReference<String> message = new AtomicReference<>(fallbackGlobalTip);
-        if (StringUtils.isNotBlank(fallbackTips)) {
-            List<RateLimiterTips> rateLimiterTips = JSONArray.parseArray(fallbackTips, RateLimiterTips.class);
+        AtomicReference<String> message = new AtomicReference<>(dmsConfigManager.getPropertyConfig().getRestRateLimiterFallbackGlobalTip());
+        if (StringUtils.isNotBlank(dmsConfigManager.getPropertyConfig().getRestRateLimiterFallbackTips())) {
+            List<RateLimiterTips> rateLimiterTips = JSONArray.parseArray(dmsConfigManager.getPropertyConfig().getRestRateLimiterFallbackTips(), RateLimiterTips.class);
             rateLimiterTips.stream()
                     .filter(item -> item.getUri().equals(requestUri))
                     .findFirst()
@@ -185,7 +144,7 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
      */
     private String genLimitTokenKey(RateLimiter rateLimiter) {
         StringBuilder keyBuffer = new StringBuilder(RATE_LIMIT_KEY_PREFIX)
-                .append(tenant)
+                .append(dmsConfigManager.getPropertyConfig().getRestRateLimiterTenant())
                 .append(COLON)
                 .append(rateLimiter.getIdentifier());
         LimitType limitType = LimitType.getFromCode(rateLimiter.getLimitType());
@@ -248,7 +207,7 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         boolean limited = false, unLimited = true;
-        if (!Boolean.parseBoolean(rateLimiterSwitch)) {
+        if (!dmsConfigManager.getPropertyConfig().getRestRateLimiterSwitch()) {
             logDebug("未开启限流功能!");
             return unLimited;
         }
