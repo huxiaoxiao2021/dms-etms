@@ -393,9 +393,9 @@
   </update>
   <select id="listBoardTaskBySendFlow" resultMap="BaseResultMap">
     SELECT
-    <include refid="Base_Column_List"/>
+    <include refid="Base_Column_List" />
     FROM
-    jy_biz_task_comboard
+      jy_biz_task_comboard
     WHERE
     start_site_id =#{startSiteId}
     AND end_site_id =#{endSiteId}
@@ -439,7 +439,7 @@
     <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
       #{item}
     </foreach>
-    and yn = 1
+      and yn = 1
     AND create_time > #{createTime}
     and comboard_source in
     <foreach item="item" index="index" collection="comboardSourceList"

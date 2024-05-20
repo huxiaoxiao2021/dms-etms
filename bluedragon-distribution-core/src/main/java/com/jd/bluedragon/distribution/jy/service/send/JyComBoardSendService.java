@@ -98,7 +98,7 @@ public interface JyComBoardSendService {
   InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request);
 
 
-  /**
+    /**
    * 查询流向下组板统计信息列表-支撑下钻2
    */
   InvokeResult<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(BoardStatisticsReq request);
