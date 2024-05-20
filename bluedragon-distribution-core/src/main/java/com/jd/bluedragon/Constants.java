@@ -2555,4 +2555,9 @@ public class Constants {
      */
     public static final String DISCARDED_STORAGE_LIMIT_POSITION_CONFIG  = "discarded.storage.limit.position.config";
 
+    /**
+     * 包裹补打次数拦截配置
+     */
+    public static final String PACKAGE_REPRINT_INTERCEPT_CONFIG  = "package.reprint.intercept.config";
+
 }
