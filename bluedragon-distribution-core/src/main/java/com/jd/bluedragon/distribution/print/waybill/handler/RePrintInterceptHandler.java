@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jd.bluedragon.Constants.*;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT;
 
 /**
  * @Author liwenji3
@@ -75,6 +76,10 @@ public class RePrintInterceptHandler implements Handler<WaybillPrintContext, JdR
         InterceptResult<String> interceptResult = context.getResult();
         try {
             WaybillPrintRequest request = context.getRequest();
+            // 只针对包裹补打场景
+            if (!PACKAGE_AGAIN_PRINT.getType().equals(request.getOperateType())) {
+                return interceptResult;
+            }
             SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(PACKAGE_REPRINT_INTERCEPT_CONFIG);
             if (sysConfig == null || StringUtils.isEmpty(sysConfig.getConfigContent())) {
                 return interceptResult;
