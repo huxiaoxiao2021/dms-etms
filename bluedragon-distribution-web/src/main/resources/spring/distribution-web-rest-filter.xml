@@ -25,4 +25,6 @@
         <property name="pathAdaptor" ref="pathAdaptor"/>
     </bean>
 
+    <bean name="redisLimiterAccessInterceptor" class="com.jd.common.limiter.RateLimiterHandlerInterceptor" />
+
 </beans>
