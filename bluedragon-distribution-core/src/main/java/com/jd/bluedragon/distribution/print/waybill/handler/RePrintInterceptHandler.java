@@ -38,6 +38,7 @@ import java.util.Objects;
 
 import static com.jd.bluedragon.Constants.*;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT;
+import static com.jd.bluedragon.utils.DateHelper.ONE_DAY_HOURS;
 
 /**
  * @Author liwenji3
@@ -111,9 +112,7 @@ public class RePrintInterceptHandler implements Handler<WaybillPrintContext, JdR
             }
 
             // 补打次数校验
-            if (!rePrintNumCheck(request, interceptConf)) {
-                return interceptResult;
-            }
+            rePrintNumCheck(request, interceptConf, interceptResult);
         }catch (Exception e) {
             log.error("RePrintInterceptHandler 执行异常{}", JsonHelper.toJson(context.getRequest()), e);
         }
@@ -122,11 +121,13 @@ public class RePrintInterceptHandler implements Handler<WaybillPrintContext, JdR
 
     /**
      * 补打次数校验
+     *
      * @param request
      * @param interceptConf
+     * @param interceptResult
      * @return
      */
-    private boolean rePrintNumCheck(WaybillPrintRequest request, RePrintInterceptConf interceptConf) {
+    private void rePrintNumCheck(WaybillPrintRequest request, RePrintInterceptConf interceptConf, InterceptResult<String> interceptResult) {
         // 获取查询时间范围
         Integer hour = interceptConf.getPrintFromTimeHour();
         Date dateFrom = DateHelper.addHours(new Date(), -hour);
@@ -136,13 +137,14 @@ public class RePrintInterceptHandler implements Handler<WaybillPrintContext, JdR
         query.setOperateTimeFrom(dateFrom);
         Response<Long> countResponse = reprintRecordService.queryCount(query);
         if (countResponse == null || countResponse.getData() == null) {
-            return false;
+            return ;
         }
         Long printCount = interceptConf.getPrintCount();
         if (printCount >  countResponse.getData()) {
-            return false;
+            return ;
         }
-        return false;
+        int day = hour/ONE_DAY_HOURS;
+        interceptResult.toFail("当前场地，单号" + request.getPackageBarCode() + ","+ day + "日内最多打印"+ printCount +"次!");
     }
 
     /**
