@@ -657,10 +657,10 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             }
 
             // 根据包裹号匹配违禁品
-            List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
-            if (CollectionUtils.isEmpty(recordDtos)) {
-                response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
-            }
+//            List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
+//            if (CollectionUtils.isEmpty(recordDtos)) {
+//                response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
+//            }
         }catch (Exception e) {
             logger.error("运力接口故障{}",JsonHelper.toJson(req), e);
             response.toFail("运力接口故障，请稍后上报!");
