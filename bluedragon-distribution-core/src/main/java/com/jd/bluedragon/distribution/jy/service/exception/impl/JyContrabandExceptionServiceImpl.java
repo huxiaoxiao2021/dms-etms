@@ -671,7 +671,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             // 根据运单号匹配违禁品
             String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
             List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(waybillCode);
-            boolean waybillRes = CollectionUtils.isEmpty(recordDtos);
+            boolean waybillRes = CollectionUtils.isEmpty(waybillRecordDtos);
             logger.info("航空运力上报违禁品运单号匹配 req {}, 0-未匹配 1-匹配 --- {}", waybillCode, !waybillRes);
             if (!waybillRes) {
                 return;
