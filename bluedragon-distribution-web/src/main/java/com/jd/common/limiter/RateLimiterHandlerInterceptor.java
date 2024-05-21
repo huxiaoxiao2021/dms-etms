@@ -251,6 +251,9 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
 
         // 获取限流规则
         RateLimiter rateLimiter = getRateLimiter(requestURI, rateLimiterRule);
+        if (rateLimiter == null) {
+            return unLimited;
+        }
 
         // 限流窗口唯一标识
         String tokenKey = genLimitTokenKey(rateLimiter);
@@ -303,15 +306,7 @@ public class RateLimiterHandlerInterceptor implements HandlerInterceptor {
         if (optional.isPresent()) {
             return optional.get();
         }
-        // 取兜底限流规则
-        RateLimiter defaultLimitRule = rateLimiterRule.getDefaultLimitRule();
-        RateLimiter rateLimiter = new RateLimiter();
-        rateLimiter.setIdentifier(requestURI);
-        rateLimiter.setLimitType(LimitType.DEFAULT.getCode()); // 默认全局限流
-        rateLimiter.setMax(defaultLimitRule.getMax());
-        rateLimiter.setTimeout(defaultLimitRule.getTimeout());
-        rateLimiter.setTimeUnit(defaultLimitRule.getTimeUnit());
-        return rateLimiter;
+        return null;
     }
 
     /**
