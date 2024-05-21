@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.jy.service.transfer.manager.JYTransferConfigProxy;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -80,6 +81,12 @@ public class PartnerSiteFilter implements Filter {
             }
         }
 
+        // 如果是是安卓笼车批量分拣，不进行预分拣校验
+        if (Objects.nonNull(request.getPdaOperateRequest()) &&
+        Objects.equals(request.getPdaOperateRequest().getBizSource(), SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode())){
+            chain.doFilter(request, chain);
+            return;
+        }
 
         //是否是三方-合作站点订单分拣到与三方-合作站点绑定的自营站点
         Boolean isPartnerOrderDisToSelfOrderSite = Boolean.FALSE;
