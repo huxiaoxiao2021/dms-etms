@@ -90,8 +90,32 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return response;
     }
 
+    public JdCResponse<List<SelectOption>> scanTypeOptions() {
+        List<SelectOption> optionList = new ArrayList<>();
+        String tenantCode = TenantContext.getTenantCode();
+        //冷链租户返回按件、按单、按板，非冷链返回按件、按单
+        if(StringUtils.isNotBlank(tenantCode) && TenantEnum.TENANT_COLD_MEDICINE.getCode().equals(tenantCode)){
+            for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getOneAndWaybillAndBoardEnum()) {
+                SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+                optionList.add(option);
+            }
+        }else{
+            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
+                SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+                optionList.add(option);
+            }
+        }
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
+        JdCResponse<List<SelectOption>> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(optionList);
+        return response;
+    }
+
     @Override
-    public JdCResponse<List<SelectOption>> scanTypeOptions(SendScanTypeRequest request) {
+    public JdCResponse<List<SelectOption>> scanTypeOptionsNew() {
         List<SelectOption> optionList = new ArrayList<>();
         String tenantCode = TenantContext.getTenantCode();
         //冷链租户返回按件、按单、按板，非冷链返回按件、按单
