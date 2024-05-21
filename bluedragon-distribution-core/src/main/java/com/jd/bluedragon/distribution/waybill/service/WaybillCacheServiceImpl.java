@@ -11,12 +11,17 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class WaybillCacheServiceImpl implements WaybillCacheService {
@@ -152,10 +157,33 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             waybillCache.setWaybillExtVO(new WaybillExtVO()
                     .clearanceType(waybillWS.getWaybillExt().getClearanceType())
                     .startFlowDirection(waybillWS.getWaybillExt().getStartFlowDirection())
-                    .endFlowDirection(waybillWS.getWaybillExt().getEndFlowDirection()));
+                    .endFlowDirection(waybillWS.getWaybillExt().getEndFlowDirection())
+                    .omcOrderCode(waybillWS.getWaybillExt().getOmcOrderCode()));
         }
-        
+        // 设置增值服务编号列表
+        if (CollectionUtils.isNotEmpty(bigWaybillDto.getWaybillVasList())) {
+            // 结果转换
+            List<String> waybillVasNoList = createWaybillVasNoList(bigWaybillDto.getWaybillVasList());
+            // 放入上下文
+            waybillCache.setVasNoList(waybillVasNoList);
+        }
         return waybillCache;
+    }
+
+
+    /**
+     * 创建运单增值服务号列表
+     * @param waybillVasList 运单增值服务列表
+     * @return waybillVasNoList 运单增值服务号列表
+     */
+    private List<String> createWaybillVasNoList(List<WaybillVasDto> waybillVasList) {
+        List<String> waybillVasNoList = new ArrayList<>();
+        for (WaybillVasDto waybillVasDto : waybillVasList) {
+            if (waybillVasDto != null) {
+                waybillVasNoList.add(waybillVasDto.getVasNo());
+            }
+        }
+        return waybillVasNoList;
     }
 
     private void dealWaybillSiteName(WaybillCache waybillCache) {

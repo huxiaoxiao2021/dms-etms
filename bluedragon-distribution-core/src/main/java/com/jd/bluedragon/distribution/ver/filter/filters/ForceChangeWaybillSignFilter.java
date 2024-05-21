@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -11,12 +12,15 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,9 @@ public class ForceChangeWaybillSignFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         // 提示 WaybillDistributeTypeChangeFilter 存在拦截消息的改址拦截 这里只处理标位的 ForceChangeWaybillSignFilter 中处理强制改址拦截 ChangeWaybillSignFilter 中处理弱拦截
+
+        // 由于非一单到底场景的单子，中台不会发送拦截MQ，所以此处新增校验非一单到底改址转寄场景，并且此场景优先，其次再执行原有的逻辑
+        checkAddressForwarding(request);
 
         // 改址拦截（现阶段存在快递改址和快运改址）
         // todo 202404改址一单到底需求改动，原理解快递改址【featureType=6】，实际是快递配运方式变化， 原快运改址消息【featureType=9】，实际快递、快运是同一个消息，不再对快运单独区分
@@ -98,4 +105,53 @@ public class ForceChangeWaybillSignFilter implements Filter {
         //endregion
         chain.doFilter(request, chain);
     }
+
+
+    /**
+     * 校验非一单到底改址转寄场景
+     * @param request 上下文
+     * @throws Exception 异常
+     * @throws SortingCheckException 分拣校验异常
+     */
+    private void checkAddressForwarding(FilterContext request) throws Exception {
+        WaybillCache waybillCache = request.getWaybillCache();
+        // 非一单到底改址转寄标识
+        boolean addressForwardingFlag = BusinessUtil.isAddressForwardingWaybill(waybillCache.getWaybillSign());
+        if (!addressForwardingFlag) {
+            return;
+        }
+        // 继续判断百川标识
+        if (waybillCache.getWaybillExtVO() == null || StringUtils.isBlank(waybillCache.getWaybillExtVO().getOmcOrderCode())) {
+            return;
+        }
+        // 继续判断增值服务
+        if (CollectionUtils.isEmpty(waybillCache.getVasNoList())) {
+            return;
+        }
+        // 改址转寄增值服务标识
+        boolean addressForwardingVasFlag = false;
+        // 循环增值服务列表
+        for (String vasNo : waybillCache.getVasNoList()) {
+            // vasNo是否等于改址转寄增值服务
+            if (WaybillVasEnum.WAYBILL_VAS_ADDRESS_FORWARDING.getCode().equals(vasNo)) {
+                addressForwardingVasFlag = true;
+                break;
+            }
+        }
+        // 如果无改址转寄增值服务，则提示话术：“此单为改址拦截单，请操作换单打印”
+        if (!addressForwardingVasFlag) {
+            throw new SortingCheckException(SortingResponse.CODE_29333,
+                    HintService.getHintWithFuncModule(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT, request.getFuncModule()));
+        }
+        // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6
+        boolean flag = BusinessUtil.isSignInChars(waybillCache.getWaybillSign(), WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6);
+        // 不等于5或6则提示补打，否则放行
+        if (!flag) {
+            throw new SortingCheckException(SortingResponse.CODE_29333,
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE_FORCE, request.getFuncModule()));
+        }
+    }
+
+
 }

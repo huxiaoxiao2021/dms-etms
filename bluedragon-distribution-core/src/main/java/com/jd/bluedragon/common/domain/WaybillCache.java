@@ -334,6 +334,11 @@ public class WaybillCache implements Serializable {
 	 */
 	private WaybillExtVO waybillExtVO;
 
+	/**
+	 * 运单增值服务编号列表
+	 */
+	private List<String> vasNoList;
+
 	public WaybillCache() {
 
 	}
@@ -865,5 +870,13 @@ public class WaybillCache implements Serializable {
 
 	public void setWaybillExtVO(WaybillExtVO waybillExtVO) {
 		this.waybillExtVO = waybillExtVO;
+	}
+
+	public List<String> getVasNoList() {
+		return vasNoList;
+	}
+
+	public void setVasNoList(List<String> vasNoList) {
+		this.vasNoList = vasNoList;
 	}
 }
