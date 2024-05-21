@@ -970,46 +970,48 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeGateTopicData mqData) {
 		JdResult<Integer> result = new JdResult<Integer>();
 		result.toSuccess();
-		//只处理更新和新增操作的消息
-		if(!AttendDetailChangeTopicData.OP_TYPE_ADD.equals(mqData.getOpType())
-				&& !AttendDetailChangeTopicData.OP_TYPE_UPDATE.equals(mqData.getOpType())) {
+		mqData.setErpOrIdCard(org.apache.commons.lang3.StringUtils.isNotBlank(mqData.getErp()) ? mqData.getErp() : mqData.getIdCard());
+		
+		if(StringUtils.isBlank(mqData.getPassStatus()) || !mqData.getPassStatus().equalsIgnoreCase("出门")) {
+			log.info("autoHandleSignOutByAttendGateJmq：非出门数据，无需处理！");
 			return result;
 		}
-		if(StringUtils.isBlank(mqData.getUserErp())) {
-			log.info("autoHandleSignOutByAttendGateJmq：userErp为空，无需处理！");
+
+		if(StringUtils.isBlank(mqData.getErpOrIdCard())) {
+			log.info("autoHandleSignOutByAttendGateJmq：userErp和idCard为空，无需处理！");
 			return result;
 		}
-		if(StringUtils.isBlank(mqData.getActualOffTime())) {
+		if(StringUtils.isBlank(mqData.getPassTime())) {
 			log.info("autoHandleSignOutByAttendGateJmq：签退时间为空，无需处理！");
 			return result;
 		}
-		Date actualOffTime = DateHelper.parseDateTime(mqData.getActualOffTime());
+		Date actualOffTime = DateHelper.parseDateTime(mqData.getPassTime());
 		if(actualOffTime == null) {
-			log.warn("autoHandleSignOutByAttendGateJmq：签退时间【{}】格式不正确，无需处理！",mqData.getActualOffTime());
+			log.warn("autoHandleSignOutByAttendGateJmq：签退时间【{}】格式不正确，无需处理！",mqData.getPassTime());
 			return result;
 		}
 		Date curTime = new Date();
 		if(new Date().before(actualOffTime)) {
-			log.warn("autoHandleSignOutByAttendGateJmq：签退时间【{}】大于当前时间，无需处理！",mqData.getActualOffTime());
+			log.warn("autoHandleSignOutByAttendGateJmq：签退时间【{}】大于当前时间，无需处理！",mqData.getPassTime());
 			return result;
 		}
 		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
 		if(actualOffTime.before(checkTime)) {
-			log.warn("autoHandleSignOutByAttendGateJmq：用户【{}】签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getUserErp(),mqData.getActualOffTime(),autoSignOutByMqOffSenconds);
+			log.warn("autoHandleSignOutByAttendGateJmq：用户【{}】签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getErpOrIdCard(),mqData.getPassTime(),autoSignOutByMqOffSenconds);
 			return result;
 		}
 		log.info("SR 校验通过 mqData:{}", mqData);
 		//根据erp+场地查询，已签未退的数据
 		UserSignRecordQuery query = new UserSignRecordQuery();
-		query.setUserCode(mqData.getUserErp());
+		query.setUserCode(mqData.getErpOrIdCard());
 		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
 		log.info("SR 校验通过 query:{},lastUnSignOutRecord:{}", query, lastUnSignOutRecord);
 		if(lastUnSignOutRecord == null) {
-			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getUserErp());
+			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getErpOrIdCard());
 			return result;
 		}
 		if(!actualOffTime.after(lastUnSignOutRecord.getSignInTime())) {
-			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】打卡签退时间签退时间【{}】小于签到时间，无需处理！",mqData.getUserErp(),mqData.getActualOffTime());
+			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】打卡签退时间签退时间【{}】小于签到时间，无需处理！",mqData.getErpOrIdCard(),mqData.getPassTime());
 			return result;
 		}
 		if (lastUnSignOutRecord.getSiteCode() == null) {
@@ -1042,7 +1044,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		this.jyGroupMemberService.removeMembers(removeMemberRequest);
 
 		List<String> erpList = new ArrayList<>();
-		erpList.add(mqData.getUserErp());
+		erpList.add(mqData.getErpOrIdCard());
 
 		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
 		workStationGridCheckQuery.setBusinessKey(lastUnSignOutRecord.getRefGridKey());

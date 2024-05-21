@@ -37,7 +37,6 @@ public class AttendDetailChangeGateTopicConsumer extends MessageBaseConsumer {
     		log.warn("消息转换失败！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
     		return;
     	}
-//		JdResult<Integer> result0 = userSignRecordService.autoHandleSignOutByAttendJmq(mqData);
 		log.info("SR 开始消费 mqData:{}", mqData);
 		JdResult<Integer> result = userSignRecordService.autoHandleSignOutByAttendGateJmq(mqData);
 
