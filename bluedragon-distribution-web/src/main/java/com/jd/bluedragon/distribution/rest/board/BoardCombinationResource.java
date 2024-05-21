@@ -21,6 +21,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
@@ -607,9 +608,9 @@ public class BoardCombinationResource {
         if (param.getFlowDisaccord() != null) {
             boardCombinationRequest.setFlowDisaccord(param.getFlowDisaccord());
         }
-        OperatorData originOperatorData = param.getCurrentOperate().getOperatorData();
-        com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData = new com.jd.bluedragon.distribution.api.domain.OperatorData();
-        BeanUtils.copyProperties(originOperatorData, destOperatorData);
+
+        com.jd.bluedragon.distribution.api.domain.OperatorData destOperatorData
+                = BeanConverter.convertToOperatorData(param.getCurrentOperate());
         boardCombinationRequest.setOperatorData(destOperatorData);
         if (StringUtils.isNotBlank(param.getBizType())) {
             boardCombinationRequest.setBizType(param.getBizType());
