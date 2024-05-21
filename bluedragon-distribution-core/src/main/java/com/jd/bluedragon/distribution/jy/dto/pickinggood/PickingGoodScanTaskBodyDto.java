@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.pickinggood;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 
 /**
@@ -37,6 +39,11 @@ public class PickingGoodScanTaskBodyDto implements Serializable {
     private int receiveSiteCode;
     //提货任务bizId
     private String bizId;
+
+    /**
+     * 操作信息对象
+     */
+    private OperatorData operatorData;
 
     public String getBoxCode() {
         return boxCode;
@@ -132,5 +139,13 @@ public class PickingGoodScanTaskBodyDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
     }
 }

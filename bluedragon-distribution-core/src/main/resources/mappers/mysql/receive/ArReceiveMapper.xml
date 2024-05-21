@@ -38,7 +38,7 @@
 		departure_car_id,shields_car_time,ts,remark
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ArReceive">
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ArReceive" useGeneratedKeys="true" keyProperty="receiveId">
 		insert into ar_receive
 			(
 			<trim suffixOverrides=",">

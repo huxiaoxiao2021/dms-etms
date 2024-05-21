@@ -84,6 +84,11 @@ public class ShuttleTaskSealCarReq extends BaseReq implements Serializable {
      */
     private String transWayName;
 
+    /**
+     * 业务来源
+     */
+    private String bizType;
+
     public String getBizId() {
         return bizId;
     }
@@ -218,5 +223,13 @@ public class ShuttleTaskSealCarReq extends BaseReq implements Serializable {
 
     public void setScanBatchCodeTotalItemNum(Double scanBatchCodeTotalItemNum) {
         this.scanBatchCodeTotalItemNum = scanBatchCodeTotalItemNum;
+    }
+
+    public String getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(String bizType) {
+        this.bizType = bizType;
     }
 }
