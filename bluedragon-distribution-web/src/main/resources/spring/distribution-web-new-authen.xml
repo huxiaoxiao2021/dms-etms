@@ -29,6 +29,9 @@
 		<property name="configFileName" value="/authen.properties"/>
 	</bean>
 
+    <!--调用频率拦截器-->
+    <bean name="redisLimiterAccessInterceptor" class="com.jd.common.limiter.RateLimiterHandlerInterceptor" />
+
 	<!-- 单点登录拦截器配置 -->
 	<mvc:interceptors>
 	  <mvc:interceptor>
@@ -59,6 +62,11 @@
 				<property name="excludePath" value="${sso.exclude.path}"/>
 			</bean>
 		</mvc:interceptor>-->
+
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <ref bean="redisLimiterAccessInterceptor"/>
+        </mvc:interceptor>
 	</mvc:interceptors>
 
 </beans>
