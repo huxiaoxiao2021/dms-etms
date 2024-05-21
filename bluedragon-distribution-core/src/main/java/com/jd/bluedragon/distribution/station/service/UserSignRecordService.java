@@ -89,11 +89,16 @@ public interface UserSignRecordService {
      * @return
      */
     Result<Integer> autoHandleSignInRecord();
-    /**
-     * 人资考勤数据-topic自动签退处理
-     * @return
-     */
-    JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData);
+	/**
+	 * 人资考勤数据-topic自动签退处理
+	 * @return
+	 */
+	JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData);
+	/**
+	 * 人闸考勤数据-topic自动签退处理
+	 * @return
+	 */
+	JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeTopicData mqData);
 	/**
 	 * 按条件查询数量
 	 * @param query
