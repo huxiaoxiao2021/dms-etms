@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 
 public class OfflineLogRequest extends JdRequest {
 	private static final long serialVersionUID = 1214718370214764985L;
@@ -53,6 +54,11 @@ public class OfflineLogRequest extends JdRequest {
 	 * 用于验证离线数据的加密字段
 	 */
 	private String encrypt;
+
+	/**
+	 * 操作信息对象
+	 */
+	private OperatorData operatorData;
 
 	public Integer getOperateType() {
 		return operateType;
@@ -291,5 +297,13 @@ public class OfflineLogRequest extends JdRequest {
 
 	public void setEncrypt(String encrypt) {
 		this.encrypt = encrypt;
+	}
+
+	public OperatorData getOperatorData() {
+		return operatorData;
+	}
+
+	public void setOperatorData(OperatorData operatorData) {
+		this.operatorData = operatorData;
 	}
 }

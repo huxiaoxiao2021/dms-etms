@@ -57,7 +57,7 @@ public class SplitWaybillWeightVolumeHandler extends AbstractWeightVolumeHandler
         try {
             dmsWeighByWaybillProducer.send(entity.getWaybillCode(), JsonHelper.toJson(weightDTO));
             // 记录称重操作流水
-            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_BOX);
+            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.BOX_WEIGHT_VOLUME);
         } catch (JMQException e) {
             logger.error("发送MQ-TOPIC【{}】消息失败，消息体为：{}",dmsWeighByWaybillProducer.getTopic(),JsonHelper.toJson(weightDTO));
             throw new RuntimeException(e);
