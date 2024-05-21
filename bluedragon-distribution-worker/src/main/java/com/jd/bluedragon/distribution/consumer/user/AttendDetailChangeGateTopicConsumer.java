@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumer.record.DmsHasnoPresiteWaybillMqListener;
+import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeGateTopicData;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.jmq.common.message.Message;
@@ -25,7 +26,10 @@ public class AttendDetailChangeGateTopicConsumer extends MessageBaseConsumer {
     
     @Override
     public void consume(Message message) throws Exception {
-    	AttendDetailChangeTopicData mqData = JsonHelper.fromJson(message.getText(), AttendDetailChangeTopicData.class);
+		// {"createTime":"2024-05-11T11:31:27","deviceName":"杭州枢纽6号库人脸机内进1","erp":"jiangtingju1","floor":"杭州富阳散货分拣中心",
+		// "gateName":"正门","name":"姜庭菊","organization":"杭州富阳散货分拣中心","passResult":"成功","passStatus":"进门","passTime":"2024-05-11T11:31:35",
+		// "province":"杭州枢纽","staffType":"正式工"}
+		AttendDetailChangeGateTopicData mqData = JsonHelper.fromJson(message.getText(), AttendDetailChangeGateTopicData.class);
     	if(log.isDebugEnabled()) {
     		log.debug("AttendDetailChangeGateTopicConsumer：[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
     	}

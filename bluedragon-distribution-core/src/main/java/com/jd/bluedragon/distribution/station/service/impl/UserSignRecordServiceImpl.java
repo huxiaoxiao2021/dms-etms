@@ -33,6 +33,7 @@ import com.jd.bluedragon.core.jsf.jyJobType.JyJobTypeManager;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
+import com.jd.bluedragon.distribution.station.entity.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
@@ -966,7 +967,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	@Override
-	public JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeTopicData mqData) {
+	public JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeGateTopicData mqData) {
 		JdResult<Integer> result = new JdResult<Integer>();
 		result.toSuccess();
 		//只处理更新和新增操作的消息
@@ -2222,7 +2223,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
-		
+
 		String userCode=userSignRequest.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(isCarId){
