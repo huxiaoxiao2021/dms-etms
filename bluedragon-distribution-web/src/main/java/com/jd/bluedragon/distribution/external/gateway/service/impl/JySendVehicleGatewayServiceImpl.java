@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.task.autoclose.dto.AutoCloseTaskPo;
 import com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService;
 import com.jd.bluedragon.utils.converter.ResultConverter;
 import com.jd.ump.annotation.JProEnum;
@@ -28,10 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName JySendVehicleGatewayServiceImpl
@@ -94,18 +90,43 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return response;
     }
 
-    @Override
     public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         String tenantCode = TenantContext.getTenantCode();
         //冷链租户返回按件、按单、按板，非冷链返回按件、按单
         if(StringUtils.isNotBlank(tenantCode) && TenantEnum.TENANT_COLD_MEDICINE.getCode().equals(tenantCode)){
-            for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
+            for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getOneAndWaybillAndBoardEnum()) {
                 SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
                 optionList.add(option);
             }
         }else{
             for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL)) {
+                SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+                optionList.add(option);
+            }
+        }
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
+        JdCResponse<List<SelectOption>> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(optionList);
+        return response;
+    }
+
+    @Override
+    public JdCResponse<List<SelectOption>> scanTypeOptionsNew() {
+        List<SelectOption> optionList = new ArrayList<>();
+        String tenantCode = TenantContext.getTenantCode();
+        //冷链租户返回按件、按单、按板，非冷链返回按件、按单
+        if(StringUtils.isNotBlank(tenantCode) && TenantEnum.TENANT_COLD_MEDICINE.getCode().equals(tenantCode)){
+            for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getOneAndWaybillAndBoardEnum()) {
+                SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
+                optionList.add(option);
+            }
+        }else{
+            for (SendVehicleScanTypeEnum _enum : Arrays.asList(SendVehicleScanTypeEnum.SCAN_ONE,SendVehicleScanTypeEnum.SCAN_WAYBILL,
+                    SendVehicleScanTypeEnum.SCAN_TABLE_TROLLEY)) {
                 SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
                 optionList.add(option);
             }

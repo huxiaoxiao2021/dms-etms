@@ -43,6 +43,11 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<List<SelectOption>> scanTypeOptions();
+    /**
+     * 发货扫描方式枚举(新版，新增按笼扫描)
+     * @return
+     */
+    JdCResponse<List<SelectOption>> scanTypeOptionsNew();
 
     /**
      * 拉取发货任务列表
