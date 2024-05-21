@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.questionnaire.*;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
@@ -10,7 +9,6 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.external.gateway.service.QuestionnaireGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.position.PositionData;
@@ -23,11 +21,11 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
@@ -79,15 +77,17 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             return response;
         }
         String questionnaireId = sysConfig.getConfigContent();
+        Result<PositionData> dataResult = positionManager.queryPositionWithIsMatchAppFunc(req.getPositionCode());
 
-        if (StringUtils.isNotEmpty(req.getPositionCode()) && checkPositionCode(req)) {
+
+        if (StringUtils.isNotEmpty(req.getPositionCode()) && checkPositionCode(dataResult)) {
             response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
             response.setMessage("该岗位不在调查范围");
             return response;
         }
 
         // 判断当前用户是否已经作答
-        if (checkUserHasAnswered(questionnaireId,req.getUserErp())) {
+        if (StringUtils.isNotEmpty(req.getPositionCode()) && checkUserHasAnswered(questionnaireId,req.getUserErp(), dataResult)) {
             log.info("用户已经作答:{}", req.getUserErp());
             response.setCode(QUESTIONNAIRE_NOT_SHOW_CODE);
             response.setMessage("用户已经作答！");
@@ -98,14 +98,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         return JsonHelper.fromJson(body, JdCResponse.class);
     }
 
-    public static void main(String[] args) {
-        String funcConfig = "COMBOARD_SEND_POSITION,PATROL_MANAGER_POSITION";
-        String[] funcs = funcConfig.split(",");
-        List<String> funcList = Arrays.asList(funcs);
-        System.out.println(JsonHelper.toJson(funcList));
-    }
-
-    private boolean checkPositionCode(QuestionnaireReq req) {
+    private boolean checkPositionCode(Result<PositionData> dataResult) {
         // 校验岗位是否需要弹窗
         SysConfig funcConfig = sysConfigService.findConfigContentByConfigName(PDA_QUESTIONNAIRE_FUNC_CODE);
         if (StringUtils.isEmpty(funcConfig.getConfigContent())) {
@@ -113,7 +106,6 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         }
         String[] funcs = funcConfig.getConfigContent().split(",");
         List<String> funcList = Arrays.asList(funcs);
-        Result<PositionData> dataResult = positionManager.queryPositionWithIsMatchAppFunc(req.getPositionCode());
         if(dataResult == null){
             return true;
         }
@@ -133,8 +125,8 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
         if (null == siteCode) {
             return true;
         }
-        if ((StringUtils.isEmpty(siteWhiteConfig.getConfigContent()) || !siteWhiteConfigList.contains(siteCode.toString())) && funcList.contains(positionData.getDefaultMenuCode())) {
-            return false;
+        if (StringUtils.isEmpty(siteWhiteConfig.getConfigContent()) || !siteWhiteConfigList.contains(siteCode.toString())) {
+            return !funcList.contains(positionData.getDefaultMenuCode());
         }
 
         return true;
@@ -142,12 +134,13 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
 
     private String exeHttpGetMethod(String url) {
         try {
+            log.info("调查问卷执行rest请求 {}", url);
             HttpClient httpClient = new HttpClient();
             GetMethod method = new GetMethod(url);
             method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
             method.addRequestHeader("Accept", REST_CONTENT_TYPE);
             method.addRequestHeader("app", HTTP_REQUEST_HEADER_APP);
-            long timestamp = new Date().getTime();
+            long timestamp = System.currentTimeMillis();
             method.addRequestHeader("timestamp", Long.toString(timestamp));
             String sign = Md5Helper.getMd5(HTTP_REQUEST_HEADER_APP + appSecret + timestamp);
             method.addRequestHeader("sign", sign);
@@ -166,12 +159,26 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
      * 检查用户是否已回答问卷
      *
      * @param questionnaireId 问卷ID
-     * @param userErp 用户ERP
+     * @param userErp         用户ERP
+     * @param dataResult
      * @return 返回用户是否已回答问卷的状态
      */
-    private boolean checkUserHasAnswered(String questionnaireId, String userErp) {
+    private boolean checkUserHasAnswered(String questionnaireId, String userErp, Result<PositionData> dataResult) {
+        if (dataResult == null || dataResult.getData() == null) {
+            return true;
+        }
+        PositionData positionData = dataResult.getData();
+        String siteName;
+        try {
+            siteName = URLEncoder.encode(positionData.getSiteName(), ENCODE);
+        } catch (Exception e) {
+            log.info("场地名称编码转换失败{}",positionData.getSiteName());
+            return true;
+        }
         String body = exeHttpGetMethod(HTTP_REQUEST_PREFIX + "/wj/checkUserHasAnswered"
-                + "?pin=" + userErp + "&questionnaireId=" + questionnaireId);
+                + "?pin=" + userErp + "&questionnaireId=" + questionnaireId
+                + "&extra1=" + userErp + "&extra2=" + positionData.getSiteCode()
+                + "&extra3=" + siteName + "&extra4=" + positionData.getDefaultMenuCode());
         log.info("校验用户问卷状态返回值:{}", body);
         if (!StringUtils.isEmpty(body)) {
             JdCResponse response = JsonHelper.fromJson(body, JdCResponse.class);
@@ -216,7 +223,7 @@ public class QuestionnaireGatewayServiceImpl implements QuestionnaireGatewayServ
             method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
             method.addRequestHeader("Accept", REST_CONTENT_TYPE);
             method.addRequestHeader("app", HTTP_REQUEST_HEADER_APP);
-            long timestamp = new Date().getTime();
+            long timestamp = System.currentTimeMillis();
             method.addRequestHeader("timestamp", Long.toString(timestamp));
             String sign = Md5Helper.getMd5(HTTP_REQUEST_HEADER_APP + appSecret + timestamp);
             method.addRequestHeader("sign", sign);

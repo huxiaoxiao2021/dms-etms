@@ -11,6 +11,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,13 @@ public class PrintCancelInterceptHandler extends AbstractHandler<WaybillPrintCom
      * @return
      */
     public boolean isChangeAddressLegalWaybill(String waybillCode, String waybillSignStr) {
+        boolean res = isChangeAddressLegalWaybill1(waybillCode, waybillSignStr);
+        CallerInfo info = Profiler.registerInfo("dms.worker.PrintCancelInterceptHandler.isChangeAddressLegalWaybill." + res, Constants.UMP_APP_NAME_DMSWORKER,false, true);
+        Profiler.registerInfoEnd(info);
+        return res;
+    }
+
+    private boolean isChangeAddressLegalWaybill1(String waybillCode, String waybillSignStr) {
         if(StringUtils.isBlank(waybillCode)) {
             return false;
         }
