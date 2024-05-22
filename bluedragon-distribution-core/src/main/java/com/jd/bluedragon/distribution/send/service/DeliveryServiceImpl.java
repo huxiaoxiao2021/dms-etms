@@ -2276,6 +2276,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
          mq.setOperatorName(sdm.getCreateUser());
          mq.setOperatorCode(sdm.getCreateUserCode());
          mq.setSiteCode(sdm.getCreateSiteCode().toString());
+         mq.setOperatorTime(sdm.getOperateTime());
 
          mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
          BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
