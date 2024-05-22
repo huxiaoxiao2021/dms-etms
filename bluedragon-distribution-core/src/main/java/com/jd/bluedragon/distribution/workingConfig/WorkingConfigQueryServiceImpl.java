@@ -46,13 +46,13 @@ public class WorkingConfigQueryServiceImpl implements WorkingConfigQueryService{
                 result.put("name", dmsResult.get(0).getGroupName());
                 return result;
             }
-            List<OutsourceCountRuleDto> tysResult = workingConfigProxy.queryTYSWorkingConfig(siteCode, 105);//105表述打木架
-            log.info("查询该场地【{}】在转运工作台配置的打木架外包计提供应商结果为：{}", siteCode, JsonHelper.toJson(tysResult));
-            if (!CollectionUtils.isEmpty(tysResult)) {
-                result.put("code", tysResult.get(0).getSupplierNo());
-                result.put("name", tysResult.get(0).getOutsourceName());
-                return result;
-            }
+//            List<OutsourceCountRuleDto> tysResult = workingConfigProxy.queryTYSWorkingConfig(siteCode, 105);//105表述打木架
+//            log.info("查询该场地【{}】在转运工作台配置的打木架外包计提供应商结果为：{}", siteCode, JsonHelper.toJson(tysResult));
+//            if (!CollectionUtils.isEmpty(tysResult)) {
+//                result.put("code", tysResult.get(0).getSupplierNo());
+//                result.put("name", tysResult.get(0).getOutsourceName());
+//                return result;
+//            }
         } catch (RuntimeException e) {
             log.error("查询该场地【{}】在分拣工作台配置的打木架外包计提供应商结果发生异常", siteCode, e);
             return Collections.emptyMap();

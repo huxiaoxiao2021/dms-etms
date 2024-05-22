@@ -3,9 +3,9 @@ package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2021/12/2 16:15
  **/
 @Service("initialPrintCompleteHandler")
-public class InitialPrintCompleteHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class InitialPrintCompleteHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
 
     private static final Logger logger = LoggerFactory.getLogger(InitialPrintCompleteHandler.class);
 

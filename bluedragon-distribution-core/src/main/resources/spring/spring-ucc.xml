@@ -370,6 +370,16 @@
 		<property name="evaluateAppealCloseDay" value="${evaluateAppealCloseDay:7}"/>
 		<property name="checkOvertimeHour" value="${checkOvertimeHour:240}"/>
 		<property name="routerDynamicLineReplaceEnableSiteStr" value="${routerDynamicLineReplaceEnableSiteStr:'-1'}"/>
+		<property name="collectPackageTaskStatisticsUseIndependentInterfaceSwitch" value="${collectPackageTaskStatisticsUseIndependentInterfaceSwitch:false}"/>
+		<property name="selfCheckTaskConfigCode" value="${selfCheckTaskConfigCode:task_xc_config_2}"/>
+		<property name="restRateLimiterSwitch" value="${restRateLimiterSwitch:false}"/>
+		<property name="restRateLimiterTenant" value="${restRateLimiterTenant:jy}"/>
+		<property name="restRateLimiterBody" value="${restRateLimiterBody:}"/>
+		<property name="restRateLimiterWhiteList" value="${restRateLimiterWhiteList:}"/>
+		<property name="restRateLimiterBlackIpList" value="${restRateLimiterBlackIpList:}"/>
+		<property name="restRateLimiterBlackErpList" value="${restRateLimiterBlackErpList:}"/>
+		<property name="restRateLimiterFallbackGlobalTip" value="${restRateLimiterFallbackGlobalTip:''}"/>
+		<property name="restRateLimiterFallbackTips" value="${restRateLimiterFallbackTips:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -725,6 +735,16 @@
 				<value>uccPropertyConfiguration.evaluateAppealCloseDay</value>
 				<value>uccPropertyConfiguration.checkOvertimeHour</value>
 				<value>uccPropertyConfiguration.routerDynamicLineReplaceEnableSiteStr</value>
+				<value>uccPropertyConfiguration.collectPackageTaskStatisticsUseIndependentInterfaceSwitch</value>
+				<value>uccPropertyConfiguration.selfCheckTaskConfigCode</value>
+				<value>uccPropertyConfiguration.restRateLimiterSwitch</value>
+				<value>uccPropertyConfiguration.restRateLimiterTenant</value>
+				<value>uccPropertyConfiguration.restRateLimiterBody</value>
+				<value>uccPropertyConfiguration.restRateLimiterWhiteList</value>
+				<value>uccPropertyConfiguration.restRateLimiterBlackIpList</value>
+				<value>uccPropertyConfiguration.restRateLimiterBlackErpList</value>
+				<value>uccPropertyConfiguration.restRateLimiterFallbackGlobalTip</value>
+				<value>uccPropertyConfiguration.restRateLimiterFallbackTips</value>
 			</list>
 		</property>
 	</bean>

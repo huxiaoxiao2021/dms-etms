@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.google.common.collect.Maps;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -33,9 +31,8 @@ import java.util.Objects;
  * @date 2021/12/2 18:08
  **/
 @Service("dealReprintHandler")
-public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, JdResult<Boolean>> {
+public class DealReprintHandler extends AbstractHandler<WaybillPrintCompleteContext, JdResult<Boolean>> {
     private static final Logger logger = LoggerFactory.getLogger(DealReprintHandler.class);
-
 
     @Autowired
     private ReprintRecordService reprintRecordService;
@@ -108,7 +105,7 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
     }
 
     private void kyAddressModifyReprintDeal(PrintCompleteRequest printData, WaybillStatus waybillStatus) {
-        if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign())){
+        if(BusinessUtil.isKyAddressModifyWaybill(printData.getWaybillSign()) || BusinessUtil.isMedicineCpModifyWaybill(printData.getWaybillSign())){
             BlockResponse blockResponse;
             if(WaybillUtil.isPackageCode(printData.getPackageBarcode())){
                 blockResponse = waybillService.checkPackageBlock(printData.getPackageBarcode(),

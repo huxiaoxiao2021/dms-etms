@@ -1649,4 +1649,23 @@
                   retries="${jsf.retries}"
                   serialization="hessian">
     </jsf:consumer>
+    <!--云打印服务-->
+    <jsf:consumer id="dataServiceJsfService"
+                  interface="com.jdl.print.service.DataService"
+                  timeout="${jsf.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}"
+                  alias="${jsf.alias.cloud.print}">
+    </jsf:consumer>
+
+
+    <!--  AGV  -->
+    <jsf:consumer id="agvJsfService"
+                  interface="com.jd.bluedragon.distribution.sdk.modules.agv.AGVJSFService"
+                  protocol="jsf"
+                  alias="${automatic.platform.jsf.alias}"
+                  timeout="${jsf.timeout.agv}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
 </beans>

@@ -162,6 +162,8 @@ public class JyFindGoodsJsfServiceImpl implements JyFindGoodsJsfService {
     findGoodsTaskDto.setUpdateUserName("系统分配");
     findGoodsTaskDto.setCreateTime(today);
     findGoodsTaskDto.setUpdateTime(today);
+    findGoodsTaskDto.setGridCode(dto.getGridCode());
+    findGoodsTaskDto.setGridName(dto.getGridName());
     return findGoodsTaskDto;
   }
 

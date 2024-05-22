@@ -36,6 +36,13 @@ public interface JyCollectPackageGatewayService {
    */
   JdCResponse<TaskDetailResp> queryTaskDetail(TaskDetailReq request);
 
+  /**
+   * 查询集包任务详情统计相关数据
+   * @param request 请求入参
+   * @return 统计结果
+   */
+  JdCResponse<TaskDetailStatisticsResp> queryTaskDetailStatistics(TaskDetailReq request);
+
 
   /**
    * 封箱（支持单个/批量箱号进行封箱）

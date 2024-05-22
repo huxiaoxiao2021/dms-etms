@@ -1970,6 +1970,11 @@ public class UccPropertyConfiguration{
      */
     private boolean operateFlowNewSwitch;
 
+    /**
+     * 自检任务-任务配置编码
+     */
+    private String selfCheckTaskConfigCode;
+
     public Integer getPickingPlanArriveTimeRange() {
         return pickingPlanArriveTimeRange;
     }
@@ -2145,6 +2150,44 @@ public class UccPropertyConfiguration{
      */
     private String routerDynamicLineReplaceEnableSiteStr;
     private List<Integer> routerDynamicLineReplaceEnableSiteList = new ArrayList<>();
+
+    /**
+     * 集包任务统计使用独立接口开关
+     */
+    private Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+
+    /**
+     * rest接口限流配置，功能开关
+     */
+    private Boolean restRateLimiterSwitch;
+    /**
+     * rest接口限流配置，限流租户
+     */
+    private String restRateLimiterTenant;
+    /**
+     * rest接口限流配置内容
+     */
+    private String restRateLimiterBody;
+    /**
+     * rest接口限流配置，白名单
+     */
+    private String restRateLimiterWhiteList;
+    /**
+     * rest接口限流配置，IP黑名单，永久禁止访问
+     */
+    private String restRateLimiterBlackIpList;
+    /**
+     * rest接口限流配置，ERP黑名单，永久禁止访问
+     */
+    private String restRateLimiterBlackErpList;
+    /**
+     * rest接口限流配置，功能降级全局提示语
+     */
+    private String restRateLimiterFallbackGlobalTip;
+    /**
+     * rest接口限流配置，按URI配置的降级提示语
+     */
+    private String restRateLimiterFallbackTips;
 
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
@@ -4791,5 +4834,85 @@ public class UccPropertyConfiguration{
             return true;
         }
         return this.routerDynamicLineReplaceEnableSiteList.contains(siteCode);
+    }
+
+    public Boolean getCollectPackageTaskStatisticsUseIndependentInterfaceSwitch() {
+        return collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+    }
+
+    public void setCollectPackageTaskStatisticsUseIndependentInterfaceSwitch(Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch) {
+        this.collectPackageTaskStatisticsUseIndependentInterfaceSwitch = collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+    }
+
+    public String getSelfCheckTaskConfigCode() {
+        return selfCheckTaskConfigCode;
+    }
+
+    public void setSelfCheckTaskConfigCode(String selfCheckTaskConfigCode) {
+        this.selfCheckTaskConfigCode = selfCheckTaskConfigCode;
+    }
+
+    public Boolean getRestRateLimiterSwitch() {
+        return restRateLimiterSwitch;
+    }
+
+    public void setRestRateLimiterSwitch(Boolean restRateLimiterSwitch) {
+        this.restRateLimiterSwitch = restRateLimiterSwitch;
+    }
+
+    public String getRestRateLimiterTenant() {
+        return restRateLimiterTenant;
+    }
+
+    public void setRestRateLimiterTenant(String restRateLimiterTenant) {
+        this.restRateLimiterTenant = restRateLimiterTenant;
+    }
+
+    public String getRestRateLimiterBody() {
+        return restRateLimiterBody;
+    }
+
+    public void setRestRateLimiterBody(String restRateLimiterBody) {
+        this.restRateLimiterBody = restRateLimiterBody;
+    }
+
+    public String getRestRateLimiterWhiteList() {
+        return restRateLimiterWhiteList;
+    }
+
+    public void setRestRateLimiterWhiteList(String restRateLimiterWhiteList) {
+        this.restRateLimiterWhiteList = restRateLimiterWhiteList;
+    }
+
+    public String getRestRateLimiterBlackIpList() {
+        return restRateLimiterBlackIpList;
+    }
+
+    public void setRestRateLimiterBlackIpList(String restRateLimiterBlackIpList) {
+        this.restRateLimiterBlackIpList = restRateLimiterBlackIpList;
+    }
+
+    public String getRestRateLimiterBlackErpList() {
+        return restRateLimiterBlackErpList;
+    }
+
+    public void setRestRateLimiterBlackErpList(String restRateLimiterBlackErpList) {
+        this.restRateLimiterBlackErpList = restRateLimiterBlackErpList;
+    }
+
+    public String getRestRateLimiterFallbackGlobalTip() {
+        return restRateLimiterFallbackGlobalTip;
+    }
+
+    public void setRestRateLimiterFallbackGlobalTip(String restRateLimiterFallbackGlobalTip) {
+        this.restRateLimiterFallbackGlobalTip = restRateLimiterFallbackGlobalTip;
+    }
+
+    public String getRestRateLimiterFallbackTips() {
+        return restRateLimiterFallbackTips;
+    }
+
+    public void setRestRateLimiterFallbackTips(String restRateLimiterFallbackTips) {
+        this.restRateLimiterFallbackTips = restRateLimiterFallbackTips;
     }
 }

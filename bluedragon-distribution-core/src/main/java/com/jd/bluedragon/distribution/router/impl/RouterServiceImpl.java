@@ -74,6 +74,9 @@ public class RouterServiceImpl implements RouterService {
         try{
 
             RouteNextDto routeNextDto = this.matchRouterNextNode(siteCode,waybillCode);
+            if (log.isInfoEnabled()){
+                log.info("RouterServiceImpl.getRouterNextSite 查询路由节点返回：{}", JsonHelper.toJson(routeNextDto));
+            }
             if(routeNextDto.getFirstNextSiteId() == null){
                 return null;
             }

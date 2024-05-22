@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -26,7 +26,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
  * @since 2019/4/9
  */
 @Service("mappedBasicPrintWaybillHandler")
-public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class MappedBasicPrintWaybillHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MappedBasicPrintWaybillHandler.class);
 

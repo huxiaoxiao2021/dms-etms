@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
+import com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -151,6 +152,10 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     }
 
     private boolean checkOfflined(SortingCheckRequest checkRequest) {
+        if (Objects.nonNull(checkRequest.getBizSource()) &&
+                Objects.equals(checkRequest.getBizSource(), SortingBizSourceEnum.ANDROID_SORTING_BATCH_TABLE_TROLLEY.getCode())){
+            return false;
+        }
         if (needSkipCheckOfflined(checkRequest)){
             return false;
         }
@@ -284,4 +289,5 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
 
         return res;
     }
+
 }

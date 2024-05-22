@@ -491,7 +491,7 @@
         <if test="limitDay !=null">
             AND  <![CDATA[  ts >  DATE_SUB(CURDATE(), INTERVAL #{limitDay} DAY) ]]>
         </if>
-        order by id desc
+        order by id + 0 desc
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>

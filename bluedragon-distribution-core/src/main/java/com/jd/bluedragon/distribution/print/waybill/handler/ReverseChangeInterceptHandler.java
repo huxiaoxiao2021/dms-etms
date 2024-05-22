@@ -7,7 +7,7 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.AbstractInterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/6
  */
 @Service("reverseChangeInterceptHandler")
-public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+public class ReverseChangeInterceptHandler extends AbstractInterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeInterceptHandler.class);
 

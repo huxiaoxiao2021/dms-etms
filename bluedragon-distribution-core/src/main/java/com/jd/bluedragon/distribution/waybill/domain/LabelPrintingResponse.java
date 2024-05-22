@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.CloudPrintDocument;
+
+import java.util.List;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
@@ -40,6 +43,16 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     /**货到付款 true*/
     private Boolean codType;
+
+    /**
+     * 使用云打印
+     */
+    private boolean useCloudPrint;
+
+    /**
+     * 云打印本地打印组件需要的完整的打印数据
+     */
+    private List<CloudPrintDocument> cloudPrintDocuments;
 
     public LabelPrintingResponse() {
         super();
@@ -88,5 +101,21 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setCodType(Boolean codType) {
         this.codType = codType;
+    }
+
+    public boolean getUseCloudPrint() {
+        return useCloudPrint;
+    }
+
+    public void setUseCloudPrint(boolean useCloudPrint) {
+        this.useCloudPrint = useCloudPrint;
+    }
+
+    public List<CloudPrintDocument> getCloudPrintDocuments() {
+        return cloudPrintDocuments;
+    }
+
+    public void setCloudPrintDocuments(List<CloudPrintDocument> cloudPrintDocuments) {
+        this.cloudPrintDocuments = cloudPrintDocuments;
     }
 }

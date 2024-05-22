@@ -221,6 +221,23 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             return;
         }
         String barCode = qcReportJmqDto.getAbnormalDocumentNum();
+        dealExpDamageInfo(barCode, qcReportJmqDto);
+        if (StringUtils.isNotBlank(qcReportJmqDto.getPackageNumber())) {
+            String barCodes = qcReportJmqDto.getPackageNumber();
+            String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+            for (String packageCode : barCodeList) {
+                dealExpDamageInfo(packageCode, qcReportJmqDto);
+            }
+        }
+    }
+
+
+    /**
+     * 处理异常破损信息
+     * @param barCode 条形码
+     * @param qcReportJmqDto 质控报告JMQ数据传输对象
+     */
+    public void dealExpDamageInfo(String barCode, QcReportJmqDto qcReportJmqDto) {
         String bizId = getBizId(barCode, new Integer(qcReportJmqDto.getCreateDept()));
         String existKey = "DMS.EXCEPTION.DAMAGE:" + bizId;
         try {
@@ -293,7 +310,6 @@ public class JyDamageExceptionServiceImpl extends JyExceptionStrategy implements
             redisClient.del(existKey);
         }
     }
-
 
     /**
      * 发送破损数据给客服

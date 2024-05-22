@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOutputMsgItem;
@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -28,7 +29,7 @@ import java.util.*;
  * @date: 2019年8月14日 上午11:35:15
  *
  */
-public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PdfLabelFileGenerateHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
     private static final Logger log = LoggerFactory.getLogger(PdfLabelFileGenerateHandler.class);
     /**
      * 云打印输出文件oss配置
@@ -43,6 +44,7 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
      * 包裹列表字段
      */
     private static final String FIELD_NAME_PACKLIST = "packList";
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         log.debug("PdfLabelFileGenerateHandler-pdf标签文件生成处理");
@@ -74,6 +76,9 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         	jdCloudPrintRequest.setTemplateVer(basePrintWaybill.getTemplateVersionStr());
         }
         jdCloudPrintRequest.setModel(printDatas);
+		if (StringUtils.isNotEmpty(basePrintWaybill.getTemplateSysName())) {
+			jdCloudPrintRequest.setSys(basePrintWaybill.getTemplateSysName());
+		}
         JdResult<List<JdCloudPrintResponse>> printResult = jdCloudPrintService.jdCloudPrint(jdCloudPrintRequest);
         if(printResult.isSucceed()){
         	List<JdCloudPrintResponse> pdfList = printResult.getData();

@@ -54,6 +54,45 @@ public class InventoryTaskDto implements Serializable {
     private Long completeTime;
 
 
+    /**
+     * 是否清场
+     */
+    private boolean cleanSiteFlag;
+
+    /**
+     * 清场操作人
+     */
+    private String cleanSiteUser;
+
+    /**
+     * 网格名称
+     */
+    private String gridName;
+
+    public boolean getCleanSiteFlag() {
+        return cleanSiteFlag;
+    }
+
+    public void setCleanSiteFlag(boolean cleanSiteFlag) {
+        this.cleanSiteFlag = cleanSiteFlag;
+    }
+
+    public String getCleanSiteUser() {
+        return cleanSiteUser;
+    }
+
+    public void setCleanSiteUser(String cleanSiteUser) {
+        this.cleanSiteUser = cleanSiteUser;
+    }
+
+    public String getGridName() {
+        return gridName;
+    }
+
+    public void setGridName(String gridName) {
+        this.gridName = gridName;
+    }
+
     public String getBizId() {
         return bizId;
     }

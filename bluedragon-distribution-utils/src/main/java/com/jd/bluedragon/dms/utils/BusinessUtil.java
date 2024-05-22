@@ -1990,7 +1990,9 @@ public class BusinessUtil {
         return (DmsConstants.RULE_CYCLE_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches()) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15) ||
                 (materialCode.toUpperCase().startsWith(COLLECTION_AL_PREFIX) && materialCode.length() == 15) ||
-                isWmsTurnoverBox(materialCode);
+                isWmsTurnoverBox(materialCode) ||
+                isInsulatedBox(materialCode) ||
+                isRecycleTurnoverBox(materialCode);
     }
 
     /**
@@ -1999,6 +2001,30 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isWmsTurnoverBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_WMS_TURNOVER_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
+    }
+
+    /**
+     * 判断是否是保温箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isInsulatedBox(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return DmsConstants.RULE_CYCLE_INSULATED_BOX_REGEX.matcher(materialCode.trim().toUpperCase()).matches();
+    }
+
+    /**
+     * 判断是否是周转箱物资编码
+     * @param materialCode
+     * @return
+     */
+    public static boolean isRecycleTurnoverBox(String materialCode) {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
@@ -3168,5 +3194,21 @@ public class BusinessUtil {
      */
     public static boolean isDirectDeliverySort(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_5);
+    }
+
+
+    /**
+     * 判断是否是医药零担改址拦截的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isMedicineCpModifyWaybill(String waybillSign){
+        if (waybillSign == null){
+            return false;
+        }
+        return isMedicineCP(waybillSign)
+                && BusinessUtil.isSignInChars(waybillSign,103,'2', '3')
+                && BusinessUtil.isSignChar(waybillSign,89,'0');
     }
 }

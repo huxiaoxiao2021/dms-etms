@@ -46,4 +46,15 @@ public abstract class AbstractJsonCommandHandler<T,R> implements Handler<JdComma
 			JsonOperateHandlerMapping<T, JdResult<String>> jsonOperateHandlerMapping) {
 		this.jsonOperateHandlerMapping = jsonOperateHandlerMapping;
 	}
+
+	/**
+	 * 是否跳过执行，当返回true时跳过此handler
+	 *
+	 * @param target
+	 * @return
+	 */
+	@Override
+	public Boolean isSkip(JdCommand<String> target) {
+		return Boolean.FALSE;
+	}
 }

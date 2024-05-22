@@ -23,7 +23,12 @@ public class TemporaryPackageTemplate implements Serializable {
      * 环境列表
      */
     private List<String> runningModeList;
-    
+
+	/**
+	 * 模版系统
+	 */
+	private String temporaryTemplateSysName;
+
     public String getTemporaryTemplateName() {
         return temporaryTemplateName;
     }
@@ -68,5 +73,13 @@ public class TemporaryPackageTemplate implements Serializable {
 
 	public void setAllRunningModeEnable(Boolean allRunningModeEnable) {
 		this.allRunningModeEnable = allRunningModeEnable;
+	}
+
+	public String getTemporaryTemplateSysName() {
+		return temporaryTemplateSysName;
+	}
+
+	public void setTemporaryTemplateSysName(String temporaryTemplateSysName) {
+		this.temporaryTemplateSysName = temporaryTemplateSysName;
 	}
 }

@@ -755,4 +755,13 @@
                   ref="routerDynamicLineReplacePlanGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- AGV -->
+    <bean id="agvGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AGVGatewayServiceImpl" />
+    <jsf:provider id="jsfAgvGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AGVGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="agvGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
