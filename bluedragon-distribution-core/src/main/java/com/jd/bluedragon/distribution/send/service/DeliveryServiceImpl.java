@@ -164,7 +164,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -6143,7 +6142,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
             // 如果是中转，也补收货任务(抖音需求：整箱中转补收获动作)
             log.info("DeliveryServiceImpl.transitSend addReceiveTask {}", JsonHelper.toJsonMs(domain));
-            addReceiveTask(domain);
+            pushReceiveTask(domain);
             return true;
         } else {
             return false;
@@ -6261,7 +6260,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     /**
      * 添加收货任务
      */
-    private void addReceiveTask(SendM domain) {
+    private void pushReceiveTask(SendM domain) {
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
         receiveRequest.setCarCode(Constants.EMPTY_FILL);
@@ -6275,7 +6274,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         BaseStaffSiteOrgDto createSiteDto = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != createSiteDto ? createSiteDto.getSiteName() : null;
         receiveRequest.setSiteName(createSiteName);
-        receiveRequest.setOperateTime(DateFormatUtils.format(domain.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        receiveRequest.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
         receiveRequest.setSealBoxCode(Constants.EMPTY_FILL);
         receiveRequest.setTurnoverBoxCode(Constants.EMPTY_FILL);
 
