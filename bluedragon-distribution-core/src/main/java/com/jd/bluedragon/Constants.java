@@ -2644,4 +2644,9 @@ public class Constants {
      */
     public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
 
+    /**
+     * 包裹补打次数拦截配置
+     */
+    public static final String PACKAGE_REPRINT_INTERCEPT_CONFIG  = "package.reprint.intercept.config";
+
 }
