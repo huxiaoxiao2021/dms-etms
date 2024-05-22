@@ -6139,6 +6139,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public boolean transitSend(SendM domain) {
         if (isTransferSend(domain)) {
             pushTransferSendTask(domain);
+
+            // 如果是中转，也补分拣任务(抖音需求：整箱中转补分拣动作)
+            pushSorting(domain);
             return true;
         } else {
             return false;
