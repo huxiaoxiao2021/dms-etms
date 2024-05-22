@@ -168,7 +168,17 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private String idCard;
 	
 	private List<String> refGridKeyList;
-	
+
+	private Date yesterdayStart;
+
+	public Date getYesterdayStart() {
+		return yesterdayStart;
+	}
+
+	public void setYesterdayStart(Date yesterdayStart) {
+		this.yesterdayStart = yesterdayStart;
+	}
+
 	public String getIdCard() {
 		return idCard;
 	}

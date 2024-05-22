@@ -296,6 +296,8 @@ public class DateHelper {
 
     public static void main1(String[] args) {
 
+        System.out.println(getCurrentDayWithOutTimes());
+
         for(int i=1;i<=28;i++) {
         	System.out.println(MessageFormat.format("计提日：{0}，计提日期：为{1}",i,DateHelper.formatDateTime(getLastAccrualDate(i,7,1))));
         }

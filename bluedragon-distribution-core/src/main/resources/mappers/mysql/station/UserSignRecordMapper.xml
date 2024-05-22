@@ -1279,4 +1279,18 @@
 			#{item,jdbcType=INTEGER}
 		</foreach>
 	</select>
+
+	<select id="queryMonitorRoomPerson" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="baseUserSignMap">
+		select user_code,user_code_encrypt,user_name,user_name_encrypt
+		from  user_sign_record
+		where yn =1
+		AND ref_grid_key IN
+		<foreach item="refGridKey" collection="refGridKeyList" open="(" close=")" index="index" separator=",">
+			#{refGridKey,jdbcType=VARCHAR}
+		</foreach>
+		AND (
+		    	<![CDATA[ sign_in_time >= #{yesterdayStart,jdbcType=TIMESTAMP}  ]]>
+		    	or <![CDATA[ sign_out_time >= #{yesterdayStart,jdbcType=TIMESTAMP}  ]]>
+		    )
+	</select>
 </mapper>

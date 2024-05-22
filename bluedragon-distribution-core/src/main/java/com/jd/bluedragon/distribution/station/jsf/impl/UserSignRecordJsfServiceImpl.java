@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
+import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.query.NoticeToTimelineDto;
 import com.jd.bluedragon.utils.NoticeUtils;
 import java.util.List;
@@ -12,10 +13,6 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.UserSignRecordJsfService;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -134,6 +131,13 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	public Result noticeToTimeline(NoticeToTimelineDto dto) {
 		NoticeUtils.noticeToTimeline(dto.getTitile(), dto.getContent(), dto.getUrl(), dto.getErp());
 		return Result.success();
+	}
+
+	@Override
+	public Result<List<BaseUserSignRecordVo>> queryMonitorRoomPerson(UserSignRecordQuery query) {
+		Result<List<BaseUserSignRecordVo>> result = new Result<>();
+		result.setData(userSignRecordService.queryMonitorRoomPerson(query));
+		return	result;
 	}
 
 }
