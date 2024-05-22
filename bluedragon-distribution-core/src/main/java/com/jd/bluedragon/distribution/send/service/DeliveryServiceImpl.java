@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -120,7 +121,6 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
@@ -164,6 +164,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -6140,9 +6141,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (isTransferSend(domain)) {
             pushTransferSendTask(domain);
 
-            // 如果是中转，也补分拣任务(抖音需求：整箱中转补分拣动作)
-            log.info("DeliveryServiceImpl.transitSend addSortingTask {}", JsonHelper.toJsonMs(domain));
-            pushSorting(domain);
+            // 如果是中转，也补收货任务(抖音需求：整箱中转补收获动作)
+            log.info("DeliveryServiceImpl.transitSend addReceiveTask {}", JsonHelper.toJsonMs(domain));
+            addReceiveTask(domain);
             return true;
         } else {
             return false;
@@ -6255,6 +6256,45 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
+    }
+
+    /**
+     * 添加收货任务
+     */
+    private void addReceiveTask(SendM domain) {
+        ReceiveRequest receiveRequest = new ReceiveRequest();
+        receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
+        receiveRequest.setCarCode(Constants.EMPTY_FILL);
+        receiveRequest.setPackOrBox(domain.getBoxCode());
+        receiveRequest.setId(0);
+        Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
+        receiveRequest.setBusinessType(businessType);
+        receiveRequest.setUserCode(domain.getCreateUserCode());
+        receiveRequest.setUserName(domain.getCreateUser());
+        receiveRequest.setSiteCode(domain.getCreateSiteCode());
+        BaseStaffSiteOrgDto createSiteDto = siteService.getSite(domain.getCreateSiteCode());
+        String createSiteName = null != createSiteDto ? createSiteDto.getSiteName() : null;
+        receiveRequest.setSiteName(createSiteName);
+        receiveRequest.setOperateTime(DateFormatUtils.format(domain.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        receiveRequest.setSealBoxCode(Constants.EMPTY_FILL);
+        receiveRequest.setTurnoverBoxCode(Constants.EMPTY_FILL);
+
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(receiveRequest) + Constants.PUNCTUATION_CLOSE_BRACKET;
+
+        TaskRequest taskRequest = new TaskRequest();
+        taskRequest.setType(Task.TASK_TYPE_RECEIVE);
+        taskRequest.setSiteCode(domain.getCreateSiteCode());
+        taskRequest.setSiteName(createSiteName);
+        taskRequest.setReceiveSiteCode(domain.getReceiveSiteCode());
+        taskRequest.setKeyword1(String.valueOf(domain.getCreateSiteCode()));
+        taskRequest.setKeyword2(domain.getBoxCode());
+        taskRequest.setBoxCode(domain.getBoxCode());
+        final Task task = this.taskService.toTask(taskRequest, eachJson);
+        if (log.isDebugEnabled()) {
+            log.debug("DeliveryServiceImpl.addReceiveTask {}", JsonHelper.toJson(task));
+        }
+
+        this.taskService.add(task);
     }
 
     @Override
