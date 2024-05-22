@@ -19,6 +19,7 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -125,15 +126,15 @@ public class ForceChangeWaybillSignFilter implements Filter {
             return;
         }
         // 继续判断增值服务
-        if (CollectionUtils.isEmpty(waybillCache.getVasNoList())) {
+        if (CollectionUtils.isEmpty(request.getWaybillVasDtos())) {
             return;
         }
         // 改址转寄增值服务标识
         boolean addressForwardingVasFlag = false;
         // 循环增值服务列表
-        for (String vasNo : waybillCache.getVasNoList()) {
+        for (WaybillVasDto vasDto : request.getWaybillVasDtos()) {
             // vasNo是否等于改址转寄增值服务
-            if (WaybillVasEnum.WAYBILL_VAS_ADDRESS_FORWARDING.getCode().equals(vasNo)) {
+            if (vasDto != null && WaybillVasEnum.WAYBILL_VAS_ADDRESS_FORWARDING.getCode().equals(vasDto.getVasNo())) {
                 addressForwardingVasFlag = true;
                 break;
             }
