@@ -228,7 +228,9 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
         pins.add(d.getOwnerUserErp());
         // 监控区人员
         List<String> monitorRoomPerson = findMonitorRoomPerson(d);
-        pins.addAll(monitorRoomPerson);
+        if (!monitorRoomPerson.isEmpty()) {
+            pins.addAll(monitorRoomPerson);
+        }
         //第三次或更多次事件时,网格负责人的上级
         if (incr >= UpgradeNotifyCount) {
             String superiorErp = hrUserManager.getSuperiorErp(d.getOwnerUserErp());
@@ -242,7 +244,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
 
     // 昨天0点至当前，在监控室作业区下任一网格内有签到或签退过的人
     private List<String> findMonitorRoomPerson(ViolentSortingDto dto) {
-        List<String> list = new ArrayList<>();
         WorkStationGridQuery gridQuery = new WorkStationGridQuery();
         gridQuery.setSiteCode(dto.getSiteCode());
         gridQuery.setGridCode(MONITOR_GRID);
@@ -254,7 +255,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
         }
         UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
         List<WorkStationGrid> grids = result.getData().getResult();
-        userSignRecordQuery.setRefGridKeyList(grids.stream().map(g -> g.getRefWorkGridKey()).collect(Collectors.toList()));
+        userSignRecordQuery.setRefGridKeyList(grids.stream().map(g -> g.getBusinessKey()).collect(Collectors.toList()));
         userSignRecordQuery.setYesterdayStart(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -1));
         List<BaseUserSignRecordVo> baseUserSignRecordVos = userSignRecordService.queryMonitorRoomPerson(userSignRecordQuery);
         return baseUserSignRecordVos.stream().map(v -> v.getUserCode()).collect(Collectors.toList());
