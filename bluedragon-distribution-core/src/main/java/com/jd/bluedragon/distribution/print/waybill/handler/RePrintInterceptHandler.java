@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.handler.AbstractHandler;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -47,7 +48,7 @@ import static com.jd.bluedragon.utils.DateHelper.ONE_DAY_HOURS;
  */
 @Service
 @Slf4j
-public class RePrintInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>>  {
+public class RePrintInterceptHandler extends AbstractHandler<WaybillPrintContext, JdResult<String>> {
 
     @Autowired
     private SysConfigService sysConfigService;
