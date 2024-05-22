@@ -6261,39 +6261,45 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * 添加收货任务
      */
     private void pushReceiveTask(SendM domain) {
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
-        receiveRequest.setCarCode(Constants.EMPTY_FILL);
-        receiveRequest.setPackOrBox(domain.getBoxCode());
-        receiveRequest.setId(0);
-        Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
-        receiveRequest.setBusinessType(businessType);
-        receiveRequest.setUserCode(domain.getCreateUserCode());
-        receiveRequest.setUserName(domain.getCreateUser());
-        receiveRequest.setSiteCode(domain.getCreateSiteCode());
-        BaseStaffSiteOrgDto createSiteDto = siteService.getSite(domain.getCreateSiteCode());
-        String createSiteName = null != createSiteDto ? createSiteDto.getSiteName() : null;
-        receiveRequest.setSiteName(createSiteName);
-        receiveRequest.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
-        receiveRequest.setSealBoxCode(Constants.EMPTY_FILL);
-        receiveRequest.setTurnoverBoxCode(Constants.EMPTY_FILL);
+        try {
+            if(!dmsConfigManager.getPropertyConfig().getBoxTransferSendInsertReceiveSwitch()){
+                return;
+            }
+            ReceiveRequest receiveRequest = new ReceiveRequest();
+            receiveRequest.setShieldsCarCode(Constants.EMPTY_FILL);
+            receiveRequest.setCarCode(Constants.EMPTY_FILL);
+            receiveRequest.setPackOrBox(domain.getBoxCode());
+            Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
+            receiveRequest.setBusinessType(businessType);
+            receiveRequest.setUserCode(domain.getCreateUserCode());
+            receiveRequest.setUserName(domain.getCreateUser());
+            receiveRequest.setSiteCode(domain.getCreateSiteCode());
+            BaseStaffSiteOrgDto createSiteDto = siteService.getSite(domain.getCreateSiteCode());
+            String createSiteName = null != createSiteDto ? createSiteDto.getSiteName() : null;
+            receiveRequest.setSiteName(createSiteName);
+            receiveRequest.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
+            receiveRequest.setSealBoxCode(Constants.EMPTY_FILL);
+            receiveRequest.setTurnoverBoxCode(Constants.EMPTY_FILL);
 
-        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(receiveRequest) + Constants.PUNCTUATION_CLOSE_BRACKET;
+            String eachJson = Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(receiveRequest) + Constants.PUNCTUATION_CLOSE_BRACKET;
 
-        TaskRequest taskRequest = new TaskRequest();
-        taskRequest.setType(Task.TASK_TYPE_RECEIVE);
-        taskRequest.setSiteCode(domain.getCreateSiteCode());
-        taskRequest.setSiteName(createSiteName);
-        taskRequest.setReceiveSiteCode(domain.getReceiveSiteCode());
-        taskRequest.setKeyword1(String.valueOf(domain.getCreateSiteCode()));
-        taskRequest.setKeyword2(domain.getBoxCode());
-        taskRequest.setBoxCode(domain.getBoxCode());
-        final Task task = this.taskService.toTask(taskRequest, eachJson);
-        if (log.isDebugEnabled()) {
-            log.debug("DeliveryServiceImpl.addReceiveTask {}", JsonHelper.toJson(task));
+            TaskRequest taskRequest = new TaskRequest();
+            taskRequest.setType(Task.TASK_TYPE_RECEIVE);
+            taskRequest.setSiteCode(domain.getCreateSiteCode());
+            taskRequest.setSiteName(createSiteName);
+            taskRequest.setReceiveSiteCode(domain.getReceiveSiteCode());
+            taskRequest.setKeyword1(String.valueOf(domain.getCreateSiteCode()));
+            taskRequest.setKeyword2(domain.getBoxCode());
+            taskRequest.setBoxCode(domain.getBoxCode());
+            final Task task = this.taskService.toTask(taskRequest, eachJson);
+            if (log.isDebugEnabled()) {
+                log.debug("DeliveryServiceImpl.pushReceiveTask {}", JsonHelper.toJson(task));
+            }
+
+            this.taskService.add(task);
+        } catch (Exception e) {
+            log.error("DeliveryServiceImpl.pushReceiveTask error {}", JsonHelper.toJsonMs(domain), e);
         }
-
-        this.taskService.add(task);
     }
 
     @Override
