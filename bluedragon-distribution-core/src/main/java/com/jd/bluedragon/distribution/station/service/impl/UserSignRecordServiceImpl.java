@@ -77,6 +77,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -989,6 +990,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			log.info("autoHandleSignOutByAttendGateJmq：签退时间为空，无需处理！");
 			return result;
 		}
+
+		// 解析字符串为LocalDateTime对象
+		LocalDateTime passTime = LocalDateTime.parse(mqData.getPassTime());
+		// 定义新的日期时间格式
+		mqData.setPassTime(passTime.format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT)));
+
 		Date actualOffTime = DateHelper.parseDateTime(mqData.getPassTime());
 		if(actualOffTime == null) {
 			log.info("autoHandleSignOutByAttendGateJmq：签退时间【{}】格式不正确，无需处理！",mqData.getPassTime());
