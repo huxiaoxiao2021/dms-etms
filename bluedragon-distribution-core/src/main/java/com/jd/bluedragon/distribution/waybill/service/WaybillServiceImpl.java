@@ -2154,6 +2154,18 @@ public class WaybillServiceImpl implements WaybillService {
     public void checkAndSendModifyWaybillSignJmq(ModifyOrderInfo modifyOrderInfo, String waybillSign) {
         String waybillCode = modifyOrderInfo.getOrderId();
         try {
+            Waybill waybill = null;
+            // 如果waybillSign为空，则根据运单号查一次接口
+            if (StringUtils.isBlank(waybillSign)) {
+                // 根据运单号查询运单详情
+                waybill = getWaybillByWayCode(waybillCode);
+                if (waybill == null) {
+                    log.warn("checkAndSendModifyWaybillSignJmq|补打成功以后校验是否需要修改标位并发送Jmq未查到运单详情:modifyOrderInfo={},waybillSign={}",
+                            JsonHelper.toJson(modifyOrderInfo), waybillSign);
+                    return;
+                }
+                waybillSign = waybill.getWaybillSign();
+            }
             // 先走场景一：原有逻辑
             if (BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
                     WaybillSignConstants.CHAR_8_1,WaybillSignConstants.CHAR_8_2,WaybillSignConstants.CHAR_8_3)) {
@@ -2173,13 +2185,10 @@ public class WaybillServiceImpl implements WaybillService {
                 dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
                 return;
             }
-            // 根据运单号查询运单详情，为了获取扩展信息中的百川标识
-            Waybill waybill = getWaybillByWayCode(waybillCode);
             if (waybill == null) {
-                log.warn("checkAndSendModifyWaybillSignJmq|补打成功以后校验是否需要修改标位并发送Jmq未查到运单详情:modifyOrderInfo={},waybillSign={}",
-                        JsonHelper.toJson(modifyOrderInfo), waybillSign);
-                return;
+                waybill = getWaybillByWayCode(waybillCode);
             }
+
             // 查询运单增值服务
             BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
             // 组装校验参数
