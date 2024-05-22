@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.etms.framework.utils.JsonUtils;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jdl.basic.api.domain.user.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -121,6 +122,8 @@ public class JyUserManagerImpl implements JyUserManager {
 	
 	@Override
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = UMP_KEY_PREFIX + "querySiteLeader",mState={JProEnum.TP,JProEnum.FunctionError})
+	@Cache(key = "JyUserManagerImpl.querySiteLeader@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public JyUserDto querySiteLeader(Integer siteCode){
 		if(siteCode == null){
 			log.warn("查询场地负责人，参数为空！");
