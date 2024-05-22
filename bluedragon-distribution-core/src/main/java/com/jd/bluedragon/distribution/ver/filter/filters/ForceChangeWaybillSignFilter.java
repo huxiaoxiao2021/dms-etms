@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -12,16 +14,12 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
-import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
-import com.jd.etms.waybill.dto.WaybillVasDto;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,44 +113,44 @@ public class ForceChangeWaybillSignFilter implements Filter {
      * @throws SortingCheckException 分拣校验异常
      */
     private void checkAddressForwarding(FilterContext request) throws Exception {
-        WaybillCache waybillCache = request.getWaybillCache();
-        // 非一单到底改址转寄标识
-        boolean addressForwardingFlag = BusinessUtil.isAddressForwardingWaybill(waybillCache.getWaybillSign());
-        if (!addressForwardingFlag) {
+        // 构建校验参数
+        AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = createAddressForwardWaybillCheckRequest(request);
+        // 调用校验接口
+        AddressForwardWaybillCheckResult result = waybillService.isAddressForwardingWaybill(addressForwardWaybillCheckRequest);
+        if (result == null) {
             return;
         }
-        // 继续判断百川标识
-        if (waybillCache.getWaybillExtVO() == null || StringUtils.isBlank(waybillCache.getWaybillExtVO().getOmcOrderCode())) {
-            return;
-        }
-        // 继续判断增值服务
-        if (CollectionUtils.isEmpty(request.getWaybillVasDtos())) {
-            return;
-        }
-        // 改址转寄增值服务标识
-        boolean addressForwardingVasFlag = false;
-        // 循环增值服务列表
-        for (WaybillVasDto vasDto : request.getWaybillVasDtos()) {
-            // vasNo是否等于改址转寄增值服务
-            if (vasDto != null && WaybillVasEnum.WAYBILL_VAS_ADDRESS_FORWARDING.getCode().equals(vasDto.getVasNo())) {
-                addressForwardingVasFlag = true;
-                break;
-            }
-        }
-        // 如果无改址转寄增值服务，则提示话术：“此单为改址拦截单，请操作换单打印”
-        if (!addressForwardingVasFlag) {
+        // 此单为改址拦截单，请操作换单打印
+        if (result.isExchangePrintFlag()) {
             throw new SortingCheckException(SortingResponse.CODE_29333,
                     HintService.getHintWithFuncModule(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT, request.getFuncModule()));
         }
-        // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6
-        boolean flag = BusinessUtil.isSignInChars(waybillCache.getWaybillSign(), WaybillSignConstants.POSITION_8,
-                WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6);
-        // 不等于5或6则提示补打，否则放行
-        if (!flag) {
+        // 订单信息变更,请补打包裹标签
+        if (result.isRePrintFlag()) {
             throw new SortingCheckException(SortingResponse.CODE_29333,
                     HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE_FORCE, request.getFuncModule()));
         }
     }
 
+    /**
+     * 创建地址转寄运单校验请求
+     * @param request 过滤上下文对象
+     * @return 返回地址转寄运单校验请求对象
+     * @throws NullPointerException 如果请求中的运单缓存为null
+     */
+    private AddressForwardWaybillCheckRequest createAddressForwardWaybillCheckRequest(FilterContext request) {
+        WaybillCache waybillCache = request.getWaybillCache();
+        // 构建校验参数
+        AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = new AddressForwardWaybillCheckRequest();
+        // 运单标位
+        addressForwardWaybillCheckRequest.setWaybillSign(waybillCache.getWaybillSign());
+        // 百川标识
+        if (waybillCache.getWaybillExtVO() != null) {
+            addressForwardWaybillCheckRequest.setOmcOrderCode(waybillCache.getWaybillExtVO().getOmcOrderCode());
+        }
+        // 运单增值服务列表
+        addressForwardWaybillCheckRequest.setWaybillVasDtos(request.getWaybillVasDtos());
+        return addressForwardWaybillCheckRequest;
+    }
 
 }
