@@ -487,6 +487,11 @@ public class DmsConstants {
      */
     public static final String USER_NAME_AUTO_SIGN_OUT_FORM_RZ = "人脸识别";
     /**
+     * 用户名称-人闸签退
+     */
+    public static final String USER_NAME_AUTO_SIGN_OUT_FORM_GATE = "sys.dms";
+
+    /**
      * 暂存类型枚举值
      */
     public enum PreSellTypeEnum {

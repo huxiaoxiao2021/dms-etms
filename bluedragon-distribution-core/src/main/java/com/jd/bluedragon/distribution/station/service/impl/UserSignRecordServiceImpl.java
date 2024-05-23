@@ -38,6 +38,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.entity.PositionSignNumDto;
+import com.jd.bluedragon.distribution.station.entity.*;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.ScheduleEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
@@ -85,6 +86,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -175,6 +177,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	public static final String CHECK_STANDARD_NUM_SIGN_MSG = "当前工序的标准编制人数为【%s】，目前已签到【%s】，请确认网格内是否有【%s】(人数)人作业，若不对，请联系网格组长ERP【%s】操作签退处理；";
 
+	private static final String MSG_FORMAT_AUTO_SIGN_OUT_GATE_CONTENT = "您好，系统识别当前您已通过场地人闸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -978,7 +981,123 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_CONTENT, gridName,ownerUserErp), erpList);
 		return result;
 	}
-    /**
+
+	public static void main(String[] args) {
+		Date actualOffTime = DateHelper.parseDateTime("2024-05-11 11:31:35");
+		System.out.println(actualOffTime);
+	}
+	/**
+	 * 人闸考勤数据-topic自动签退处理
+	 * @param mqData
+	 * @return
+	 */
+	@Override
+	public JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeGateTopicData mqData) {
+		JdResult<Integer> result = new JdResult<Integer>();
+		result.toSuccess();
+		mqData.setErpOrIdCard(org.apache.commons.lang3.StringUtils.isNotBlank(mqData.getErp()) ? mqData.getErp() : mqData.getIdCard());
+
+		if(StringUtils.isBlank(mqData.getPassStatus()) || !mqData.getPassStatus().equalsIgnoreCase("出门")) {
+			log.info("autoHandleSignOutByAttendGateJmq：非出门数据，无需处理！");
+			return result;
+		}
+
+		if(StringUtils.isBlank(mqData.getErpOrIdCard())) {
+			log.info("autoHandleSignOutByAttendGateJmq：userErp和idCard为空，无需处理！");
+			return result;
+		}
+		if(StringUtils.isBlank(mqData.getPassTime())) {
+			log.info("autoHandleSignOutByAttendGateJmq：签退时间为空，无需处理！");
+			return result;
+		}
+
+		// 解析字符串为LocalDateTime对象
+		LocalDateTime passTime = LocalDateTime.parse(mqData.getPassTime());
+		// 定义新的日期时间格式
+		mqData.setPassTime(passTime.format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT)));
+		log.info("autoHandleSignOutByAttendGateJmq 入参 mqData:{}", JSON.toJSONString(mqData));
+
+		Date actualOffTime = DateHelper.parseDateTime(mqData.getPassTime());
+		if(actualOffTime == null) {
+			log.info("autoHandleSignOutByAttendGateJmq：签退时间【{}】格式不正确，无需处理！",mqData.getPassTime());
+			return result;
+		}
+		Date curTime = new Date();
+		if(new Date().before(actualOffTime)) {
+			log.info("autoHandleSignOutByAttendGateJmq：签退时间【{}】大于当前时间，无需处理！",mqData.getPassTime());
+			return result;
+		}
+		Date checkTime = DateHelper.add(curTime, Calendar.SECOND, -autoSignOutByMqOffSenconds);
+		if(actualOffTime.before(checkTime)) {
+			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】签退时间【{}】偏差当前时间超过{}秒，无需处理！",mqData.getErpOrIdCard(),mqData.getPassTime(),autoSignOutByMqOffSenconds);
+			return result;
+		}
+		log.info("autoHandleSignOutByAttendGateJmq 校验通过 mqData:{}", mqData);
+		//根据erp+场地查询，已签未退的数据
+		UserSignRecordQuery query = new UserSignRecordQuery();
+		query.setUserCode(mqData.getErpOrIdCard());
+		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
+		log.info("autoHandleSignOutByAttendGateJmq 校验通过 query:{},lastUnSignOutRecord:{}", JSON.toJSONString(query), JSON.toJSONString(lastUnSignOutRecord));
+		if(lastUnSignOutRecord == null) {
+			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getErpOrIdCard());
+			return result;
+		}
+		if(!actualOffTime.after(lastUnSignOutRecord.getSignInTime())) {
+			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】打卡签退时间签退时间【{}】小于签到时间，无需处理！",mqData.getErpOrIdCard(),mqData.getPassTime());
+			return result;
+		}
+		if (lastUnSignOutRecord.getSiteCode() == null) {
+			log.info("autoHandleSignOutByAttendGateJmq：站点为空，无需处理！");
+			return result;
+		}
+		SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
+		log.info("autoHandleSignOutByAttendGateJmq 获取配置 query:{},content:{}", JSON.toJSONString(query), JSON.toJSONString(content));
+		if (content != null
+				&& !Boolean.TRUE.equals(content.getMasterSwitch())
+				&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
+			log.info("autoHandleSignOutByAttendGateJmq：站点【{}】未开启自动签退，无需处理！",lastUnSignOutRecord.getSiteCode());
+			return result;
+		}
+		//执行-签退逻辑
+		List<Long> toSignOutPks = new ArrayList<>();
+		UserSignRecord updateData = new UserSignRecord();
+		updateData.setSignOutTime(actualOffTime);
+		updateData.setUpdateTime(new Date());
+		updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ);
+		updateData.setUpdateUserName(DmsConstants.USER_NAME_AUTO_SIGN_OUT_FORM_GATE);
+		toSignOutPks.add(lastUnSignOutRecord.getId());
+		log.info("autoHandleSignOutByAttendGateJmq 执行-签退逻辑 updateData:{},toSignOutPks:{}", JSON.toJSONString(updateData), toSignOutPks);
+		userSignRecordDao.signOutById(updateData, toSignOutPks);
+		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+		removeMemberRequest.setSignRecordIdList(toSignOutPks);
+		removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
+		removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
+		log.info("autoHandleSignOutByAttendGateJmq 执行-removeMembers removeMemberRequest:{}", JSON.toJSONString(removeMemberRequest));
+		this.jyGroupMemberService.removeMembers(removeMemberRequest);
+
+		List<String> erpList = new ArrayList<>();
+		erpList.add(mqData.getErpOrIdCard());
+
+		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
+		workStationGridCheckQuery.setBusinessKey(lastUnSignOutRecord.getRefGridKey());
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
+
+		log.info("autoHandleSignOutByAttendGateJmq 执行-queryByGridKey workStationGridCheckQuery:{}, workStationGridData:{}", JSON.toJSONString(workStationGridCheckQuery), JSON.toJSONString(workStationGridData));
+		// 查询网格-负责人信息
+		String ownerUserErp = "";
+		String gridName = "";
+		if(workStationGridData != null
+				&& workStationGridData.getData() != null) {
+			ownerUserErp = StringHelper.getValueFormatNull(workStationGridData.getData().getOwnerUserErp());
+			gridName = workStationGridData.getData().getGridName();
+		}
+		log.info("autoHandleSignOutByAttendGateJmq 发送消息 1:{}, 2:{},erpList:{}", MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_GATE_CONTENT, gridName,ownerUserErp), erpList);
+		//自动签退完发送咚咚通知
+		NoticeUtils.noticeToTimelineWithNoUrl(MSG_FORMAT_AUTO_SIGN_OUT_TITLE, String.format(MSG_FORMAT_AUTO_SIGN_OUT_GATE_CONTENT, gridName,ownerUserErp), erpList);
+		return result;
+	}
+
+	/**
      * 根据条件查询-转成通知对象
      * @param query
      * @return
