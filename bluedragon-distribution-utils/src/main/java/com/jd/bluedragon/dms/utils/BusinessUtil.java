@@ -3240,4 +3240,38 @@ public class BusinessUtil {
         return !isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8);
     }
 
+    /**
+     * 快递改址非一单到底场景
+     * 判断运单是否为改址转寄运单
+     * @param waybillSign 运单对象
+     * @return 如果是改址转寄运单则返回true，否则返回false
+     */
+    public static boolean isAddressForwardingNotJustOneOrder(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        // 1-必须是快递单子
+        if (!BusinessUtil.isCInternet(waybillSign)) {
+            return false;
+        }
+        // 2-必须是纯配外单
+        if (!BusinessUtil.isPurematch(waybillSign)) {
+            return false;
+        }
+        // 3-必须是B2C
+        if (!BusinessUtil.isB2CWaybill(waybillSign)) {
+            return false;
+        }
+        // 4-必须是个性化运单
+        if (!BusinessUtil.isPersonalizedWaybill(waybillSign)) {
+            return false;
+        }
+        // 5-必须是改址转寄运单
+        if (!BusinessUtil.isAddressForwardingWaybill(waybillSign)) {
+            return false;
+        }
+        return true;
+    }
+
+
 }

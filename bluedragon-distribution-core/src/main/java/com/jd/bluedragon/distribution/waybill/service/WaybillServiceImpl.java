@@ -2098,7 +2098,9 @@ public class WaybillServiceImpl implements WaybillService {
     @Override
     @JProfiler(jKey= "DMSWEB.WaybillServiceImpl.isAddressForwardingWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
     public AddressForwardWaybillCheckResult isAddressForwardingWaybill(AddressForwardWaybillCheckRequest request) {
+        // 处理结果
         AddressForwardWaybillCheckResult result = new AddressForwardWaybillCheckResult();
+        // 设置默认值
         result.setRePrintFlag(Boolean.FALSE);
         result.setExchangePrintFlag(Boolean.FALSE);
         if (StringUtils.isBlank(request.getWaybillSign())) {
@@ -2106,7 +2108,7 @@ public class WaybillServiceImpl implements WaybillService {
             return result;
         }
         // 非一单到底改址转寄标识
-        boolean addressForwardingNotJustOneOrderFlag = WaybillCacheHelper.isAddressForwardingNotJustOneOrder(request.getWaybillSign());
+        boolean addressForwardingNotJustOneOrderFlag = BusinessUtil.isAddressForwardingNotJustOneOrder(request.getWaybillSign());
         if (!addressForwardingNotJustOneOrderFlag) {
             log.warn("isAddressForwardingWaybill|addressForwardingNotJustOneOrderFlag不满足:waybillCode={}", request.getWaybillCode());
             return result;

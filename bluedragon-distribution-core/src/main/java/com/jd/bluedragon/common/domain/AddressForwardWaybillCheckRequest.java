@@ -18,12 +18,12 @@ public class AddressForwardWaybillCheckRequest implements Serializable {
     private String waybillCode;
 
     /**
-     * 补打标识
+     * 运单标位
      */
     private String waybillSign;
 
     /**
-     * 换单打印标识
+     * 百川标识
      */
     private String omcOrderCode;
 

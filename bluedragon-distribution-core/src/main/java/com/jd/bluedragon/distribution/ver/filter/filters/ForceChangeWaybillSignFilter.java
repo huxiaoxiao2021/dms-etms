@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
 import com.jd.bluedragon.common.domain.WaybillCache;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -38,6 +40,8 @@ public class ForceChangeWaybillSignFilter implements Filter {
 
     @Autowired
     private WaybillService waybillService;
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -113,6 +117,11 @@ public class ForceChangeWaybillSignFilter implements Filter {
      * @throws SortingCheckException 分拣校验异常
      */
     private void checkAddressForwarding(FilterContext request) throws Exception {
+        // 开关校验
+        if (!sysConfigService.getConfigByName(Constants.ADDRESS_FORWARD_NOT_JUST_ONE_ORDER_SWITCH)) {
+            return;
+        }
+
         // 构建校验参数
         AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = createAddressForwardWaybillCheckRequest(request);
         // 调用校验接口
