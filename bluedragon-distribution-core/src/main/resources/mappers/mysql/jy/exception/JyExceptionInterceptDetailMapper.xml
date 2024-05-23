@@ -815,6 +815,12 @@
         <if test="bizId != null and bizId != ''">
             AND biz_id = #{bizId}
         </if>
+        <if test="bizIdList != null and bizIdList.size() > 0">
+            AND biz_id IN
+            <foreach collection="bizIdList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         <if test="barCode != null and barCode != ''">
             AND bar_code = #{barCode}
         </if>
