@@ -1,13 +1,10 @@
 package com.jd.bluedragon.distribution.station.api;
 
+import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.query.NoticeToTimelineDto;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
-import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -117,4 +114,6 @@ public interface UserSignRecordJsfService {
 	 * @return
 	 */
 	Result<Integer> autoHandleSignInRecord();
+
+	Result<List<BaseUserSignRecordVo>> queryMonitorRoomPerson(UserSignRecordQuery query);
 }
