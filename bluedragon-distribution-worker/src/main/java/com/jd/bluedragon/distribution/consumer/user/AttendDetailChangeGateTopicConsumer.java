@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.user;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.core.message.base.MessageBaseWithoutUATConsumer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumer.record.DmsHasnoPresiteWaybillMqListener;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
  * 人闸签退
  */
 @Service("attendDetailChangeGateTopicConsumer")
-public class AttendDetailChangeGateTopicConsumer extends MessageBaseConsumer {
+public class AttendDetailChangeGateTopicConsumer extends MessageBaseWithoutUATConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(DmsHasnoPresiteWaybillMqListener.class);
 
