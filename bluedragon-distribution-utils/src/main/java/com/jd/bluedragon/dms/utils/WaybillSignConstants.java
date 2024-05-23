@@ -65,6 +65,11 @@ public interface WaybillSignConstants {
 	 */
 	char CHAR_8_6='6';
 
+	/**
+	 * 未修改地址仅修改其他的已被配送拦截
+	 */
+	char CHAR_8_7='7';
+
 
 	/**
 	 * B网标识 1、2、3、4、5

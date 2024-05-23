@@ -2139,10 +2139,10 @@ public class WaybillServiceImpl implements WaybillService {
         if (!addressForwardingVasFlag) {
             result.setExchangePrintFlag(Boolean.TRUE);
         }
-        // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6
+        // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6或7
         boolean flag = BusinessUtil.isSignInChars(request.getWaybillSign(), WaybillSignConstants.POSITION_8,
-                WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6);
-        // 不等于5或6则提示补打，否则放行
+                WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6, WaybillSignConstants.CHAR_8_7);
+        // 不等于5或6或7则提示补打，否则放行
         if (!flag) {
             result.setRePrintFlag(Boolean.TRUE);
         }
