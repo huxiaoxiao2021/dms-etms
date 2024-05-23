@@ -83,6 +83,11 @@ public enum SortingBizSourceEnum {
      */
     PRINT_CLIENT_BATCH_SORTING(77, "打印客户端-批量分拣"),
 
+    /**
+     * 安卓：分拣-批量分拣
+     */
+    ANDROID_SORTING_BATCH_TABLE_TROLLEY(78, "安卓-分拣-批量分拣-笼车"),
+
     ;
 
     /**

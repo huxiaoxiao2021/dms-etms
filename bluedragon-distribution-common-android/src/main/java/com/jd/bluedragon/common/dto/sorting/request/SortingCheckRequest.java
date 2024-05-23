@@ -49,6 +49,11 @@ public class SortingCheckRequest implements Serializable {
      */
     private Integer isGather;
 
+    /**
+     * 安卓批量分拣
+     */
+    private Integer bizSource;
+
     public CurrentOperate getCurrentOperate() {
         return currentOperate;
     }
@@ -119,5 +124,13 @@ public class SortingCheckRequest implements Serializable {
 
     public void setIsGather(Integer isGather) {
         this.isGather = isGather;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.*;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.domain.SysConfigJobCodeHoursContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -34,6 +35,7 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.*;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.entity.*;
+import com.jd.bluedragon.distribution.station.entity.PositionSignNumDto;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
@@ -163,6 +165,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_TITLE = "自动签退通知";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_GATE_CONTENT = "您好，系统识别当前您已通过场地人闸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
+	public static final String CHECK_STANDARD_NUM_SIGN_MSG = "当前工序的标准编制人数为【%s】，目前已签到【%s】，请确认网格内是否有【%s】(人数)人作业，若不对，请联系网格组长ERP【%s】操作签退处理；";
+
 	@Autowired
 	private WorkStationManager workStationManager;
 	@Autowired
@@ -976,7 +980,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		JdResult<Integer> result = new JdResult<Integer>();
 		result.toSuccess();
 		mqData.setErpOrIdCard(org.apache.commons.lang3.StringUtils.isNotBlank(mqData.getErp()) ? mqData.getErp() : mqData.getIdCard());
-		
+
 		if(StringUtils.isBlank(mqData.getPassStatus()) || !mqData.getPassStatus().equalsIgnoreCase("出门")) {
 			log.info("autoHandleSignOutByAttendGateJmq：非出门数据，无需处理！");
 			return result;
@@ -2260,6 +2264,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				&&lastUnSignOutResult.getData() != null) {
 			lastUnSignOutData = lastUnSignOutResult.getData();
 		}
+
+		// 新增：强卡，校验网格工序的标准配置人数
+		PositionSignNumDto dto = new PositionSignNumDto();
+		if (!this.checkStandardNum(dto, positionCode, userCode)) {
+			String defaultMsg = String.format(CHECK_STANDARD_NUM_SIGN_MSG, dto.getPositionDetailRecord().getStandardNum(),
+					dto.getNum(), dto.getNum(), dto.getPositionDetailRecord().getOwnerUserErp());
+			result.toFail(defaultMsg);
+			return result;
+		}
+
 		//判断在岗状态，在岗岗位码和当前不一致，给出提示
 		if(lastUnSignOutData != null
 				&& lastUnSignOutData.getPositionCode() != null
@@ -2279,11 +2293,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 
 		// 校验网格码场地和用户场地是否一致
-		if (!this.checkOperatorBaseInfo(positionCode, userCode)) {
+		if (!this.checkOperatorBaseInfo(positionCode, userCode, dto)) {
 			result.toConfirm(HintService.getHint(HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_MSG,
 					HintCodeConstants.CONFIRM_ITE_OR_PROVINCE_DIFF_FOR_SIGN_CODE, false));
 			return result;
 		}
+
 		//判断上次签退是否人脸识别自动签退
 		if(lastUnSignOutData == null) {
 			UserSignQueryRequest lastSignQuery = new UserSignQueryRequest();
@@ -2305,19 +2320,67 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 
-	/**
-	 * 作业APP网格码错误检验
-	 */
-	private boolean checkOperatorBaseInfo(String positionCode, String userCode) {
-		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
-			return true;
-		}
+    /**
+     * 判断当前该工序已签到未签退的人数是否大于等于当前该工序的标准编制人数
+     * @param dto 位置详情记录对象
+     * @return 检查结果，布尔值
+     */
+	private boolean checkStandardNum(PositionSignNumDto dto, String positionCode, String userCode) {
 		// 查询网格码信息
 		com.jdl.basic.common.utils.Result<PositionDetailRecord> apiResult = positionManager.queryOneByPositionCode(positionCode);
 		if(apiResult == null || !apiResult.isSuccess()  || apiResult.getData() == null){
 			return true;
 		}
-		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(apiResult.getData().getSiteCode());
+		dto.setPositionDetailRecord(apiResult.getData());
+		if (Objects.isNull(dto.getPositionDetailRecord())){
+			return true;
+		}
+
+		boolean flag = sysConfigService.getConfigByName(Constants.STAND_NUM_PDA_SIGN_CHECK_SWITCH);
+		if (log.isInfoEnabled()){
+			log.info("UserSignRecordServiceImpl.checkStandardNum 网格工序编制人数配置-PDA强卡开关:{}", flag);
+		}
+		if(!flag){
+			return true;
+		}
+
+		if (log.isInfoEnabled()){
+			log.info("UserSignRecordServiceImpl.checkStandardNum 岗位数据：{}，user_code:{}", JsonHelper.toJson(dto), userCode);
+		}
+		UserSignQueryRequest request = new UserSignQueryRequest();
+		request.setRefGridKey(dto.getPositionDetailRecord().getRefGridKey());
+		List<UserSignRecord> userSignRecords = queryUnSignOutListWithPosition(request);
+		if (CollectionUtils.isEmpty(userSignRecords)){
+			return true;
+		}
+		dto.setNum(userSignRecords.size());
+		if (userSignRecords.size() >= dto.getPositionDetailRecord().getStandardNum()){
+			// 已经登陆的用户可以继续登陆
+			List<String> userCodeList = userSignRecords.stream().map(UserSignRecord::getUserCode).collect(Collectors.toList());
+			if (log.isInfoEnabled()){
+				log.info("UserSignRecordServiceImpl.checkStandardNum 登陆用户编码集合：{}", JsonHelper.toJson(userCodeList));
+			}
+			if (CollectionUtils.isNotEmpty(userCodeList) && userCodeList.contains(userCode)){
+				return true;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 作业APP网格码错误检验
+	 */
+	private boolean checkOperatorBaseInfo(String positionCode, String userCode, PositionSignNumDto dto) {
+		if (StringUtils.isBlank(positionCode) || StringUtils.isBlank(userCode)) {
+			return true;
+		}
+		// 查询网格码信息
+		PositionDetailRecord positionDetailRecord = dto.getPositionDetailRecord();
+		if(positionDetailRecord == null){
+			return true;
+		}
+		BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(positionDetailRecord.getSiteCode());
 		if (dtoStaff == null) {
 			return true;
 		}
@@ -2329,15 +2392,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 网格码为分拣场地类型
 		if (BusinessUtil.isSortingCenter(dtoStaff.getSortType(), dtoStaff.getSortSubType(),dtoStaff.getSortThirdType())) {
 			// 所属场地是否与当前网格码对应场地一致
-			return baseStaffByErp.getSiteCode().equals(apiResult.getData().getSiteCode());
+			return baseStaffByErp.getSiteCode().equals(positionDetailRecord.getSiteCode());
 		}
 		// 网格码为接货仓场地类型
 		if (BusinessUtil.isReceivingWarehouse(dtoStaff.getSortType())) {
 			// 所属场地对应省区与网格码所属接货仓省区是否一致
-			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(apiResult.getData().getProvinceAgencyCode())) {
+			if (StringUtils.isBlank(baseStaffByErp.getProvinceAgencyCode()) || StringUtils.isBlank(positionDetailRecord.getProvinceAgencyCode())) {
 				return true;
 			}
-			return baseStaffByErp.getProvinceAgencyCode().equals(apiResult.getData().getProvinceAgencyCode());
+			return baseStaffByErp.getProvinceAgencyCode().equals(positionDetailRecord.getProvinceAgencyCode());
 		}
 		return true;
 	}

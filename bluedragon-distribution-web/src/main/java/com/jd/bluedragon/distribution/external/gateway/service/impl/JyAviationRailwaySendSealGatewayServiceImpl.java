@@ -70,7 +70,7 @@ public class JyAviationRailwaySendSealGatewayServiceImpl implements JyAviationRa
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
-        for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
+        for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getAviationRailwaySendEnum()) {
             SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
             optionList.add(option);
         }

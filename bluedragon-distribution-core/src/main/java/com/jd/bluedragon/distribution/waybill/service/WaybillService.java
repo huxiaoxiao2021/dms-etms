@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
@@ -291,4 +293,12 @@ public interface WaybillService {
      * @return
      */
     Integer queryReverseReasonCode(String waybillCode);
+
+    /**
+     * 是否是非一单到底改址转寄场景
+     * @param request 运单详情
+     * @return 是则返回true，否则返回false
+     */
+    AddressForwardWaybillCheckResult isAddressForwardingWaybill(AddressForwardWaybillCheckRequest request);
+
 }

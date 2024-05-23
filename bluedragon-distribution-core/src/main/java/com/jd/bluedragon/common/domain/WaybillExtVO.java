@@ -19,6 +19,11 @@ public class WaybillExtVO implements Serializable {
     // 运单的目的流向
     private String endFlowDirection;
 
+    /**
+     * 百川标识符
+     */
+    private String omcOrderCode;
+
     public WaybillExtVO clearanceType(String clearanceType){
         this.clearanceType = clearanceType;
         return this;
@@ -31,6 +36,11 @@ public class WaybillExtVO implements Serializable {
 
     public WaybillExtVO endFlowDirection(String endFlowDirection){
         this.endFlowDirection = endFlowDirection;
+        return this;
+    }
+
+    public WaybillExtVO omcOrderCode(String omcOrderCode){
+        this.omcOrderCode = omcOrderCode;
         return this;
     }
 
@@ -56,5 +66,13 @@ public class WaybillExtVO implements Serializable {
 
     public void setEndFlowDirection(String endFlowDirection) {
         this.endFlowDirection = endFlowDirection;
+    }
+
+    public String getOmcOrderCode() {
+        return omcOrderCode;
+    }
+
+    public void setOmcOrderCode(String omcOrderCode) {
+        this.omcOrderCode = omcOrderCode;
     }
 }
