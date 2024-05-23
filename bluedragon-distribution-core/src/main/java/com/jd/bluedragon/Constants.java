@@ -2575,4 +2575,9 @@ public class Constants {
      */
     public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
 
+    /**
+     * 配置信息-非一单到底改址拦截开关
+     */
+    public static final String ADDRESS_FORWARD_NOT_JUST_ONE_ORDER_SWITCH = "address.forward.not.just.one.order.switch";
+
 }

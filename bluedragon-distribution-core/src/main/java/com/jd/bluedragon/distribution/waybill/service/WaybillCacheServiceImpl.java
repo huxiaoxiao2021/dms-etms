@@ -152,9 +152,10 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             waybillCache.setWaybillExtVO(new WaybillExtVO()
                     .clearanceType(waybillWS.getWaybillExt().getClearanceType())
                     .startFlowDirection(waybillWS.getWaybillExt().getStartFlowDirection())
-                    .endFlowDirection(waybillWS.getWaybillExt().getEndFlowDirection()));
+                    .endFlowDirection(waybillWS.getWaybillExt().getEndFlowDirection())
+                    .omcOrderCode(waybillWS.getWaybillExt().getOmcOrderCode()));
         }
-        
+
         return waybillCache;
     }
 
