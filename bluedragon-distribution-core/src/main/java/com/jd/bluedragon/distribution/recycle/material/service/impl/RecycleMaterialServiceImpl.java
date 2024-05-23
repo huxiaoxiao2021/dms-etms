@@ -72,6 +72,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.distribution.recycle.material.enums.MaterialTypeEnum.BASKET;
+import static com.jd.bluedragon.utils.DateHelper.ONE_DAY;
 
 @Service("recycleMaterialService")
 public class RecycleMaterialServiceImpl implements RecycleMaterialService {
@@ -122,6 +123,8 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
     private static final byte WARM_BOX_SEND = MaterialSendModeEnum.WARM_BOX_SEND.getCode();
 
     private static final byte MATERIAL_TAG_SEND = MaterialSendModeEnum.MATERIAL_TAG_SEND.getCode();
+
+    private static final String RECYCLE_PRINT_CACHE_PREFIX =  "printCode-";
 
     @Override
     @JProfiler(jKey = "dms.web.RecycleMaterialServiceImpl.getPrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -657,22 +660,26 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             recycleMaterial.setCreateUser(recycleBasketEntity.getUserErp());
             list.add(recycleMaterial);
 
-            redisCommonUtil.cacheDataEx("printCode-" + code, 1, dmsConfigManager.getPropertyConfig().getPrintCacheTime());
+            String key = new StringBuilder().append(RECYCLE_PRINT_CACHE_PREFIX).append(code).toString();
+            redisCommonUtil.cacheDataEx(key, 1, dmsConfigManager.getPropertyConfig().getPrintCacheTime());
         }
         return recycleMaterialManager.batchInsertRecycleMaterial(list);
     }
 
     private  JdResponse<RecycleBasketPrintInfo> getReprintInfo(RecycleBasketEntity recycleBasketEntity){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
+        Long cacheTime = dmsConfigManager.getPropertyConfig().getPrintCacheTime();
+        long day = cacheTime / ONE_DAY;
+
         /**
          * redis key 添加前缀
          * 时间可以配置
          */
-        if (redisCommonUtil.getData("printCode-" + recycleBasketEntity.getRecycleBasketCode()) == 0 ) {
-            redisCommonUtil.cacheDataEx("printCode-" +recycleBasketEntity.getRecycleBasketCode(), 1, dmsConfigManager.getPropertyConfig().getPrintCacheTime());
+        if (redisCommonUtil.getData(RECYCLE_PRINT_CACHE_PREFIX + recycleBasketEntity.getRecycleBasketCode()) == 0 ) {
+            redisCommonUtil.cacheDataEx(RECYCLE_PRINT_CACHE_PREFIX +recycleBasketEntity.getRecycleBasketCode(), 1, cacheTime);
         } else {
-            logger.error("一周内只能打印一次");
-            response.toFail("一周内只能打印一次，请稍后重试！");
+            logger.error(recycleBasketEntity.getRecycleBasketCode() + day + "天内只能打印一次");
+            response.toFail(day + "天内只能打印一次，请稍后重试！");
             return response;
         }
 
