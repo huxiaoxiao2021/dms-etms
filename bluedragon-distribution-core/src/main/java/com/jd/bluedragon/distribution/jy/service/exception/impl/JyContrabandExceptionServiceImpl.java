@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.ContrabandPackageCheckReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpContrabandReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.AbnormalReasonResp;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyAttachmentBizTypeEnum;
@@ -12,18 +13,14 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrab
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpNoticCustomerExpReasonEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.DmsConfigManager;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailEntity;
 import com.jd.bluedragon.distribution.jy.attachment.JyAttachmentDetailQuery;
@@ -64,7 +61,10 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jim.cli.Cluster;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.DangerousGoodsRecordDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.ecp.dto.EcpAbnormalScanOrderRecordDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.cs.abnormal.portal.api.dto.reason.AbnormalReasonDto;
@@ -86,11 +86,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.jd.bluedragon.Constants.CONTRABAND_PACKAGE_CHECK_SWITCH;
 import static com.jd.bluedragon.core.hint.constants.HintCodeConstants.SCRAP_WAYBILL_INTERCEPT_HINT_CODE;
 import static com.jd.bluedragon.dms.utils.BusinessUtil.isScrapWaybill;
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.ContrabandImageUrlEnum.*;
 import static com.jd.bluedragon.common.dto.operation.workbench.enums.JyExceptionContrabandEnum.ContrabandTypeEnum.AIR_TO_LAND;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.WAYBILL_EXCEPTION_CONTRABAND_REPORT_MESSAGE;
 import static com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum.CONTRABAND_GOODS;
 import static com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum.AIR_TO_ROAD_CODE;
@@ -170,6 +170,15 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
     @Autowired
     @Qualifier("arTransportModeChangeProducer")
     private DefaultJMQProducer arTransportModeChangeProducer;
+
+    @Autowired
+    private EcpQueryWSManager ecpQueryWSManager;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     private static final String SORTING_REPORT_SYSTEM = "20";
     private static final String SORTING_REPORT_ATTACH_TYPE = "img";
@@ -566,6 +575,123 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             logger.error("违禁品上报发送客服异常！",e);
         }
 
+    }
+
+    /**
+     * 违禁品包裹校验
+     * @param req
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.contrabandPackageCheck", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<Boolean> contrabandPackageCheck(ContrabandPackageCheckReq req) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(true);
+        if (!sysConfigService.getConfigByName(CONTRABAND_PACKAGE_CHECK_SWITCH)) {
+            return response;
+        }
+        if (!checkReq(req, response)) {
+            return response;
+        }
+        // 商家备案校验，如果不在名单中，允许上报
+        if (!isFiling(req, response)) {
+            return response;
+        }
+        // 在商家备案，继续匹配航空违禁品上报名单，如果在名单中允许上报
+        checkContrabandPackage(req, response);
+        return response;
+    }
+
+    /**
+     * 是否备案
+     * @param req
+     * @param response
+     * @return
+     */
+    private boolean  isFiling(ContrabandPackageCheckReq req, JdCResponse<Boolean> response) {
+        BigWaybillDto bigWaybillDto = getBigWaybillDtoByWaybillCode(WaybillUtil.getWaybillCode(req.getBarCode()));
+        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
+            response.toFail("未获取到运单信息！");
+            return false;
+        }
+        if (bigWaybillDto.getWaybill().getWaybillExt() == null) {
+            logger.info("单号{}未获取到运单扩展信息", req.getBarCode());
+            return false;
+        }
+        // 获取寄托物code
+        Integer cargoType = bigWaybillDto.getWaybill().getWaybillExt().getCargoType();
+        if ( cargoType == null) {
+            logger.info("单号{}未获取到寄托物code", req.getBarCode());
+            return false;
+        }
+        //调商家编码
+        String traderCode = bigWaybillDto.getWaybill().getCustomerCode();
+        if ( StringUtils.isEmpty(traderCode)) {
+            logger.info("单号{}未获取到商家编码", req.getBarCode());
+            return false;
+        }
+        List<DangerousGoodsRecordDTO> recordDTOS = baseMinorManager.queryByTraderCodeAndGoodsId(traderCode, Long.valueOf(cargoType));
+        logger.info("单号{}获取到商家违禁品上报白名单，结果 {}", req.getBarCode(), JsonHelper.toJson(recordDTOS));
+        return !CollectionUtils.isEmpty(recordDTOS);
+    }
+
+    /**
+     * 航空运力上报违禁品匹配
+     * @param req
+     * @param response
+     * @return
+     */
+    private void checkContrabandPackage(ContrabandPackageCheckReq req, JdCResponse<Boolean> response) {
+        try {
+            // 根据箱号匹配违禁品
+            SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
+            if (sortingDto != null && BusinessUtil.isBoxcode(sortingDto.getBoxCode())) {
+                List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
+                boolean res = CollectionUtils.isEmpty(recordDtos);
+                logger.info("航空运力上报违禁品箱号匹配 req {} 0-未匹配 1-匹配 ---  {}", sortingDto.getBoxCode(), !res);
+                if (!res) {
+                    return;
+                }
+            }
+            // 根据包裹号匹配违禁品
+            List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
+            boolean res = CollectionUtils.isEmpty(recordDtos);
+            logger.info("航空运力上报违禁品包裹号匹配 req {}, 0-未匹配 1-匹配 ---  {}", req.getBarCode(), !res);
+            if (!res) {
+                return;
+            }
+            // 根据运单号匹配违禁品
+            String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
+            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(waybillCode);
+            boolean waybillRes = CollectionUtils.isEmpty(waybillRecordDtos);
+            logger.info("航空运力上报违禁品运单号匹配 req {}, 0-未匹配 1-匹配 --- {}", waybillCode, !waybillRes);
+            if (!waybillRes) {
+                return;
+            }
+            response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
+        }catch (Exception e) {
+            logger.error("运力接口故障{}",JsonHelper.toJson(req), e);
+            response.toFail("运力接口故障，请稍后上报!");
+        }
+    }
+
+    /**
+     * 校验参数
+     * @param req
+     * @param response
+     * @return
+     */
+    private boolean checkReq(ContrabandPackageCheckReq req, JdCResponse<Boolean> response) {
+        if (req == null || StringUtils.isEmpty(req.getBarCode())) {
+            response.toFail("参数为空！");
+            return false;
+        }
+        if (!WaybillUtil.isPackageCode(req.getBarCode())) {
+            response.toFail("请扫描包裹号！");
+            return false;
+        }
+        return true;
     }
 
     /**
