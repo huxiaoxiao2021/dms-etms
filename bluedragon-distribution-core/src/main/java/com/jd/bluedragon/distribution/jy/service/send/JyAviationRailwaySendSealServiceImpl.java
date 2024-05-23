@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
@@ -617,6 +618,7 @@ public class JyAviationRailwaySendSealServiceImpl extends JySendVehicleServiceIm
             //选填字段
             sealVehicleReq.setTransWay(request.getTransWay());
             sealVehicleReq.setTransWayName(request.getTransWayName());
+            sealVehicleReq.setBizType(OperateBizSubTypeEnum.AR_SEAL.getCode());
             return jySealVehicleService.sealVehicle(sealVehicleReq);
 
         }catch (Exception e) {

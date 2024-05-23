@@ -754,6 +754,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 				waybillQueryManager.sendBdTrace(bdTraceDto);
+				// 发送操作轨迹
+				jyOperateFlowService.sendOperateTrack(tWaybillStatus);
 				task.setYn(0);
 			}
 

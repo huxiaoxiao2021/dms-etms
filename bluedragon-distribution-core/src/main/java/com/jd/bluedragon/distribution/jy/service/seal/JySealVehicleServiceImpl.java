@@ -48,6 +48,7 @@ import com.jd.bluedragon.distribution.jy.summary.BusinessKeyTypeEnum;
 import com.jd.bluedragon.distribution.jy.summary.JyStatisticsSummaryEntity;
 import com.jd.bluedragon.distribution.jy.summary.SummarySourceEnum;
 import com.jd.bluedragon.distribution.jy.task.*;
+import com.jd.bluedragon.distribution.seal.domain.DmsSealVehicleRequest;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -57,6 +58,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -248,6 +250,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
 
+    /**
+     * 对提交封车进行封装处理
+     * @param sealVehicleReq 封车请求对象
+     * @return 封车结果
+     * @throws Exception 可能抛出异常
+     */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.sealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
@@ -290,7 +298,16 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             //批次为空的列表信息
             Map<String, String> emptyBatchCode = new HashMap<>();
             try {
-                CommonDto<String> sealResp = newSealVehicleService.seal(sealCarDtoList, emptyBatchCode);
+                // 组装封车请求对象
+                DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+                dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
+                dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+                com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                        = BeanConverter.convertToOperatorData(sealVehicleReq.getCurrentOperate());
+                dmsSealVehicleRequest.setOperatorData(operatorData);
+                dmsSealVehicleRequest.setBizType(sealVehicleReq.getBizType());
+
+                CommonDto<String> sealResp = newSealVehicleService.seal(dmsSealVehicleRequest);
                 if (sealResp != null && Constants.RESULT_SUCCESS == sealResp.getCode()) {
                     if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
                         List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
@@ -407,7 +424,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             sealCarDtoList.add(sealCarDto);
             //批次为空的列表信息
             Map<String, String> emptyBatchCode = new HashMap<String,String>();
-            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
+
+            // 组装封车请求对象
+            DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+            dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
+            dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+            com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                    = BeanConverter.convertToOperatorData(sealVehicleReq.getCurrentOperate());
+            dmsSealVehicleRequest.setOperatorData(operatorData);
+            dmsSealVehicleRequest.setBizType(sealVehicleReq.getBizType());
+
+            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(dmsSealVehicleRequest);
             if (sealResp != null && JdResponse.CODE_OK.equals(sealResp.getCode())) {
                 if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
                     List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
@@ -1300,7 +1327,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             //封车执行
             List<SealCarDto> sealCarDtoList = Arrays.asList(sealCarDto);
             Map<String, String> emptyBatchCode = new HashMap<>();
-            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList,emptyBatchCode);
+
+            // 组装封车请求对象
+            DmsSealVehicleRequest dmsSealVehicleRequest = new DmsSealVehicleRequest();
+            dmsSealVehicleRequest.setSealCarList(sealCarDtoList);
+            dmsSealVehicleRequest.setEmptyBatchCode(emptyBatchCode);
+            com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                    = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+            dmsSealVehicleRequest.setOperatorData(operatorData);
+            dmsSealVehicleRequest.setBizType(request.getBizType());
+
+            NewSealVehicleResponse sealResp = newSealVehicleService.doSealCarWithVehicleJob(dmsSealVehicleRequest);
 
             if (!Objects.isNull(sealResp) && JdResponse.CODE_OK.equals(sealResp.getCode())) {
                 //封签码暂存

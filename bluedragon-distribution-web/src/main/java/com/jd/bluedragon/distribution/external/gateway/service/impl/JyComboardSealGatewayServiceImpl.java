@@ -36,6 +36,7 @@ import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.configuration.DmsConfigManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.seal.impl.JyComboardSealVehicleServiceImpl;
@@ -128,6 +129,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComboardSealGatewayServiceImpl.sealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
   public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
     try {
+      sealVehicleReq.setBizType(OperateBizSubTypeEnum.BOARD_SEAL.getCode());
       return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
     } catch (JyBizException exception) {
       if (ObjectHelper.isNotNull(exception.getCode())){

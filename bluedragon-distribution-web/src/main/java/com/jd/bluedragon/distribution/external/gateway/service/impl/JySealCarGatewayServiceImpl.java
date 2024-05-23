@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
@@ -124,6 +125,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
 
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
+        sealVehicleReq.setBizType(OperateBizSubTypeEnum.TRUNK_SEAL.getCode());
         return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
     }
 

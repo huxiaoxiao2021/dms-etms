@@ -11,10 +11,12 @@ public enum OperateBizTypeEnum {
 	SORTING("sorting","分拣"),
 	SEND_D("send_d","发货明细"),
 	BOARD("board","组板"),
+	SEAL("seal","封车"),
 	UNSEAL("unseal","解封车"),
 	ABNORMAL_DELIVERY("abnormal_waybill","配送异常"),
 	WEIGHT_VOLUME("weight_volume", "称重"),
-    ;
+	RECEIVE("receive", "收货"),
+	AR_RECEIVE("ar_receive", "空铁提货");
 	
 	private OperateBizTypeEnum(String code, String name) {
 		this.code = code;

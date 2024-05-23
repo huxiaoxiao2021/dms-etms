@@ -153,7 +153,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
                 logger.warn("向运单系统回传包裹称重信息失败：{}，运单返回值：{}", entity.getPackageCode(), JsonHelper.toJson(resultMap));
             }
             // 记录称重操作流水
-            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_PACKAGE);
+            jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.PACKAGE_WEIGHT_VOLUME);
 
             /* 原始逻辑：发送MQ，在未来的日志里看看能否合并 */
             OpeSendObject opeSend = new OpeSendObject();
