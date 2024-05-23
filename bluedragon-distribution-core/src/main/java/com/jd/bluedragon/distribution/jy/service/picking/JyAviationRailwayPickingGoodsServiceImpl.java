@@ -395,6 +395,10 @@ public class JyAviationRailwayPickingGoodsServiceImpl implements JyAviationRailw
         Date date = new Date();
         bodyDto.setOperateTime(DateHelper.formatDateTime(date));
         bodyDto.setBizId(taskPickingGoodEntity.getBizId());
+        // 设置网格信息
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(request.getCurrentOperate());
+        bodyDto.setOperatorData(operatorData);
         List<PickingGoodScanTaskBodyDto> mqBodyList = Arrays.asList(bodyDto);
         String bodyJson = JsonHelper.toJson(mqBodyList);
         TaskRequest taskRequest = new TaskRequest();
