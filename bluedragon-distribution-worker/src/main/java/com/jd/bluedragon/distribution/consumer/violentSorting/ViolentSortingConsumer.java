@@ -62,7 +62,7 @@ import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 public class ViolentSortingConsumer extends MessageBaseConsumer {
     String TYPE_ANDON = "ANDON";
 
-    String MONITOR_GRID = "FJJKS-01";
+    String MONITOR_AREA = "FJJKS";
 
     Long UpgradeNotifyCount = 3l;//同一天同一网格，多少次后升级提醒网格长leader
 
@@ -246,11 +246,11 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
     private List<String> findMonitorRoomPerson(ViolentSortingDto dto) {
         WorkStationGridQuery gridQuery = new WorkStationGridQuery();
         gridQuery.setSiteCode(dto.getSiteCode());
-        gridQuery.setGridCode(MONITOR_GRID);
+        gridQuery.setAreaCode(MONITOR_AREA);
         gridQuery.setPageNumber(1);
         gridQuery.setPageSize(10);
         Result<PageDto<WorkStationGrid>> result = workStationGridManager.queryPageList(gridQuery);
-        if (!result.isSuccess()) {
+        if (!result.isSuccess() || result.getData().getResult().isEmpty()) {
             return null;
         }
         UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
