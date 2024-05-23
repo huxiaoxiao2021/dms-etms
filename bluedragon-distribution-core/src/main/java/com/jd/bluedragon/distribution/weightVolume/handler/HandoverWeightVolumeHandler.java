@@ -69,6 +69,6 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         allianceBusiDeliveryDetailService.allianceBusiDelivery(allianceBusiDeliveryDto);
         // 记录称重操作流水
-        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_HANDOVER);
+        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.HANDOVER_WEIGHT_VOLUME);
     }
 }

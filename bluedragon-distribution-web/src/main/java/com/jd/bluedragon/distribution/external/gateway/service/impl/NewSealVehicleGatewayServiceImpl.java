@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.dto.send.BatchCodeShuttleSealDto;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JyAviationRailwaySendSealService;
 import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.converter.BeanConverter;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.report.WeightVolSendCodeJSFService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -309,6 +311,12 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
         List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
         newSealVehicleRequest.setData(convert(list));
+        // 转换网格参数
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(sealCarRequest.getCurrentOperate());
+        // 设置网格信息
+        newSealVehicleRequest.setOperatorData(operatorData);
+        newSealVehicleRequest.setBizType(OperateBizSubTypeEnum.TRUNK_SEAL.getCode());
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.seal(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
@@ -382,7 +390,13 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
         List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
         newSealVehicleRequest.setData(convert(list));
-
+        // 设置业务来源
+        newSealVehicleRequest.setBizType(OperateBizSubTypeEnum.SHUTTLE_SEAL.getCode());
+        // 转换网格参数
+        com.jd.bluedragon.distribution.api.domain.OperatorData operatorData
+                = BeanConverter.convertToOperatorData(sealCarRequest.getCurrentOperate());
+        // 设置网格信息
+        newSealVehicleRequest.setOperatorData(operatorData);
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.doSealCarWithVehicleJob(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
