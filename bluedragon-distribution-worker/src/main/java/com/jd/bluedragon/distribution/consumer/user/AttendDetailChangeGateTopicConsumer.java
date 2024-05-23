@@ -35,7 +35,7 @@ public class AttendDetailChangeGateTopicConsumer extends MessageBaseWithoutUATCo
     		log.debug("AttendDetailChangeGateTopicConsumer：[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
     	}
     	if(mqData == null){
-    		log.warn("消息转换失败！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
+    		log.warn("AttendDetailChangeGateTopicConsumer 消息转换失败！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
     		return;
     	}
 		log.info("AttendDetailChangeGateTopicConsumer 开始消费 mqData:{}", mqData);

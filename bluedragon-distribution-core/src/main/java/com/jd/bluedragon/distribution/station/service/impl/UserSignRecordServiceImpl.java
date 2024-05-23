@@ -1015,6 +1015,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		LocalDateTime passTime = LocalDateTime.parse(mqData.getPassTime());
 		// 定义新的日期时间格式
 		mqData.setPassTime(passTime.format(DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT)));
+		log.info("autoHandleSignOutByAttendGateJmq 入参 mqData:{}", JSON.toJSONString(mqData));
 
 		Date actualOffTime = DateHelper.parseDateTime(mqData.getPassTime());
 		if(actualOffTime == null) {
@@ -1036,7 +1037,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecordQuery query = new UserSignRecordQuery();
 		query.setUserCode(mqData.getErpOrIdCard());
 		UserSignRecord lastUnSignOutRecord = userSignRecordDao.queryLastUnSignOutRecord(query);
-		log.info("autoHandleSignOutByAttendGateJmq 校验通过 query:{},lastUnSignOutRecord:{}", query, lastUnSignOutRecord);
+		log.info("autoHandleSignOutByAttendGateJmq 校验通过 query:{},lastUnSignOutRecord:{}", JSON.toJSONString(query), JSON.toJSONString(lastUnSignOutRecord));
 		if(lastUnSignOutRecord == null) {
 			log.info("autoHandleSignOutByAttendGateJmq：用户【{}】已签未退数据为空，无需处理！",mqData.getErpOrIdCard());
 			return result;
@@ -1050,7 +1051,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_AUTOHANDLESIGNOUTSITECODES);
-		log.info("autoHandleSignOutByAttendGateJmq 获取配置 query:{},content:{}", query, content);
+		log.info("autoHandleSignOutByAttendGateJmq 获取配置 query:{},content:{}", JSON.toJSONString(query), JSON.toJSONString(content));
 		if (content != null
 				&& !Boolean.TRUE.equals(content.getMasterSwitch())
 				&& !content.getSiteCodes().contains(lastUnSignOutRecord.getSiteCode())) {
@@ -1065,13 +1066,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		updateData.setUpdateUser(DmsConstants.USER_CODE_AUTO_SIGN_OUT_FORM_RZ);
 		updateData.setUpdateUserName(DmsConstants.USER_NAME_AUTO_SIGN_OUT_FORM_GATE);
 		toSignOutPks.add(lastUnSignOutRecord.getId());
-		log.info("autoHandleSignOutByAttendGateJmq 执行-签退逻辑 updateData:{},toSignOutPks:{}", updateData, toSignOutPks);
+		log.info("autoHandleSignOutByAttendGateJmq 执行-签退逻辑 updateData:{},toSignOutPks:{}", JSON.toJSONString(updateData), toSignOutPks);
 		userSignRecordDao.signOutById(updateData, toSignOutPks);
 		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 		removeMemberRequest.setSignRecordIdList(toSignOutPks);
 		removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
 		removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
-		log.info("autoHandleSignOutByAttendGateJmq 执行-removeMembers removeMemberRequest:{}", removeMemberRequest);
+		log.info("autoHandleSignOutByAttendGateJmq 执行-removeMembers removeMemberRequest:{}", JSON.toJSONString(removeMemberRequest));
 		this.jyGroupMemberService.removeMembers(removeMemberRequest);
 
 		List<String> erpList = new ArrayList<>();
@@ -1081,7 +1082,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		workStationGridCheckQuery.setBusinessKey(lastUnSignOutRecord.getRefGridKey());
 		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
 
-		log.info("autoHandleSignOutByAttendGateJmq 执行-queryByGridKey workStationGridCheckQuery:{}, workStationGridData:{}", workStationGridCheckQuery, workStationGridData);
+		log.info("autoHandleSignOutByAttendGateJmq 执行-queryByGridKey workStationGridCheckQuery:{}, workStationGridData:{}", JSON.toJSONString(workStationGridCheckQuery), JSON.toJSONString(workStationGridData));
 		// 查询网格-负责人信息
 		String ownerUserErp = "";
 		String gridName = "";
