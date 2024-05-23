@@ -56,6 +56,22 @@ public interface WaybillSignConstants {
 	char CHAR_8_3='3';
 
 	/**
+	 * 仅修改地址的已被配送拦截
+	 */
+	char CHAR_8_5='5';
+
+	/**
+	 * 修改地址和其他的已被配送拦截
+	 */
+	char CHAR_8_6='6';
+
+	/**
+	 * 未修改地址仅修改其他的已被配送拦截
+	 */
+	char CHAR_8_7='7';
+
+
+	/**
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;
@@ -498,7 +514,42 @@ public interface WaybillSignConstants {
 	 * 24-个性化运单
 	 */
 	int POSITION_24 = 24;
+
+	/**
+	 * 保温箱
+	 */
 	char CHAR_24_G = 'G';
 
+
+	/**
+	 * 默认
+	 */
+	char CHAR_24_0 = '0';
+
+
+	/**
+	 * 103-改址转寄
+	 */
+	int POSITION_103 = 103;
+
+	/**
+	 * 同城改址
+	 */
+	char CHAR_103_1 = '1';
+
+	/**
+	 * 跨城改址
+	 */
+	char CHAR_103_2 = '2';
+
+	/**
+	 * 同城跨站改址
+	 */
+	char CHAR_103_3 = '3';
+
+	/**
+	 * 同城同站改址
+	 */
+	char CHAR_103_4 = '4';
 
 }

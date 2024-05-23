@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -51,8 +53,10 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.waybill.enums.WaybillVasEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
@@ -2121,4 +2125,61 @@ public class WaybillServiceImpl implements WaybillService {
         }
         return null;
     }
+
+    @Override
+    @JProfiler(jKey= "DMSWEB.WaybillServiceImpl.isAddressForwardingWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public AddressForwardWaybillCheckResult isAddressForwardingWaybill(AddressForwardWaybillCheckRequest request) {
+        AddressForwardWaybillCheckResult result = new AddressForwardWaybillCheckResult();
+        result.setRePrintFlag(Boolean.FALSE);
+        result.setExchangePrintFlag(Boolean.FALSE);
+        if (StringUtils.isBlank(request.getWaybillSign())) {
+            log.warn("isAddressForwardingWaybill|waybillSign为空:request={}", JsonHelper.toJson(request));
+            return result;
+        }
+        // 非一单到底改址转寄标识
+        boolean addressForwardingFlag = BusinessUtil.isAddressForwardingWaybill(request.getWaybillSign());
+        if (!addressForwardingFlag) {
+            log.warn("isAddressForwardingWaybill|addressForwardingFlag不满足:waybillCode={}", request.getWaybillCode());
+            return result;
+        }
+        // 继续判断百川标识
+        if (StringUtils.isBlank(request.getOmcOrderCode())) {
+            log.warn("isAddressForwardingWaybill|不是百川:waybillCode={}", request.getWaybillCode());
+            return result;
+        }
+        // 继续判断增值服务
+        if (CollectionUtils.isEmpty(request.getWaybillVasDtos())) {
+            log.warn("isAddressForwardingWaybill|没有增值服务:waybillCode={}", request.getWaybillCode());
+            return result;
+        }
+        // 改址转寄增值服务标识
+        boolean addressForwardingVasFlag = false;
+        // 循环增值服务列表
+        for (WaybillVasDto vasDto : request.getWaybillVasDtos()) {
+            // vasNo是否等于改址转寄增值服务
+            if (vasDto != null && WaybillVasEnum.WAYBILL_VAS_ADDRESS_FORWARDING.getCode().equals(vasDto.getVasNo())) {
+                addressForwardingVasFlag = true;
+                break;
+            }
+        }
+        // 如果无改址转寄增值服务，则提示话术：“此单为改址拦截单，请操作换单打印”
+        if (!addressForwardingVasFlag) {
+            log.warn("isAddressForwardingWaybill|无改址转寄增值服务,提示换单:waybillCode={}", request.getWaybillCode());
+            result.setExchangePrintFlag(Boolean.TRUE);
+        }
+        // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6或7
+        boolean flag = BusinessUtil.isSignInChars(request.getWaybillSign(), WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6, WaybillSignConstants.CHAR_8_7);
+        // 不等于5或6或7则提示补打，否则放行
+        if (!flag) {
+            log.warn("isAddressForwardingWaybill|有改址转寄增值服务且标位满足,提示补打:waybillCode={}", request.getWaybillCode());
+            result.setRePrintFlag(Boolean.TRUE);
+        }
+        return result;
+    }
+
+
+
+
+
 }
