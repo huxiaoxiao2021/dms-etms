@@ -76,7 +76,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             log.warn("[DeliverGoodsNoticeConsumer消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
+        BoxMaterialRelationMQ context = JsonHelper.fromJson(message.getText(), BoxMaterialRelationMQ.class);
         deliverGoodsNoticeConsumerMessage(context);
         miniStoreDeliverGoodsConsumerMessage(context);
     }
