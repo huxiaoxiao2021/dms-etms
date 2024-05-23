@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.station.domain.*;
+import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeGateTopicData;
 import com.jd.bluedragon.distribution.station.entity.AttendDetailChangeTopicData;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordFlowQuery;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
@@ -89,11 +90,16 @@ public interface UserSignRecordService {
      * @return
      */
     Result<Integer> autoHandleSignInRecord();
-    /**
-     * 人资考勤数据-topic自动签退处理
-     * @return
-     */
-    JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData);
+	/**
+	 * 人资考勤数据-topic自动签退处理
+	 * @return
+	 */
+	JdResult<Integer> autoHandleSignOutByAttendJmq(AttendDetailChangeTopicData mqData);
+	/**
+	 * 人闸考勤数据-topic自动签退处理
+	 * @return
+	 */
+	JdResult<Integer> autoHandleSignOutByAttendGateJmq(AttendDetailChangeGateTopicData mqData);
 	/**
 	 * 按条件查询数量
 	 * @param query
