@@ -2570,4 +2570,9 @@ public class Constants {
      */
     public static final String STAND_NUM_PDA_SIGN_CHECK_SWITCH = "stand.num.pda.sign.check.switch";
 
+    /**
+     * 违禁品上报包裹校验开关
+     */
+    public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
+
 }
