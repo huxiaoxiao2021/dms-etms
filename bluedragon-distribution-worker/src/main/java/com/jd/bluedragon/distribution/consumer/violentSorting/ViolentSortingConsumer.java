@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
 import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -250,7 +251,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer {
         gridQuery.setPageNumber(1);
         gridQuery.setPageSize(10);
         Result<PageDto<WorkStationGrid>> result = workStationGridManager.queryPageList(gridQuery);
-        if (!result.isSuccess() || result.getData().getResult().isEmpty()) {
+        if (!result.isSuccess() || CollectionUtils.isEmpty(result.getData().getResult())) {
             return null;
         }
         UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
