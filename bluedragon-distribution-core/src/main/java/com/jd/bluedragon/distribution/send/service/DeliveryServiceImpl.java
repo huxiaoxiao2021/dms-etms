@@ -6142,7 +6142,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             pushTransferSendTask(domain);
 
             // 如果是中转，也补收货任务(抖音需求：整箱中转补收获动作)
-            log.info("DeliveryServiceImpl.transitSend addReceiveTask {}", JsonHelper.toJsonMs(domain));
+            if(log.isInfoEnabled()){
+                log.info("DeliveryServiceImpl.transitSend addReceiveTask {}", JsonHelper.toJsonMs(domain));
+            }
             pushReceiveTask(domain);
             return true;
         } else {
