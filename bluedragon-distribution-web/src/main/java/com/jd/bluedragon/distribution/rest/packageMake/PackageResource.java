@@ -10,7 +10,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,9 +92,6 @@ public class PackageResource {
 
     @Autowired
     private ReprintRecordService reprintRecordService;
-
-    @Autowired
-    private WaybillService waybillService;
 
     /**
      * 拦截报表服务
@@ -378,13 +374,29 @@ public class PackageResource {
 
             /* 3.客户改址拦截MQ */
             String waybillSign = request.getWaybillSign();
-            ModifyOrderInfo modifyOrderInfo = new ModifyOrderInfo();
-            modifyOrderInfo.setOrderId(waybillCode);
-            modifyOrderInfo.setDmsId(request.getCreateSiteCode());
-            modifyOrderInfo.setDmsName(request.getCreateSiteName());
-            modifyOrderInfo.setOperateTime(request.getOperateTime());
-            // 校验是否满足标位修改条件并给运单发送MQ
-            waybillService.checkAndSendModifyWaybillSignJmq(modifyOrderInfo, waybillSign);
+            if (StringHelper.isNotEmpty(request.getWaybillSign()) && waybillSign.length() > 8 &&
+                    (BusinessUtil.isSignChar(waybillSign,8,'1' ) || BusinessUtil.isSignChar(waybillSign,8,'2' )
+                            || BusinessUtil.isSignChar(waybillSign,8,'3' ))) {
+                char sign = waybillSign.charAt(7);
+
+                ModifyOrderInfo modifyOrderInfo = new ModifyOrderInfo();
+                modifyOrderInfo.setOrderId(waybillCode);
+                modifyOrderInfo.setDmsId(request.getCreateSiteCode());
+                modifyOrderInfo.setDmsName(request.getCreateSiteName());
+                Integer resultCode = null;
+                if (sign == '1') {
+                    resultCode = 5;
+                } else if (sign == '2'){
+                    resultCode = 6;
+                } else if (sign == '3') {
+                    resultCode = 7;
+                }
+                modifyOrderInfo.setResultCode(resultCode);
+                modifyOrderInfo.setOperateTime(request.getOperateTime());
+                String json = JsonHelper.toJson(modifyOrderInfo);
+                dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
+                log.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
+            }
         } catch (Exception e) {
             log.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);

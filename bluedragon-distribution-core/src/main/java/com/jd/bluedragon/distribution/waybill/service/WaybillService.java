@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
-import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
@@ -12,7 +10,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
@@ -303,11 +300,5 @@ public interface WaybillService {
      * @return 是则返回true，否则返回false
      */
     AddressForwardWaybillCheckResult isAddressForwardingWaybill(AddressForwardWaybillCheckRequest request);
-
-    /**
-     * 检查是否满足条件并发送修改运单标位JMQ
-     * @param modifyOrderInfo 修改订单信息
-     */
-    void checkAndSendModifyWaybillSignJmq(ModifyOrderInfo modifyOrderInfo, String waybillSign);
 
 }

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
 import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
-import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.configuration.DmsConfigManager;
@@ -15,7 +14,6 @@ import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
@@ -25,7 +23,6 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.enums.ReassignWaybillReasonTypeEnum;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
@@ -82,7 +79,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -167,10 +163,6 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
-
-    @Autowired
-    @Qualifier("dmsModifyOrderInfoMQ")
-    private DefaultJMQProducer dmsModifyOrderInfoMQ;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -2110,19 +2102,23 @@ public class WaybillServiceImpl implements WaybillService {
         result.setRePrintFlag(Boolean.FALSE);
         result.setExchangePrintFlag(Boolean.FALSE);
         if (StringUtils.isBlank(request.getWaybillSign())) {
+            log.warn("isAddressForwardingWaybill|waybillSign为空:request={}", JsonHelper.toJson(request));
             return result;
         }
         // 非一单到底改址转寄标识
         boolean addressForwardingFlag = BusinessUtil.isAddressForwardingWaybill(request.getWaybillSign());
         if (!addressForwardingFlag) {
+            log.warn("isAddressForwardingWaybill|addressForwardingFlag不满足:waybillCode={}", request.getWaybillCode());
             return result;
         }
         // 继续判断百川标识
         if (StringUtils.isBlank(request.getOmcOrderCode())) {
+            log.warn("isAddressForwardingWaybill|不是百川:waybillCode={}", request.getWaybillCode());
             return result;
         }
         // 继续判断增值服务
         if (CollectionUtils.isEmpty(request.getWaybillVasDtos())) {
+            log.warn("isAddressForwardingWaybill|没有增值服务:waybillCode={}", request.getWaybillCode());
             return result;
         }
         // 改址转寄增值服务标识
@@ -2137,6 +2133,7 @@ public class WaybillServiceImpl implements WaybillService {
         }
         // 如果无改址转寄增值服务，则提示话术：“此单为改址拦截单，请操作换单打印”
         if (!addressForwardingVasFlag) {
+            log.warn("isAddressForwardingWaybill|无改址转寄增值服务,提示换单:waybillCode={}", request.getWaybillCode());
             result.setExchangePrintFlag(Boolean.TRUE);
         }
         // 如果有改址转寄增值服务，则继续判断waybillSign第8位是否等于5或6或7
@@ -2144,88 +2141,13 @@ public class WaybillServiceImpl implements WaybillService {
                 WaybillSignConstants.CHAR_8_5, WaybillSignConstants.CHAR_8_6, WaybillSignConstants.CHAR_8_7);
         // 不等于5或6或7则提示补打，否则放行
         if (!flag) {
+            log.warn("isAddressForwardingWaybill|有改址转寄增值服务且标位满足,提示补打:waybillCode={}", request.getWaybillCode());
             result.setRePrintFlag(Boolean.TRUE);
         }
         return result;
     }
 
-    @Override
-    @JProfiler(jKey= "DMSWEB.WaybillServiceImpl.checkAndSendModifyWaybillSignJmq", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void checkAndSendModifyWaybillSignJmq(ModifyOrderInfo modifyOrderInfo, String waybillSign) {
-        String waybillCode = modifyOrderInfo.getOrderId();
-        try {
-            Waybill waybill = null;
-            // 如果waybillSign为空，则根据运单号查一次接口
-            if (StringUtils.isBlank(waybillSign)) {
-                // 根据运单号查询运单详情
-                waybill = getWaybillByWayCode(waybillCode);
-                if (waybill == null) {
-                    log.warn("checkAndSendModifyWaybillSignJmq|补打成功以后校验是否需要修改标位并发送Jmq未查到运单详情:modifyOrderInfo={},waybillSign={}",
-                            JsonHelper.toJson(modifyOrderInfo), waybillSign);
-                    return;
-                }
-                waybillSign = waybill.getWaybillSign();
-            }
-            // 先走场景一：原有逻辑
-            if (BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
-                    WaybillSignConstants.CHAR_8_1,WaybillSignConstants.CHAR_8_2,WaybillSignConstants.CHAR_8_3)) {
-                char sign = waybillSign.charAt(7);
-                Integer resultCode = null;
-                if (sign == '1') {
-                    resultCode = 5;
-                }
-                else if (sign == '2'){
-                    resultCode = 6;
-                }
-                else if (sign == '3') {
-                    resultCode = 7;
-                }
-                modifyOrderInfo.setResultCode(resultCode);
-                String json = JsonHelper.toJson(modifyOrderInfo);
-                dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
-                return;
-            }
-            if (waybill == null) {
-                waybill = getWaybillByWayCode(waybillCode);
-            }
 
-            // 查询运单增值服务
-            BaseEntity<List<WaybillVasDto>> waybillVasInfos = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-            // 组装校验参数
-            AddressForwardWaybillCheckRequest request = creatRequest(waybill, waybillVasInfos);
-
-            // 再校验场景二：非一单到底改址转寄
-            AddressForwardWaybillCheckResult result = isAddressForwardingWaybill(request);
-            // 如果满足补打场景
-            if (result != null && result.isRePrintFlag()) {
-                // 将waybillSign第8位一律改为5
-                modifyOrderInfo.setResultCode(Constants.NUMBER_FIVE);
-                String json = JsonHelper.toJson(modifyOrderInfo);
-                dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
-            }
-        } catch (Exception e) {
-            log.error("checkAndSendModifyWaybillSignJmq|补打成功以后校验是否需要修改标位并发送Jmq异常:modifyOrderInfo={},waybillSign={}",
-                    JsonHelper.toJson(modifyOrderInfo), waybillSign, e);
-        }
-    }
-
-    /**
-     * 创建地址转寄运单检查请求
-     * @param waybill 运单信息
-     * @param waybillVasInfos 运单VAS信息
-     * @return AddressForwardWaybillCheckRequest 地址转寄运单检查请求
-     */
-    private AddressForwardWaybillCheckRequest creatRequest(Waybill waybill, BaseEntity<List<WaybillVasDto>> waybillVasInfos) {
-        AddressForwardWaybillCheckRequest request = new AddressForwardWaybillCheckRequest();
-        request.setWaybillSign(waybill.getWaybillSign());
-        if (waybill.getWaybillExt() != null) {
-            request.setOmcOrderCode(waybill.getWaybillExt().getOmcOrderCode());
-        }
-        if (waybillVasInfos != null && waybillVasInfos.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && CollectionUtils.isNotEmpty(waybillVasInfos.getData())) {
-            request.setWaybillVasDtos( waybillVasInfos.getData());
-        }
-        return request;
-    }
 
 
 

@@ -13,6 +13,11 @@ public class AddressForwardWaybillCheckRequest implements Serializable {
     private static final long serialVersionUID = -1L;
 
     /**
+     * 运单号
+     */
+    private String waybillCode;
+
+    /**
      * 补打标识
      */
     private String waybillSign;
@@ -26,6 +31,14 @@ public class AddressForwardWaybillCheckRequest implements Serializable {
      * 运单增值服务
      */
     private List<WaybillVasDto> waybillVasDtos;
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
 
     public String getWaybillSign() {
         return waybillSign;

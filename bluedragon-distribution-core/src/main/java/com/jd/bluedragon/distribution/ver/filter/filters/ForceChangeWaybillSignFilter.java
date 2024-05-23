@@ -142,6 +142,8 @@ public class ForceChangeWaybillSignFilter implements Filter {
         WaybillCache waybillCache = request.getWaybillCache();
         // 构建校验参数
         AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = new AddressForwardWaybillCheckRequest();
+        // 运单号
+        addressForwardWaybillCheckRequest.setWaybillCode(waybillCache.getWaybillCode());
         // 运单标位
         addressForwardWaybillCheckRequest.setWaybillSign(waybillCache.getWaybillSign());
         // 百川标识
