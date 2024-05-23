@@ -19,6 +19,11 @@ import com.jd.bluedragon.core.base.MspClientProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.andon.AndonEventService;
 import com.jd.bluedragon.distribution.jy.dto.violentSorting.ViolentSortingDto;
+import com.jd.bluedragon.distribution.station.domain.BaseUserSignRecordVo;
+import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.sdk.util.DateUtil;
@@ -32,6 +37,7 @@ import com.jdl.basic.api.domain.workStation.WorkGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGrid;
 import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import com.jdl.basic.api.utils.BusinessKeyUtils;
+import com.jdl.basic.common.utils.PageDto;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +54,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 
@@ -57,6 +64,8 @@ import static com.jd.ql.basic.util.DateUtil.FORMAT_DATE;
 //@Service("violentSortingConsumer")
 public class ViolentSortingConsumer extends MessageBaseConsumer implements InitializingBean {
     String TYPE_ANDON = "ANDON";
+
+    String MONITOR_AREA = "FJJKS";
 
     Long UpgradeNotifyCount = 3l;//同一天同一网格，多少次后升级提醒网格长leader
 
@@ -86,6 +95,9 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
 
     @Autowired
     private HrUserManager hrUserManager;
+
+    @Autowired
+    private UserSignRecordService userSignRecordService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -218,6 +230,11 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         HashSet<String> pins = new HashSet<>();
         // 网格负责人
         pins.add(d.getOwnerUserErp());
+        // 监控区人员
+        List<String> monitorRoomPerson = findMonitorRoomPerson(d);
+        if (!monitorRoomPerson.isEmpty()) {
+            pins.addAll(monitorRoomPerson);
+        }
         //第三次或更多次事件时,网格负责人的上级
         if (incr >= UpgradeNotifyCount) {
             String superiorErp = hrUserManager.getSuperiorErp(d.getOwnerUserErp());
@@ -232,5 +249,24 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         setUat("false");
+    }
+
+    // 昨天0点至当前，在监控室作业区下任一网格内有签到或签退过的人
+    private List<String> findMonitorRoomPerson(ViolentSortingDto dto) {
+        WorkStationGridQuery gridQuery = new WorkStationGridQuery();
+        gridQuery.setSiteCode(dto.getSiteCode());
+        gridQuery.setAreaCode(MONITOR_AREA);
+        gridQuery.setPageNumber(1);
+        gridQuery.setPageSize(10);
+        Result<PageDto<WorkStationGrid>> result = workStationGridManager.queryPageList(gridQuery);
+        if (!result.isSuccess() || CollectionUtils.isEmpty(result.getData().getResult())) {
+            return null;
+        }
+        UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
+        List<WorkStationGrid> grids = result.getData().getResult();
+        userSignRecordQuery.setRefGridKeyList(grids.stream().map(g -> g.getBusinessKey()).collect(Collectors.toList()));
+        userSignRecordQuery.setYesterdayStart(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -1));
+        List<BaseUserSignRecordVo> baseUserSignRecordVos = userSignRecordService.queryMonitorRoomPerson(userSignRecordQuery);
+        return baseUserSignRecordVos.stream().map(v -> v.getUserCode()).collect(Collectors.toList());
     }
 }

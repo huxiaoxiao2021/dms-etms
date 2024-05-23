@@ -216,5 +216,7 @@ public interface UserSignRecordDao {
 	
 	
 	List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
+
+	List<BaseUserSignRecordVo> queryMonitorRoomPerson(UserSignRecordQuery query);
 	
 }

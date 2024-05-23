@@ -249,4 +249,6 @@ public interface UserSignRecordService {
 	List<UserSignRecord> queryByBusinessKeyAndJobCode(UserSignRecordQuery query);
 
     List<BaseUserSignRecordVo> queryByGridSign(UserSignRecordQuery query);
+
+	List<BaseUserSignRecordVo> queryMonitorRoomPerson(UserSignRecordQuery query);
 }
