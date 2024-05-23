@@ -2137,9 +2137,9 @@ public class WaybillServiceImpl implements WaybillService {
             return result;
         }
         // 非一单到底改址转寄标识
-        boolean addressForwardingFlag = BusinessUtil.isAddressForwardingWaybill(request.getWaybillSign());
-        if (!addressForwardingFlag) {
-            log.warn("isAddressForwardingWaybill|addressForwardingFlag不满足:waybillCode={}", request.getWaybillCode());
+        boolean addressForwardingNotJustOneOrderFlag = WaybillCacheHelper.isAddressForwardingNotJustOneOrder(request.getWaybillSign());
+        if (!addressForwardingNotJustOneOrderFlag) {
+            log.warn("isAddressForwardingWaybill|addressForwardingNotJustOneOrderFlag不满足:waybillCode={}", request.getWaybillCode());
             return result;
         }
         // 继续判断百川标识
