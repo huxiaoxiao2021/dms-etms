@@ -96,6 +96,7 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.EcpQueryWSManagerImpl.selectByScanOrderNumber", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public List<EcpAbnormalScanOrderRecordDto> selectByScanOrderNumber(String barCode) {
         CommonDto<List<EcpAbnormalScanOrderRecordDto>> commonDto = ecpQueryWS.selectByScanOrderNumber(barCode);
         if (commonDto != null && !CollectionUtils.isEmpty(commonDto.getData())) {
