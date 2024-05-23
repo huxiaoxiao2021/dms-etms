@@ -578,7 +578,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
-			<version>1.1.14-SNAPSHOT</version>
+			<version>1.1.45-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
@@ -957,7 +957,7 @@
 		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>

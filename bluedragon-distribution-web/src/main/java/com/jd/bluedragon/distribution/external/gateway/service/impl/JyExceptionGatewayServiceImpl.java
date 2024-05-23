@@ -349,4 +349,9 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     public JdCResponse<Boolean> processTaskOfInterceptSubmitWeightVolume(ExpInterceptTaskProcessSubmitWeightVolumeReq req) {
         return ResultConverter.convertResultToJdcResponse(jyExceptionService.processTaskOfInterceptSubmitWeightVolume(req));
     }
+
+    @Override
+    public JdCResponse<Boolean> contrabandPackageCheck(ContrabandPackageCheckReq req) {
+        return jyContrabandExceptionService.contrabandPackageCheck(req);
+    }
 }
