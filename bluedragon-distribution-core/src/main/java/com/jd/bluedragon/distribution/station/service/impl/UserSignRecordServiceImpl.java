@@ -966,10 +966,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 
-	public static void main(String[] args) {
-		Date actualOffTime = DateHelper.parseDateTime("2024-05-11 11:31:35");
-		System.out.println(actualOffTime);
-	}
 	/**
 	 * 人闸考勤数据-topic自动签退处理
 	 * @param mqData
