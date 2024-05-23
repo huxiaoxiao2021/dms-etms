@@ -2621,6 +2621,16 @@ public class Constants {
     public static final String CANCEL_RETURN_GROUP_WHITE_LIST_CONF = "cancel.return.group.white.list.conf";
 
     /**
+     * 网格工序编制人数配置-PDA强卡开关
+     */
+    public static final String STAND_NUM_PDA_SIGN_CHECK_SWITCH = "stand.num.pda.sign.check.switch";
+
+    /**
+     * 违禁品上报包裹校验开关
+     */
+    public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
+
+    /**
      * 租板发货-司机违规举报锁前缀
      */
     public static final String JY_DRIVER_VIOLATION_REPORTING_LOCK_PREFIX  = "jy_driver_violation_reporting_lock_%s";
@@ -2633,16 +2643,6 @@ public class Constants {
      * 箱号目的地校验开关配置
      */
     public static final String CHECK_BOX_END_SITE_MATCH_SWITCH  = "check.box.end.site.match.switch";
-
-    /**
-     * 网格工序编制人数配置-PDA强卡开关
-     */
-    public static final String STAND_NUM_PDA_SIGN_CHECK_SWITCH = "stand.num.pda.sign.check.switch";
-
-    /**
-     * 违禁品上报包裹校验开关
-     */
-    public static final String CONTRABAND_PACKAGE_CHECK_SWITCH = "contraband.package.check.switch";
 
     /**
      * 包裹补打次数拦截配置

@@ -387,6 +387,8 @@
 		<property name="restRateLimiterBlackErpList" value="${restRateLimiterBlackErpList:}"/>
 		<property name="restRateLimiterFallbackGlobalTip" value="${restRateLimiterFallbackGlobalTip:''}"/>
 		<property name="restRateLimiterFallbackTips" value="${restRateLimiterFallbackTips:''}"/>
+		<property name="checkBoxIfEmptySwitch" value="${checkBoxIfEmptySwitch:true}"/>
+		<property name="boxTransferSendInsertReceiveSwitch" value="${boxTransferSendInsertReceiveSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -776,6 +778,8 @@
 				<value>uccPropertyConfiguration.restRateLimiterBlackErpList</value>
 				<value>uccPropertyConfiguration.restRateLimiterFallbackGlobalTip</value>
 				<value>uccPropertyConfiguration.restRateLimiterFallbackTips</value>
+				<value>uccPropertyConfiguration.checkBoxIfEmptySwitch</value>
+				<value>uccPropertyConfiguration.boxTransferSendInsertReceiveSwitch</value>
 			</list>
 		</property>
 	</bean>

@@ -591,6 +591,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.JyContrabandExceptionServiceImpl.contrabandPackageCheck", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Boolean> contrabandPackageCheck(ContrabandPackageCheckReq req) {
         JdCResponse<Boolean> response = new JdCResponse<>();
         response.toSucceed();

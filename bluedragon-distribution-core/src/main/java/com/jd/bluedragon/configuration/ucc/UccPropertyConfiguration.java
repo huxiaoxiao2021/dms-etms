@@ -2209,6 +2209,11 @@ public class UccPropertyConfiguration{
      */
     private String restRateLimiterFallbackTips;
 
+    /**
+     * 整箱中转发货，是否补充收货记录
+     */
+    private Boolean boxTransferSendInsertReceiveSwitch;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -4899,6 +4904,16 @@ public class UccPropertyConfiguration{
 
     private String imageClarityThreshold;
 
+    private boolean checkBoxIfEmptySwitch;
+
+    public boolean getCheckBoxIfEmptySwitch() {
+        return checkBoxIfEmptySwitch;
+    }
+
+    public void setCheckBoxIfEmptySwitch(boolean checkBoxIfEmptySwitch) {
+        this.checkBoxIfEmptySwitch = checkBoxIfEmptySwitch;
+    }
+
     public String getImageClarityThreshold() {
         return imageClarityThreshold;
     }
@@ -5036,5 +5051,13 @@ public class UccPropertyConfiguration{
 
     public void setRestRateLimiterFallbackTips(String restRateLimiterFallbackTips) {
         this.restRateLimiterFallbackTips = restRateLimiterFallbackTips;
+    }
+
+    public Boolean getBoxTransferSendInsertReceiveSwitch() {
+        return boxTransferSendInsertReceiveSwitch;
+    }
+
+    public void setBoxTransferSendInsertReceiveSwitch(Boolean boxTransferSendInsertReceiveSwitch) {
+        this.boxTransferSendInsertReceiveSwitch = boxTransferSendInsertReceiveSwitch;
     }
 }
