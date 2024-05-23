@@ -578,7 +578,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
-			<version>TEST-SNAPSHOT</version>
+			<version>1.1.45-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>hibernate-validator</artifactId>
