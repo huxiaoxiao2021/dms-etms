@@ -166,6 +166,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_CONTENT = "您好，系统识别当前您已通过人资人脸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	private static final String MSG_FORMAT_AUTO_SIGN_OUT_GATE_CONTENT = "您好，系统识别当前您已通过场地人闸识别下班打卡，将自动签退您在%s的工作，有疑问可联系网格组长%s";
 	public static final String CHECK_STANDARD_NUM_SIGN_MSG = "当前工序的标准编制人数为【%s】，目前已签到【%s】，请确认网格内是否有【%s】(人数)人作业，若不对，请联系网格组长ERP【%s】操作签退处理；";
+	private static final String EXIT = "出门";
 
 	@Autowired
 	private WorkStationManager workStationManager;
@@ -977,7 +978,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSuccess();
 		mqData.setErpOrIdCard(org.apache.commons.lang3.StringUtils.isNotBlank(mqData.getErp()) ? mqData.getErp() : mqData.getIdCard());
 
-		if(StringUtils.isBlank(mqData.getPassStatus()) || !mqData.getPassStatus().equalsIgnoreCase("出门")) {
+		if(StringUtils.isBlank(mqData.getPassStatus()) || !mqData.getPassStatus().equalsIgnoreCase(EXIT)) {
 			log.info("autoHandleSignOutByAttendGateJmq：非出门数据，无需处理！");
 			return result;
 		}
