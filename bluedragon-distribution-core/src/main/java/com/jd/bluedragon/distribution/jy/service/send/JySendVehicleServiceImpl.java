@@ -1776,6 +1776,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             String sendCode = this.getOrCreateSendCode(request, curSendDetail);
             SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
+
+            if (dmsConfigManager.getUccPropertyConfiguration().getCheckBoxIfEmptySwitch()
+                    && BusinessUtil.isWMSBoxcode(request.getBarCode()) && checkBoxIfEmpty(request.getBarCode())) {
+                result.toFail("暂未接收到仓打包数据，请稍后再试！");
+                return result;
+            }
+
             //回调校验
             sendScanCheckOfCallback(result, request);
             if (!result.codeSuccess()) {
@@ -1883,6 +1890,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         return result;
+    }
+
+    private boolean checkBoxIfEmpty(String boxCode) {
+        Box box =boxService.findBoxByCode(boxCode);
+        if (ObjectHelper.isNotNull(box) && ObjectHelper.isNotNull(box.getCreateSiteCode())){
+            int count =sortingService.findBoxPack(box.getCreateSiteCode(),boxCode);
+            if (count >0){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
