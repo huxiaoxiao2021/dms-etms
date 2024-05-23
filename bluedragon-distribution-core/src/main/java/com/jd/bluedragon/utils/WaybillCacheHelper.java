@@ -303,4 +303,39 @@ public class WaybillCacheHelper {
         }
         return Boolean.FALSE;
     }
+
+
+    /**
+     * 快递改址非一单到底场景
+     * 判断运单是否为改址转寄运单
+     * @param waybill 运单对象
+     * @return 如果是改址转寄运单则返回true，否则返回false
+     */
+    public static Boolean isAddressForwardingNotJustOneOrder(WaybillCache waybill) {
+        if (waybill == null || waybill.getWaybillSign() == null) {
+            return Boolean.FALSE;
+        }
+        // 1-必须是快递单子
+        if (!BusinessUtil.isCInternet(waybill.getWaybillSign())) {
+            return Boolean.FALSE;
+        }
+        // 2-必须是纯配外单
+        if (!BusinessUtil.isPurematch(waybill.getWaybillSign())) {
+            return Boolean.FALSE;
+        }
+        // 3-必须是B2C
+        if (!BusinessUtil.isB2CWaybill(waybill.getWaybillSign())) {
+            return Boolean.FALSE;
+        }
+        // 4-必须是个性化运单
+        if (!BusinessUtil.isPersonalizedWaybill(waybill.getWaybillSign())) {
+            return Boolean.FALSE;
+        }
+        // 5-必须是改址转寄运单
+        if (!BusinessUtil.isAddressForwardingWaybill(waybill.getWaybillSign())) {
+            return Boolean.FALSE;
+        }
+        return true;
+    }
+
 }
