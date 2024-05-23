@@ -4798,6 +4798,16 @@ public class UccPropertyConfiguration{
 
     private String imageClarityThreshold;
 
+    private boolean checkBoxIfEmptySwitch;
+
+    public boolean getCheckBoxIfEmptySwitch() {
+        return checkBoxIfEmptySwitch;
+    }
+
+    public void setCheckBoxIfEmptySwitch(boolean checkBoxIfEmptySwitch) {
+        this.checkBoxIfEmptySwitch = checkBoxIfEmptySwitch;
+    }
+
     public String getImageClarityThreshold() {
         return imageClarityThreshold;
     }
