@@ -94,7 +94,7 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         uploadWaybillWeightInfo(entity);
 
         // 记录称重操作流水
-        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.SORT_WEIGHT_VOLUME_WAYBILL);
+        jyOperateFlowService.sendWeightVolumeOperateFlowData(entity, OperateBizSubTypeEnum.WAYBILL_WEIGHT_VOLUME);
         
         // 记录自己内部称重流水表
         recordOwnWeightTable(entity);

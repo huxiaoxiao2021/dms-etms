@@ -131,8 +131,8 @@ public class UccPropertyConfiguration{
     private String sealVolumeCheckSites;
 
     /*
-    * 分拣验证切换到web试用站点
-    * */
+     * 分拣验证切换到web试用站点
+     * */
     private String switchVerToWebSites;
 
 
@@ -275,8 +275,8 @@ public class UccPropertyConfiguration{
     private String deliverHideSites;
 
     /*
-    * 现场预分拣是否校验开关
-    * */
+     * 现场预分拣是否校验开关
+     * */
     private boolean preSortOnSiteSwitchOn;
 
     /**
@@ -1084,7 +1084,7 @@ public class UccPropertyConfiguration{
     }
 
     public List<String> getNeedInterceptUrlList() {
-    	return Lists.newArrayList(needInterceptUrlList);
+        return Lists.newArrayList(needInterceptUrlList);
     }
 
     public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
@@ -2176,6 +2176,39 @@ public class UccPropertyConfiguration{
      */
     private Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
 
+    /**
+     * rest接口限流配置，功能开关
+     */
+    private Boolean restRateLimiterSwitch;
+    /**
+     * rest接口限流配置，限流租户
+     */
+    private String restRateLimiterTenant;
+    /**
+     * rest接口限流配置内容
+     */
+    private String restRateLimiterBody;
+    /**
+     * rest接口限流配置，白名单
+     */
+    private String restRateLimiterWhiteList;
+    /**
+     * rest接口限流配置，IP黑名单，永久禁止访问
+     */
+    private String restRateLimiterBlackIpList;
+    /**
+     * rest接口限流配置，ERP黑名单，永久禁止访问
+     */
+    private String restRateLimiterBlackErpList;
+    /**
+     * rest接口限流配置，功能降级全局提示语
+     */
+    private String restRateLimiterFallbackGlobalTip;
+    /**
+     * rest接口限流配置，按URI配置的降级提示语
+     */
+    private String restRateLimiterFallbackTips;
+
     public boolean getCzQuerySwitch() {
         return czQuerySwitch;
     }
@@ -2589,13 +2622,13 @@ public class UccPropertyConfiguration{
         this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
     }
 
-	public String getRedisSwitchOn() {
-		return redisSwitchOn;
-	}
+    public String getRedisSwitchOn() {
+        return redisSwitchOn;
+    }
 
-	public void setRedisSwitchOn(String redisSwitchOn) {
-		this.redisSwitchOn = redisSwitchOn;
-	}
+    public void setRedisSwitchOn(String redisSwitchOn) {
+        this.redisSwitchOn = redisSwitchOn;
+    }
 
     public String getRemoveEmptyBatchCode() {
         return removeEmptyBatchCode;
@@ -2694,14 +2727,14 @@ public class UccPropertyConfiguration{
     }
 
     public Integer getUsePdaSorterApi() {
-		return usePdaSorterApi;
-	}
+        return usePdaSorterApi;
+    }
 
-	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
-		this.usePdaSorterApi = usePdaSorterApi;
-	}
+    public void setUsePdaSorterApi(Integer usePdaSorterApi) {
+        this.usePdaSorterApi = usePdaSorterApi;
+    }
 
-	public String getAllBCBoxFilterWebSite() {
+    public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
 
@@ -3278,13 +3311,13 @@ public class UccPropertyConfiguration{
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
-	public int getNotSignedOutRecordRangeHours() {
-		return notSignedOutRecordRangeHours;
-	}
+    public int getNotSignedOutRecordRangeHours() {
+        return notSignedOutRecordRangeHours;
+    }
 
-	public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
-		this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
-	}
+    public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
+        this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
+    }
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }
@@ -3385,19 +3418,19 @@ public class UccPropertyConfiguration{
     }
 
     public boolean isNeedUseNewReverseApi() {
-		return needUseNewReverseApi;
-	}
+        return needUseNewReverseApi;
+    }
 
-	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
-		this.needUseNewReverseApi = needUseNewReverseApi;
-	}
+    public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+        this.needUseNewReverseApi = needUseNewReverseApi;
+    }
 
     public String getDpSiteCodes() {
         return dpSiteCodes;
     }
 
     public void setDpSiteCodes(String dpSiteCodes) {
-    	this.dpSiteCodes=dpSiteCodes;
+        this.dpSiteCodes=dpSiteCodes;
         if(StringUtils.isBlank(dpSiteCodes)){
             return;
         }
@@ -3491,10 +3524,10 @@ public class UccPropertyConfiguration{
     }
 
     public boolean needValidateMainLine(Integer bizCode) {
-    	if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
-    		return needValidateMainLineBizSourceCodes.contains(bizCode);
-    	}
-    	return false;
+        if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
+            return needValidateMainLineBizSourceCodes.contains(bizCode);
+        }
+        return false;
     }
     public Boolean getSensitiveInfoHideSwitch() {
         return sensitiveInfoHideSwitch;
@@ -4132,13 +4165,13 @@ public class UccPropertyConfiguration{
         return false;
     }
 
-	public boolean isUploadOverWeightSwitch() {
-		return uploadOverWeightSwitch;
-	}
+    public boolean isUploadOverWeightSwitch() {
+        return uploadOverWeightSwitch;
+    }
 
-	public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
-		this.uploadOverWeightSwitch = uploadOverWeightSwitch;
-	}
+    public void setUploadOverWeightSwitch(boolean uploadOverWeightSwitch) {
+        this.uploadOverWeightSwitch = uploadOverWeightSwitch;
+    }
 
     public String getExceptionSubmitCheckSites() {
         return exceptionSubmitCheckSites;
@@ -4272,104 +4305,104 @@ public class UccPropertyConfiguration{
         this.vehicleIntegralPriorityFraction = vehicleIntegralPriorityFraction;
     }
 
-	public boolean iseNetSyncWaybillCodeAndBoxCode() {
-		return eNetSyncWaybillCodeAndBoxCode;
-	}
+    public boolean iseNetSyncWaybillCodeAndBoxCode() {
+        return eNetSyncWaybillCodeAndBoxCode;
+    }
 
-	public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
-		this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
-	}
+    public void seteNetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+        this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+    }
 
-	public List<Integer> getNeedValidateMainLineBizSourceCodes() {
-		return needValidateMainLineBizSourceCodes;
-	}
+    public List<Integer> getNeedValidateMainLineBizSourceCodes() {
+        return needValidateMainLineBizSourceCodes;
+    }
 
-	public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
-		this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
-	}
+    public void setNeedValidateMainLineBizSourceCodes(List<Integer> needValidateMainLineBizSourceCodes) {
+        this.needValidateMainLineBizSourceCodes = needValidateMainLineBizSourceCodes;
+    }
 
-	public List<Integer> getNotValidateTransTypeCodes() {
-		return notValidateTransTypeCodes;
-	}
+    public List<Integer> getNotValidateTransTypeCodes() {
+        return notValidateTransTypeCodes;
+    }
 
-	public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
-		this.notValidateTransTypeCodes = notValidateTransTypeCodes;
-	}
+    public void setNotValidateTransTypeCodes(List<Integer> notValidateTransTypeCodes) {
+        this.notValidateTransTypeCodes = notValidateTransTypeCodes;
+    }
 
-	public List<String> get_multiplePackageSpotCheckSitesList() {
-		return _multiplePackageSpotCheckSitesList;
-	}
+    public List<String> get_multiplePackageSpotCheckSitesList() {
+        return _multiplePackageSpotCheckSitesList;
+    }
 
-	public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
-		this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
-	}
+    public void set_multiplePackageSpotCheckSitesList(List<String> _multiplePackageSpotCheckSitesList) {
+        this._multiplePackageSpotCheckSitesList = _multiplePackageSpotCheckSitesList;
+    }
 
-	public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
-		return hideSpecialStartSitePrintReplaceSymbolMaxLength;
-	}
+    public int getHideSpecialStartSitePrintReplaceSymbolMaxLength() {
+        return hideSpecialStartSitePrintReplaceSymbolMaxLength;
+    }
 
-	public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
-		this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
-	}
+    public void setJySendTaskLoadRateUpperLimit(Integer jySendTaskLoadRateUpperLimit) {
+        this.jySendTaskLoadRateUpperLimit = jySendTaskLoadRateUpperLimit;
+    }
 
-	public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
-		this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
-	}
+    public void setJySendTaskLoadRateLowerLimit(Integer jySendTaskLoadRateLowerLimit) {
+        this.jySendTaskLoadRateLowerLimit = jySendTaskLoadRateLowerLimit;
+    }
 
-	public void setHideSpecialStartSitPrintDestinationSiteStrList(
-			List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
-		this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
-	}
+    public void setHideSpecialStartSitPrintDestinationSiteStrList(
+            List<String> hideSpecialStartSitPrintDestinationSiteStrList) {
+        this.hideSpecialStartSitPrintDestinationSiteStrList = hideSpecialStartSitPrintDestinationSiteStrList;
+    }
 
-	public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
-		this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
-	}
+    public void setVirtualBoardCanUseSiteList(List<String> virtualBoardCanUseSiteList) {
+        this.virtualBoardCanUseSiteList = virtualBoardCanUseSiteList;
+    }
 
-	public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
+    public AutoCloseJyBizTaskConfig getAutoCloseJyBizTaskConfigObj() {
         AutoCloseJyBizTaskConfig config = new AutoCloseJyBizTaskConfig();
         BeanUtils.copyProperties(autoCloseJyBizTaskConfigObj, config);
         return config;
-	}
+    }
 
-	public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
-		this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
-	}
+    public void setAutoCloseJyBizTaskConfigObj(AutoCloseJyBizTaskConfig autoCloseJyBizTaskConfigObj) {
+        this.autoCloseJyBizTaskConfigObj = autoCloseJyBizTaskConfigObj;
+    }
 
-	public List<String> getExceptionSubmitCheckSiteList() {
-		return exceptionSubmitCheckSiteList;
-	}
+    public List<String> getExceptionSubmitCheckSiteList() {
+        return exceptionSubmitCheckSiteList;
+    }
 
-	public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
-		this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
-	}
+    public void setExceptionSubmitCheckSiteList(List<String> exceptionSubmitCheckSiteList) {
+        this.exceptionSubmitCheckSiteList = exceptionSubmitCheckSiteList;
+    }
 
-	public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
-		return exceptionSubmitCheckWaybillInterceptTypeList;
-	}
+    public List<String> getExceptionSubmitCheckWaybillInterceptTypeList() {
+        return exceptionSubmitCheckWaybillInterceptTypeList;
+    }
 
-	public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
-		this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
-	}
+    public void setExceptionSubmitCheckWaybillInterceptTypeList(List<String> exceptionSubmitCheckWaybillInterceptTypeList) {
+        this.exceptionSubmitCheckWaybillInterceptTypeList = exceptionSubmitCheckWaybillInterceptTypeList;
+    }
 
-	public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
-		this.dpSpringSiteCodeList = dpSpringSiteCodeList;
-	}
+    public void setDpSpringSiteCodeList(List<Integer> dpSpringSiteCodeList) {
+        this.dpSpringSiteCodeList = dpSpringSiteCodeList;
+    }
 
-	public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
-		this.dewuCustomerCodeList = dewuCustomerCodeList;
-	}
+    public void setDewuCustomerCodeList(List<String> dewuCustomerCodeList) {
+        this.dewuCustomerCodeList = dewuCustomerCodeList;
+    }
 
-	public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
-		this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
-	}
+    public void setTeAnSiteWhitelistStrList(List<String> teAnSiteWhitelistStrList) {
+        this.teAnSiteWhitelistStrList = teAnSiteWhitelistStrList;
+    }
 
-	public List<String> getIdentityRecogniseSiteSwitchList() {
-		return identityRecogniseSiteSwitchList;
-	}
+    public List<String> getIdentityRecogniseSiteSwitchList() {
+        return identityRecogniseSiteSwitchList;
+    }
 
-	public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
-		this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
-	}
+    public void setIdentityRecogniseSiteSwitchList(List<String> identityRecogniseSiteSwitchList) {
+        this.identityRecogniseSiteSwitchList = identityRecogniseSiteSwitchList;
+    }
 
     public Integer getCttGroupDataLimit() {
         return cttGroupDataLimit;
@@ -4424,21 +4457,21 @@ public class UccPropertyConfiguration{
         this.reverseExchangeCount = reverseExchangeCount;
     }
 
-	public Boolean getSendJyOperateFlowMqSwitch() {
-		return sendJyOperateFlowMqSwitch;
-	}
+    public Boolean getSendJyOperateFlowMqSwitch() {
+        return sendJyOperateFlowMqSwitch;
+    }
 
-	public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
-		this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
-	}
+    public void setSendJyOperateFlowMqSwitch(Boolean sendJyOperateFlowMqSwitch) {
+        this.sendJyOperateFlowMqSwitch = sendJyOperateFlowMqSwitch;
+    }
 
-	public boolean isbTemplateRouterExecuteNew() {
-		return bTemplateRouterExecuteNew;
-	}
+    public boolean isbTemplateRouterExecuteNew() {
+        return bTemplateRouterExecuteNew;
+    }
 
-	public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
-		this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
-	}
+    public void setbTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+        this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
+    }
 
     public String getJyCollectPackageTaskQueryTimeLimit() {
         return jyCollectPackageTaskQueryTimeLimit;
@@ -4928,5 +4961,80 @@ public class UccPropertyConfiguration{
 
     public void setCollectPackageTaskStatisticsUseIndependentInterfaceSwitch(Boolean collectPackageTaskStatisticsUseIndependentInterfaceSwitch) {
         this.collectPackageTaskStatisticsUseIndependentInterfaceSwitch = collectPackageTaskStatisticsUseIndependentInterfaceSwitch;
+    }
+
+    /** 装笼全局开关 **/
+    private boolean cageSwitch;
+
+    public boolean isCageSwitch() {
+        return cageSwitch;
+    }
+
+    public void setCageSwitch(boolean cageSwitch) {
+        this.cageSwitch = cageSwitch;
+    }
+
+    public Boolean getRestRateLimiterSwitch() {
+        return restRateLimiterSwitch;
+    }
+
+    public void setRestRateLimiterSwitch(Boolean restRateLimiterSwitch) {
+        this.restRateLimiterSwitch = restRateLimiterSwitch;
+    }
+
+    public String getRestRateLimiterTenant() {
+        return restRateLimiterTenant;
+    }
+
+    public void setRestRateLimiterTenant(String restRateLimiterTenant) {
+        this.restRateLimiterTenant = restRateLimiterTenant;
+    }
+
+    public String getRestRateLimiterBody() {
+        return restRateLimiterBody;
+    }
+
+    public void setRestRateLimiterBody(String restRateLimiterBody) {
+        this.restRateLimiterBody = restRateLimiterBody;
+    }
+
+    public String getRestRateLimiterWhiteList() {
+        return restRateLimiterWhiteList;
+    }
+
+    public void setRestRateLimiterWhiteList(String restRateLimiterWhiteList) {
+        this.restRateLimiterWhiteList = restRateLimiterWhiteList;
+    }
+
+    public String getRestRateLimiterBlackIpList() {
+        return restRateLimiterBlackIpList;
+    }
+
+    public void setRestRateLimiterBlackIpList(String restRateLimiterBlackIpList) {
+        this.restRateLimiterBlackIpList = restRateLimiterBlackIpList;
+    }
+
+    public String getRestRateLimiterBlackErpList() {
+        return restRateLimiterBlackErpList;
+    }
+
+    public void setRestRateLimiterBlackErpList(String restRateLimiterBlackErpList) {
+        this.restRateLimiterBlackErpList = restRateLimiterBlackErpList;
+    }
+
+    public String getRestRateLimiterFallbackGlobalTip() {
+        return restRateLimiterFallbackGlobalTip;
+    }
+
+    public void setRestRateLimiterFallbackGlobalTip(String restRateLimiterFallbackGlobalTip) {
+        this.restRateLimiterFallbackGlobalTip = restRateLimiterFallbackGlobalTip;
+    }
+
+    public String getRestRateLimiterFallbackTips() {
+        return restRateLimiterFallbackTips;
+    }
+
+    public void setRestRateLimiterFallbackTips(String restRateLimiterFallbackTips) {
+        this.restRateLimiterFallbackTips = restRateLimiterFallbackTips;
     }
 }

@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckRequest;
+import com.jd.bluedragon.common.domain.AddressForwardWaybillCheckResult;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -39,6 +42,9 @@ public class ForceChangeWaybillSignFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         // 提示 WaybillDistributeTypeChangeFilter 存在拦截消息的改址拦截 这里只处理标位的 ForceChangeWaybillSignFilter 中处理强制改址拦截 ChangeWaybillSignFilter 中处理弱拦截
+
+        // 由于非一单到底场景的单子，中台不会发送拦截MQ，所以此处新增校验非一单到底改址转寄场景，并且此场景优先，其次再执行原有的逻辑
+        checkAddressForwarding(request);
 
         // 改址拦截（现阶段存在快递改址和快运改址）
         // todo 202404改址一单到底需求改动，原理解快递改址【featureType=6】，实际是快递配运方式变化， 原快运改址消息【featureType=9】，实际快递、快运是同一个消息，不再对快运单独区分
@@ -98,4 +104,55 @@ public class ForceChangeWaybillSignFilter implements Filter {
         //endregion
         chain.doFilter(request, chain);
     }
+
+
+    /**
+     * 校验非一单到底改址转寄场景
+     * @param request 上下文
+     * @throws Exception 异常
+     * @throws SortingCheckException 分拣校验异常
+     */
+    private void checkAddressForwarding(FilterContext request) throws Exception {
+        // 构建校验参数
+        AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = createAddressForwardWaybillCheckRequest(request);
+        // 调用校验接口
+        AddressForwardWaybillCheckResult result = waybillService.isAddressForwardingWaybill(addressForwardWaybillCheckRequest);
+        if (result == null) {
+            return;
+        }
+        // 此单为改址拦截单，请操作换单打印
+        if (result.isExchangePrintFlag()) {
+            throw new SortingCheckException(SortingResponse.CODE_29333,
+                    HintService.getHintWithFuncModule(HintCodeConstants.CHANGE_ADDRESS_CHANGE_WAYBILL_INTERCEPT, request.getFuncModule()));
+        }
+        // 订单信息变更,请补打包裹标签
+        if (result.isRePrintFlag()) {
+            throw new SortingCheckException(SortingResponse.CODE_29333,
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE_FORCE, request.getFuncModule()));
+        }
+    }
+
+    /**
+     * 创建地址转寄运单校验请求
+     * @param request 过滤上下文对象
+     * @return 返回地址转寄运单校验请求对象
+     * @throws NullPointerException 如果请求中的运单缓存为null
+     */
+    private AddressForwardWaybillCheckRequest createAddressForwardWaybillCheckRequest(FilterContext request) {
+        WaybillCache waybillCache = request.getWaybillCache();
+        // 构建校验参数
+        AddressForwardWaybillCheckRequest addressForwardWaybillCheckRequest = new AddressForwardWaybillCheckRequest();
+        // 运单号
+        addressForwardWaybillCheckRequest.setWaybillCode(waybillCache.getWaybillCode());
+        // 运单标位
+        addressForwardWaybillCheckRequest.setWaybillSign(waybillCache.getWaybillSign());
+        // 百川标识
+        if (waybillCache.getWaybillExtVO() != null) {
+            addressForwardWaybillCheckRequest.setOmcOrderCode(waybillCache.getWaybillExtVO().getOmcOrderCode());
+        }
+        // 运单增值服务列表
+        addressForwardWaybillCheckRequest.setWaybillVasDtos(request.getWaybillVasDtos());
+        return addressForwardWaybillCheckRequest;
+    }
+
 }

@@ -639,6 +639,7 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
             return false;
         }
         List<DangerousGoodsRecordDTO> recordDTOS = baseMinorManager.queryByTraderCodeAndGoodsId(traderCode, Long.valueOf(cargoType));
+        logger.info("单号{}获取到商家违禁品上报白名单，结果 {}", req.getBarCode(), JsonHelper.toJson(recordDTOS));
         return !CollectionUtils.isEmpty(recordDTOS);
     }
 
@@ -652,23 +653,30 @@ public class JyContrabandExceptionServiceImpl implements JyContrabandExceptionSe
         try {
             // 根据箱号匹配违禁品
             SortingDto sortingDto = sortingService.getLastSortingInfoByPackageCode(req.getBarCode());
-            if (sortingDto != null) {
+            if (sortingDto != null && BusinessUtil.isBoxcode(sortingDto.getBoxCode())) {
                 List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(sortingDto.getBoxCode());
-                if (!CollectionUtils.isEmpty(recordDtos)) {
+                boolean res = CollectionUtils.isEmpty(recordDtos);
+                logger.info("航空运力上报违禁品箱号匹配 req {} 0-未匹配 1-匹配 ---  {}", sortingDto.getBoxCode(), !res);
+                if (!res) {
                     return;
                 }
             }
-            // 根据运单号匹配违禁品
-            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(WaybillUtil.getWaybillCode(req.getBarCode()));
-            if (!CollectionUtils.isEmpty(waybillRecordDtos)) {
-                return;
-            }
-
             // 根据包裹号匹配违禁品
             List<EcpAbnormalScanOrderRecordDto> recordDtos = ecpQueryWSManager.selectByScanOrderNumber(req.getBarCode());
-            if (CollectionUtils.isEmpty(recordDtos)) {
-                response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
+            boolean res = CollectionUtils.isEmpty(recordDtos);
+            logger.info("航空运力上报违禁品包裹号匹配 req {}, 0-未匹配 1-匹配 ---  {}", req.getBarCode(), !res);
+            if (!res) {
+                return;
             }
+            // 根据运单号匹配违禁品
+            String waybillCode = WaybillUtil.getWaybillCode(req.getBarCode());
+            List<EcpAbnormalScanOrderRecordDto> waybillRecordDtos = ecpQueryWSManager.selectByScanOrderNumber(waybillCode);
+            boolean waybillRes = CollectionUtils.isEmpty(waybillRecordDtos);
+            logger.info("航空运力上报违禁品运单号匹配 req {}, 0-未匹配 1-匹配 --- {}", waybillCode, !waybillRes);
+            if (!waybillRes) {
+                return;
+            }
+            response.toFail("此单为白名单客户，已和机场备案，请直接放行!");
         }catch (Exception e) {
             logger.error("运力接口故障{}",JsonHelper.toJson(req), e);
             response.toFail("运力接口故障，请稍后上报!");

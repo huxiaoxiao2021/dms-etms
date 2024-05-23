@@ -76,6 +76,7 @@
 		<vd-service-sdk.version>1.4.5-SNAPSHOT</vd-service-sdk.version>
 		<tenant-jsf-filter-sdk.version>1.0.2-SORTING-RELEASE</tenant-jsf-filter-sdk.version>
 		<lbcc.rule.api.version>1.0.16</lbcc.rule.api.version>
+		<spring-data-redis.version>2.7.18</spring-data-redis.version>
     </properties>
 
 	<dependencies>
@@ -484,6 +485,11 @@
 				<groupId>com.jd.lbcc.rule</groupId>
 				<artifactId>lbcc-rule-api</artifactId>
 				<version>${lbcc.rule.api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-redis</artifactId>
+				<version>${spring-data-redis.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

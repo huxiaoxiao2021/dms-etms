@@ -560,19 +560,19 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         if (log.isInfoEnabled()) {
             log.info("jyOpenInspectionProcess:task={}", JsonHelper.toJsonMs(task));
         }
-//        CallerInfo inspectionMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenInspectionProcess",
-//                Constants.UMP_APP_NAME_DMSWORKER);
-//        try {
-//            // task对象转换为业务对象
-//            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
-//            // 调用验货处理类
-//            InvokeResult<Boolean> result = jyOpenCargoOperate.inspection(jyCargoOperateEntity);
-//            if (result != null) {
-//                return result.codeSuccess();
-//            }
-//        } finally {
-//            Profiler.registerInfoEnd(inspectionMonitor);
-//        }
+       CallerInfo inspectionMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenInspectionProcess",
+               Constants.UMP_APP_NAME_DMSWORKER);
+       try {
+           // task对象转换为业务对象
+           JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+           // 调用验货处理类
+           InvokeResult<Boolean> result = jyOpenCargoOperate.inspection(jyCargoOperateEntity);
+           if (result != null) {
+               return result.codeSuccess();
+           }
+       } finally {
+           Profiler.registerInfoEnd(inspectionMonitor);
+       }
         return true;
     }
 
@@ -586,19 +586,19 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         if (log.isInfoEnabled()) {
             log.info("jyOpenSortingProcess:task={}", JsonHelper.toJsonMs(task));
         }
-//        CallerInfo sortingMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSortingProcess",
-//                Constants.UMP_APP_NAME_DMSWORKER);
-//        try {
-//            // task对象转换为业务对象
-//            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
-//            // 调用分拣处理类
-//            InvokeResult<Boolean> result = jyOpenCargoOperate.sorting(jyCargoOperateEntity);
-//            if (result != null) {
-//                return result.codeSuccess();
-//            }
-//        } finally {
-//            Profiler.registerInfoEnd(sortingMonitor);
-//        }
+       CallerInfo sortingMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSortingProcess",
+               Constants.UMP_APP_NAME_DMSWORKER);
+       try {
+           // task对象转换为业务对象
+           JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+           // 调用分拣处理类
+           InvokeResult<Boolean> result = jyOpenCargoOperate.sorting(jyCargoOperateEntity);
+           if (result != null) {
+               return result.codeSuccess();
+           }
+       } finally {
+           Profiler.registerInfoEnd(sortingMonitor);
+       }
         return true;
     }
 
@@ -612,20 +612,20 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         if (log.isInfoEnabled()) {
             log.info("jyOpenSendProcess:task={}", JsonHelper.toJsonMs(task));
         }
-//        CallerInfo sendMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendProcess",
-//                Constants.UMP_APP_NAME_DMSWORKER);
-//        try {
-//            // task对象转换为业务对象
-//            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
-//            // 调用发货处理类
-//            InvokeResult<Boolean> result = jyOpenCargoOperate.send(jyCargoOperateEntity);
-//            // 1002-拣运开放平台分拣
-//            if (result != null) {
-//                return result.codeSuccess();
-//            }
-//        } finally {
-//            Profiler.registerInfoEnd(sendMonitor);
-//        }
+       CallerInfo sendMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendProcess",
+               Constants.UMP_APP_NAME_DMSWORKER);
+       try {
+           // task对象转换为业务对象
+           JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+           // 调用发货处理类
+           InvokeResult<Boolean> result = jyOpenCargoOperate.send(jyCargoOperateEntity);
+           // 1002-拣运开放平台分拣
+           if (result != null) {
+               return result.codeSuccess();
+           }
+       } finally {
+           Profiler.registerInfoEnd(sendMonitor);
+       }
         return true;
     }
 
@@ -639,19 +639,19 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         if (log.isInfoEnabled()) {
             log.info("jyOpenSendVehicleFinishProcess:task={}", JsonHelper.toJsonMs(task));
         }
-//        CallerInfo sendVehicleFinishMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendVehicleFinishProcess",
-//                Constants.UMP_APP_NAME_DMSWORKER);
-//        try {
-//            // task对象转换为业务对象
-//            JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
-//            // 调用发货完成处理类
-//            InvokeResult<Boolean> result = jyOpenCargoOperate.sendVehicleFinish(jyCargoOperateEntity);
-//            if (result != null) {
-//                return result.codeSuccess();
-//            }
-//        } finally {
-//            Profiler.registerInfoEnd(sendVehicleFinishMonitor);
-//        }
+       CallerInfo sendVehicleFinishMonitor = ProfilerHelper.registerInfo("AsynBufferServiceImpl.jyOpenSendVehicleFinishProcess",
+               Constants.UMP_APP_NAME_DMSWORKER);
+       try {
+           // task对象转换为业务对象
+           JYCargoOperateEntity jyCargoOperateEntity = JsonHelper.fromJson(task.getBody(), JYCargoOperateEntity.class);
+           // 调用发货完成处理类
+           InvokeResult<Boolean> result = jyOpenCargoOperate.sendVehicleFinish(jyCargoOperateEntity);
+           if (result != null) {
+               return result.codeSuccess();
+           }
+       } finally {
+           Profiler.registerInfoEnd(sendVehicleFinishMonitor);
+       }
         return true;
     }
 

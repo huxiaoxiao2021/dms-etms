@@ -1125,4 +1125,10 @@
     <bean id="driverViolationReportingQualityProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.driverViolationReportingQuality}"/>
     </bean>
+    <!-- 自动化装笼 -->
+    <bean id="autoCageProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.autoCage}" />
+        <property name="timeout" value="3000" />
+    </bean>
+
 </beans>

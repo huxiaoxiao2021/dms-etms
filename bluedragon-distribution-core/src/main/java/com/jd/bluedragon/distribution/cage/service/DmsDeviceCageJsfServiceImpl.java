@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.cage.service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.OperatorData;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService;
@@ -48,7 +48,6 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
     public InvokeResult<CollectPackageResp> cage(CollectPackageReq req) {
 
         //校验
-
         InvokeResult<CollectPackageResp> response = new InvokeResult<CollectPackageResp>();
         com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq request = new com.jd.bluedragon.common.dto.collectpackage.request.CollectPackageReq();
         request.setBarCode(req.getBarCode());
@@ -60,6 +59,9 @@ public class DmsDeviceCageJsfServiceImpl implements DmsDeviceCageJsfService {
             currentOperate.setSiteName(site.getName());
         }
         currentOperate.setOperateTime(req.getOperateTime());
+        if (req.getOperatorData()!=null){
+            currentOperate.setOperatorData(JsonHelper.fromJson(JsonHelper.toJson(req.getOperatorData()), OperatorData.class));
+        }
         request.setCurrentOperate(currentOperate);
         User user = new User();
         if (StringUtils.isNotEmpty(req.getUserErp())){

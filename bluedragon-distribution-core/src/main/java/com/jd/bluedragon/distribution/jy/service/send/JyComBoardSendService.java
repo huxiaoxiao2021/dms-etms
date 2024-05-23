@@ -98,7 +98,7 @@ public interface JyComBoardSendService {
   InvokeResult<ComboardScanResp> sortMachineComboard(ComboardScanReq request);
 
 
-  /**
+    /**
    * 查询流向下组板统计信息列表-支撑下钻2
    */
   InvokeResult<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(BoardStatisticsReq request);
@@ -201,4 +201,23 @@ public interface JyComBoardSendService {
    * @param outContainerFlag
    */
   void execComboardOnce(ComboardScanReq request, JyBizTaskComboardEntity entity, Date now , boolean outContainerFlag);
+
+
+  /**
+   * 执行组板
+   * @param request
+   */
+   void execComboard(ComboardScanReq request);
+
+  /**
+   * 执行发货
+   * @param request
+   */
+  void execSend(ComboardScanReq request);
+
+  /**
+   * 执行集包/笼
+   * @param request
+   */
+  void execCollect(ComboardScanReq request);
 }

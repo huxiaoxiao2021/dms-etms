@@ -32,6 +32,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntityQu
 import com.jd.bluedragon.distribution.jy.constants.JyMixScanTaskCompleteEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyFuncCodeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.jy.service.comboard.impl.JyGroupSortCrossDetailCacheService;
@@ -142,7 +143,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
-        for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getWarehouseSendEnum()) {
+        for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.getJySendVehicleEnum()) {
             SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
             optionList.add(option);
         }
@@ -1121,6 +1122,7 @@ public class JyWarehouseSendGatewayServiceImpl implements JyWarehouseSendGateway
             if (CollectionUtils.isEmpty(sealVehicleReq.getSealCodes()) && CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
                 sealVehicleReq.setSealCodes(sealVehicleReq.getScannedSealCodes());
             }
+            sealVehicleReq.setBizType(OperateBizSubTypeEnum.WAREHOUSE_SEAL.getCode());
             return retJdCResponse(jySealVehicleService.czSealVehicle(sealVehicleReq));
         }catch (JyBizException e) {
             log.info("接货仓发货岗封车失败：{}",JsonHelper.toJson(sealVehicleReq),e);

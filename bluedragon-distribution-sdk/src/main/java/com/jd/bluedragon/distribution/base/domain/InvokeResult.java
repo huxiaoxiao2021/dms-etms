@@ -356,6 +356,13 @@ public class InvokeResult<T> implements Serializable {
     public static final Integer WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_CODE = 3079;
     public static final String WAYBILL_JF_WAYBILL_WEIGHT_INTERCEPT_MESSAGE = "此单为寄付单据，无法进行复重操作！";
 
+
+    public static final Integer COMBOARD_NEED_DELIVER_BY_CAGE_CODE = 3081;
+    public static final String COMBOARD_NEED_DELIVER_BY_CAGE_MESSAGE = "该流向需要按笼下传，请扫描笼车对应箱号和物资编码！";
+
+
+    public static final Integer COMBOARD_NEED_DELIVER_BY_CAGE_PARAMS_INVALID_CODE = 3082;
+
     // 揽收提示编码
     public static final int COLLECT_FAIL_CODE = 350;
     public static final int COLLECT_SUC_CODE = 351;

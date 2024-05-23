@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.board.domain;
 
+import com.jd.bluedragon.distribution.api.domain.OperatorData;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +30,24 @@ public class CheckBoardStatusDto implements Serializable {
 
     private String barcode;
 
+    private Integer bizSource;
+    private OperatorData operatorData;
+
+    public OperatorData getOperatorData() {
+        return operatorData;
+    }
+
+    public void setOperatorData(OperatorData operatorData) {
+        this.operatorData = operatorData;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
+    }
 
     public Integer getSiteCode() {
         return siteCode;

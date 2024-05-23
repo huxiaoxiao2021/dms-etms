@@ -95,16 +95,7 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
             if (StringUtils.isEmpty(barCode)) {
                 continue;
             }
-            sendM.setBoxCode(barCode);
-            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-            if (response == null) {
-                log.error("取消发货失败：{}",barCode);
-                return;
-            }
-            if (!response.getCode().equals(SUCCESS_CODE)){
-                log.error("取消发货失败：{},{}",barCode,response.getMessage());
-                return;
-            }
+
             if (WaybillUtil.isWaybillCode(barCode)) {
                 // 异步取消组板
                 asyncSendComboardWaybillTrace(dto,barCode);
@@ -115,6 +106,17 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                         dto.getBizSource().getValue());
                 checkIfNeedCancelInnerBox(barCode,dto,operatorInfo);
+            }
+
+            sendM.setBoxCode(barCode);
+            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+            if (response == null) {
+                log.error("取消发货失败：{}",barCode);
+                return;
+            }
+            if (!response.getCode().equals(SUCCESS_CODE)){
+                log.error("取消发货失败：{},{}",barCode,response.getMessage());
+                return;
             }
         }
     }

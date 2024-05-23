@@ -133,4 +133,18 @@ public interface JyCollectPackageService {
      * @param response
      */
     void execCancelCollectBox(CancelCollectPackageReq request, CancelCollectPackageResp response);
+
+    /**
+     * 执行集包
+     * @param request
+     * @param response
+     */
+    void execCollectPackage(CollectPackageReq request, CollectPackageResp response);
+
+    /**
+     * 执行集箱
+     * @param request
+     * @param response
+     */
+    void execCollectBox(CollectPackageReq request, CollectPackageResp response);
 }

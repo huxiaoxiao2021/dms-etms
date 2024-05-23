@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.ArReceiveRequest;
+import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
@@ -97,6 +98,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		arReceive.setShuttleBusType(arReceiveRequest.getShuttleBusType());
 		arReceive.setShuttleBusNum(arReceiveRequest.getShuttleBusNum());
 		arReceive.setRemark(arReceiveRequest.getRemark());
+		arReceive.setOperatorData(arReceiveRequest.getOperatorData());
 		return arReceive;
 	}
 	/**
@@ -192,5 +194,14 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		}
 		sendTrack(taskContext,cenConfirm);
 		return cenConfirmList;
+	}
+
+    /**
+     * 记录操作流水
+     * @param taskContext 任务上下文
+     */
+	@Override
+	public void handleOperateFlow(TaskContext<ArReceive> taskContext) {
+		jyOperateFlowService.sendArReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.AR_RECEIVE);
 	}
 }

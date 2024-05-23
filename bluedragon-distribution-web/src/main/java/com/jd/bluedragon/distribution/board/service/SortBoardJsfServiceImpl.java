@@ -16,14 +16,19 @@ import com.jd.bluedragon.common.dto.comboard.response.ComboardScanResp;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.OperatorData;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
+import com.jd.bluedragon.distribution.autoCage.domain.AutoCageMq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.cage.DmsDeviceCageJsfService;
+import com.jd.bluedragon.distribution.cage.request.CollectPackageReq;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.enums.OperateBizSubTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.common.JyOperateFlowService;
+import com.jd.bluedragon.distribution.jy.service.send.JyBizTaskComboardService;
 import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
@@ -96,9 +101,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private JyComBoardSendService jyComBoardSendService;
-    
+    @Autowired
+    private DmsDeviceCageJsfService dmsDeviceCageJsfService;
     @Autowired
     private JyOperateFlowService jyOperateFlowService;
+    @Autowired
+    JyBizTaskComboardService jyBizTaskComboardService;
+
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.combinationBoardNew", mState = JProEnum.TP)
@@ -663,10 +672,64 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             return boardSendDtos;
         }
         List<String>  boardCodes = request.getBoardCodes();
+        if (request.getBizSource()!=null&&request.getBizSource().intValue() == BizSourceEnum.SORTING_MACHINE_AUTO_CAGE.getValue()){
+            boardSendDtos = dealWithComboardTask(request, boardCodes);
+        }else{
+            boardSendDtos = dealWithSendM(request, boardCodes);
+        }
+        return boardSendDtos;
+
+    }
+
+    private List<BoardSendDto> dealWithComboardTask(CheckBoardStatusDto request, List<String> boardCodes) {
+        List<BoardSendDto>  boardSendDtos = new ArrayList<>();
         boolean hasReplenish = false;
         for(String boardCode : boardCodes){
             BoardSendDto dto = new BoardSendDto();
             dto.setBoardCode(boardCode);
+            //补装笼
+            JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(request.getSiteCode(), boardCode);
+            if (entity == null){
+                dto.setBoardSendEnum(BoardSendEnum.NOT_SEND.toString());
+                boardSendDtos.add(dto);
+                continue;
+            }
+            //装笼时间
+            Date sendTime = entity.getCreateTime();
+            dto.setSendTime(sendTime);
+            //操作时间
+            Date operateTime = request.getOperateTime();
+            long compareResult = sendTime.getTime() - operateTime.getTime();
+            //装笼时间晚于 操作时间 补装笼
+            if(compareResult >= 0){
+                //只需补一次装笼
+                if(!hasReplenish){
+                    hasReplenish = true;
+                    //补装笼
+                    dmsDeviceCageJsfService.cage(createCollectPackageReq(request,entity));
+                    log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之前，包裹补发货", request.getBarcode(),
+                            DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2),boardCode,
+                            DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+                }
+                dto.setBoardSendEnum(BoardSendEnum.SEND_AFTER_SORTING.toString());
+            }else {
+                log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之后不再组板", request.getBarcode(),
+                        DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), boardCode,
+                        DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+                dto.setBoardSendEnum(BoardSendEnum.SEND_BEFORE_SORTING.toString());
+            }
+            boardSendDtos.add(dto);
+        }
+        return boardSendDtos;
+    }
+
+    private List<BoardSendDto> dealWithSendM(CheckBoardStatusDto request, List<String> boardCodes) {
+        List<BoardSendDto>  boardSendDtos = new ArrayList<>();
+        boolean hasReplenish = false;
+        for(String boardCode : boardCodes){
+            BoardSendDto dto = new BoardSendDto();
+            dto.setBoardCode(boardCode);
+
             SendM sendM = sendMService.selectSendByBoardCode(request.getSiteCode(),
                     boardCode, 1);
             if(sendM == null){
@@ -701,15 +764,21 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             }
             boardSendDtos.add(dto);
         }
-
-
-
-
         return boardSendDtos;
-
     }
 
-
+    private static CollectPackageReq createCollectPackageReq(CheckBoardStatusDto dto,JyBizTaskComboardEntity entity) {
+        CollectPackageReq req = new CollectPackageReq();
+        req.setBoxCode(entity.getBoxCode());
+        req.setBarCode(dto.getBarcode());
+        req.setSiteCode(Long.valueOf(dto.getSiteCode()));
+        req.setUserErp(entity.getCreateUserErp());
+        req.setUserName(entity.getCreateUserName());
+        req.setOperateTime(dto.getOperateTime());
+        OperatorData operatorData = dto.getOperatorData();
+        req.setOperatorData(operatorData);
+        return req;
+    }
     /**
      * 请求拼装SendM发货对象
      * @param request

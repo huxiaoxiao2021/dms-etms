@@ -33,7 +33,12 @@ public enum WaybillVasEnum {
     /**
      * 个人信息安全脱敏
      */
-    WAYBILL_VAS_SPECIAL_PERSONAL_INFO_SEC("personalInfoSec", "个人信息安全脱敏")
+    WAYBILL_VAS_SPECIAL_PERSONAL_INFO_SEC("personalInfoSec", "个人信息安全脱敏"),
+
+    /**
+     * 改址转寄
+     */
+    WAYBILL_VAS_ADDRESS_FORWARDING("ed-a-0031", "改址转寄"),
 
     ;
 

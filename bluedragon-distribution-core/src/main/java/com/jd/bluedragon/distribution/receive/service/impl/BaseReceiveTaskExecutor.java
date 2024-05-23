@@ -145,7 +145,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	private DefaultJMQProducer miniStoreSortProcessProducer;
 
 	@Autowired
-	private JyOperateFlowService jyOperateFlowService;
+	protected JyOperateFlowService jyOperateFlowService;
 
 	/**
 	 * 收货
@@ -187,11 +187,12 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		return true;
 	}
 
-	private void handleOperateFlow(TaskContext<T> taskContext) {
-		// 目前只记录1110类型收货
-		if (Task.TASK_TYPE_RECEIVE.equals(taskContext.getTask().getType())) {
-			jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.RECEIVE);
-		}
+    /**
+     * 记录操作流水
+     * @param taskContext 任务上下文
+     */
+	public void handleOperateFlow(TaskContext<T> taskContext) {
+		jyOperateFlowService.sendReceiveOperateFlowData(taskContext.getBody(), OperateBizSubTypeEnum.RECEIVE);
 	}
 
 	private void pushMiniStoreProcessDataMQ(TaskContext<T> context) {
