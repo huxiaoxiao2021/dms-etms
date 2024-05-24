@@ -859,5 +859,9 @@
     <jmq:consumer id="jmq.boxMaterialRelationConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.boxMaterialRelation}" listener="boxMaterialRelationConsumer"/>
     </jmq:consumer>
+    <!--  人闸考勤数据-topic自动签退  -->
+    <jmq:consumer id="jmq.attendDetailChangeGateTopicConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.attendDetailChangeGateTopic}" listener="attendDetailChangeGateTopicConsumer"/>
+    </jmq:consumer>
 </beans>
 
