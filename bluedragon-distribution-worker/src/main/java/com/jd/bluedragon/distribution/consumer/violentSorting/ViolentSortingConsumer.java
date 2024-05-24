@@ -148,6 +148,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                 }
             }
             Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+            Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
             // 根据网格查出设备编码
             /*List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
