@@ -232,7 +232,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         pins.add(d.getOwnerUserErp());
         // 监控区人员
         List<String> monitorRoomPerson = findMonitorRoomPerson(d);
-        if (!monitorRoomPerson.isEmpty()) {
+        if (!CollectionUtils.isEmpty(monitorRoomPerson)) {
             pins.addAll(monitorRoomPerson);
         }
         //第三次或更多次事件时,网格负责人的上级
