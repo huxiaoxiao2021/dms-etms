@@ -261,11 +261,13 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         if (!result.isSuccess() || CollectionUtils.isEmpty(result.getData().getResult())) {
             return null;
         }
+        logger.info("findMonitorRoomPerson.grid:{}", JsonHelper.toJson(result));
         UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
         List<WorkStationGrid> grids = result.getData().getResult();
         userSignRecordQuery.setRefGridKeyList(grids.stream().map(g -> g.getBusinessKey()).collect(Collectors.toList()));
         userSignRecordQuery.setYesterdayStart(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -1));
         List<BaseUserSignRecordVo> baseUserSignRecordVos = userSignRecordService.queryMonitorRoomPerson(userSignRecordQuery);
+        logger.info("findMonitorRoomPerson.user:{}", JsonHelper.toJson(baseUserSignRecordVos));
         return baseUserSignRecordVos.stream().map(v -> v.getUserCode()).collect(Collectors.toList());
     }
 }
