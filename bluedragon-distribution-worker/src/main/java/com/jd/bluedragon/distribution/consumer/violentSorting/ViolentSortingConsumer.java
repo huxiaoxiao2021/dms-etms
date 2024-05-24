@@ -148,6 +148,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                 }
             }
             Result<WorkGrid> workGridResult = workGridManager.queryByWorkGridKey(gridBusinessKey);
+            Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
             // 根据网格查出设备编码
             /*List<DeviceGridDto> data = deviceConfigInfoJsfService.findDeviceGridByBusinessKey(gridBusinessKey, null);
 
@@ -196,8 +197,6 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
             // 若事件为该网格当日（0点到23点59分59秒）第三次或更多次事件时，消息额外推送给场地负责人「网格长的上级」。
             // 消息标题：违规操作预警，内容：XX分拣XXX网格违规操作已触发亮灯，当日累积触发X次安灯系统，请核查原因与责任人，推动改善！视频链接：xxxxxx
             Long l = notifyViolentSortingGridOwnerOrLerder(violentSortingDto);
-
-
             // 亮灯
             andonEventService.lightOn(AndonEventSourceEnum.VIOLENT_SORTING,
                     String.valueOf(violentSortingDto.getId()),
@@ -232,7 +231,7 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         pins.add(d.getOwnerUserErp());
         // 监控区人员
         List<String> monitorRoomPerson = findMonitorRoomPerson(d);
-        if (!monitorRoomPerson.isEmpty()) {
+        if (!CollectionUtils.isEmpty(monitorRoomPerson)) {
             pins.addAll(monitorRoomPerson);
         }
         //第三次或更多次事件时,网格负责人的上级
@@ -242,7 +241,8 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
                 pins.add(superiorErp);
             }
         }
-        mspClientProxy.sendTimeline("违规操作预警", content, d.getUrl(), pins, false);
+        pins.add("chenlingfeng10");
+        mspClientProxy.sendTimeline("[测试请忽略]违规操作预警", content, d.getUrl(), pins, false);
         return incr;
     }
 
@@ -262,11 +262,13 @@ public class ViolentSortingConsumer extends MessageBaseConsumer implements Initi
         if (!result.isSuccess() || CollectionUtils.isEmpty(result.getData().getResult())) {
             return null;
         }
+        logger.info("findMonitorRoomPerson.grid:{}", JsonHelper.toJson(result));
         UserSignRecordQuery userSignRecordQuery = new UserSignRecordQuery();
         List<WorkStationGrid> grids = result.getData().getResult();
         userSignRecordQuery.setRefGridKeyList(grids.stream().map(g -> g.getBusinessKey()).collect(Collectors.toList()));
         userSignRecordQuery.setYesterdayStart(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -1));
         List<BaseUserSignRecordVo> baseUserSignRecordVos = userSignRecordService.queryMonitorRoomPerson(userSignRecordQuery);
+        logger.info("findMonitorRoomPerson.user:{}", JsonHelper.toJson(baseUserSignRecordVos));
         return baseUserSignRecordVos.stream().map(v -> v.getUserCode()).collect(Collectors.toList());
     }
 }
