@@ -198,9 +198,10 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
         //added by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
         else {
-//            log.warn("运单号{}需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档",waybillCode);
+            log.warn("运单号{}需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档",waybillCode);
             // modified by wuzuxiang  2022-02-21 快递快运都需要进行包装耗材服务确认，只看包装耗材任务，不看标位
-            return false;
+            // 2024年05月24日18:40:33 因不存在数据修改成也需求确认
+            return true;
         }
         //edited by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
         //return true;
